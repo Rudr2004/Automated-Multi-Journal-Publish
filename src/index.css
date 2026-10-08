@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply font-sans text-ink antialiased; }
+  :focus-visible { outline: 2px solid #1F4E9C; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+}
+
+/* Print only the certificate (Print / Save as PDF in the certificate dialog). */
+@media print {
+  @page { size: landscape; margin: 12mm; }
+  body * { visibility: hidden !important; }
+  #certificate-print, #certificate-print * { visibility: visible !important; }
+  #certificate-print { position: fixed; inset: 0; margin: auto; width: 100%; max-width: 1000px; height: fit-content; box-shadow: none; }
+}
+
+/* Journal 2 (Emerald Scholar): body font and teal focus ring. Scoped by the data-journal attribute set in main.tsx, so Journal 1 is unaffected. */
+@layer base {
+  html[data-journal="j2"] body { font-family: "IBM Plex Sans Variable", "IBM Plex Sans", system-ui, sans-serif; color: #1F2937; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j2"] :focus-visible { outline: 2px solid #0F766E; outline-offset: 2px; }
+}
+
+/* Journal 3 (Editorial Magazine): body font and violet focus ring. Scoped by the data-journal attribute, so Journals 1 and 2 are unaffected. */
+@layer base {
+  html[data-journal="j3"] body { font-family: "Inter Variable", Inter, system-ui, sans-serif; color: #3A3350; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j3"] :focus-visible { outline: 2px solid #4B2E9B; outline-offset: 2px; }
+}
+
+/* Journal 3 article page: while the article's compact bar is showing, the site's sticky navigation steps aside so two bars are never stacked. */
+html[data-journal="j3"] [data-j3-nav] { transition: transform 0.2s ease, visibility 0.2s; }
+html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: translateY(-100%); visibility: hidden; }
