@@ -35,3 +35,9 @@
 /* Journal 3 article page: while the article's compact bar is showing, the site's sticky navigation steps aside so two bars are never stacked. */
 html[data-journal="j3"] [data-j3-nav] { transition: transform 0.2s ease, visibility 0.2s; }
 html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: translateY(-100%); visibility: hidden; }
+
+/* Journal 4 (Scholarly Precision): body font and sky-blue focus ring. Scoped by the data-journal attribute, so the other journals are unaffected. */
+@layer base {
+  html[data-journal="j4"] body { font-family: "Work Sans Variable", "Work Sans", system-ui, sans-serif; color: #475569; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j4"] :focus-visible { outline: 2px solid #0284C7; outline-offset: 2px; }
+}

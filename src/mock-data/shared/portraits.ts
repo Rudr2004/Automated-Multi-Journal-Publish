@@ -37,6 +37,21 @@ const PORTRAIT: Record<string, ['men' | 'women', number]> = {
   'Farid Benali': ['men', 46], 'Aarav Khanna': ['men', 47], 'Tomas Kovac': ['men', 49], 'Kabir Malhotra': ['men', 50],
   'Julian Ashford': ['men', 51], 'Pedro Carvalho': ['men', 52], 'Sandeep Iyengar': ['men', 54], 'Gautam Chakravarty': ['men', 55],
   'Stefan Moller': ['men', 56], 'Ravindra Joshi': ['men', 35], 'Mohan Pillai': ['men', 38], 'Alejandro Ruiz': ['men', 27],
+  // Journal 4 (IJECM) people
+  'Anjali Kulkarni': ['women', 0], 'Deepa Narayanan': ['women', 51], 'Keiko Matsuda': ['women', 52],
+  'Sofia Andersson': ['women', 53], 'Ingrid Vogel': ['women', 54], 'Priyam Bose': ['women', 56],
+  'Fiona McAllister': ['women', 57], 'Shalini Mathur': ['women', 58], 'Amira Hassan': ['women', 60],
+  'Kavitha Subramanian': ['women', 61], 'Neha Agarwal': ['women', 62], 'Elisa Romano': ['women', 64],
+  'Swati Choudhury': ['women', 65], 'Ngozi Adebayo': ['women', 66], 'Marta Kowalska': ['women', 67],
+  'Divya Prakash': ['women', 69], 'Sakura Ito': ['women', 70], 'Rekha Bhattacharjee': ['women', 72],
+  'Leena Thomas': ['women', 73], 'Anika Schmidt': ['women', 74],
+  'Venkatesh Subramaniam': ['men', 0], 'Henrik Johansson': ['men', 8], 'Michael Thornton': ['men', 12],
+  'Rajiv Chaudhary': ['men', 17], 'Carlos Mendoza': ['men', 21], 'Tariq Mahmood': ['men', 57],
+  'Naveen Reddy': ['men', 58], 'Kwabena Asante': ['men', 59], 'Pavel Novotny': ['men', 60],
+  'Ashwin Krishnamurthy': ['men', 61], 'Rohit Bansal': ['men', 63], 'Dmitri Volkov': ['men', 64],
+  'Samir Khanna': ['men', 65], 'Tobias Hartmann': ['men', 66], 'Lucas Ferreira': ['men', 68],
+  'Naresh Gowda': ['men', 69], 'Ibrahim Yusuf': ['men', 70], 'Pradeep Menon': ['men', 71],
+  'Jun-ho Park': ['men', 72], 'Arnav Saxena': ['men', 73],
 }
 
 /** Portrait URL for a person's name (titles like "Dr." or "Prof." are ignored). Undefined when unknown. */
