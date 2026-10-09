@@ -22,7 +22,13 @@ const home: HomeData = {
     { date: '2026-09-22', text: 'Two new Associate Editors join the board for engineering and life sciences.' },
     { date: '2026-09-10', text: 'The author certificate now carries a QR code that anyone can scan to verify it.' },
   ],
-  recentSubmissions: [],
+  recentSubmissions: [
+    { minutes: 24, subject: 'Computer & Data Science', institution: 'IIT Madras', title: 'Lightweight Anomaly Detection for Sensor Networks' },
+    { minutes: 95, subject: 'Engineering & Technology', institution: 'TU Munich', title: 'Fatigue Behaviour of Additively Manufactured Steel Joints' },
+    { minutes: 210, subject: 'Environment & Sustainability', institution: 'University of Cape Town', title: 'Rooftop Solar Potential in Dense Urban Districts' },
+    { minutes: 340, subject: 'Life & Health Sciences', institution: 'NUS Singapore', title: 'Gut Microbiome Markers of Early-Stage Metabolic Risk' },
+    { minutes: 1560, subject: 'Business & Economics', institution: 'University of Warwick', title: 'Supplier Resilience After Port Disruptions' },
+  ],
   submissionPool: [],
   awards: [
     { kind: 'Best Paper Award', period: 'September 2026', title: 'Vibration-Based Structural Health Monitoring of Reinforced Concrete Bridges Using Low-Cost MEMS Sensors', recipient: 'Aditi Banerjee and Lukas Weber', reason: 'Selected for practical relevance, low-cost instrumentation and a clearly reported method.' },

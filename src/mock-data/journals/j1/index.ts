@@ -27,11 +27,11 @@ const home: J1HomeData = {
     { date: '2026-09-18', text: 'August 2026 Best Paper and Best Research Mentor awards finalised by the Senior Editorial Committee.' },
   ],
   recentSubmissions: [
-    { minutes: 18, subject: 'Computer Science', institution: 'IIT Madras' },
-    { minutes: 64, subject: 'Materials Science', institution: 'Stanford University' },
-    { minutes: 185, subject: 'Energy Systems', institution: 'NIT Tiruchirappalli' },
-    { minutes: 301, subject: 'Environmental Science', institution: 'TU Delft' },
-    { minutes: 425, subject: 'Public Health', institution: 'NUS Singapore' },
+    { minutes: 18, subject: 'Computer Science', institution: 'IIT Madras', title: 'Federated Learning in Edge IoT Devices' },
+    { minutes: 64, subject: 'Materials Science', institution: 'Stanford University', title: 'Grain-Boundary Engineering of Lightweight Magnesium Alloys' },
+    { minutes: 185, subject: 'Energy Systems', institution: 'NIT Tiruchirappalli', title: 'Decentralised Microgrid Consensus Under Latency' },
+    { minutes: 301, subject: 'Environmental Science', institution: 'TU Delft', title: 'Microplastic Transport in Estuarine Sediments' },
+    { minutes: 425, subject: 'Public Health', institution: 'NUS Singapore', title: 'Community Screening Programmes for Hypertension in Urban Clinics' },
   ],
   submissionPool: [
     { subject: 'Biotechnology', institution: 'University of Cambridge' }, { subject: 'Computer Science', institution: 'IIIT Hyderabad' },

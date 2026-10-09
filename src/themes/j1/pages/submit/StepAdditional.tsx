@@ -20,13 +20,10 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => onChange({ ...form, [k]: v })
   return (
     <div className="space-y-5">
-      <div className="grid gap-5">
-        <div className="space-y-2 border border-line bg-paper p-4">
-          <div><h3 className="font-serif text-base font-semibold text-navy">Referral</h3><p className="text-xs text-ink-muted">Optional. Earn credits when a colleague refers you.</p></div>
-          <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens.">
-            <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
-          </Field>
-        </div>
+      <div className="sm:max-w-sm">
+        <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens. Earn credits when a colleague refers you.">
+          <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
+        </Field>
       </div>
       <Field label="Cover letter (optional)" name="coverLetter" error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
         <textarea rows={5} className={inputClass(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}

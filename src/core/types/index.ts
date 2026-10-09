@@ -41,7 +41,8 @@ export interface J1HomeData {
   /** The current issue and the two before it (for the cover stack). */
   recentIssues: IssueSummary[]
   notices: { date: string; text: string }[]
-  recentSubmissions: { minutes: number; subject: string; institution: string }[]
+  /** `title` is the working title of the new submission (shown in the Recent submissions card); `subject` is the discipline. */
+  recentSubmissions: { minutes: number; subject: string; institution: string; title?: string }[]
   /** Pool the live "Recent Submissions" feed draws new entries from. */
   submissionPool: { subject: string; institution: string }[]
   awards: { kind: string; period: string; title: string; recipient: string; reason: string }[]

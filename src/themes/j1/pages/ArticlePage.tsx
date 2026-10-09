@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import type { ArticleFull } from '../../../mock-data/journals/j1'
 import { BarFigure, CopyButton, DataTable, OrcidIcon } from '../components/ArticleParts'
 import { Avatar } from '../components/Avatar'
+import { ArticleQrCard } from '../components/ArticleQrCard'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { IndexedStrip } from '../components/IndexLogos'
 import { btnClass, Button } from '../components/Button'
@@ -266,6 +267,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <ShieldCheck className="h-5 w-5 shrink-0 text-oa" aria-hidden />Verify author certificate
               </AppLink>
             </section>
+
+            <ArticleQrCard paperId={article.paperId} />
 
             <section aria-labelledby="cite-title" className="border border-line bg-white p-4">
               <h2 id="cite-title" className={panelTitle}>Cite this paper</h2>

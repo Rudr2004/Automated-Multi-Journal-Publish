@@ -12,6 +12,7 @@ import { getScholarMeta } from '../../../core/lib/scholar'
 import { AppLink } from '../../../core/router'
 import type { ArticleFull } from '../../../core/types'
 import { ArticleCard } from '../components/ArticleCard'
+import { ArticleQrCard } from '../components/ArticleQrCard'
 import { DataTable, FigureBlock } from '../components/ArticleFigure'
 import { Button, buttonClass } from '../components/Button'
 import { CiteFlyout, citable } from '../components/CiteFlyout'
@@ -320,6 +321,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <Metric label="Citations" value={article.citations} tint icon={Quote} />
               </dl>
             </section>
+            <ArticleQrCard paperId={article.paperId} />
             <section aria-labelledby="facts-h" className={cx(card, 'p-5')}>
               <h2 id="facts-h" className={sideTitle}>About this article</h2>
               <dl className="mt-3 divide-y divide-graphite-200 text-sm">

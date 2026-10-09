@@ -5,17 +5,18 @@ import { useToast } from '../../components/Toast'
 import { Panel } from '../../components/primitives'
 import { TrackForm } from '../../components/TrackForm'
 import { AwardsCard } from '../../components/AwardsCard'
+import { RecentSubmissionsCard } from '../../components/RecentSubmissionsCard'
 import { journal } from '../../../../config/journals/j1'
 
 const CHECKLIST = ['Manuscript in Word format (.doc / .docx)', 'Title, abstract and 3–8 keywords', 'All authors’ names and affiliations', 'Figures and tables inside the file', 'References with DOIs where available']
 const inr = new Intl.NumberFormat('en-IN')
 
-/** Sticky help column on the submission page. */
-export function HelpPanel({ children }: { children?: ReactNode }) {
+/** Left column of the submission page: progress, formatting guidelines, APC summary and the support desk (4 cards). */
+export function HelpLeft({ children }: { children?: ReactNode }) {
   const toast = useToast()
   const wa = `https://wa.me/${journal.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hello, I would like to submit a manuscript to ' + journal.name)}`
   return (
-    <aside aria-label="Submission help" className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+    <>
       {children}
       <Panel title="Author guidelines & formatting">
         <ul className="space-y-2 text-sm">{CHECKLIST.map((c) => <li key={c} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-oa" aria-hidden />{c}</li>)}</ul>
@@ -42,8 +43,17 @@ export function HelpPanel({ children }: { children?: ReactNode }) {
         <p className="mt-3 flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-scholar" aria-hidden /><a href={`mailto:${journal.email}`} className="text-scholar hover:underline">{journal.email}</a></p>
         <p className="mt-1.5 flex items-center gap-2 text-sm"><MessageCircle className="h-4 w-4 text-scholar" aria-hidden />{journal.whatsapp}</p>
       </Panel>
-      <Panel title="Track existing submission"><TrackForm idPrefix="submit-trk" submitLabel="Check review status" /></Panel>
+    </>
+  )
+}
+
+/** Right column of the submission page: the live Recent submissions feed, the achievements (awards) card and the track form (3 cards). */
+export function HelpRight() {
+  return (
+    <>
+      <RecentSubmissionsCard />
       <AwardsCard />
-    </aside>
+      <Panel title="Track existing submission"><TrackForm idPrefix="submit-trk" submitLabel="Check review status" /></Panel>
+    </>
   )
 }

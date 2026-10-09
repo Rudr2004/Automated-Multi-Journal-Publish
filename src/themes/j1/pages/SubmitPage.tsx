@@ -1,4 +1,4 @@
-import { BellRing, CloudCheck, Fingerprint, History, UserX } from '../components/uiIcons'
+import { BellRing, CloudCheck, History, UserX } from '../components/uiIcons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../components/Button'
 import { CrumbBar } from '../components/CrumbBar'
@@ -11,7 +11,8 @@ import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../.
 import { STEPS, firstInvalidStep, initialForm, validateStep, type StepIndex, type SubmissionForm } from '../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../core/lib/useVisibleErrors'
 import { formatDate } from '../../../core/lib/format'
-import { HelpPanel } from './submit/HelpPanel'
+import { HelpLeft, HelpRight } from './submit/HelpPanel'
+import { StickyRail } from '../components/StickyRail'
 import { ProgressCard } from './submit/ProgressCard'
 import { StepAdditional } from './submit/StepAdditional'
 import { StepAuthors } from './submit/StepAuthors'
@@ -22,8 +23,8 @@ import { SubmitSuccess } from './submit/SubmitSuccess'
 
 const REASSURANCE = [
   { icon: UserX, text: 'No account needed' },
-  { icon: BellRing, text: 'Paper ID sent instantly on email, SMS and WhatsApp' },
-  { icon: Fingerprint, text: 'Track anytime' },
+  { icon: BellRing, text: 'Paper ID sent instantly on email, SMS and WhatsApp' }
+  // { icon: Fingerprint, text: 'Track anytime' },
 ]
 
 const MIN_PROCESSING_MS = 2600
@@ -127,8 +128,10 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           {REASSURANCE.map(({ icon: Icon, text }) => <li key={text} className="inline-flex items-center gap-2"><Icon className="h-4 w-4 text-scholar" aria-hidden />{text}</li>)}
         </ul>
 
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <div ref={top} className="min-w-0 scroll-mt-24 space-y-6">
+        {/* Three columns from xl: guidance on the left (4 cards), the form in the middle, live feed / achievements / tracking on the right (3 cards).
+            Below xl the form comes first, then the right cards beside it from lg, and the left cards underneath. */}
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[290px_minmax(0,1fr)_320px]">
+          <div ref={top} className="order-1 min-w-0 scroll-mt-24 space-y-6 lg:col-start-1 lg:row-start-1 xl:col-start-2">
             {pendingDraft && (
               <div role="region" aria-label="Saved draft" className="flex flex-wrap items-center justify-between gap-3 border border-[#C4D9EE] bg-scholar-soft p-4">
                 <p className="flex items-center gap-2 text-sm"><History className="h-5 w-5 text-scholar" aria-hidden />
@@ -166,7 +169,10 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
               </div>
             </form>
           </div>
-          <HelpPanel><ProgressCard form={form} current={step} savedAt={savedAt} /></HelpPanel>
+          <StickyRail as="aside" label="Submission status and tracking" minWidth={1280} className="order-2 space-y-4 lg:col-start-2 lg:row-start-1 xl:col-start-3"><HelpRight /></StickyRail>
+          <StickyRail as="aside" label="Submission guidance" minWidth={1280} className="order-3 grid gap-4 md:grid-cols-2 lg:col-span-2 lg:row-start-2 xl:col-span-1 xl:col-start-1 xl:row-start-1 xl:block xl:space-y-4">
+            <HelpLeft><ProgressCard form={form} current={step} savedAt={savedAt} /></HelpLeft>
+          </StickyRail>
         </div>
       </Container>
 

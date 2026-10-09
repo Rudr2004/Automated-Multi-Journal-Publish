@@ -11,6 +11,7 @@ import { AppLink } from '../../../core/router'
 import * as I from '../icons'
 import { CloudDone } from '../components/pageIcons'
 import { Container } from '../components/primitives'
+import { RecentSubmissionsCard } from '../components/RecentSubmissionsCard'
 import { WithAwardsRail } from '../components/WithAwardsRail'
 import { useToast } from '../components/Toast'
 import { AutosaveNote, Checklist, Stepper, type ChecklistItem } from './submit/Checklist'
@@ -154,7 +155,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
       </header>
 
       <Container className="!max-w-[1440px] pb-16 pt-6">
-<WithAwardsRail>
+<WithAwardsRail before={<RecentSubmissionsCard />}>
         {pendingDraft && (
           <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-panel border border-accent-200 bg-accent-50 p-4">
             <p className="flex items-start gap-2 text-sm text-graphite-800">

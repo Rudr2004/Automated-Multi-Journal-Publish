@@ -3,11 +3,12 @@
 import type { ReactNode } from 'react'
 import { AwardsCard } from './AwardsCard'
 
-export function WithAwardsRail({ children }: { children: ReactNode }) {
+/** `before` is an optional card shown above the awards card at the top of the right column. */
+export function WithAwardsRail({ children, before }: { children: ReactNode; before?: ReactNode }) {
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
       <div className="min-w-0">{children}</div>
-      <aside aria-label="Recognition" className="min-w-0 xl:sticky xl:top-24"><AwardsCard /></aside>
+      <aside aria-label="Recognition" className="min-w-0 space-y-5 xl:sticky xl:top-24">{before}<AwardsCard /></aside>
     </div>
   )
 }
