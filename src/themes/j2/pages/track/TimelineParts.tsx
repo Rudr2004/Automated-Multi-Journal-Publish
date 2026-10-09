@@ -98,7 +98,7 @@ export function StagePanel({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   const t = TONES[info.tone]
   return (
-    <section aria-labelledby="stage-now-h" className={cx('rounded-panel border p-5', t.box)}>
+    <section aria-labelledby="stage-now-h" className={cx('rounded-sheet border p-5', t.box)}>
       <p className={cx('flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider', t.icon)}><t.Icon className="h-4 w-4" aria-hidden="true" />{t.label}</p>
       <h3 id="stage-now-h" className="mt-1 font-display text-lg font-bold text-graphite-800">{info.title}</h3>
       <p className="mt-1 text-sm leading-relaxed text-graphite-700">{info.text}</p>

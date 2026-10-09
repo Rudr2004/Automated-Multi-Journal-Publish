@@ -15,7 +15,7 @@ export function StageTimeline({ currentIndex, dates }: { currentIndex: number; d
               <span aria-hidden className={`absolute left-[15px] top-8 h-[calc(100%-2rem)] w-0.5 lg:left-1/2 lg:top-[15px] lg:h-0.5 lg:w-full ${done ? 'bg-oa' : 'bg-line'}`} />
             )}
             <span className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
-              done ? 'border-oa bg-oa text-white' : current ? 'border-navy bg-navy text-white ring-4 ring-navy-100' : 'border-line bg-white text-ink-muted'}`}>
+              done ? 'border-oa bg-oa text-white' : current ? 'border-navy bg-navy text-white ring-4 ring-scholar-soft' : 'border-line bg-white text-ink-muted'}`}>
               {done ? <Check className="h-4 w-4" aria-hidden /> : i + 1}
             </span>
             <span className="min-w-0">

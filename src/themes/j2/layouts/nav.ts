@@ -3,7 +3,9 @@ import { policyLinks } from '../../../config/navigation'
 import { paths } from '../../../config/routes'
 
 export interface NavLinkItem { label: string; to: string; note?: string }
-export interface NavMenu { id: 'authors' | 'about'; label: string; groups: { title: string; links: NavLinkItem[] }[] }
+export interface NavMenu { id: 'authors' | 'policies' | 'about'; label: string; groups: { title: string; links: NavLinkItem[] }[] }
+
+export const homeLink: NavLinkItem = { label: 'Home', to: paths.home }
 
 export const primaryLinks: NavLinkItem[] = [
   { label: 'Current Issue', to: paths.currentIssue },
@@ -11,6 +13,7 @@ export const primaryLinks: NavLinkItem[] = [
 ]
 
 export const editorialLink: NavLinkItem = { label: 'Editorial Board', to: paths.editorialBoard }
+export const apcLink: NavLinkItem = { label: 'APC & Payment', to: paths.forAuthors('apc-payment') }
 
 const feature = ['publication-ethics', 'peer-review', 'open-access', 'copyright-licensing', 'plagiarism', 'ai-policy']
 
@@ -32,6 +35,15 @@ export const menus: NavMenu[] = [
     ],
   },
   {
+    id: 'policies', label: 'Policies',
+    groups: [
+      { title: 'Core policies', links: [
+        ...feature.map((s) => policyLinks.find((p) => p.slug === s)!).map((p) => ({ label: p.label, to: p.to })),
+        { label: 'All policies', to: paths.policy('publication-ethics') },
+      ] },
+    ],
+  },
+  {
     id: 'about', label: 'About',
     groups: [
       { title: 'The journal', links: [
@@ -39,10 +51,6 @@ export const menus: NavMenu[] = [
         { label: 'Journal Information', to: paths.about('journal-information') },
         { label: 'Indexing', to: paths.about('indexing') },
         { label: 'Contact', to: paths.about('contact') },
-      ] },
-      { title: 'Policies', links: [
-        ...feature.map((s) => policyLinks.find((p) => p.slug === s)!).map((p) => ({ label: p.label, to: p.to })),
-        { label: 'All policies', to: paths.policy('publication-ethics') },
       ] },
     ],
   },

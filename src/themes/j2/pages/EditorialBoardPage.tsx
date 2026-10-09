@@ -1,9 +1,8 @@
 // Journal 2 editorial board: filters, profile grid and a right slide-in profile drawer.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
-import { paths } from '../../../config/routes'
-import { AppLink } from '../../../core/router'
 import { EDITOR_ROLES, type EditorProfile, type EditorRole } from '../../../core/types'
+import { PageHeader, PillTag } from '../components/PageHeader'
 import { cx, Container, EmptyState, Tag } from '../components/primitives'
 import * as I from '../icons'
 
@@ -105,6 +104,28 @@ function ProfileDrawer({ editor, onClose }: { editor: EditorProfile; onClose: ()
   )
 }
 
+const LEADERS: EditorRole[] = ['Editor-in-Chief', 'Managing Editor']
+
+function LeaderCard({ e, onOpen }: { e: EditorProfile; onOpen: () => void }) {
+  return (
+    <button type="button" onClick={onOpen} aria-haspopup="dialog" aria-label={`View profile of ${e.name}`}
+      className={cx('flex h-full w-full flex-col rounded-sheet border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-white p-5 text-left shadow-card transition-shadow hover:border-accent-700 hover:shadow-soft sm:p-6', focusRing)}>
+      <span className="flex items-center gap-4">
+        <Portrait editor={e} size="lg" />
+        <span className="min-w-0">
+          <span className="inline-block rounded-full bg-brand-800 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">{e.role}</span>
+          <span className="mt-2 block font-display text-xl font-bold leading-snug text-graphite-900">{e.name}</span>
+        </span>
+      </span>
+      <span className="mt-4 block text-sm font-semibold text-graphite-800">{e.designation}</span>
+      <span className="block text-sm text-graphite-600">{e.institution}, {e.country}</span>
+      <span className="mt-3 block text-sm leading-relaxed text-graphite-700">{e.shortBio}</span>
+      <span className="mt-3 flex flex-wrap gap-1.5">{e.areas.map((a) => <Tag key={a} tone="brand">{a}</Tag>)}</span>
+      <span className="mt-auto flex items-center gap-1 pt-4 text-sm font-semibold text-accent-700">View full profile<I.ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+    </button>
+  )
+}
+
 export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
   const [role, setRole] = useState<EditorRole | 'All'>('All')
   const [country, setCountry] = useState('')
@@ -119,84 +140,99 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
   const count = (r: EditorRole | 'All') => (r === 'All' ? editors.length : editors.filter((e) => e.role === r).length)
   const chips: (EditorRole | 'All')[] = ['All', ...EDITOR_ROLES]
   const clear = () => { setRole('All'); setCountry(''); setQ('') }
+  const unfiltered = role === 'All' && !country && !needle
+  const leaders = unfiltered ? editors.filter((e) => LEADERS.includes(e.role)) : []
+  const directory = unfiltered && leaders.length ? editors.filter((e) => !LEADERS.includes(e.role)) : filtered
 
   return (
     <>
-      <header className="border-b border-graphite-200 bg-gradient-to-b from-brand-50 to-white">
-        <Container className="pb-8 pt-6 sm:pt-8">
-          <nav aria-label="Breadcrumb">
-            <ol className="flex items-center gap-1 text-sm text-graphite-600">
-              <li><AppLink to={paths.home} className={cx('rounded-chip hover:text-accent-700 hover:underline', focusRing)}>Home</AppLink></li>
-              <li aria-hidden="true"><I.ChevronRight className="h-4 w-4" /></li>
-              <li aria-current="page" className="font-medium text-graphite-800">Editorial Board</li>
-            </ol>
-          </nav>
-          <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-graphite-800 sm:text-4xl">Editorial Board</h1>
-          <p className="mt-3 max-w-3xl text-lg leading-relaxed text-graphite-600">
-            {journal.shortName} is guided by {editors.length} researchers from {countries.length} countries. They are chosen for subject expertise, declare conflicts of interest and keep peer review rigorous, fair and timely.
-          </p>
-        </Container>
-      </header>
+      <PageHeader crumbs={['Editorial Board']} tag={<PillTag icon={<I.Verified className="h-3.5 w-3.5" aria-hidden="true" />}>Peer-Reviewed Journal</PillTag>} title="Editorial Board"
+        text={`${journal.shortName} is guided by ${editors.length} researchers from ${countries.length} countries. They are chosen for subject expertise, declare conflicts of interest and keep peer review rigorous, fair and timely.`}
+        aside={(
+          <dl className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-panel border border-brand-200 bg-white px-5 py-3"><dt className="text-[11px] font-bold uppercase tracking-wider text-graphite-600">Members</dt><dd className="font-display text-2xl font-bold tabular-nums text-brand-800">{editors.length}</dd></div>
+            <div className="rounded-panel border border-brand-200 bg-white px-5 py-3"><dt className="text-[11px] font-bold uppercase tracking-wider text-graphite-600">Countries</dt><dd className="font-display text-2xl font-bold tabular-nums text-brand-800">{countries.length}</dd></div>
+          </dl>
+        )} />
 
-      <Container className="mt-6 pb-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div role="group" aria-label="Filter by role" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
-            {chips.map((r) => {
-              const on = role === r
-              return (
-                <button key={r} type="button" aria-pressed={on} onClick={() => setRole(r)}
-                  className={cx('shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors', focusRing,
-                    on ? 'border-accent-700 bg-accent-700 text-white' : 'border-graphite-300 bg-white text-graphite-700 hover:border-accent-700 hover:text-accent-700')}>
-                  {r} <span className={on ? 'text-white/85' : 'text-graphite-600'}>({count(r)})</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[30rem]">
-            <div>
-              <label htmlFor="j2-eb-search" className="sr-only">Search by name, area or institution</label>
-              <div className="relative">
-                <I.Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-graphite-500" aria-hidden="true" />
-                <input id="j2-eb-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, area or institution"
-                  className="block w-full rounded-soft border border-graphite-300 bg-white py-2.5 pl-10 pr-3 text-base text-graphite-800 placeholder:text-graphite-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-700" />
-              </div>
+      {leaders.length > 0 && (
+        <Container className="pt-8">
+          <h2 className="border-b-2 border-brand-800 pb-2 font-display text-lg font-bold uppercase tracking-wide text-brand-800">Editorial leadership</h2>
+          <ul className="mt-5 grid gap-5 md:grid-cols-2">
+            {leaders.map((e) => <li key={e.id}><LeaderCard e={e} onOpen={() => setSelected(e)} /></li>)}
+          </ul>
+        </Container>
+      )}
+
+      <Container className="pb-10 pt-8">
+        <h2 className="border-b-2 border-brand-800 pb-2 font-display text-lg font-bold uppercase tracking-wide text-brand-800">{unfiltered ? 'Board directory' : 'Directory'}</h2>
+        <div className="mt-5 rounded-panel border border-graphite-200 bg-white p-4 shadow-card">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div role="group" aria-label="Filter by role" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
+              {chips.map((r) => {
+                const on = role === r
+                return (
+                  <button key={r} type="button" aria-pressed={on} onClick={() => setRole(r)}
+                    className={cx('shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors', focusRing,
+                      on ? 'border-brand-800 bg-brand-800 text-white' : 'border-graphite-300 bg-white text-graphite-700 hover:border-accent-700 hover:text-accent-700')}>
+                    {r} <span className={cx('tabular-nums', on ? 'text-white/90' : 'text-graphite-600')}>({count(r)})</span>
+                  </button>
+                )
+              })}
             </div>
-            <div>
-              <label htmlFor="j2-eb-country" className="sr-only">Filter by country</label>
-              <select id="j2-eb-country" value={country} onChange={(e) => setCountry(e.target.value)}
-                className="block w-full rounded-soft border border-graphite-300 bg-white px-3 py-2.5 text-base text-graphite-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-700">
-                <option value="">All countries</option>{countries.map((c) => <option key={c}>{c}</option>)}
-              </select>
+            <div className="grid gap-3 sm:grid-cols-[3fr_2fr] lg:w-[36rem]">
+              <div>
+                <label htmlFor="j2-eb-search" className="sr-only">Search by name, area or institution</label>
+                <div className="relative">
+                  <I.Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-graphite-500" aria-hidden="true" />
+                  <input id="j2-eb-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, area, institution"
+                    className="block w-full rounded-soft border border-graphite-300 bg-white py-2.5 pl-10 pr-3 text-base text-graphite-800 placeholder:text-graphite-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-700" />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="j2-eb-country" className="sr-only">Filter by country</label>
+                <select id="j2-eb-country" value={country} onChange={(e) => setCountry(e.target.value)}
+                  className="block w-full rounded-soft border border-graphite-300 bg-white px-3 py-2.5 text-base text-graphite-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-700">
+                  <option value="">All countries</option>{countries.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
-        <p role="status" className="mt-4 text-sm text-graphite-600">Showing {filtered.length} of {editors.length} members</p>
+        <p role="status" className="mt-4 text-sm text-graphite-700">Showing <strong className="tabular-nums text-graphite-900">{filtered.length}</strong> of {editors.length} members</p>
 
-        <div className="mt-4">
+        <div className="mt-3">
           {filtered.length === 0
             ? <EmptyState title="No members match these filters" text="Try another role or country, or clear the search." action={<button type="button" onClick={clear} className={cx('rounded-soft border border-accent-700 px-4 py-2 text-sm font-semibold text-accent-700 hover:bg-accent-50', focusRing)}>Clear filters</button>} />
             : (
-              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((e) => (
-                  <li key={e.id}>
-                    <button type="button" onClick={() => setSelected(e)} aria-haspopup="dialog" aria-label={`View profile of ${e.name}`}
-                      className={cx('flex h-full w-full flex-col rounded-panel border border-graphite-200 bg-white p-5 text-left shadow-card transition-shadow hover:border-accent-700 hover:shadow-soft', focusRing)}>
-                      <span className="flex items-center gap-4">
-                        <Portrait editor={e} size="md" />
-                        <span className="min-w-0">
-                          <span className="block font-display text-lg font-semibold leading-snug text-graphite-800">{e.name}</span>
-                          <span className="mt-1 inline-block"><Tag tone={roleTone(e.role)}>{e.role}</Tag></span>
+              <div className="overflow-hidden rounded-panel border border-graphite-200 bg-white shadow-card">
+                <div aria-hidden="true" className="hidden grid-cols-[minmax(0,2.2fr)_minmax(0,2.4fr)_minmax(0,1.6fr)_7rem] gap-4 border-b border-graphite-200 bg-brand-50 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-brand-900 md:grid">
+                  <span>Member</span><span>Position and institution</span><span>Areas of expertise</span><span className="text-right">Profile</span>
+                </div>
+                <ul className="divide-y divide-graphite-100">
+                  {directory.map((e) => (
+                    <li key={e.id}>
+                      <button type="button" onClick={() => setSelected(e)} aria-haspopup="dialog" aria-label={`View profile of ${e.name}`}
+                        className={cx('grid w-full gap-3 px-4 py-4 text-left transition-colors hover:bg-brand-50/60 focus-visible:bg-brand-50 md:grid-cols-[minmax(0,2.2fr)_minmax(0,2.4fr)_minmax(0,1.6fr)_7rem] md:items-center md:gap-4 md:px-5', focusRing)}>
+                        <span className="flex items-center gap-3">
+                          <Portrait editor={e} size="md" />
+                          <span className="min-w-0">
+                            <span className="block font-display text-base font-bold leading-snug text-graphite-900">{e.name}</span>
+                            <span className="mt-1 inline-block"><Tag tone={roleTone(e.role)}>{e.role}</Tag></span>
+                          </span>
                         </span>
-                      </span>
-                      <span className="mt-3 block text-sm font-medium text-graphite-700">{e.designation}</span>
-                      <span className="block text-sm text-graphite-600">{e.institution}, {e.country}</span>
-                      <span className="mt-3 flex flex-wrap gap-1.5">{e.areas.slice(0, 3).map((a) => <Tag key={a} tone="neutral">{a}</Tag>)}</span>
-                      <span className="mt-auto flex items-center gap-1 pt-4 text-sm font-semibold text-accent-700">View profile<I.ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                        <span className="block text-sm">
+                          <span className="block font-medium text-graphite-800">{e.designation}</span>
+                          <span className="block text-graphite-600">{e.institution}, {e.country}</span>
+                        </span>
+                        <span className="flex flex-wrap gap-1.5">{e.areas.slice(0, 3).map((a) => <Tag key={a} tone="neutral">{a}</Tag>)}</span>
+                        <span className="flex items-center gap-1 text-sm font-semibold text-accent-700 md:justify-end">View profile<I.ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
         </div>
       </Container>

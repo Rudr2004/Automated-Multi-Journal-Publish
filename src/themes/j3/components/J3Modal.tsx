@@ -41,12 +41,12 @@ export function J3Modal({ open, onClose, title, size = 'md', children }: { open:
   const width = { md: 'sm:max-w-md', lg: 'sm:max-w-xl', xl: 'sm:max-w-4xl' }[size]
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4">
-      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-night-900/70 motion-safe:animate-fade-in" />
+      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-night-900/60 motion-safe:animate-fade-in" />
       <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-        className={cx('relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-sheet bg-white shadow-dock motion-safe:animate-slide-down sm:rounded-sheet', width)}>
-        <div className="flex items-center justify-between gap-3 border-b border-iris-100 px-6 py-4">
-          <h2 id={titleId} className="font-jakarta text-xl font-extrabold text-night-900">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-full p-2 text-mauve-700 hover:bg-iris-50"><Close className="h-5 w-5" aria-hidden="true" /></button>
+        className={cx('relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-none border border-mauve-200 bg-white shadow-dock motion-safe:animate-slide-down', width)}>
+        <div className="flex items-center justify-between gap-3 border-b-2 border-iris-700 bg-j3paper-cool px-6 py-4">
+          <h2 id={titleId} className="font-jakarta text-xl font-semibold text-iris-700">{title}</h2>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-none p-2 text-mauve-700 hover:bg-iris-100"><Close className="h-5 w-5" aria-hidden="true" /></button>
         </div>
         <div className="overflow-y-auto p-6">{children}</div>
       </div>

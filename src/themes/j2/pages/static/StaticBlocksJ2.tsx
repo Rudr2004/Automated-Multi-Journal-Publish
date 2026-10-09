@@ -26,14 +26,14 @@ const iconMap: Record<string, ComponentType<I.IconProps>> = {
 }
 
 const H2 = ({ id, children }: { id: string; children: string }) => (
-  <h2 id={id} className="scroll-mt-24 font-display text-2xl font-bold tracking-tight text-graphite-800">{children}</h2>
+  <h2 id={id} className="scroll-mt-28 font-display text-2xl font-bold tracking-tight text-brand-800">{children}</h2>
 )
 
 function Faq({ items }: { items: { q: string; a: string }[] }) {
   const base = useId()
   const [open, setOpen] = useState<number>(0)
   return (
-    <div className="divide-y divide-graphite-200 rounded-panel border border-graphite-200 bg-white shadow-card">
+    <div className="divide-y divide-graphite-200 rounded-panel border border-graphite-200 bg-white">
       {items.map((it, i) => {
         const on = open === i
         return (
@@ -58,7 +58,7 @@ function Downloads({ items }: { items: { name: string; desc: string; format: str
   return (
     <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((d) => (
-        <li key={d.name} className="flex flex-col rounded-panel border border-graphite-200 bg-white p-4 shadow-card">
+        <li key={d.name} className="flex flex-col rounded-panel border border-graphite-200 bg-[#F8FBFA] p-4">
           <I.Book className="h-6 w-6 text-accent-700" aria-hidden="true" />
           <h3 className="mt-2 font-display font-semibold text-graphite-800">{d.name}</h3>
           <p className="mt-1 text-sm text-graphite-600">{d.desc}</p>
@@ -77,7 +77,7 @@ function IndexingGrid() {
       {logos.map((l) => (
         <li key={l.id}>
           <a href={l.verifyUrl} target="_blank" rel="noreferrer" aria-label={`${l.name}: verify the listing (opens in a new tab)`}
-            className="group flex h-full gap-4 rounded-panel border border-graphite-200 bg-white p-4 shadow-card transition-colors hover:border-accent-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700">
+            className="group flex h-full gap-4 rounded-panel border border-graphite-200 bg-white p-4 transition-colors hover:border-accent-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700">
             <span className="flex h-16 w-24 shrink-0 items-center justify-center rounded-soft border border-graphite-200 bg-white p-2">
               {l.file
                 ? <img src={logoSrc(l.file)} alt="" loading="lazy" className="max-h-full max-w-full object-contain" />
@@ -98,7 +98,7 @@ function IndexingGrid() {
 
 function JournalInfo() {
   return (
-    <div className="overflow-x-auto rounded-panel border border-graphite-200 bg-white shadow-card">
+    <div className="overflow-x-auto rounded-panel border border-graphite-200 bg-white">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Journal information</caption>
         <tbody className="divide-y divide-graphite-200">
@@ -121,7 +121,7 @@ function ContactDetails() {
   const wa = `https://wa.me/${journal.whatsapp.replace(/\D/g, '')}`
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <ul className="space-y-4 rounded-panel border border-graphite-200 bg-white p-5 text-sm shadow-card">
+      <ul className="space-y-4 rounded-panel border border-graphite-200 bg-[#F8FBFA] p-5 text-sm">
         <li className="flex items-start gap-3"><I.Email className="mt-0.5 h-5 w-5 shrink-0 text-accent-700" aria-hidden="true" /><div><p className="font-semibold text-graphite-800">Email</p><a href={`mailto:${journal.email}`} className="text-accent-700 underline">{journal.email}</a></div></li>
         <li className="flex items-start gap-3"><I.Send className="mt-0.5 h-5 w-5 shrink-0 text-accent-700" aria-hidden="true" /><div><p className="font-semibold text-graphite-800">WhatsApp</p><p className="text-graphite-700">{journal.whatsapp}</p>
           <a href={wa} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center rounded-soft border border-accent-700 px-3 py-1.5 font-semibold text-accent-700 hover:bg-accent-50">Chat on WhatsApp<span className="sr-only"> (opens in a new tab)</span></a></div></li>
@@ -134,20 +134,26 @@ function ContactDetails() {
   )
 }
 
-export function StaticBlocksJ2({ blocks, actions }: { blocks: StaticBlock[]; actions: BlockActions }) {
+export function StaticBlocksJ2({ blocks, actions, startAt }: { blocks: StaticBlock[]; actions: BlockActions; startAt?: number }) {
   return (
     <>
       {blocks.map((b, i) => {
         const t = blockTitle(b)
         const id = t ? anchorId(t) : undefined
+        const n = startAt === undefined ? null : startAt + i + 1
         return (
-          <section key={i} aria-labelledby={id} className="mb-10">
-            {t && <H2 id={id!}>{t}</H2>}
+          <section key={i} aria-labelledby={id} className="rounded-sheet border border-graphite-200 bg-white p-5 shadow-card sm:p-8">
+            {t && (
+              <div className="flex items-baseline justify-between gap-3 border-b border-graphite-200 pb-3">
+                <H2 id={id!}>{n ? `${n}. ${t}` : t}</H2>
+                {n && <span className="shrink-0 text-xs font-medium tabular-nums text-graphite-600">Section {String(n).padStart(2, '0')}</span>}
+              </div>
+            )}
             {b.type === 'steps' && (
-              <ol className="mt-5 space-y-5 border-l-2 border-accent-200 pl-6">
+              <ol className="mt-6 space-y-6 border-l-2 border-accent-200 pl-8">
                 {b.items.map((s, n) => (
                   <li key={s.title} className="relative">
-                    <span aria-hidden="true" className="absolute -left-[39px] flex h-7 w-7 items-center justify-center rounded-full bg-brand-800 text-xs font-bold text-white">{n + 1}</span>
+                    <span aria-hidden="true" className="absolute -left-[47px] flex h-8 w-8 items-center justify-center rounded-full bg-brand-800 text-xs font-bold text-white">{n + 1}</span>
                     <h3 className="font-display font-semibold text-graphite-800">{s.title}</h3><p className="text-[0.9375rem] text-graphite-600">{s.text}</p>
                   </li>
                 ))}
@@ -156,7 +162,7 @@ export function StaticBlocksJ2({ blocks, actions }: { blocks: StaticBlock[]; act
             {b.type === 'flow' && (
               <ol className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {b.nodes.map((n, k) => (
-                  <li key={n.label} className="rounded-panel border border-graphite-200 bg-white p-3 text-center shadow-card">
+                  <li key={n.label} className="rounded-panel border border-graphite-200 bg-[#F8FBFA] p-3 text-center">
                     <span aria-hidden="true" className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-accent-700 text-xs font-bold text-white">{k + 1}</span>
                     <p className="mt-2 text-sm font-semibold text-graphite-800">{n.label}</p><p className="text-xs text-graphite-600">{n.note}</p>
                   </li>
@@ -170,7 +176,7 @@ export function StaticBlocksJ2({ blocks, actions }: { blocks: StaticBlock[]; act
                 {b.items.map((it) => {
                   const Icon = iconMap[it.icon] ?? I.Star
                   return (
-                    <li key={it.title} className="rounded-panel border border-graphite-200 bg-white p-5 shadow-card">
+                    <li key={it.title} className="rounded-panel border border-graphite-200 bg-[#F8FBFA] p-5">
                       <span className="flex h-11 w-11 items-center justify-center rounded-soft bg-brand-800 text-white"><Icon className="h-6 w-6" aria-hidden="true" /></span>
                       <h3 className="mt-3 font-display text-lg font-semibold text-graphite-800">{it.title}</h3><p className="mt-1 text-sm text-graphite-600">{it.text}</p>
                     </li>

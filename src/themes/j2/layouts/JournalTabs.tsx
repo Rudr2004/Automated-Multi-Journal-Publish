@@ -5,12 +5,12 @@ import { cx } from '../components/primitives'
 
 export function JournalTabs() {
   return (
-    <nav aria-label="Our journals" className="bg-graphite-100">
+    <nav aria-label="Our journals" className="bg-brand-900">
       <ul className="mx-auto grid max-w-site grid-cols-5 gap-1 px-2 py-1.5 sm:px-4">
         {network.map((j) => {
           const active = j.code === journal.shortName
           const href = networkHref(j)
-          const cls = cx('block rounded-chip px-1 py-1.5 text-center text-xs font-semibold sm:text-sm', active ? 'bg-white text-brand-800 shadow-card' : href ? 'text-graphite-600 hover:bg-white/70 hover:text-brand-800' : 'cursor-default text-graphite-500')
+          const cls = cx('block rounded-chip px-1 py-1.5 text-center text-xs font-semibold sm:text-sm', active ? 'bg-white text-brand-800 shadow-card' : href ? 'text-brand-100 hover:bg-white/10 hover:text-white' : 'cursor-default text-brand-300')
           return (
             <li key={j.code}>
               {href && !active

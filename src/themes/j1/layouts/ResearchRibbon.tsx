@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
-import { Campaign, LocateFixed, LockOpen, Star } from '../components/uiIcons'
+import { Campaign, LocateFixed, LockOpen, Play } from '../components/uiIcons'
 
 const MINUTE = 60000
 const HOUR = 3600000
@@ -64,10 +64,11 @@ export function ResearchRibbon() {
   const [now, setNow] = useState(() => Date.now())
   const [hover, setHover] = useState(false)
   const [index, setIndex] = useState(0)
+  const [userPaused, setUserPaused] = useState(false)
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), MINUTE); return () => clearInterval(t) }, [])
 
   const items = journal.announcements.map((a) => ({ ...a, label: a.live ? `${a.text} ${closesIn(journal.nextIssue.deadline, now)}` : a.text }))
-  const stopped = hover
+  const stopped = hover || userPaused
 
   // Reduced motion: rotate through the announcements instead of scrolling.
   useEffect(() => {
@@ -77,17 +78,21 @@ export function ResearchRibbon() {
   }, [reduce, stopped, index, items.length])
 
   const item = (a: (typeof items)[number]) => (
-    <AppLink to={a.to} className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 font-medium hover:underline ${a.highlight ? 'text-gold' : 'text-white'}`}>
-      {a.highlight && <Star className="h-3.5 w-3.5" aria-hidden />}{a.label}
+    <AppLink to={a.to} className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 hover:underline ${a.highlight ? 'font-semibold text-[#FBD28D]' : 'text-navy-50'}`}>
+      {a.label}
     </AppLink>
   )
 
   return (
-    <div className="bg-navy-900 text-xs text-navy-100">
-      <div className="flex h-10 items-center gap-4 px-3 sm:px-4 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="flex shrink-0 items-center gap-1.5 rounded-sm bg-scholar px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-            <Campaign className="h-3.5 w-3.5" aria-hidden /><span className="hidden sm:inline">Announcement</span><span className="sm:hidden">News</span>
+    <div className="bg-navy text-xs text-navy-100">
+      <div className="mx-auto flex h-9 w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <button type="button" onClick={() => setUserPaused(!userPaused)} aria-pressed={userPaused} aria-label={userPaused ? 'Play announcements' : 'Pause announcements'} title={userPaused ? 'Play announcements' : 'Pause announcements'}
+            className="hidden h-6 w-6 shrink-0 items-center justify-center rounded text-navy-200 hover:bg-white/10 hover:text-white sm:flex">
+            {userPaused ? <Play className="h-4 w-4" aria-hidden /> : <Campaign className="h-[18px] w-[18px] text-[#FBD28D]" aria-hidden />}
+          </button>
+          <span className="shrink-0 rounded-sm bg-scholar px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+            <span className="hidden sm:inline">Announcements</span><span className="sm:hidden">News</span>
           </span>
 
           <div role="region" aria-label="Journal announcements" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocus={() => setHover(true)} onBlur={() => setHover(false)}
@@ -100,7 +105,7 @@ export function ResearchRibbon() {
               <Marquee paused={stopped}>
                 {[0, 1, 2].map((copy) => (
                   <ul key={copy} aria-hidden={copy > 0} className="flex shrink-0 items-center">
-                    {items.map((a) => <li key={a.id} className="flex items-center">{item(a)}<span aria-hidden className="text-navy-300">|</span></li>)}
+                    {items.map((a) => <li key={a.id} className="flex items-center">{item(a)}<span aria-hidden className="text-navy-300">•</span></li>)}
                   </ul>
                 ))}
               </Marquee>
@@ -108,13 +113,14 @@ export function ResearchRibbon() {
           </div>
         </div>
 
-        <div className="hidden shrink-0 items-center gap-4 border-l border-white/20 pl-4 md:flex">
-          <ul className="flex items-center gap-3 divide-x divide-white/20 [&>li+li]:pl-3" aria-label="Journal identifiers">
+        <div className="hidden shrink-0 items-center gap-4 md:flex">
+          <ul className="flex items-center gap-3 divide-x divide-white/25 [&>li+li]:pl-3" aria-label="Journal identifiers">
             <li>ISSN: <strong className="font-semibold tabular-nums text-white">{journal.issnOnline}</strong></li>
-            <li className="hidden lg:block">Crossref DOI: <strong className="font-semibold tabular-nums text-white">{journal.doiPrefix}</strong></li>
-            <li className="hidden xl:flex items-center gap-1 font-semibold text-[#7FD6A0]"><LockOpen className="h-3.5 w-3.5" aria-hidden />Open Access {journal.licence.name}</li>
+            <li className="hidden lg:block">DOI: <strong className="font-semibold tabular-nums text-white">{journal.doiPrefix}</strong></li>
+            <li className="hidden items-center gap-1 font-semibold text-[#FBD28D] xl:flex"><LockOpen className="h-3.5 w-3.5" aria-hidden />Open Access</li>
+            <li className="hidden xl:block">{journal.licence.name}</li>
           </ul>
-          <AppLink to={paths.track} className="inline-flex items-center gap-1.5 font-semibold text-white hover:underline"><LocateFixed className="h-4 w-4" aria-hidden />Track Paper</AppLink>
+          <AppLink to={paths.track} className="inline-flex items-center gap-1.5 border-l border-white/25 pl-4 font-semibold text-white hover:underline"><LocateFixed className="h-4 w-4" aria-hidden />Track Paper</AppLink>
         </div>
       </div>
     </div>

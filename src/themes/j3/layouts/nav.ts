@@ -6,6 +6,7 @@ export interface NavLinkItem { label: string; to: string; note?: string }
 export interface NavMenu { id: 'authors' | 'about'; label: string; links: NavLinkItem[] }
 
 export const primaryLinks: NavLinkItem[] = [
+  { label: 'Home', to: paths.home },
   { label: 'Current Issue', to: paths.currentIssue },
   { label: 'Past Issues', to: paths.pastIssues },
 ]

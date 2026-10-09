@@ -86,7 +86,7 @@ export function SearchBox({ onSearch, onSuggest, placeholder, size = 'md', autoF
               <button id={`${id}-${i}`} type="button" role="option" aria-selected={active === i} onMouseDown={(e) => e.preventDefault()} onClick={r.run} onMouseEnter={() => setActive(i)}
                 className={cx('flex w-full items-start gap-3 px-4 py-2 text-left', active === i ? 'bg-accent-50' : 'hover:bg-graphite-50')}>
                 <span className="mt-0.5">{r.icon}</span>
-                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-graphite-800">{r.label}</span>{r.sub && <span className="block truncate text-xs text-graphite-600">{r.sub}</span>}</span>
+                <span className="min-w-0 flex-1"><span className="block text-sm font-medium text-graphite-800">{r.label}</span>{r.sub && <span className="block text-xs text-graphite-600">{r.sub}</span>}</span>
                 {active === i && <Enter className="mt-1 h-4 w-4 text-graphite-500" aria-hidden="true" />}
               </button>
             </li>

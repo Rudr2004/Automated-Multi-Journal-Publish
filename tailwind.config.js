@@ -1,5 +1,6 @@
 import { j2Colors, j2Fonts, j2Radius, j2Shadows } from './src/themes/j2/tokens.ts'
 import { j3Colors, j3Fonts, j3Radius, j3Shadows } from './src/themes/j3/tokens.ts'
+import { j4Colors, j4Fonts, j4Radius, j4Shadows } from './src/themes/j4/tokens.ts'
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -27,6 +28,8 @@ export default {
         ...j2Colors,
         // Journal 3 (Editorial Magazine)
         ...j3Colors,
+        // Journal 4 (Scholarly Precision)
+        ...j4Colors,
       },
       fontFamily: {
         serif: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Georgia', 'serif'],
@@ -35,6 +38,8 @@ export default {
         body: j2Fonts.body,
         jakarta: j3Fonts.display,
         inter: j3Fonts.body,
+        serif4: j4Fonts.serif,
+        work: j4Fonts.work,
       },
       keyframes: {
         marquee: { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } },
@@ -49,7 +54,7 @@ export default {
       },
       maxWidth: { site: '1280px', prose: '75ch' },
       // Flat and formal: 4px radius everywhere (2px for badges). Circles/avatars keep `rounded-full`.
-      borderRadius: { ...j2Radius, ...j3Radius, none: '0', sm: '2px', DEFAULT: '4px', md: '4px', lg: '4px', xl: '4px', '2xl': '4px', '3xl': '4px', card: '4px', full: '9999px' },
+      borderRadius: { ...j2Radius, ...j3Radius, ...j4Radius, none: '0', sm: '2px', DEFAULT: '4px', md: '4px', lg: '4px', xl: '4px', '2xl': '4px', '3xl': '4px', card: '4px', full: '9999px' },
       // 1px borders instead of shadows; `lift` is the very soft hover lift. xl/2xl stay for modals and issue covers.
       boxShadow: {
         sm: 'none', DEFAULT: 'none', md: 'none', lg: 'none',
@@ -57,6 +62,7 @@ export default {
         lift: '0 3px 10px rgba(20, 40, 75, 0.08)', inner: 'none', none: 'none',
         ...j2Shadows,
         ...j3Shadows,
+        ...j4Shadows,
       },
     },
   },

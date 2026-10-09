@@ -15,7 +15,7 @@ function Bars({ figure, large }: { figure: FigureData; large?: boolean }) {
       <ul className={large ? 'space-y-3' : 'space-y-2'}>
         {figure.labels.map((l, i) => (
           <li key={l} className="grid grid-cols-[minmax(4.5rem,28%)_minmax(0,1fr)_auto] items-center gap-3">
-            <span className={`truncate text-graphite-700 ${large ? 'text-sm' : 'text-xs'}`} title={l}>{l}</span>
+            <span className={`break-words text-graphite-700 ${large ? 'text-sm' : 'text-xs'}`}>{l}</span>
             <span className="h-5 overflow-hidden rounded-chip bg-graphite-100" aria-hidden="true">
               <span className="block h-full rounded-chip bg-gradient-to-r from-accent-700 to-brand-500" style={{ width: `${Math.max(2, (figure.values[i] / max) * 100)}%` }} />
             </span>

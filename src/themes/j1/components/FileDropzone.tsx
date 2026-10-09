@@ -6,13 +6,14 @@ export interface PickedFile { name: string; size: number }
 const formatSize = (b: number) => (b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`)
 
 /** Drag-and-drop file picker. Validation is delegated to `validate` (returns an error message or ''). */
-export function FileDropzone({ value, onChange, validate, accept, hint, error }: {
+export function FileDropzone({ value, onChange, validate, accept, hint, error, title = 'Drag and drop your file here' }: {
   value: PickedFile | null
   onChange: (f: PickedFile | null) => void
   validate: (f: PickedFile) => string
   accept: string
   hint: string
   error?: string
+  title?: string
 }) {
   const id = useId()
   const input = useRef<HTMLInputElement>(null)
@@ -39,11 +40,12 @@ export function FileDropzone({ value, onChange, validate, accept, hint, error }:
         </div>
       ) : (
         <div onDragOver={(e) => { e.preventDefault(); setOver(true) }} onDragLeave={() => setOver(false)} onDrop={onDrop}
-          className={`rounded-card border-2 border-dashed p-8 text-center transition-colors ${over ? 'border-navy bg-navy-50' : shown ? 'border-danger bg-red-50' : 'border-line bg-mist'}`}>
-          <UploadCloud className="mx-auto h-8 w-8 text-navy-500" aria-hidden />
-          <p className="mt-2 text-sm"><label htmlFor={id} className="cursor-pointer font-semibold text-navy-600 underline">Choose a file</label> or drag and drop it here</p>
+          className={`rounded-card border-2 border-dashed p-8 text-center transition-colors ${over ? 'border-scholar bg-scholar-soft' : shown ? 'border-danger bg-red-50' : 'border-navy-200 bg-paper'}`}>
+          <UploadCloud className="mx-auto h-9 w-9 text-scholar" strokeWidth={1.5} aria-hidden />
+          <p className="mt-2 font-serif text-base font-semibold text-navy">{title}</p>
           <p className="mt-1 text-xs text-ink-muted">{hint}</p>
-          <input id={id} ref={input} type="file" accept={accept} className="sr-only" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = '' }} />
+          <input id={id} ref={input} type="file" accept={accept} className="peer sr-only" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = '' }} />
+          <label htmlFor={id} className="mt-4 inline-flex h-10 cursor-pointer items-center rounded bg-scholar px-4 text-sm font-semibold text-white hover:bg-scholar-dark peer-focus-visible:ring-2 peer-focus-visible:ring-scholar peer-focus-visible:ring-offset-2">Choose file from computer</label>
         </div>
       )}
       {shown && <p role="alert" className="mt-1 text-xs font-medium text-danger">{shown}</p>}

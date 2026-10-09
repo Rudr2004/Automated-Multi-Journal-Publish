@@ -4,7 +4,7 @@ import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../.
 import { formatDate } from '../../../core/lib/format'
 import { initialForm, validateStep, type FormErrors, type SubmissionForm } from '../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../core/lib/useVisibleErrors'
-import { Button } from '../components/Button'
+import { AcButton } from '../components/AcButton'
 import { J3Spinner } from '../components/J3Field'
 import { Container, cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
@@ -132,34 +132,34 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   const percent = ((step + 1) / STEPS.length) * 100
 
   return (
-    <div className="bg-iris-50 pb-16 pt-6 sm:pb-24 sm:pt-10">
+    <div className="bg-j3paper-cool pb-16 pt-6 sm:pb-24 sm:pt-10">
       <Container>
         <div ref={topRef} className="mx-auto max-w-3xl scroll-mt-24">
           {pendingDraft && (
-            <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-block bg-white p-4 shadow-lift3">
-              <p className="flex items-start gap-2 text-base text-night-900">
-                <History className="mt-0.5 h-5 w-5 shrink-0 text-iris-700" aria-hidden="true" />
+            <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 border border-mauve-200 border-l-4 border-l-ember-700 bg-white p-4">
+              <p className="flex items-start gap-2 font-inter text-base text-night-900">
+                <History className="mt-0.5 h-5 w-5 shrink-0 text-ember-700" aria-hidden="true" />
                 <span>We found a draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong>
                   {pendingDraft.form.title && <>: “{pendingDraft.form.title.slice(0, 60)}{pendingDraft.form.title.length > 60 ? '…' : ''}”</>}.</span>
               </p>
-              <div className="flex gap-2"><Button onClick={resume}>Restore draft</Button><Button variant="outline" onClick={discard}>Start fresh</Button></div>
+              <div className="flex gap-2"><AcButton onClick={resume}>Restore draft</AcButton><AcButton variant="outline" onClick={discard}>Start fresh</AcButton></div>
             </div>
           )}
 
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <p className="font-jakarta text-sm font-extrabold text-iris-700">Step {step + 1} of {STEPS.length} <span className="font-semibold text-mauve-700">· {meta.label}</span></p>
-            <p className="text-sm text-mauve-700" aria-live="polite">{savedAt ? `Saved at ${clock(savedAt)}` : 'Autosave is on'}</p>
+            <p className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-ember-700">Step {step + 1} of {STEPS.length} <span className="text-mauve-600">· {meta.label}</span></p>
+            <p className="font-inter text-sm text-mauve-600" aria-live="polite">{savedAt ? `Saved at ${clock(savedAt)}` : 'Autosave is on'}</p>
           </div>
           <div role="progressbar" aria-label="Submission progress" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1} aria-valuetext={`Step ${step + 1} of ${STEPS.length}`}
-            className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-iris-100">
-            <div className="h-full rounded-full bg-iris-700 motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${percent}%` }} />
+            className="mt-2 h-1 w-full overflow-hidden bg-iris-100">
+            <div className="h-full bg-iris-700 motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${percent}%` }} />
           </div>
           <nav aria-label="Submission steps" className="mt-3">
-            <ol className="flex flex-wrap gap-x-1 gap-y-1">
+            <ol className="flex flex-wrap gap-x-1 gap-y-1 border-b border-mauve-200">
               {STEPS.map((s, i) => (
                 <li key={s.id}>
                   <button type="button" disabled={i > reached} aria-current={i === step ? 'step' : undefined} onClick={() => goTo(i)}
-                    className={cx('inline-flex items-center gap-1.5 rounded-full px-2 py-1 font-jakarta text-sm font-bold disabled:cursor-not-allowed', i === step ? 'bg-iris-700 text-white' : i <= reached ? 'text-iris-800 hover:bg-iris-100' : 'text-mauve-500')}>
+                    className={cx('-mb-px inline-flex items-center gap-1.5 border-b-2 px-2.5 py-2 font-inter text-sm font-semibold disabled:cursor-not-allowed', i === step ? 'border-iris-700 text-iris-700' : i <= reached ? 'border-transparent text-mauve-700 hover:text-iris-700' : 'border-transparent text-mauve-400')}>
                     <span aria-hidden="true">{i + 1}</span><span className={i === step ? 'inline' : 'sr-only sm:not-sr-only'}>{s.label}</span>
                   </button>
                 </li>
@@ -168,10 +168,10 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           </nav>
 
           <form ref={formRef} noValidate onSubmit={onFormSubmit} onBlur={onBlur} aria-label={`Manuscript submission: ${meta.label}`}
-            className="mt-6 rounded-sheet bg-white p-5 shadow-lift3 sm:p-10">
+            className="mt-6 border border-mauve-200 bg-white p-5 sm:p-10">
             <div key={step} className="motion-safe:animate-fade-in">
-              <h1 ref={headRef} tabIndex={-1} className="focus-visible:!outline-none font-jakarta text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.1] tracking-tight text-night-900 focus:outline-none">{meta.title}</h1>
-              <p className="mt-3 max-w-2xl text-lg text-mauve-700">{meta.text}</p>
+              <h1 ref={headRef} tabIndex={-1} className="focus-visible:!outline-none font-jakarta text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight text-iris-700 focus:outline-none">{meta.title}</h1>
+              <p className="mt-3 max-w-2xl font-jakarta text-lg leading-relaxed text-mauve-600">{meta.text}</p>
               <div className="mt-8">
                 {step === 0 && <StepTitle {...props} />}
                 {step === 1 && <StepAbstract {...props} />}
@@ -180,23 +180,23 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
                 {step === 4 && <StepFiles {...props} />}
                 {step === 5 && <StepReview form={form} missing={countAll(form)} onEdit={(i) => goTo(i)} />}
               </div>
-              {submitError && <p role="alert" className="mt-6 rounded-tile border-2 border-red-700 bg-red-50 p-3 text-base font-semibold text-red-700">{submitError}</p>}
+              {submitError && <p role="alert" className="mt-6 border border-red-700 border-l-4 bg-red-50 p-3 font-inter text-base font-semibold text-red-700">{submitError}</p>}
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-iris-100 pt-6">
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-mauve-200 pt-6">
               {step > 0 ? (
-                <button type="button" onClick={() => goTo(step - 1)} className="inline-flex items-center gap-1 rounded-full px-4 py-3 font-jakarta text-sm font-bold text-iris-700 hover:bg-iris-100">
-                  <ChevronLeft className="h-5 w-5" aria-hidden="true" />Back
+                <button type="button" onClick={() => goTo(step - 1)} className="inline-flex items-center gap-1 rounded-none px-4 py-2.5 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-100">
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />Back
                 </button>
               ) : <span />}
               <div className="flex flex-wrap items-center justify-end gap-4">
-                {meta.enter && <p className="hidden items-center gap-1.5 text-sm text-mauve-700 sm:flex"><span>Press</span><Enter className="h-5 w-5" aria-hidden="true" /><span className="font-bold">Enter</span><span>to continue</span></p>}
+                {meta.enter && <p className="hidden items-center gap-1.5 font-inter text-sm text-mauve-600 sm:flex"><span>Press</span><Enter className="h-5 w-5" aria-hidden="true" /><span className="font-bold">Enter</span><span>to continue</span></p>}
                 {step < LAST ? (
-                  <Button type="submit" className="px-8 py-4 text-base">Continue<ArrowRight className="h-5 w-5" aria-hidden="true" /></Button>
+                  <AcButton type="submit" className="px-8 py-3">Continue<ArrowRight className="h-4 w-4" aria-hidden="true" /></AcButton>
                 ) : (
-                  <Button type="submit" variant="cta" className="w-full px-8 py-4 text-base sm:w-auto" disabled={busy} aria-busy={busy}>
-                    {busy && <J3Spinner dark />}{busy ? 'Submitting…' : 'Submit manuscript'}
-                  </Button>
+                  <AcButton type="submit" variant="cta" className="w-full px-8 py-3 sm:w-auto" disabled={busy} aria-busy={busy}>
+                    {busy && <J3Spinner />}{busy ? 'Submitting…' : 'Submit manuscript'}
+                  </AcButton>
                 )}
               </div>
             </div>

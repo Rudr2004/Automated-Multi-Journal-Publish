@@ -5,7 +5,7 @@ import { copyText } from '../../../core/lib/clipboard'
 import { useToast } from './Toast'
 
 /** Small copy-to-clipboard button with transient "Copied" state. */
-export function CopyButton({ text, label = 'Copy', className = '' }: { text: string; label?: string; className?: string }) {
+export function CopyButton({ text, label = 'Copy', className = '', tone = 'default' }: { text: string; label?: string; className?: string; tone?: 'default' | 'solid' }) {
   const [done, setDone] = useState(false)
   const toast = useToast()
   const onClick = async () => {
@@ -16,8 +16,8 @@ export function CopyButton({ text, label = 'Copy', className = '' }: { text: str
   }
   return (
     <button type="button" onClick={onClick} aria-label={done ? 'Copied' : label}
-      className={`inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs font-semibold text-navy transition-colors hover:border-navy hover:bg-navy-50 ${className}`}>
-      {done ? <Check className="h-3.5 w-3.5 text-oa" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
+      className={`inline-flex items-center justify-center gap-1.5 rounded border px-2.5 py-1.5 text-xs font-semibold transition-colors ${tone === 'solid' ? 'border-navy bg-navy text-white hover:bg-navy-900' : 'border-line bg-white text-navy hover:border-scholar hover:bg-scholar-soft'} ${className}`}>
+      {done ? <Check className={`h-3.5 w-3.5 ${tone === 'solid' ? '' : 'text-oa'}`} aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
       {done ? 'Copied' : label}
     </button>
   )
@@ -27,9 +27,9 @@ export function DataTable({ table }: { table: ArticleTable }) {
   return (
     <figure className="my-8">
       <figcaption className="mb-2 text-sm font-semibold text-navy">{table.caption}</figcaption>
-      <div className="overflow-x-auto rounded-lg border border-line">
+      <div className="overflow-x-auto border border-line">
         <table className="w-full min-w-[480px] text-left text-sm">
-          <thead className="bg-mist text-xs uppercase tracking-wide text-ink-muted">
+          <thead className="bg-mist text-xs uppercase tracking-wide text-navy">
             <tr>{table.head.map((h) => <th key={h} scope="col" className="px-4 py-2.5 font-semibold">{h}</th>)}</tr>
           </thead>
           <tbody>
@@ -53,8 +53,8 @@ export function BarFigure({ figure }: { figure: ArticleFigure }) {
   const y = (v: number) => T + (H - T - B) * (1 - v / max)
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f))
   return (
-    <figure className="my-8 rounded-lg border border-line bg-white p-4">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={figure.caption} className="h-auto w-full">
+    <figure className="my-8 border border-line bg-mist p-4">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={figure.caption} className="h-auto w-full border border-line bg-white">
         {ticks.map((t) => (
           <g key={t}>
             <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="#D5DEEF" />
@@ -63,7 +63,7 @@ export function BarFigure({ figure }: { figure: ArticleFigure }) {
         ))}
         {figure.values.map((v, i) => (
           <g key={i}>
-            <rect x={L + i * bw + bw * 0.18} y={y(v)} width={bw * 0.64} height={H - B - y(v)} rx="3" fill={i === figure.values.length - 1 ? '#14284B' : '#7F9ACB'} />
+            <rect x={L + i * bw + bw * 0.18} y={y(v)} width={bw * 0.64} height={H - B - y(v)} rx="0" fill={i === figure.values.length - 1 ? '#14284B' : '#7F9ACB'} />
             <text x={L + i * bw + bw / 2} y={y(v) - 6} textAnchor="middle" fontSize="11" fontWeight="600" fill="#1B2433">{v}</text>
             <text x={L + i * bw + bw / 2} y={H - B + 18} textAnchor="middle" fontSize="11" fill="#5B6573">{figure.labels[i]}</text>
           </g>
@@ -71,7 +71,7 @@ export function BarFigure({ figure }: { figure: ArticleFigure }) {
         <text x={(L + W - R) / 2} y={H - 10} textAnchor="middle" fontSize="12" fill="#1B2433">{figure.xLabel}</text>
         <text transform={`translate(14 ${(T + H - B) / 2}) rotate(-90)`} textAnchor="middle" fontSize="12" fill="#1B2433">{figure.yLabel}</text>
       </svg>
-      <figcaption className="mt-3 text-sm text-ink-muted"><span className="font-semibold text-navy">{figure.caption.split('.')[0]}.</span>{figure.caption.slice(figure.caption.indexOf('.') + 1)}</figcaption>
+      <figcaption className="mt-3 text-[13px] leading-relaxed text-ink-muted"><span className="font-bold text-navy">{figure.caption.split('.')[0]}.</span>{figure.caption.slice(figure.caption.indexOf('.') + 1)}</figcaption>
     </figure>
   )
 }

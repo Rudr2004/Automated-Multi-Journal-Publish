@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { journal } from '../../../../config/journals'
 import { ACCEPTED_EXT, MAX_FILE_MB, validateFile } from '../../../../core/lib/submission'
 import type { PaymentProof } from '../../../../core/types'
-import { Button } from '../../components/Button'
+import { AcButton as Button } from '../../components/AcButton'
 import { J3Field, J3Spinner, j3Input } from '../../components/J3Field'
 import { J3FileDrop, type J3PickedFile } from '../../components/J3FileDrop'
 import { J3Modal } from '../../components/J3Modal'
@@ -35,7 +35,7 @@ export function J3OtpDialog({ open, onClose, email, purpose, onSendOtp, onVerify
 
   return (
     <J3Modal open={open} onClose={onClose} title="Verify your email">
-      <p className="text-base text-mauve-700">To {purpose}, confirm it is you. We will email a 6-digit code to <strong className="break-all text-night-900">{email}</strong>.</p>
+      <p className="font-inter text-base text-mauve-600">To {purpose}, confirm it is you. We will email a 6-digit code to <strong className="break-all text-night-900">{email}</strong>.</p>
       {!sent ? (
         <>
           {error && <p role="alert" className="mt-3 text-sm font-semibold text-red-700">{error}</p>}
@@ -43,7 +43,7 @@ export function J3OtpDialog({ open, onClose, email, purpose, onSendOtp, onVerify
         </>
       ) : (
         <form onSubmit={verify} noValidate className="mt-5 space-y-4">
-          <p role="status" className="rounded-tile bg-iris-100 px-3 py-2 text-sm text-iris-900">Code sent. For this demo, use <strong>123456</strong>.</p>
+          <p role="status" className="border-l-4 border-j3valid-700 bg-j3valid-50 px-3 py-2 font-inter text-sm text-j3valid-800">Code sent. For this demo, use <strong>123456</strong>.</p>
           <J3Field label="6-digit code" name="otp" required error={error}>
             <input ref={codeRef} inputMode="numeric" maxLength={6} autoComplete="one-time-code" className={cx(j3Input(error, true), 'text-center text-2xl tracking-[0.5em]')}
               value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); setError('') }} />
@@ -70,13 +70,13 @@ const validateProof = (f: J3PickedFile) =>
 
 function Choice({ checked, onChange, name, children }: { checked: boolean; onChange: () => void; name: string; children: string }) {
   return (
-    <label className={cx('flex cursor-pointer items-center gap-2 rounded-tile border-2 p-3 text-sm font-semibold focus-within:outline focus-within:outline-2 focus-within:outline-iris-700', checked ? 'border-iris-700 bg-iris-50 text-iris-900' : 'border-iris-200 text-mauve-700')}>
+    <label className={cx('flex cursor-pointer items-center gap-2 rounded-none border p-3 font-inter text-sm font-semibold focus-within:outline focus-within:outline-2 focus-within:outline-iris-700', checked ? 'border-iris-700 bg-iris-50 text-iris-700' : 'border-mauve-200 text-mauve-700')}>
       <input type="radio" name={name} className="accent-iris-700" checked={checked} onChange={onChange} />{children}
     </label>
   )
 }
 
-const Dl = ({ children }: { children: ReactNode }) => <dl className="space-y-1.5 rounded-tile bg-iris-50 p-4 text-sm">{children}</dl>
+const Dl = ({ children }: { children: ReactNode }) => <dl className="space-y-1.5 border border-mauve-200 bg-j3paper-cool p-4 font-inter text-sm">{children}</dl>
 
 export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', onPay, onProof }: {
   open: boolean; onClose: () => void; paperId: string; initialMode?: PayMode
@@ -113,17 +113,17 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
 
   return (
     <J3Modal open={open} onClose={onClose} title="Pay article processing charge" size="lg">
-      <p className="text-base text-mauve-700">Paper ID <strong className="text-night-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
+      <p className="font-inter text-base text-mauve-600">Paper ID <strong className="text-night-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
 
-      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 rounded-full bg-iris-100 p-1">
+      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 border border-mauve-200 bg-j3paper-cool p-1">
         {([['online', 'Pay online'], ['proof', 'Upload proof']] as const).map(([m, label]) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}
-            className={cx('rounded-full px-3 py-2 font-jakarta text-sm font-bold transition-colors', mode === m ? 'bg-white text-iris-800 shadow-lift3' : 'text-mauve-700 hover:text-iris-800')}>{label}</button>
+            className={cx('rounded-none px-3 py-2 font-inter text-xs font-bold uppercase tracking-[0.08em] transition-colors', mode === m ? 'bg-iris-700 text-white' : 'text-mauve-700 hover:text-iris-700')}>{label}</button>
         ))}
       </div>
 
       <fieldset className="mt-5">
-        <legend className="mb-2 font-jakarta text-sm font-bold text-night-900">Author category</legend>
+        <legend className="mb-2 font-inter text-sm font-semibold text-night-900">Author category</legend>
         <div className="grid gap-2 sm:grid-cols-2">
           <Choice name="res" checked={india} onChange={() => choose('india')}>Indian author (INR)</Choice>
           <Choice name="res" checked={!india} onChange={() => choose('international')}>International author (USD)</Choice>
@@ -134,7 +134,7 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
         <Dl>
           <div className="flex justify-between"><dt>APC</dt><dd>{fmt(base)}</dd></div>
           <div className="flex justify-between"><dt>GST ({india ? `${journal.apc.gstPercent}%` : 'not applicable'})</dt><dd>{fmt(gst)}</dd></div>
-          <div className="flex justify-between border-t border-iris-200 pt-2 font-jakarta text-base font-extrabold text-iris-800"><dt>Total</dt><dd>{fmt(total)}</dd></div>
+          <div className="flex justify-between border-t-2 border-iris-700 pt-2 font-inter text-base font-bold text-iris-700"><dt>Total</dt><dd>{fmt(total)}</dd></div>
         </Dl>
       </div>
 
@@ -142,18 +142,18 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
 
       {mode === 'online' ? (
         <div className="mt-4">
-          <p className="text-sm text-mauve-700">Secure checkout by <strong className="text-night-900">{gateway.name}</strong> ({india ? 'INR' : 'USD'})</p>
+          <p className="font-inter text-sm text-mauve-600">Secure checkout by <strong className="text-night-900">{gateway.name}</strong> ({india ? 'INR' : 'USD'})</p>
           <fieldset className="mt-3">
             <legend className="sr-only">Payment method</legend>
             <div className="grid gap-2 sm:grid-cols-3">{gateway.methods.map((m) => <Choice key={m} name="method" checked={method === m} onChange={() => setMethod(m)}>{m}</Choice>)}</div>
           </fieldset>
           <Button className="mt-5 w-full py-3" onClick={() => run(onPay)} disabled={busy} aria-busy={busy}>{busy && <J3Spinner />}{busy ? 'Processing payment…' : `Pay ${fmt(total)}`}</Button>
-          <p className="mt-2 text-center text-xs text-mauve-700">A GST invoice is emailed once the payment is confirmed, and reminders stop.</p>
+          <p className="mt-2 text-center font-inter text-xs text-mauve-600">A GST invoice is emailed once the payment is confirmed, and reminders stop.</p>
         </div>
       ) : (
         <div className="mt-4 space-y-4">
-          <div className="rounded-tile border-2 border-iris-200 bg-iris-50 p-4 text-sm">
-            <p className="font-jakarta font-bold text-iris-900">{india ? 'Pay by UPI or bank transfer' : 'Pay by bank (wire) transfer'}</p>
+          <div className="border border-mauve-200 bg-j3paper-cool p-4 font-inter text-sm">
+            <p className="font-jakarta text-lg font-semibold text-iris-700">{india ? 'Pay by UPI or bank transfer' : 'Pay by bank (wire) transfer'}</p>
             <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-[7rem_1fr]">
               {india ? (<><dt className="text-mauve-700">UPI ID</dt><dd className="break-all font-semibold">pay@{journal.domain.split('.')[0]}</dd></>) : (<><dt className="text-mauve-700">Bank details</dt><dd className="font-semibold">Sent to your email on request</dd></>)}
               <dt className="text-mauve-700">Beneficiary</dt><dd className="font-semibold">{journal.publisher}</dd>
@@ -166,12 +166,12 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
               onChange={(e) => { setReference(e.target.value.replace(/[^A-Za-z0-9]/g, '')); setErrors((x) => ({ ...x, reference: undefined })) }} />
           </J3Field>
           <div>
-            <span id="proof-label" className="mb-1.5 block font-jakarta text-sm font-bold text-night-900">Payment proof <span className="text-red-700" aria-hidden="true">*</span></span>
+            <span id="proof-label" className="mb-1.5 block font-inter text-sm font-semibold text-night-900">Payment proof <span className="text-red-700" aria-hidden="true">*</span></span>
             <J3FileDrop name="proof" value={file} onChange={(f) => { setFile(f); setErrors((x) => ({ ...x, file: undefined })) }} validate={validateProof} accept={PROOF_EXT.join(',')}
               hint="JPG, PNG or PDF, up to 5 MB." error={errors.file} describedBy="proof-label" />
           </div>
           <Button className="w-full py-3" onClick={sendProof} disabled={busy} aria-busy={busy}>{busy && <J3Spinner />}{busy ? 'Uploading…' : 'Submit proof for verification'}</Button>
-          <p className="text-center text-xs text-mauve-700">The editor verifies your proof, usually within one working day.</p>
+          <p className="text-center font-inter text-xs text-mauve-600">The editor verifies your proof, usually within one working day.</p>
         </div>
       )}
     </J3Modal>
@@ -201,7 +201,7 @@ export function J3EditDialog({ open, onClose, title, onSave }: { open: boolean; 
           <input className={j3Input(error)} value={value} maxLength={250} data-autofocus onChange={(e) => { setValue(e.target.value); setError('') }} />
         </J3Field>
         <div>
-          <span id="edit-file-label" className="mb-1.5 block font-jakarta text-sm font-bold text-night-900">Replace manuscript file <span className="font-medium text-mauve-600">(optional)</span></span>
+          <span id="edit-file-label" className="mb-1.5 block font-inter text-sm font-semibold text-night-900">Replace manuscript file <span className="font-medium text-mauve-600">(optional)</span></span>
           <J3FileDrop name="editFile" value={file} onChange={setFile} validate={validateFile} accept={ACCEPTED_EXT.join(',')} hint={`Word files only, up to ${MAX_FILE_MB} MB.`} describedBy="edit-file-label" />
         </div>
         <div className="flex flex-wrap justify-end gap-2">

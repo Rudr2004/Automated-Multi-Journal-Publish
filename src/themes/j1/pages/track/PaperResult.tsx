@@ -25,10 +25,10 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
   const canSign = paper.stageIndex >= 3 && !paper.copyrightSigned
   return (
     <div className="space-y-6">
-      <section className="rounded-card border border-line bg-white p-5 sm:p-6">
+      <section className="rounded-card border border-line border-t-[3px] border-t-navy bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-wider text-ink-muted">{paper.journalName}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-scholar">{paper.journalName}</p>
             <h2 className="mt-1 font-serif text-2xl font-semibold leading-snug text-navy">{paper.title}</h2>
             <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-muted">Paper ID <strong className="text-ink">{paper.paperId}</strong><CopyButton text={paper.paperId} label="Copy" /></p>
           </div>
@@ -41,8 +41,8 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <section aria-labelledby="docs-h" className="rounded-card border border-line bg-white p-5 sm:p-6">
           {paper.decisionNote && (
-            <aside className="mb-5 rounded-card border border-navy-200 bg-navy-50 p-4">
-              <p className="flex items-center gap-2 text-sm font-semibold text-navy"><StickyNote2 className="h-5 w-5 text-navy-500" aria-hidden />Editor’s note</p>
+            <aside className="mb-5 rounded-card border border-l-4 border-[#C4D9EE] border-l-scholar bg-scholar-soft p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-navy"><StickyNote2 className="h-5 w-5 text-scholar" aria-hidden />Editor’s note</p>
               <p className="mt-1.5 text-sm leading-relaxed">{paper.decisionNote}</p>
               <p className="mt-2 text-xs text-ink-muted">Every decision is logged with its reason. The full comments are in the review report below.</p>
             </aside>
@@ -73,8 +73,8 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
               A paper can be edited only before the decision. Signing and editing need an email OTP.
             </p>
           </section>
-          <section aria-labelledby="ref-h" className="rounded-card border border-line bg-mist p-5">
-            <h3 id="ref-h" className="flex items-center gap-2 font-serif text-lg font-semibold text-navy"><Gift className="h-5 w-5 text-navy-500" aria-hidden />Referral credits</h3>
+          <section aria-labelledby="ref-h" className="rounded-card border border-line bg-paper p-5">
+            <h3 id="ref-h" className="flex items-center gap-2 font-serif text-lg font-semibold text-navy"><Gift className="h-5 w-5 text-scholar" aria-hidden />Referral credits</h3>
             <p className="mt-2 font-serif text-3xl font-semibold text-navy">₹{paper.referral.credits.toLocaleString('en-IN')}</p>
             <p className="text-sm text-ink-muted">{paper.referral.referred} colleague{paper.referral.referred === 1 ? '' : 's'} referred</p>
             <p className="mt-3 flex items-center gap-2 text-sm">Your code: <strong>{paper.referral.code}</strong><CopyButton text={paper.referral.code} label="Copy" /></p>

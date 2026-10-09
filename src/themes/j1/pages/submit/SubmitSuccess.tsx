@@ -27,19 +27,19 @@ export function SubmitSuccess({ paperId, email, title = '' }: { paperId: string;
       <CheckCircle2 className="mx-auto h-14 w-14 text-oa" aria-hidden />
       <h2 className="mt-4 font-serif text-3xl font-semibold text-navy">Manuscript submitted</h2>
       <p className="mt-2 text-ink-muted">Keep your Paper ID safe. You need it, with your email, to track your paper.</p>
-      <div className="mt-6 rounded-card border-2 border-navy bg-navy-50 p-6">
+      <div className="mt-6 rounded-card border border-navy border-t-4 bg-paper p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-ink-muted">Your Paper ID</p>
         <p className="mt-2 break-all font-serif text-4xl font-semibold tracking-wide text-navy sm:text-5xl" data-testid="paper-id">{paperId}</p>
         <div className="mt-4"><CopyButton text={paperId} label="Copy Paper ID" /></div>
       </div>
       <ul className="mt-5 flex flex-wrap justify-center gap-4 text-sm text-ink">
-        <li className="inline-flex items-center gap-2"><Mail className="h-4 w-4 text-navy-500" aria-hidden />Email sent to {email}</li>
-        <li className="inline-flex items-center gap-2"><Smartphone className="h-4 w-4 text-navy-500" aria-hidden />SMS sent</li>
-        <li className="inline-flex items-center gap-2"><MessageCircle className="h-4 w-4 text-navy-500" aria-hidden />WhatsApp sent</li>
+        <li className="inline-flex items-center gap-2"><Mail className="h-4 w-4 text-scholar" aria-hidden />Email sent to {email}</li>
+        <li className="inline-flex items-center gap-2"><Smartphone className="h-4 w-4 text-scholar" aria-hidden />SMS sent</li>
+        <li className="inline-flex items-center gap-2"><MessageCircle className="h-4 w-4 text-scholar" aria-hidden />WhatsApp sent</li>
       </ul>
       <section className="mt-8 rounded-card border border-line bg-white p-6 text-left">
         <h3 className="font-serif text-xl font-semibold text-navy">What happens next</h3>
-        <ol className="mt-4 space-y-4 border-l-2 border-navy-100 pl-5">
+        <ol className="mt-4 space-y-4 border-l border-line pl-5">
           {NEXT.map(([t, d], i) => (
             <li key={t} className="relative"><span className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${i === 0 ? 'bg-oa' : 'bg-navy'}`}>{i === 0 ? '✓' : i + 1}</span>
               <p className="font-semibold">{t}</p><p className="text-sm text-ink-muted">{d}</p></li>

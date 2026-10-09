@@ -1,6 +1,6 @@
 // Journal 3 (IJCSD) theme: "Editorial Magazine". Registers its pages with the shared containers.
-import '@fontsource-variable/plus-jakarta-sans'
-import '@fontsource-variable/inter'
+import '@fontsource-variable/source-serif-4'
+import '@fontsource-variable/source-sans-3'
 import type { Theme } from '../../core/theme'
 import { SiteShell } from '../../core/site/SiteShell'
 import { AsyncView } from './components/AsyncView'

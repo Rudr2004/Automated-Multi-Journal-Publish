@@ -80,7 +80,7 @@ export function PayModal({ open, onClose, paperId, onPay, onProof }: {
         </div>
       </fieldset>
 
-      <dl className="mt-4 space-y-1.5 rounded bg-mist p-4 text-sm">
+      <dl className="mt-4 space-y-1.5 rounded border border-line bg-paper p-4 text-sm">
         <div className="flex justify-between"><dt>APC</dt><dd>{fmt(base)}</dd></div>
         <div className="flex justify-between"><dt>GST ({india ? `${journal.apc.gstPercent}%` : 'not applicable'})</dt><dd>{fmt(gst)}</dd></div>
         <div className="flex justify-between border-t border-line pt-2 text-base font-semibold text-navy"><dt>Total</dt><dd>{fmt(total)}</dd></div>

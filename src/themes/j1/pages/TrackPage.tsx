@@ -5,7 +5,7 @@ import { Button, ButtonLink } from '../components/Button'
 import { CertificateModal } from '../components/CertificateModal'
 import { Field, inputClass } from '../components/form'
 import { OtpModal } from '../components/OtpModal'
-import { PageHeader } from '../components/PageHeader'
+import { CrumbBar } from '../components/CrumbBar'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { paths } from '../../../config/routes'
@@ -85,10 +85,13 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
 
   return (
     <>
-      <PageHeader crumbs={[{ label: 'Home', to: paths.home }, { label: 'Track My Paper' }]} title="Track My Paper"
-        subtitle="No login needed. Enter your Paper ID and the email address you used at submission." />
-      <Container className="mt-8 pb-4">
-        <form onSubmit={submit} noValidate className="grid gap-4 rounded-card border border-line bg-white p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end sm:p-6">
+      <CrumbBar items={[{ label: 'Home', to: paths.home }, { label: 'Track My Paper' }]} />
+      <Container className="py-8">
+        <header className="mb-6 border-b border-line pb-6">
+          <h1 className="font-serif text-3xl font-semibold tracking-tight text-navy sm:text-[2.5rem] sm:leading-tight">Track My Paper</h1>
+          <p className="mt-1.5 max-w-2xl text-base text-ink-muted">No login needed. Enter your Paper ID and the email address you used at submission.</p>
+        </header>
+        <form onSubmit={submit} noValidate aria-label="Track a manuscript" className="grid gap-4 border border-line bg-white p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end sm:p-6">
           <Field label="Paper ID" name="paperId" required error={errors.paperId}>
             <input className={inputClass(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder="e.g. IJMAT2026000202"
               onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
@@ -99,7 +102,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
           </Field>
           <Button type="submit" size="lg" loading={loading} className="sm:mb-0">{loading ? 'Searching…' : 'Track'}</Button>
         </form>
-        <p className="mt-2 text-xs text-ink-muted">Prototype demo papers: <code>IJMAT2026000201</code> / priya.nair@example.com · <code>IJMAT2026000202</code> / arjun.kapoor@example.com · <code>IJMAT2026000203</code> / meera.joshi@example.com.</p>
+        <p className="mt-2 border border-line bg-paper px-3 py-2 text-xs text-ink-muted">Prototype demo papers: <code>IJMAT2026000201</code> / priya.nair@example.com · <code>IJMAT2026000202</code> / arjun.kapoor@example.com · <code>IJMAT2026000203</code> / meera.joshi@example.com.</p>
 
         <div className="mt-8" aria-live="polite">
           {result?.kind === 'found' && paper && (
@@ -109,8 +112,8 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             }} />
           )}
           {result?.kind === 'other-journal' && (
-            <div role="status" className="rounded-card border border-navy-200 bg-navy-50 p-8 text-center">
-              <SearchX className="mx-auto h-9 w-9 text-navy-500" aria-hidden />
+            <div role="status" className="rounded-card border border-[#C4D9EE] bg-scholar-soft p-8 text-center">
+              <SearchX className="mx-auto h-9 w-9 text-scholar" aria-hidden />
               <h2 className="mt-3 font-serif text-xl font-semibold text-navy">This Paper ID belongs to another journal</h2>
               <p className="mt-1 text-sm text-ink-muted">IDs starting with “{result.code}” are tracked on that journal’s own Track My Paper page. Please check the confirmation email you received.</p>
             </div>

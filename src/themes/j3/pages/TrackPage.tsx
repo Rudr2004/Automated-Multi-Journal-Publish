@@ -5,10 +5,10 @@ import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import type { TrackPageProps } from '../../../core/theme'
 import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../../../core/types'
-import { Button, ButtonLink } from '../components/Button'
+import { AcButton, AcButtonLink, AcKicker } from '../components/AcButton'
 import { J3CertificateDialog } from '../components/J3Certificate'
 import { J3Field, J3Spinner, j3Input } from '../components/J3Field'
-import { Container, Kicker } from '../components/primitives'
+import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { Search } from '../icons'
 import { J3PaperResult } from './track/J3Ticket'
@@ -20,7 +20,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 const PURPOSE: Record<Gated['kind'], string> = { pay: 'pay your article processing charge', sign: 'sign the copyright form', edit: 'edit your submission', cert: 'view your author certificate' }
 
 const demo = (n: string, email: string) => ({ id: `${journal.paperIdPrefix}2026000${n}`, email })
-const DEMOS = [demo('201', 'kavya.reddy@example.com'), demo('202', 'pranav.joshi@example.com'), demo('203', 'grace.mwangi@example.com')]
+const DEMOS = [demo('201', 'sunaina.malhotra@example.com'), demo('202', 'kabir.malhotra@example.com'), demo('203', 'amaka.obi@example.com')]
 
 export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentProof, initial }: TrackPageProps) {
   const toast = useToast()
@@ -97,15 +97,15 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
   const download = (d: PaperDocument) => { if (d.id === 'cert') request({ kind: 'cert' }); else toast(`${d.label} downloaded.`) }
 
   return (
-    <div className="bg-iris-50 pb-20 pt-10 sm:pb-28 sm:pt-14">
+    <div className="bg-j3paper-cool pb-20 pt-10 sm:pb-28 sm:pt-14">
       <Container>
         <header className="max-w-3xl">
-          <Kicker className="text-iris-700">Track my paper</Kicker>
-          <h1 className="mt-3 font-jakarta text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.1] tracking-tight text-night-900">Where is my paper right now?</h1>
-          <p className="mt-4 text-lg text-mauve-700">No login needed. Enter your Paper ID and the email address you used when submitting.</p>
+          <AcKicker className="text-ember-700">Track my paper</AcKicker>
+          <h1 className="mt-3 font-jakarta text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight text-iris-700">Where is my paper right now?</h1>
+          <p className="mt-4 font-jakarta text-lg leading-relaxed text-mauve-600">No login needed. Enter your Paper ID and the email address you used when submitting.</p>
         </header>
 
-        <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-8 grid gap-4 rounded-sheet bg-white p-5 shadow-lift3 sm:p-7 md:grid-cols-[1fr_1fr_auto] md:items-start">
+        <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-8 grid gap-4 border border-mauve-200 border-t-2 border-t-iris-700 bg-white p-5 sm:p-7 md:grid-cols-[1fr_1fr_auto] md:items-start">
           <J3Field label="Paper ID" name="paperId" required error={errors.paperId}>
             <input className={j3Input(errors.paperId, true)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
               onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
@@ -114,38 +114,38 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             <input type="email" className={j3Input(errors.email, true)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
               onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
           </J3Field>
-          <Button type="submit" disabled={loading} aria-busy={loading} className="w-full px-8 py-4 text-base md:mt-[1.75rem] md:w-auto">
+          <AcButton type="submit" disabled={loading} aria-busy={loading} className="w-full px-8 py-3.5 md:mt-[1.75rem] md:w-auto">
             {loading ? <J3Spinner /> : <Search className="h-5 w-5" aria-hidden="true" />}
             {loading ? 'Searching…' : 'Track paper'}
-          </Button>
+          </AcButton>
         </form>
 
-        <details className="mt-4 text-sm text-mauve-700">
-          <summary className="cursor-pointer font-jakarta font-bold text-iris-700">Try a demo paper</summary>
+        <details className="mt-4 font-inter text-sm text-mauve-600">
+          <summary className="cursor-pointer font-inter font-semibold text-iris-700">Try a demo paper</summary>
           <ul className="mt-2 flex flex-wrap gap-2">
             {DEMOS.map((d) => (
-              <li key={d.id}><button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}) }} className="rounded-full border-2 border-iris-200 bg-white px-3 py-1 font-jakarta text-sm font-bold text-iris-800 hover:border-iris-700">{d.id}</button></li>
+              <li key={d.id}><button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}) }} className="rounded-none border border-mauve-200 bg-white px-3 py-1 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{d.id}</button></li>
             ))}
           </ul>
         </details>
 
         <div className="mt-10" aria-live="polite" aria-busy={loading}>
-          {lookupError && <p role="alert" className="rounded-tile border-2 border-red-700 bg-red-50 p-4 text-base font-semibold text-red-700">{lookupError}</p>}
+          {lookupError && <p role="alert" className="border border-red-700 border-l-4 bg-red-50 p-4 font-inter text-base font-semibold text-red-700">{lookupError}</p>}
           <div ref={resultRef} tabIndex={-1} className="focus:outline-none">
             {result?.kind === 'found' && paper && (
               <J3PaperResult paper={paper} actions={{ onPay: (mode) => request({ kind: 'pay', mode }), onSign: () => request({ kind: 'sign' }), onEdit: () => request({ kind: 'edit' }), onDownload: download }} />
             )}
             {result?.kind === 'other-journal' && (
-              <div role="status" className="mx-auto max-w-xl rounded-sheet bg-white p-8 text-center shadow-lift3">
-                <h2 className="font-jakarta text-[1.75rem] font-extrabold text-night-900">This Paper ID belongs to another journal</h2>
-                <p className="mt-3 text-base text-mauve-700">Paper IDs for {journal.shortName} start with <strong className="text-night-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-night-900">{result.code}</strong> are tracked on that journal’s own Track page. Please check the confirmation email you received.</p>
+              <div role="status" className="mx-auto max-w-xl border border-mauve-200 border-t-2 border-t-ember-700 bg-white p-8 text-center">
+                <h2 className="font-jakarta text-[1.625rem] font-semibold text-iris-700">This Paper ID belongs to another journal</h2>
+                <p className="mt-3 font-inter text-base text-mauve-600">Paper IDs for {journal.shortName} start with <strong className="text-night-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-night-900">{result.code}</strong> are tracked on that journal’s own Track page. Please check the confirmation email you received.</p>
               </div>
             )}
             {result?.kind === 'not-found' && (
-              <div role="alert" className="mx-auto max-w-xl rounded-sheet bg-white p-8 text-center shadow-lift3">
-                <h2 className="font-jakarta text-[1.75rem] font-extrabold text-night-900">We couldn’t find that paper</h2>
-                <p className="mt-3 text-base text-mauve-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-bold text-iris-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
-                <div className="mt-5"><ButtonLink to={paths.about('contact')} variant="outline">Contact the editorial office</ButtonLink></div>
+              <div role="alert" className="mx-auto max-w-xl border border-mauve-200 border-t-2 border-t-ember-700 bg-white p-8 text-center">
+                <h2 className="font-jakarta text-[1.625rem] font-semibold text-iris-700">We couldn’t find that paper</h2>
+                <p className="mt-3 font-inter text-base text-mauve-600">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-bold text-iris-700 underline hover:text-ember-700" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
+                <div className="mt-5"><AcButtonLink to={paths.about('contact')} variant="outline">Contact the editorial office</AcButtonLink></div>
               </div>
             )}
           </div>

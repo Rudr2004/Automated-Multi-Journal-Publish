@@ -1,18 +1,23 @@
+import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
-import { ButtonLink } from '../components/Button'
+import { AcLabel, AcLink } from '../components/AcademicUi'
 import { Container } from '../components/primitives'
 
 export function NotFoundPage({ what = 'page' }: { what?: string }) {
   return (
-    <Container className="py-24 text-center">
-      <p className="font-jakarta text-6xl font-extrabold tracking-tight text-iris-700">404<span className="text-ember-500">.</span></p>
-      <h1 className="mt-4 font-jakarta text-[1.625rem] font-extrabold text-night-900">We couldn’t find that {what}</h1>
-      <p className="mx-auto mt-3 max-w-md text-mauve-700">The link may be outdated or mistyped. Try one of these instead.</p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <ButtonLink to={paths.home}>Back to Home</ButtonLink>
-        <ButtonLink to={paths.currentIssue} variant="outline">Current Issue</ButtonLink>
-        <ButtonLink to={paths.search('')} variant="outline">Search</ButtonLink>
-      </div>
-    </Container>
+    <div className="border-b border-mauve-100 bg-[#F8FAFC]">
+      <Container className="py-20 sm:py-28">
+        <div className="max-w-2xl border-l-2 border-ember-700 pl-6">
+          <AcLabel className="!text-ember-700">Error 404 · {journal.shortName}</AcLabel>
+          <h1 className="mt-3 font-jakarta text-[clamp(2rem,3.4vw,2.75rem)] font-semibold leading-[1.1] text-iris-700">We couldn’t find that {what}</h1>
+          <p className="mt-4 font-jakarta text-lg leading-relaxed text-night-700">The link may be outdated or mistyped. These places will get you back to the journal’s published work.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <AcLink to={paths.home}>Back to Home</AcLink>
+            <AcLink to={paths.currentIssue} tone="outline">Current Issue</AcLink>
+            <AcLink to={paths.search('')} tone="outline">Search</AcLink>
+          </div>
+        </div>
+      </Container>
+    </div>
   )
 }

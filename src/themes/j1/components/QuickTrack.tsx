@@ -4,7 +4,7 @@ import { paths } from '../../../config/routes'
 import { btnClass } from './Button'
 import { AppLink } from '../../../core/router'
 import { TrackForm } from './TrackForm'
-import { ScanSearch } from './uiIcons'
+import { Search } from './uiIcons'
 
 /** "Track My Paper" button that opens a quick-track popover (Paper ID + email) instead of leaving the page. */
 export function QuickTrack({ className = '' }: { className?: string }) {
@@ -25,8 +25,8 @@ export function QuickTrack({ className = '' }: { className?: string }) {
 
   return (
     <div ref={wrap} className={`relative ${className}`}>
-      <button type="button" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)} className={btnClass('outline')}>
-        <ScanSearch className="h-4 w-4" aria-hidden />Track Status
+      <button type="button" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)} className={btnClass('outline', 'md', '!border-line !text-navy hover:!bg-mist')}>
+        <Search className="h-5 w-5" aria-hidden />Track Status
       </button>
       <AnimatePresence>
         {open && (

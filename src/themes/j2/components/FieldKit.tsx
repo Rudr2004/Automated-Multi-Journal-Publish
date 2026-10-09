@@ -5,7 +5,7 @@ import { cx } from './primitives'
 
 export const inputCls = (error?: string) =>
   cx(
-    'w-full rounded-soft border bg-white px-3.5 py-2.5 text-sm text-graphite-800 placeholder:text-graphite-500 transition-colors',
+    'w-full rounded-soft border bg-white px-3.5 py-2.5 text-[0.9375rem] text-graphite-800 placeholder:text-graphite-500 transition-colors',
     'focus:border-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-700/30',
     error ? 'border-red-700 bg-red-50/40' : 'border-graphite-300 hover:border-graphite-400',
   )
@@ -26,7 +26,7 @@ export function Field({ label, name, error, hint, required, counter, children, c
   return (
     <div className={className}>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-sm font-medium text-graphite-800">
+        <label htmlFor={id} className="text-sm font-semibold text-graphite-800">
           {label}{required && <span className="text-red-700" aria-hidden="true"> *</span>}
           {!required && <span className="font-normal text-graphite-600"> (optional)</span>}
         </label>

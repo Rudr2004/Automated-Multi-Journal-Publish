@@ -3,8 +3,8 @@ import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode 
 import { cx } from './primitives'
 
 export const fieldClass = (error?: string) => cx(
-  'block w-full rounded-tile border-2 bg-white px-4 py-3 text-base text-night-900 placeholder:text-mauve-500 transition-colors',
-  error ? 'border-ember-700 focus:ring-4 focus:ring-ember-700/15 focus-visible:!outline-none' : 'border-mauve-200 hover:border-iris-300 focus:border-iris-700 focus:ring-4 focus:ring-iris-700/15 focus-visible:!outline-none',
+  'block w-full rounded-none border bg-white px-3.5 py-2.5 font-inter text-base text-night-900 placeholder:text-mauve-500 transition-colors',
+  error ? 'border-ember-700 focus:ring-1 focus:ring-ember-700 focus-visible:!outline-none' : 'border-mauve-200 hover:border-iris-400 focus:border-iris-700 focus:ring-1 focus:ring-iris-700 focus-visible:!outline-none',
 )
 
 /** Label + control + hint + error. The control receives id, name, aria-describedby and aria-invalid automatically. */
@@ -15,7 +15,7 @@ export function FormFieldJ3({ label, name, required, error, hint, counter, child
   const desc = [hint && `${id}-h`, error && `${id}-e`].filter(Boolean).join(' ') || undefined
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block font-jakarta text-sm font-bold text-night-900">
+      <label htmlFor={id} className="mb-1.5 block font-inter text-sm font-semibold text-night-900">
         {label}{required && <span className="text-ember-700" aria-hidden="true"> *</span>}
         {required && <span className="sr-only"> (required)</span>}
       </label>
@@ -38,7 +38,7 @@ export function FormCheckboxJ3({ name, checked, error, onChange, children }: { n
     <div>
       <div className="flex items-start gap-3">
         <input id={id} type="checkbox" name={name} checked={checked} onChange={(e) => onChange(e.target.checked)} aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${id}-e` : undefined} className="mt-1 h-5 w-5 shrink-0 rounded border-2 border-mauve-300 accent-iris-700" />
+          aria-describedby={error ? `${id}-e` : undefined} className="mt-1 h-5 w-5 shrink-0 rounded-none border border-mauve-300 accent-iris-700" />
         <label htmlFor={id} className="text-sm leading-relaxed text-mauve-800">{children}</label>
       </div>
       {error && <p id={`${id}-e`} className="mt-1.5 text-xs font-semibold text-ember-700">{error}</p>}

@@ -9,7 +9,7 @@ import {
 import { digitsOnly, formatOrcid, formatReferral, parseKeywords, phoneMaxLength } from '../../../../core/lib/validators'
 import { AppLink } from '../../../../core/router'
 import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
-import { Button } from '../../components/Button'
+import { AcButton } from '../../components/AcButton'
 import { J3Check, J3Field, j3Input } from '../../components/J3Field'
 import { J3FileDrop } from '../../components/J3FileDrop'
 import { cx } from '../../components/primitives'
@@ -37,14 +37,14 @@ function ChoiceCard({ name, value, checked, onChange, describedBy, invalid, titl
   return (
     <label className="block cursor-pointer">
       <input type="radio" name={name} value={value} checked={checked} onChange={onChange} aria-describedby={describedBy} aria-invalid={invalid ? true : undefined} className="peer sr-only" />
-      <span className={cx('flex h-full items-start gap-3 rounded-tile border-2 p-4 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-iris-700 peer-focus-visible:ring-offset-2',
-        checked ? 'border-iris-700 bg-iris-50' : invalid ? 'border-red-700 bg-red-50' : 'border-iris-200 bg-white hover:border-iris-400')}>
-        <span aria-hidden="true" className={cx('mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-jakarta text-xs font-extrabold', checked ? 'bg-iris-700 text-white' : 'bg-iris-100 text-iris-800')}>
+      <span className={cx('flex h-full items-start gap-3 rounded-none border p-4 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-iris-700 peer-focus-visible:ring-offset-2',
+        checked ? 'border-iris-700 bg-iris-50 shadow-[inset_3px_0_0_0_#0F2B48]' : invalid ? 'border-red-700 bg-red-50' : 'border-mauve-200 bg-white hover:border-iris-400')}>
+        <span aria-hidden="true" className={cx('mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-none font-inter text-xs font-bold', checked ? 'bg-j3valid-700 text-white' : 'bg-iris-100 text-iris-700')}>
           {checked ? <Check className="h-4 w-4" /> : index ?? ''}
         </span>
         <span className="min-w-0">
-          <span className="block font-jakarta text-base font-bold text-night-900">{title}</span>
-          {note && <span className="mt-0.5 block text-sm text-mauve-700">{note}</span>}
+          <span className="block font-jakarta text-lg font-semibold leading-snug text-iris-700">{title}</span>
+          {note && <span className="mt-0.5 block font-inter text-sm text-mauve-600">{note}</span>}
         </span>
       </span>
     </label>
@@ -54,9 +54,9 @@ function ChoiceCard({ name, value, checked, onChange, describedBy, invalid, titl
 function Group({ legend, error, id, children, className }: { legend: string; error?: string; id: string; children: ReactNode; className?: string }) {
   return (
     <fieldset aria-describedby={error ? id : undefined}>
-      <legend className="mb-2 font-jakarta text-sm font-bold text-night-900">{legend} <span className="text-red-700" aria-hidden="true">*</span></legend>
+      <legend className="mb-2 font-inter text-sm font-semibold text-night-900">{legend} <span className="text-red-700" aria-hidden="true">*</span></legend>
       <div className={className}>{children}</div>
-      {error && <p id={id} role="alert" className="mt-2 text-sm font-semibold text-red-700">{error}</p>}
+      {error && <p id={id} role="alert" className="mt-2 font-inter text-sm font-semibold text-red-700">{error}</p>}
     </fieldset>
   )
 }
@@ -92,7 +92,7 @@ export function StepAbstract({ form, errors, setForm }: StepProps) {
           <textarea rows={10} className={cx(j3Input(errors.abstract, true), 'leading-relaxed')} value={form.abstract}
             onChange={(e) => setForm((f) => ({ ...f, abstract: e.target.value }))} onBlur={() => setForm((f) => ({ ...f, abstract: f.abstract.trim() }))} />
         </J3Field>
-        <p aria-live="polite" className={cx('mt-1 text-right text-sm font-bold tabular-nums', bad ? 'text-red-700' : 'text-mauve-700')}>{words} / {ABSTRACT_MAX_WORDS} words</p>
+        <p aria-live="polite" className={cx('mt-1 text-right font-inter text-sm font-semibold tabular-nums', bad ? 'text-red-700' : 'text-mauve-700')}>{words} / {ABSTRACT_MAX_WORDS} words</p>
       </div>
       <div>
         <J3Field label="Keywords" name="keywords" required error={errors.keywords} hint="3 to 8 keywords, separated by commas.">
@@ -101,7 +101,7 @@ export function StepAbstract({ form, errors, setForm }: StepProps) {
         </J3Field>
         {kw.length > 0 && (
           <ul aria-label="Keyword preview" className="mt-3 flex flex-wrap gap-2">
-            {kw.slice(0, 12).map((k, i) => <li key={`${k}-${i}`} className="rounded-full bg-iris-100 px-3 py-1 font-jakarta text-sm font-bold text-iris-800">{k}</li>)}
+            {kw.slice(0, 12).map((k, i) => <li key={`${k}-${i}`} className="rounded-none bg-iris-100 px-3 py-1 font-inter text-sm font-semibold text-iris-700">{k}</li>)}
           </ul>
         )}
       </div>
@@ -134,7 +134,7 @@ export function StepAuthors({ form, errors, setForm }: StepProps) {
   return (
     <div className="space-y-10">
       <fieldset className="space-y-5">
-        <legend className="mb-1 font-jakarta text-xl font-extrabold text-night-900">Corresponding author</legend>
+        <legend className="mb-1 border-b-2 border-iris-700 pb-1 font-jakarta text-xl font-semibold text-iris-700">Corresponding author</legend>
         <div className="grid gap-5 sm:grid-cols-2">
           <J3Field label="Full name" name="author.name" required error={errors['author.name']}>
             <input className={j3Input(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name"
@@ -177,17 +177,17 @@ export function StepAuthors({ form, errors, setForm }: StepProps) {
       <section aria-labelledby="co-h">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 id="co-h" className="font-jakarta text-xl font-extrabold text-night-900">Co-authors</h2>
-            <p className="text-sm text-mauve-700">{form.coAuthors.length === 0 ? 'None added. Every listed co-author receives a certificate after publication.' : `${form.coAuthors.length} added`}</p>
+            <h2 id="co-h" className="font-jakarta text-xl font-semibold text-iris-700">Co-authors</h2>
+            <p className="font-inter text-sm text-mauve-600">{form.coAuthors.length === 0 ? 'None added. Every listed co-author receives a certificate after publication.' : `${form.coAuthors.length} added`}</p>
           </div>
-          <Button variant="outline" disabled={form.coAuthors.length >= 15} onClick={addCo}>+ Add co-author</Button>
+          <AcButton variant="outline" disabled={form.coAuthors.length >= 15} onClick={addCo}>+ Add co-author</AcButton>
         </div>
         <ul className="mt-4 space-y-4">
           {form.coAuthors.map((c, i) => (
-            <li key={c.id} className="rounded-block border-2 border-iris-100 bg-iris-50 p-4 sm:p-5">
+            <li key={c.id} className="rounded-none border border-mauve-200 bg-j3paper-cool p-4 sm:p-5">
               <div className="mb-3 flex items-center justify-between">
-                <span className="font-jakarta text-sm font-extrabold text-night-900">Co-author {i + 1}</span>
-                <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="rounded-full px-3 py-1 font-jakarta text-sm font-bold text-red-700 hover:bg-white">Remove</button>
+                <span className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700">Co-author {i + 1}</span>
+                <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="rounded-none px-3 py-1 font-inter text-xs font-bold uppercase tracking-[0.08em] text-red-700 hover:bg-white">Remove</button>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <J3Field label="Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
@@ -215,13 +215,13 @@ export function StepFiles({ form, errors, setForm }: StepProps) {
   return (
     <div className="space-y-10">
       <div>
-        <span id="file-label" className="mb-1.5 block font-jakarta text-sm font-bold text-night-900">Manuscript file <span className="text-red-700" aria-hidden="true">*</span></span>
+        <span id="file-label" className="mb-1.5 block font-inter text-sm font-semibold text-night-900">Manuscript file <span className="text-red-700" aria-hidden="true">*</span></span>
         <J3FileDrop name="file" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Word files only (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
 
       <fieldset className="space-y-5">
-        <legend className="mb-1 font-jakarta text-xl font-extrabold text-night-900">Optional extras</legend>
+        <legend className="mb-1 border-b-2 border-iris-700 pb-1 font-jakarta text-xl font-semibold text-iris-700">Optional extras</legend>
         <div className="grid gap-5 sm:grid-cols-2">
           <J3Field label="Mentor name" name="mentor" optional error={errors.mentor}>
             <input className={j3Input(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', cleanName(e.target.value))} onBlur={() => set('mentor', form.mentor.trim())} />
@@ -237,7 +237,7 @@ export function StepFiles({ form, errors, setForm }: StepProps) {
       </fieldset>
 
       <fieldset className="space-y-3">
-        <legend className="mb-2 font-jakarta text-xl font-extrabold text-night-900">Declarations and consent</legend>
+        <legend className="mb-2 border-b-2 border-iris-700 pb-1 font-jakarta text-xl font-semibold text-iris-700">Declarations and consent</legend>
         <J3Check name="originality" checked={form.declarations.originality} error={errors.originality} onChange={(v) => decl('originality', v)}>
           I confirm this manuscript is original, has not been published before, and all authors have approved it.
         </J3Check>
@@ -246,12 +246,12 @@ export function StepFiles({ form, errors, setForm }: StepProps) {
         </J3Check>
         <J3Check name="consentData" checked={form.declarations.consentData} error={errors.consentData} onChange={(v) => decl('consentData', v)}>
           I consent to {journal.shortName} processing the personal data in this submission to review and publish my work, as described in the{' '}
-          <AppLink to={paths.policy('privacy')} className="font-bold text-iris-700 underline">Privacy Policy</AppLink>. Author names and affiliations appear publicly if the article is published.
+          <AppLink to={paths.policy('privacy')} className="font-bold text-iris-700 underline hover:text-ember-700">Privacy Policy</AppLink>. Author names and affiliations appear publicly if the article is published.
         </J3Check>
         <J3Check name="consentMessages" checked={form.declarations.consentMessages} error={errors.consentMessages} onChange={(v) => decl('consentMessages', v)}>
           I consent to receive my Paper ID and status updates by WhatsApp, SMS and email.
         </J3Check>
-        <p className="text-sm text-mauve-700">You can withdraw consent at any time: reply STOP to any message, or email {journal.email}. Withdrawing does not affect work already published.</p>
+        <p className="font-inter text-sm text-mauve-600">You can withdraw consent at any time: reply STOP to any message, or email {journal.email}. Withdrawing does not affect work already published.</p>
         <div className="pt-2">
           {/* Placeholder for the real reCAPTCHA widget. */}
           <J3Check name="captcha" checked={form.captcha} error={errors.captcha} onChange={(v) => set('captcha', v)}>
@@ -267,20 +267,20 @@ export function StepFiles({ form, errors, setForm }: StepProps) {
 function Row({ k, children }: { k: string; children?: ReactNode }) {
   return (
     <div className="grid gap-0.5 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
-      <dt className="text-sm text-mauve-700">{k}</dt>
-      <dd className="min-w-0 break-words text-base font-medium text-night-900">{children || <span className="font-normal text-mauve-600">Not provided</span>}</dd>
+      <dt className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-mauve-600">{k}</dt>
+      <dd className="min-w-0 break-words font-inter text-base text-night-900">{children || <span className="font-normal text-mauve-600">Not provided</span>}</dd>
     </div>
   )
 }
 
 function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () => void; children: ReactNode }) {
   return (
-    <section aria-label={title} className="rounded-block border-2 border-iris-100 bg-white px-4 py-3 sm:px-5">
+    <section aria-label={title} className="rounded-none border border-mauve-200 bg-white px-4 py-3 sm:px-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-jakarta text-base font-extrabold text-night-900">{title}</h2>
-        <button type="button" onClick={onEdit} aria-label={`Edit ${title}`} className="rounded-full px-3 py-1 font-jakarta text-sm font-bold text-iris-700 hover:bg-iris-100">Edit</button>
+        <h2 className="font-jakarta text-lg font-semibold text-iris-700">{title}</h2>
+        <button type="button" onClick={onEdit} aria-label={`Edit ${title}`} className="rounded-none px-3 py-1 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-100">Edit</button>
       </div>
-      <dl className="divide-y divide-iris-100">{children}</dl>
+      <dl className="divide-y divide-mauve-100">{children}</dl>
     </section>
   )
 }
@@ -312,7 +312,7 @@ export function StepReview({ form, missing, onEdit }: { form: SubmissionForm; mi
         <Row k="Referral code">{form.referralCode || undefined}</Row>
         <Row k="Declarations">{Object.values(form.declarations).every(Boolean) && form.captcha ? 'All confirmed' : ''}</Row>
       </ReviewBlock>
-      <p role="status" className={cx('rounded-tile px-4 py-3 text-base font-semibold', missing ? 'bg-ember-50 text-ember-900' : 'bg-iris-100 text-iris-800')}>
+      <p role="status" className={cx('rounded-none border-l-4 px-4 py-3 font-inter text-base font-semibold', missing ? 'border-ember-700 bg-ember-50 text-ember-900' : 'border-j3valid-700 bg-j3valid-50 text-j3valid-800')}>
         {missing ? `${missing} required field${missing === 1 ? '' : 's'} still need attention. Pressing Submit takes you to the first one.` : 'Everything looks complete. You can submit your manuscript.'}
       </p>
     </div>

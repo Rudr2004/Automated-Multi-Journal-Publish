@@ -9,8 +9,8 @@ import react from '@vitejs/plugin-react'
 const SHELL: Record<string, { title: string; icon: string; themeColor: string; description: string }> = {
   j1: { title: 'IJMAT | International Journal of Multidisciplinary Academic Research and Trends', icon: '/journals/j1/favicon-48.png', themeColor: '#14284B', description: 'IJMAT is a peer-reviewed, open access journal publishing multidisciplinary academic research.' },
   j2: { title: 'JIMRT | Journal of Innovation in Multidisciplinary Research and Technology', icon: '/journals/j2/favicon-48.png', themeColor: '#065F46', description: 'JIMRT is a monthly open access journal for rigorous research and technology papers from every discipline.' },
+  j4: { title: 'IJECM | International Journal of Engineering Concepts and Management', icon: '/journals/j4/favicon-48.png', themeColor: '#0F172A', description: 'IJECM is a monthly open access journal for engineering research and engineering management.' },
   j3: { title: 'IJCSD | International Journal of Creative Studies and Development', icon: '/journals/j3/favicon-48.png', themeColor: '#1B1430', description: 'IJCSD is a monthly open access journal for research on design, the arts, media, culture and development.' },
-  j4: { title: 'IJECM | International Journal of Engineering Concepts and Management', icon: '/journals/j4/favicon-48.png', themeColor: '#0F172A', description: 'IJECM is an open access journal for research in engineering concepts, systems and management.' },
 }
 
 const journalShell = (journal: string): Plugin => ({

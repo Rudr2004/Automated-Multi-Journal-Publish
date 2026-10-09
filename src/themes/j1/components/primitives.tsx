@@ -5,7 +5,7 @@ import { AppLink } from '../../../core/router'
 import { TrustIcon } from './icons'
 
 export const Container = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`mx-auto w-full max-w-site px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
+  <div className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 ${className}`}>{children}</div>
 )
 
 // Badge tones follow the design system: Open Access = orange tint, Peer Reviewed / article type = blue tint,

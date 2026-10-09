@@ -25,7 +25,7 @@ export function SiteLayout({ children, onSearch, onSuggest }: { children: ReactN
   }, [])
 
   return (
-    <div className="min-h-screen bg-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#F8F9FF] pb-16 md:pb-0">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[80] focus:rounded focus:bg-white focus:px-3 focus:py-2">
         Skip to main content
       </a>

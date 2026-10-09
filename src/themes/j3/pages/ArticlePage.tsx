@@ -5,25 +5,26 @@ import { Helmet } from 'react-helmet-async'
 import { MdOutlineShare as ShareIcon } from 'react-icons/md'
 import { doiFor, journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
-import { CITATION_STYLES_WITH_IEEE, formatCitation, type CitationStyle } from '../../../core/lib/cite'
-import { copyText } from '../../../core/lib/clipboard'
+import { CITATION_STYLES_WITH_IEEE, citationFilename, formatCitation, type CitationStyle } from '../../../core/lib/cite'
+import { copyText, downloadText } from '../../../core/lib/clipboard'
 import { formatDate, formatMonthYear, formatNumber } from '../../../core/lib/format'
 import { downloadArticlePdf } from '../../../core/lib/pdf'
 import { getScholarMeta } from '../../../core/lib/scholar'
 import { AppLink } from '../../../core/router'
 import type { ArticleFigure, ArticleFull, ArticleTable, Reference } from '../../../core/types'
-import { ArticleTile } from '../components/ArticleTile'
-import { Artwork } from '../components/Artwork'
+import { ArticleListItem } from '../components/ArticleListItem'
 import { CiteMenu } from '../components/CiteMenu'
 import { LightboxDialog } from '../components/LightboxDialog'
-import { cx, Kicker } from '../components/primitives'
+import { cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
-import { themeColor } from '../components/themes'
-import { ArrowRight, ChevronDown, Copy, Download, Email, OpenAccess, Quote, Verified } from '../icons'
+import { ArrowRight, ChevronDown, Copy, Download, Email, Eye, OpenAccess, Quote, Verified } from '../icons'
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-const BODY_TEXT = 'text-[16px] leading-[1.7] text-[#2A2440] md:text-[17px]'
-const H2 = 'font-jakarta text-[1.625rem] font-bold leading-tight tracking-tight text-night-900 sm:text-[1.75rem]'
+const BODY_TEXT = 'font-jakarta text-[17px] leading-[1.75] text-night-700 md:text-[18px]'
+const H2 = 'font-jakarta text-[1.625rem] font-bold leading-tight text-iris-700 sm:text-[1.875rem]'
+const LABEL = 'font-inter text-xs font-semibold uppercase tracking-[0.08em] text-mauve-600'
+const BTN_PRIMARY = 'inline-flex items-center justify-center gap-2 bg-iris-700 font-inter text-xs font-bold uppercase tracking-[0.08em] text-white hover:bg-iris-600'
+const BTN_OUTLINE = 'inline-flex items-center justify-center gap-2 border border-iris-700 bg-white font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-50'
 const DOCK_H = 48
 
 // ---------- citations in text ----------
@@ -48,7 +49,7 @@ function RefText({ r, doi = true }: { r: Reference; doi?: boolean }) {
   return (
     <>
       {r.text}
-      {doi && r.doi && <> <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer" className="font-semibold text-iris-700 underline underline-offset-2">doi:{r.doi}<span className="sr-only"> (opens in a new tab)</span></a></>}
+      {doi && r.doi && <> <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer" className="font-semibold text-iris-700 underline underline-offset-2 hover:text-ember-700">doi:{r.doi}<span className="sr-only"> (opens in a new tab)</span></a></>}
     </>
   )
 }
@@ -82,7 +83,7 @@ function Paragraph({ id, text, refs, hot, setHot }: { id: string; text: string; 
               <Fragment key={n}>{j > 0 && ','}
                 <button type="button" aria-expanded={open.includes(n)} aria-label={`Reference ${n}`} onClick={() => toggle(n)}
                   onMouseEnter={() => setHot(n)} onMouseLeave={() => setHot(null)} onFocus={() => setHot(n)} onBlur={() => setHot(null)}
-                  className={cx('rounded-sm px-px font-jakarta text-[0.92em] font-bold text-iris-700 hover:underline focus-visible:underline', hot === n && 'bg-iris-100')}>{n}</button>
+                  className={cx('px-px font-jakarta text-[0.95em] font-bold text-ember-700 hover:underline focus-visible:underline', hot === n && 'bg-ember-100')}>{n}</button>
               </Fragment>
             ))}]</span>
           )
@@ -91,9 +92,9 @@ function Paragraph({ id, text, refs, hot, setHot }: { id: string; text: string; 
       {open.length > 0 && (
         <div className="mt-3 space-y-2 xl:hidden">
           {open.map((n) => (
-            <p key={n} role="note" className="rounded-tile bg-iris-50 p-4 text-[13px] leading-[1.5] text-mauve-800">
-              <span className="font-jakarta font-extrabold text-iris-700">[{n}]</span> <RefText r={refs[n - 1]} />{' '}
-              <button type="button" onClick={() => goTo(n)} className="font-jakarta font-bold text-iris-700 underline underline-offset-2">Go to reference</button>
+            <p key={n} role="note" className="border-l-2 border-iris-700 bg-j3paper-cool p-4 font-inter text-[13px] leading-[1.5] text-mauve-800">
+              <span className="font-bold text-ember-700">[{n}]</span> <RefText r={refs[n - 1]} />{' '}
+              <button type="button" onClick={() => goTo(n)} className="font-bold text-iris-700 underline underline-offset-2">Go to reference</button>
             </p>
           ))}
         </div>
@@ -103,14 +104,17 @@ function Paragraph({ id, text, refs, hot, setHot }: { id: string; text: string; 
 }
 
 // ---------- table and figure ----------
-function DataTable({ table }: { table: ArticleTable }) {
+function DataTable({ table, index }: { table: ArticleTable; index: number }) {
+  const caption = table.caption.replace(/^Table\s+\d+[.:|]?\s*/i, '')
   return (
-    <div role="region" aria-label={table.caption} tabIndex={0} className="max-h-[26rem] overflow-auto rounded-[12px] ring-1 ring-mauve-200">
-      <table className="w-full min-w-[460px] border-collapse text-left text-[15px]">
-        <caption className="caption-top bg-white px-4 py-3 text-left font-jakarta text-sm font-bold text-night-900">{table.caption}</caption>
-        <thead><tr>{table.head.map((h) => <th key={h} scope="col" className="sticky top-0 border-b-2 border-night-900 bg-iris-50 px-4 py-2.5 font-jakarta text-sm font-extrabold text-night-900">{h}</th>)}</tr></thead>
-        <tbody>{table.rows.map((r, i) => <tr key={i} className="border-b border-mauve-100 odd:bg-white even:bg-iris-50/60">{r.map((c, j) => j === 0 ? <th key={j} scope="row" className="px-4 py-2.5 font-semibold text-night-900">{c}</th> : <td key={j} className="px-4 py-2.5 tabular-nums text-mauve-800">{c}</td>)}</tr>)}</tbody>
-      </table>
+    <div className="border border-mauve-100 bg-j3paper-cool p-3 sm:p-4">
+      <div role="region" aria-label={`Table ${index}. ${caption}`} tabIndex={0} className="max-h-[26rem] overflow-auto bg-white">
+        <table className="w-full min-w-[460px] border-collapse text-left font-inter text-[15px]">
+          <caption className="caption-top bg-j3paper-cool pb-3 text-left font-inter text-sm text-night-900"><strong className="font-bold">Table {index}</strong> <span aria-hidden="true">|</span> {caption}</caption>
+          <thead><tr>{table.head.map((h) => <th key={h} scope="col" className="sticky top-0 border-b-2 border-iris-700 bg-white px-4 py-3 font-inter text-sm font-bold text-iris-700">{h}</th>)}</tr></thead>
+          <tbody>{table.rows.map((r, i) => <tr key={i} className="border-b border-mauve-100 last:border-b-0">{r.map((c, j) => j === 0 ? <th key={j} scope="row" className="px-4 py-2.5 font-semibold text-night-900">{c}</th> : <td key={j} className="px-4 py-2.5 tabular-nums text-mauve-700">{c}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -138,8 +142,8 @@ function BarChart({ fig, big }: { fig: ArticleFigure; big?: boolean }) {
         const v = (max / 4) * t
         return (
           <g key={t}>
-            <line x1={m.l} x2={W - m.r} y1={y(v)} y2={y(v)} stroke="#D9D8DD" strokeWidth={t === 0 ? 1.5 : 1} />
-            <text x={m.l - 8} y={y(v) + 4} textAnchor="end" fontSize="12" fill="#3A3350">{fmt(v)}</text>
+            <line x1={m.l} x2={W - m.r} y1={y(v)} y2={y(v)} stroke="#E2E8F0" strokeWidth={t === 0 ? 1.5 : 1} />
+            <text x={m.l - 8} y={y(v) + 4} textAnchor="end" fontSize="12" fill="#475569">{fmt(v)}</text>
           </g>
         )
       })}
@@ -147,15 +151,15 @@ function BarChart({ fig, big }: { fig: ArticleFigure; big?: boolean }) {
         const x = m.l + bw * i + bw * 0.2
         return (
           <g key={i}>
-            <rect x={x} y={y(v)} width={bw * 0.6} height={m.t + ih - y(v)} rx={4} fill={i % 2 ? '#7B66B6' : '#4B2E9B'} />
-            <text x={x + bw * 0.3} y={y(v) - 6} textAnchor="middle" fontSize="12" fontWeight="700" fill="#1B1430">{fmt(v)}</text>
+            <rect x={x} y={y(v)} width={bw * 0.6} height={m.t + ih - y(v)} fill={i % 2 ? '#3E5F86' : '#0F2B48'} />
+            <text x={x + bw * 0.3} y={y(v) - 6} textAnchor="middle" fontSize="12" fontWeight="700" fill="#0F2B48">{fmt(v)}</text>
             <text transform={rotate ? `translate(${x + bw * 0.3} ${m.t + ih + 14}) rotate(-35)` : undefined} x={rotate ? 0 : x + bw * 0.3} y={rotate ? 0 : m.t + ih + 18}
-              textAnchor={rotate ? 'end' : 'middle'} fontSize="12" fill="#3A3350">{fig.labels[i]}</text>
+              textAnchor={rotate ? 'end' : 'middle'} fontSize="12" fill="#475569">{fig.labels[i]}</text>
           </g>
         )
       })}
-      <text x={m.l + iw / 2} y={H - 8} textAnchor="middle" fontSize="13" fontWeight="700" fill="#1B1430">{fig.xLabel}</text>
-      <text transform={`translate(14 ${m.t + ih / 2}) rotate(-90)`} textAnchor="middle" fontSize="13" fontWeight="700" fill="#1B1430">{fig.yLabel}</text>
+      <text x={m.l + iw / 2} y={H - 8} textAnchor="middle" fontSize="13" fontWeight="700" fill="#0F2B48">{fig.xLabel}</text>
+      <text transform={`translate(14 ${m.t + ih / 2}) rotate(-90)`} textAnchor="middle" fontSize="13" fontWeight="700" fill="#0F2B48">{fig.yLabel}</text>
     </svg>
   )
 }
@@ -165,8 +169,8 @@ function Figure({ fig, index }: { fig: ArticleFigure; index: number }) {
   const caption = fig.caption.replace(/^Figure\s+\d+\.\s*/i, '') // the data already starts with "Figure N."
   const summary = fig.labels.map((l, i) => `${l}: ${fig.values[i]}`).join('; ')
   return (
-    <figure className="rounded-[12px] bg-white p-4 ring-1 ring-mauve-200">
-      <div className="overflow-x-auto"><BarChart fig={fig} /></div>
+    <figure className="border border-mauve-100 bg-j3paper-cool p-3 sm:p-4">
+      <div className="overflow-x-auto bg-white p-2"><BarChart fig={fig} /></div>
       {/* Data table for screen readers. It sits in a clipped wrapper because a table itself ignores the clipping that hides sr-only content. */}
       <div className="sr-only">
         <table>
@@ -175,12 +179,12 @@ function Figure({ fig, index }: { fig: ArticleFigure; index: number }) {
           <tbody>{fig.labels.map((l, i) => <tr key={l}><th scope="row">{l}</th><td>{fig.values[i]}</td></tr>)}</tbody>
         </table>
       </div>
-      <figcaption className="mt-3 flex flex-wrap items-start justify-between gap-3 text-sm text-mauve-700">
-        <span className="min-w-0 flex-1"><strong className="font-jakarta text-night-900">Figure {index}.</strong> {caption}</span>
-        <button type="button" aria-haspopup="dialog" onClick={() => setOpen(true)} className="shrink-0 rounded-full bg-iris-50 px-4 py-1.5 font-jakarta text-sm font-bold text-iris-700 hover:bg-iris-100">Enlarge figure</button>
+      <figcaption className="mt-3 flex flex-wrap items-start justify-between gap-3 font-inter text-sm text-mauve-700">
+        <span className="min-w-0 flex-1"><strong className="font-bold text-night-900">Figure {index}.</strong> {caption}</span>
+        <button type="button" aria-haspopup="dialog" onClick={() => setOpen(true)} className="shrink-0 border border-iris-700 bg-white px-3 py-1.5 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-50">Enlarge figure</button>
       </figcaption>
       <LightboxDialog open={open} onClose={() => setOpen(false)} label={`Figure ${index}: ${caption}`}>
-        <h3 className="pr-14 font-jakarta text-[1.3125rem] font-bold leading-snug text-night-900">Figure {index}. {caption}</h3>
+        <h3 className="pr-14 font-jakarta text-[1.3125rem] font-bold leading-snug text-iris-700">Figure {index}. {caption}</h3>
         <div role="img" aria-label={`Bar chart. ${fig.yLabel} by ${fig.xLabel}. ${summary}`} className="mt-5 overflow-x-auto"><BarChart fig={fig} big /></div>
       </LightboxDialog>
     </figure>
@@ -188,52 +192,35 @@ function Figure({ fig, index }: { fig: ArticleFigure; index: number }) {
 }
 
 // ---------- title block ----------
-const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('')
+/** The green circular "iD" mark that stands for an ORCID iD; a link when the author has one. */
+function OrcidMark({ orcid, name }: { orcid?: string; name?: string }) {
+  const mark = <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-j3valid-700 font-inter text-[8px] font-extrabold leading-none text-white">iD</span>
+  if (!orcid) return mark
+  return <a href={`https://orcid.org/${orcid}`} target="_blank" rel="noreferrer" aria-label={`ORCID iD for ${name} (opens in a new tab)`} className="inline-flex">{mark}</a>
+}
 
-/** The small green "iD" mark that stands for an ORCID iD. */
-const OrcidMark = () => <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#A6CE39] font-jakarta text-[8px] font-extrabold leading-none text-white">iD</span>
-
-function AuthorsInline({ article, num }: { article: ArticleFull; num: (n: number) => number }) {
-  const people = article.authorDetails
+function AuthorsRow({ article, num }: { article: ArticleFull; num: (n: number) => number }) {
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span className="flex shrink-0 -space-x-2" aria-hidden="true">
-        {people.slice(0, 4).map((a) => (
-          a.photo
-            ? <img key={a.name} src={a.photo} alt="" width={28} height={28} className="h-7 w-7 rounded-full object-cover ring-2 ring-night-900" />
-            : <span key={a.name} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-iris-700 font-jakarta text-[10px] font-extrabold text-white ring-2 ring-night-900">{initialsOf(a.name)}</span>
-        ))}
-      </span>
-      <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-1 text-[15px]">
-        {people.map((a, i) => (
-          <li key={a.name} className="group relative flex items-center">
-            <button type="button" className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-jakarta font-bold text-white hover:bg-white/10 focus-visible:bg-white/10" aria-describedby={`author-card-${i}`}>
-              {a.name}
-              {a.affiliations.length > 0 && <sup className="font-inter text-[11px] font-bold text-ember-400">{[...new Set(a.affiliations.map(num))].sort((x, y) => x - y).join(',')}</sup>}
-              {a.corresponding && <Email className="h-4 w-4 text-ember-400" aria-label="Corresponding author" />}
-              {a.orcid && <OrcidMark />}
-            </button>
-            {i < people.length - 1 && <span aria-hidden="true" className="px-0.5 text-night-300">·</span>}
-            <div id={`author-card-${i}`} role="tooltip" className="invisible absolute left-0 top-full z-30 mt-2 w-72 rounded-tile bg-white p-4 text-left text-night-900 opacity-0 shadow-dock transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 motion-reduce:transition-none">
-              <p className="font-jakarta text-sm font-extrabold">{a.name}</p>
-              {a.affiliations.map((n) => <p key={n} className="mt-1 text-[13px] leading-snug text-mauve-700">{article.affiliations[n - 1]}</p>)}
-              {a.orcid && <a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-iris-700 underline underline-offset-2"><OrcidMark />{a.orcid}<span className="sr-only"> (opens in a new tab)</span></a>}
-              {a.corresponding && a.email && <a href={`mailto:${a.email}`} className="mt-2 flex items-center gap-1.5 text-[13px] font-semibold text-iris-700 underline underline-offset-2"><Email className="h-4 w-4" aria-hidden="true" />{a.email}</a>}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-2 font-jakarta text-[1.0625rem] font-bold text-night-900 sm:text-[1.1875rem]">
+      {article.authorDetails.map((a) => (
+        <li key={a.name} className="inline-flex items-baseline gap-1">
+          <span>{a.name}</span>
+          {a.affiliations.length > 0 && <sup className="font-inter text-[11px] font-bold text-mauve-600">{[...new Set(a.affiliations.map(num))].sort((x, y) => x - y).join(',')}{a.corresponding && '*'}</sup>}
+          {a.corresponding && <Email className="h-4 w-4 self-center text-iris-700" aria-label="Corresponding author" />}
+          {a.orcid && <span className="self-center"><OrcidMark orcid={a.orcid} name={a.name} /></span>}
+        </li>
+      ))}
+    </ul>
   )
 }
 
-// ---------- page ----------
+
 export function ArticlePage({ article }: { article: ArticleFull }) {
   const toast = useToast()
   const { tags, jsonLd } = getScholarMeta(article)
   const doi = doiFor(article.paperId)
   const doiUrl = `https://doi.org/${doi}`
-  const color = themeColor(article.subject)
+  const scholarUrl = (r: Reference) => `https://scholar.google.com/scholar?q=${encodeURIComponent(r.text.slice(0, 180))}`
 
   // Affiliations: only the ones the authors use, numbered in order of first use, so the numbers always match.
   const affOrder = useMemo(() => {
@@ -386,13 +373,17 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
   }
   const download = () => { downloadArticlePdf(article); toast(`${article.paperId}.pdf downloaded`) }
   const citation = formatCitation(article, citeStyle)
+  const exportFile = citeStyle === 'bibtex' || citeStyle === 'ris'
   const copyCitation = async () => { const ok = await copyText(citation); toast(ok ? 'Citation copied' : 'Could not copy the citation', ok ? 'success' : 'error') }
 
-  const dockBtn = 'inline-flex h-12 items-center justify-center gap-1.5 px-1 font-jakarta text-[13px] font-bold text-white hover:bg-night-700 focus-visible:!outline-white sm:h-10 sm:rounded-full sm:px-3.5 sm:text-sm'
   let figureNo = 0
 
+  let tableNo = 0
+  const dockBtn = 'inline-flex h-12 items-center justify-center gap-1.5 px-1 font-inter text-xs font-bold uppercase tracking-[0.06em] text-white hover:bg-iris-600 focus-visible:!outline-white sm:h-10 sm:px-4'
+  const card = 'border border-mauve-100 bg-white'
+
   return (
-    <>
+    <div className="bg-j3paper-cool">
       <Helmet>
         <title>{`${article.title} | ${journal.name}`}</title>
         <meta name="description" content={article.abstract.slice(0, 160)} />
@@ -401,24 +392,24 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
       </Helmet>
 
       {/* Compact sticky bar: it takes the place of the site header while reading, so two bars are never stacked. */}
-      <div className={cx('fixed inset-x-0 top-0 z-[55] border-b border-mauve-100 bg-white/95 shadow-lift3 backdrop-blur transition-[transform,visibility] duration-200 motion-reduce:transition-none', compact ? 'visible translate-y-0' : 'invisible -translate-y-full')} aria-hidden={!compact}>
+      <div className={cx('fixed inset-x-0 top-0 z-[55] border-b border-mauve-100 bg-white shadow-lift3 transition-[transform,visibility] duration-200 motion-reduce:transition-none', compact ? 'visible translate-y-0' : 'invisible -translate-y-full')} aria-hidden={!compact}>
         <div className="relative mx-auto flex h-[60px] max-w-[1240px] items-center gap-3 px-4 sm:px-6">
-          <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className="shrink-0"><img src="/journals/j3/logo.png" alt="" width={36} height={36} className="h-9 w-9" /></AppLink>
-          <p className="hidden min-w-0 flex-1 truncate font-jakarta text-sm font-bold text-night-900 md:block">{article.title}</p>
+          <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className="shrink-0"><img src="/journals/j3/logo.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" /></AppLink>
+          <p className="hidden min-w-0 flex-1 truncate font-jakarta text-sm font-bold text-iris-700 md:block">{article.title}</p>
           <button ref={jumpBtn} type="button" aria-expanded={jumpOpen} aria-controls={jumpOpen ? jumpId : undefined} onClick={() => setJumpOpen((v) => !v)} tabIndex={compact ? 0 : -1}
-            className="ml-auto inline-flex h-9 max-w-[60vw] items-center gap-2 rounded-full bg-iris-50 px-3.5 font-jakarta text-[13px] font-bold text-night-900 hover:bg-iris-100 md:ml-0">
-            <span className="text-mauve-700">Jump to</span>
+            className="ml-auto inline-flex h-9 max-w-[60vw] items-center gap-2 border border-mauve-100 bg-j3paper-cool px-3 font-inter text-xs font-bold uppercase tracking-[0.06em] text-night-900 hover:bg-iris-50 md:ml-0">
+            <span className="text-mauve-600">Jump to</span>
             <span className="max-w-[28vw] truncate text-iris-700 sm:max-w-[10rem]">{toc.find((t) => t.id === current)?.label}</span>
             <ChevronDown className={cx('h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none', jumpOpen && 'rotate-180')} aria-hidden="true" />
           </button>
-          <button type="button" onClick={download} tabIndex={compact ? 0 : -1} className="hidden h-9 shrink-0 items-center gap-1.5 rounded-full bg-iris-700 px-4 font-jakarta text-[13px] font-bold text-white hover:bg-iris-800 sm:inline-flex"><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download PDF</button>
+          <button type="button" onClick={download} tabIndex={compact ? 0 : -1} className={cx(BTN_PRIMARY, 'hidden h-9 shrink-0 px-4 sm:inline-flex')}><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download PDF</button>
           {jumpOpen && (
-            <div ref={jumpPanel} id={jumpId} className="absolute right-4 top-full z-40 mt-2 max-h-[60vh] w-[min(22rem,calc(100vw-2rem))] overflow-auto rounded-block bg-white p-2 shadow-dock ring-1 ring-mauve-100 motion-safe:animate-fade-in sm:right-6">
+            <div ref={jumpPanel} id={jumpId} className="absolute right-4 top-full z-40 mt-1 max-h-[60vh] w-[min(22rem,calc(100vw-2rem))] overflow-auto border border-mauve-100 border-t-2 border-t-iris-700 bg-white p-1 shadow-dock motion-safe:animate-fade-in sm:right-6">
               <ul>
                 {toc.map((t) => (
                   <li key={t.id}>
                     <button type="button" aria-current={current === t.id ? 'location' : undefined} onClick={() => jumpTo(t.id)}
-                      className={cx('w-full rounded-tile px-4 py-2.5 text-left font-jakarta text-sm font-bold', current === t.id ? 'bg-iris-700 text-white' : 'text-night-900 hover:bg-iris-50')}>{t.label}</button>
+                      className={cx('w-full px-4 py-2.5 text-left font-inter text-sm font-semibold', current === t.id ? 'bg-iris-700 text-white' : 'text-night-900 hover:bg-iris-50')}>{t.label}</button>
                   </li>
                 ))}
               </ul>
@@ -430,115 +421,143 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
       <article style={{ paddingBottom: DOCK_H + 24 }}>
         {/* Title block */}
-        <header ref={titleBlock} className="relative isolate bg-night-900 text-white">
-          {/* One subtle brand pattern on the right edge only. */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 -z-10 hidden w-1/3 bg-[repeating-linear-gradient(135deg,rgba(123,102,182,0.28)_0_1px,transparent_1px_16px)] [mask-image:linear-gradient(to_left,black,transparent)] lg:block" />
-          <div className="mx-auto max-w-[1240px] px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-10">
-            <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
-              <div className="min-w-0 lg:col-span-8">
-                <nav aria-label="Breadcrumb">
-                  <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-night-200">
-                    <li><AppLink to={paths.home} className="hover:text-white hover:underline">Home</AppLink></li>
-                    <li aria-hidden="true">/</li>
-                    <li><AppLink to={paths.issue(article.volume, article.issue)} className="hover:text-white hover:underline">Vol. {article.volume}, Issue {article.issue}</AppLink></li>
-                    <li aria-hidden="true">/</li>
-                    <li aria-current="page" className="font-semibold text-white">Article</li>
-                  </ol>
-                </nav>
-                <div className="mt-5 flex flex-wrap items-center gap-2">
-                  <AppLink to={paths.search(article.subject)} className="inline-flex h-7 items-center rounded-full bg-white px-3 font-jakarta text-xs font-extrabold hover:bg-iris-50" style={{ color }}>{article.subject}</AppLink>
-                  <span className="inline-flex h-7 items-center rounded-full bg-white/10 px-3 font-jakarta text-xs font-bold">{article.type}</span>
-                  <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-white/10 px-3 font-jakarta text-xs font-bold"><OpenAccess className="h-3.5 w-3.5 text-ember-400" aria-hidden="true" />Open access · {journal.licence.name}</span>
-                </div>
-                <h1 className="mt-4 font-jakarta font-extrabold leading-[1.15] tracking-tight" style={{ fontSize: 'clamp(30px,3.2vw,44px)' }}>{article.title}</h1>
-                <AuthorsInline article={article} num={affNum} />
-                <ol className="mt-4 space-y-0.5 text-[13px] leading-snug text-night-200">
-                  {affOrder.map((n, i) => <li key={n}><sup className="mr-1 font-bold text-ember-400">{i + 1}</sup>{article.affiliations[n - 1]}</li>)}
-                </ol>
-                {hasCorresponding && <p className="mt-2 flex items-center gap-1.5 text-[13px] text-night-200"><Email className="h-4 w-4 text-ember-400" aria-hidden="true" /> Corresponding author</p>}
-              </div>
+        <header ref={titleBlock} className="mx-auto max-w-[1240px] px-4 pt-6 sm:px-6 sm:pt-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 border border-mauve-100 bg-iris-50 px-4 py-2.5">
+            <nav aria-label="Breadcrumb">
+              <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 font-inter text-[13px] text-mauve-700">
+                <li><AppLink to={paths.home} className="hover:text-ember-700 hover:underline">{journal.shortName}</AppLink></li>
+                <li aria-hidden="true" className="text-mauve-400">/</li>
+                <li><AppLink to={paths.issue(article.volume, article.issue)} className="hover:text-ember-700 hover:underline">Vol. {article.volume} ({formatMonthYear(article.publishedAt).split(' ').pop()}), Issue {article.issue}</AppLink></li>
+                <li aria-hidden="true" className="text-mauve-400">/</li>
+                <li aria-current="page"><span className="bg-iris-700 px-2 py-0.5 font-semibold text-white">{article.type}</span></li>
+                <li aria-hidden="true" className="text-mauve-400">/</li>
+                <li><AppLink to={paths.search(article.subject)} className="hover:text-ember-700 hover:underline">{article.subject}</AppLink></li>
+              </ol>
+            </nav>
+            <span className="inline-flex items-center gap-1.5 border border-j3valid-700 bg-j3valid-50 px-2.5 py-1 font-inter text-xs font-bold uppercase tracking-[0.08em] text-j3valid-700"><OpenAccess className="h-3.5 w-3.5" aria-hidden="true" />Open access</span>
+          </div>
 
-              {/* Article card */}
-              <aside aria-label="Article actions" className="lg:col-span-4">
-                <div className="rounded-[16px] bg-white p-5 text-night-900 shadow-dock">
-                  <div className="flex items-center gap-3">
-                    <Artwork seed={article.paperId} className="h-14 w-14 shrink-0 rounded-tile" />
-                    <p className="font-jakarta text-sm font-bold leading-snug">Vol. {article.volume} · Issue {article.issue}<span className="block font-medium text-mauve-700">{formatMonthYear(article.publishedAt)}</span></p>
-                  </div>
-                  <button type="button" onClick={download} className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-iris-700 font-jakarta text-sm font-bold text-white hover:bg-iris-800"><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download PDF</button>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <CiteMenu article={article} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-mauve-300 font-jakarta text-sm font-bold text-night-900 hover:border-iris-700 hover:text-iris-700"><Quote className="h-[18px] w-[18px]" aria-hidden="true" />Cite</CiteMenu>
-                    <button type="button" onClick={share} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-mauve-300 font-jakarta text-sm font-bold text-night-900 hover:border-iris-700 hover:text-iris-700"><ShareIcon className="h-[18px] w-[18px]" aria-hidden="true" />Share</button>
-                  </div>
-                  <button type="button" onClick={copyDoi} aria-label={`Copy DOI ${doi}`} className="mt-3 flex w-full items-center justify-between gap-2 rounded-full bg-iris-50 px-4 py-2 text-left font-jakarta text-[13px] font-bold text-iris-800 hover:bg-iris-100">
-                    <span className="min-w-0 truncate">{doi}</span><Copy className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  </button>
-                  <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-mauve-100 pt-4 text-center">
-                    <div><dd className="font-jakarta text-lg font-extrabold">{formatNumber(article.views)}</dd><dt className="text-xs text-mauve-700">Views</dt></div>
-                    <div><dd className="font-jakarta text-lg font-extrabold">{formatNumber(article.downloads)}</dd><dt className="text-xs text-mauve-700">Downloads</dt></div>
-                  </dl>
+          <div className={cx(card, 'mt-4 grid gap-8 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-10')}>
+            <div className="min-w-0">
+              <p className="flex flex-wrap items-center gap-x-4 gap-y-1 font-inter text-[13px] text-mauve-700">
+                <span className="bg-iris-50 px-2 py-0.5 font-semibold text-iris-700">{article.paperId}</span>
+                <span>DOI: <a href={doiUrl} target="_blank" rel="noreferrer" className="break-all text-iris-700 underline hover:text-ember-700">{doi}<span className="sr-only"> (opens in a new tab)</span></a></span>
+                <span className="hidden h-4 w-px bg-mauve-100 sm:block" aria-hidden="true" />
+                <span><a href={journal.licence.url} target="_blank" rel="noreferrer" className="hover:text-ember-700 hover:underline">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a> International licence</span>
+              </p>
+              <h1 className="mt-4 font-jakarta font-bold leading-[1.15] text-iris-700" style={{ fontSize: 'clamp(28px,3vw,40px)' }}>{article.title}</h1>
+              <AuthorsRow article={article} num={affNum} />
+              <details className="group mt-4">
+                <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 font-inter text-[13px] font-semibold text-night-900 hover:text-ember-700 [&::-webkit-details-marker]:hidden">
+                  <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />Show affiliations &amp; contact details
+                </summary>
+                <div className="mt-3 border-l-2 border-iris-700 bg-j3paper-cool p-4">
+                  <ol className="space-y-1 font-inter text-[13px] leading-snug text-mauve-700">
+                    {affOrder.map((n, i) => <li key={n}><sup className="mr-1 font-bold text-night-900">{i + 1}</sup>{article.affiliations[n - 1]}</li>)}
+                  </ol>
+                  {hasCorresponding && (
+                    <ul className="mt-3 space-y-1 border-t border-mauve-100 pt-3 font-inter text-[13px] text-mauve-700">
+                      {article.authorDetails.filter((a) => a.corresponding).map((a) => (
+                        <li key={a.name}><span className="font-semibold text-night-900">* Corresponding author:</span> {a.name}{a.email && <> · <a href={`mailto:${a.email}`} className="text-iris-700 underline hover:text-ember-700">{a.email}</a></>}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {article.authorDetails.some((a) => a.orcid) && (
+                    <ul className="mt-3 space-y-1 border-t border-mauve-100 pt-3 font-inter text-[13px] text-mauve-700">
+                      {article.authorDetails.filter((a) => a.orcid).map((a) => (
+                        <li key={a.name} className="flex items-center gap-1.5"><OrcidMark />{a.name}: <a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noreferrer" className="text-iris-700 underline hover:text-ember-700">{a.orcid}<span className="sr-only"> (opens in a new tab)</span></a></li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              </aside>
+              </details>
+
+              <dl className="mt-6 grid grid-cols-2 gap-px border border-mauve-100 bg-mauve-100 sm:grid-cols-4">
+                {[['Received', formatDate(article.received)], ['Accepted', formatDate(article.accepted)], ['Published', formatDate(article.publishedOnline)], ['Pages', article.pages || `Vol. ${article.volume}, Issue ${article.issue}`]].map(([k, v]) => (
+                  <div key={k} className="bg-j3paper-cool px-4 py-3"><dt className={LABEL}>{k}</dt><dd className="mt-0.5 font-inter text-sm font-semibold text-night-900">{v}</dd></div>
+                ))}
+              </dl>
             </div>
 
-            <dl className="mt-8 grid grid-cols-2 gap-y-4 border-t border-white/15 pt-6 sm:grid-cols-4 sm:divide-x sm:divide-white/15">
-              {[['Received', formatDate(article.received)], ['Accepted', formatDate(article.accepted)], ['Published', formatDate(article.publishedOnline)], ['Pages', article.pages]].map(([k, v], i) => (
-                <div key={k} className={cx('sm:px-6', i === 0 && 'sm:pl-0')}><dt className="text-xs text-night-200">{k}</dt><dd className="mt-0.5 font-jakarta text-[15px] font-semibold">{v}</dd></div>
-              ))}
-            </dl>
+            {/* Actions and metrics */}
+            <aside aria-label="Article actions" className="space-y-4">
+              <div>
+                <p className={LABEL}>Actions</p>
+                <button type="button" onClick={download} className={cx(BTN_PRIMARY, 'mt-3 h-11 w-full')}><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download PDF</button>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <CiteMenu article={article} className={cx(BTN_OUTLINE, 'h-10')}><Quote className="h-[18px] w-[18px]" aria-hidden="true" />Cite</CiteMenu>
+                  <button type="button" onClick={share} className={cx(BTN_OUTLINE, 'h-10')}><ShareIcon className="h-[18px] w-[18px]" aria-hidden="true" />Share</button>
+                </div>
+                <button type="button" onClick={copyDoi} aria-label={`Copy DOI ${doi}`} className="mt-2 flex w-full items-center justify-between gap-2 border border-mauve-100 bg-j3paper-cool px-3 py-2 text-left font-inter text-[13px] font-semibold text-iris-700 hover:bg-iris-50">
+                  <span className="min-w-0 break-all">{doi}</span><Copy className="h-4 w-4 shrink-0" aria-hidden="true" />
+                </button>
+              </div>
+              <section aria-label="Article impact" className="border border-mauve-100 bg-j3paper-cool p-4">
+                <p className={LABEL}>Article impact</p>
+                <dl className="mt-3 grid grid-cols-3 gap-2">
+                  <div><Eye className="mb-1 h-5 w-5 text-iris-600" aria-hidden="true" /><dt className="font-inter text-xs text-mauve-600">Views</dt><dd className="font-jakarta text-xl font-bold text-iris-700">{formatNumber(article.views)}</dd></div>
+                  <div><Download className="mb-1 h-5 w-5 text-iris-600" aria-hidden="true" /><dt className="font-inter text-xs text-mauve-600">Downloads</dt><dd className="font-jakarta text-xl font-bold text-iris-700">{formatNumber(article.downloads)}</dd></div>
+                  <div><Quote className="mb-1 h-5 w-5 text-ember-700" aria-hidden="true" /><dt className="font-inter text-xs text-mauve-600">Citations</dt><dd className="font-jakarta text-xl font-bold text-ember-700">{formatNumber(article.citations)}</dd></div>
+                </dl>
+              </section>
+            </aside>
           </div>
         </header>
 
         {/* Reading area: the text column and, on wide screens, the margin notes. */}
-        <div className="mx-auto max-w-[1240px] px-4 pt-12 sm:px-6 sm:pt-16">
-          <div ref={body} className="xl:grid xl:grid-cols-[minmax(0,700px)_280px] xl:justify-center xl:gap-x-8">
-            <div ref={column} className="min-w-0">
+        <div className="mx-auto max-w-[1240px] px-4 pt-6 sm:px-6 sm:pt-8">
+          <div ref={body} className="xl:grid xl:grid-cols-[minmax(0,740px)_280px] xl:justify-center xl:gap-x-8">
+            <div ref={column} className={cx(card, 'min-w-0 p-5 sm:p-10')}>
               <section id="abstract" tabIndex={-1} aria-labelledby="abstract-h" className="scroll-mt-24 focus:outline-none">
-                <div className="rounded-[16px] bg-[#F5F2FF] p-6 sm:p-7">
-                  <h2 id="abstract-h" className="font-jakarta text-xs font-extrabold uppercase tracking-[0.08em] text-iris-700">Abstract</h2>
-                  <p className="mt-3 text-[16px] leading-[1.65] text-night-900 md:text-[17px]">{article.abstract}</p>
-                  {article.keywords.length > 0 && (
-                    <div className="mt-5 border-t border-iris-200 pt-4">
-                      <h3 className="font-jakarta text-xs font-extrabold uppercase tracking-[0.08em] text-iris-700">Keywords</h3>
-                      <ul className="mt-2 flex flex-wrap gap-2">
-                        {article.keywords.map((k) => <li key={k}><AppLink to={paths.search(k)} className="inline-flex h-7 items-center rounded-full bg-white px-3 font-jakarta text-[13px] font-semibold text-iris-800 ring-1 ring-iris-200 hover:bg-iris-100">{k}</AppLink></li>)}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-3 divide-y divide-mauve-100 rounded-[16px] border border-mauve-200">
+                <h2 id="abstract-h" className={H2}>Abstract</h2>
+                <p className="mt-4 border-l-2 border-iris-700 pl-5 font-jakarta text-[17px] leading-[1.7] text-night-700 md:text-[18px]">{article.abstract}</p>
+                {article.keywords.length > 0 && (
+                  <div className="mt-6 bg-j3paper-cool p-4">
+                    <h3 className={LABEL}>Keywords</h3>
+                    <ul className="mt-2 flex flex-wrap gap-2">
+                      {article.keywords.map((k) => <li key={k}><AppLink to={paths.search(k)} className="inline-flex h-8 items-center border border-mauve-100 bg-white px-3 font-inter text-[13px] font-semibold text-night-900 hover:border-iris-700 hover:text-iris-700">{k}</AppLink></li>)}
+                    </ul>
+                  </div>
+                )}
+                <div className="mt-6 divide-y divide-mauve-100 border border-mauve-100">
                   {[
                     ['Licence', `Open access under ${journal.licence.name}. Share and adapt with credit to the authors.`],
                     ['Funding', 'No specific funding was reported for this article.'],
                     ['Conflicts of interest', 'The authors declared no competing interests.'],
                     ['Data availability', 'Data and materials are available from the corresponding author on reasonable request.'],
                   ].map(([k, v]) => (
-                    <details key={k} className="group px-5 py-3">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-jakarta text-sm font-bold text-night-900"><span>{k}</span><ChevronDown className="h-4 w-4 text-mauve-600 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" /></summary>
-                      <p className="mt-2 text-sm leading-relaxed text-mauve-800">{v}</p>
+                    <details key={k} className="group px-4 py-3">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-inter text-sm font-bold text-night-900 [&::-webkit-details-marker]:hidden"><span>{k}</span><ChevronDown className="h-4 w-4 text-mauve-600 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" /></summary>
+                      <p className="mt-2 font-inter text-sm leading-relaxed text-mauve-700">{v}</p>
                     </details>
                   ))}
                 </div>
               </section>
 
               {article.sections.map((s, si) => (
-                <section key={s.id} id={s.id} tabIndex={-1} aria-labelledby={`${s.id}-h`} className="mt-14 scroll-mt-24 focus:outline-none">
-                  <h2 id={`${s.id}-h`} className={H2}><span className="mr-2 text-iris-700">{si + 1}.</span>{s.title}</h2>
+                <section key={s.id} id={s.id} tabIndex={-1} aria-labelledby={`${s.id}-h`} className="mt-12 scroll-mt-24 focus:outline-none">
+                  <h2 id={`${s.id}-h`} className={H2}><span className="mr-2">{si + 1}.</span>{s.title}</h2>
                   <div className="mt-4 space-y-[1.1em]">
                     {s.paragraphs.map((p, pi) => <Paragraph key={pi} id={`para-${si}-${pi}`} text={p} refs={article.references} hot={hot} setHot={setHot} />)}
                   </div>
-                  {s.table && <div className="mt-6"><DataTable table={s.table} /></div>}
+                  {s.table && <div className="mt-6"><DataTable table={s.table} index={++tableNo} /></div>}
                   {s.figure && <div className="mt-6"><Figure fig={s.figure} index={++figureNo} /></div>}
                 </section>
               ))}
 
-              <section id="references" tabIndex={-1} aria-labelledby="references-h" className="mt-14 scroll-mt-24 focus:outline-none">
-                <h2 id="references-h" className={H2}>References</h2>
-                <ol className="mt-5 space-y-3">
+              <section id="references" tabIndex={-1} aria-labelledby="references-h" className="mt-12 scroll-mt-24 focus:outline-none">
+                <h2 id="references-h" className={H2}>References <span className="font-inter text-base font-semibold text-mauve-600">({article.references.length})</span></h2>
+                <ol className="mt-5 space-y-4">
                   {article.references.map((r, i) => (
-                    <li key={i} id={`ref-${i + 1}`} tabIndex={-1} className="flex gap-3 rounded-tile text-[15px] leading-relaxed text-mauve-800 focus:bg-iris-50 focus:outline-none">
-                      <span className="w-9 shrink-0 font-jakarta font-extrabold text-iris-700">[{i + 1}]</span>
-                      <span className="min-w-0 break-words"><RefText r={r} /></span>
+                    <li key={i} id={`ref-${i + 1}`} tabIndex={-1} className="grid grid-cols-[2.25rem_minmax(0,1fr)] font-inter text-[15px] leading-relaxed text-mauve-700 focus:bg-iris-50 focus:outline-none">
+                      <span className="font-bold text-night-900">{i + 1}.</span>
+                      <span className="min-w-0 break-words">
+                        <RefText r={r} doi={false} />
+                        <span className="mt-1 flex flex-wrap gap-x-4 text-[13px] font-semibold">
+                          {r.doi && <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer" className="text-ember-700 hover:underline">[CrossRef]<span className="sr-only"> (opens in a new tab)</span></a>}
+                          <a href={scholarUrl(r)} target="_blank" rel="noreferrer" className="text-night-900 hover:text-ember-700 hover:underline">[Google Scholar]<span className="sr-only"> (opens in a new tab)</span></a>
+                        </span>
+                      </span>
                     </li>
                   ))}
                 </ol>
@@ -551,8 +570,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <div key={g.pid} data-note-for={g.pid} className="absolute inset-x-0 space-y-3" style={{ top: 0 }}>
                   {g.nums.map((n) => (
                     <p key={n} onMouseEnter={() => setHot(n)} onMouseLeave={() => setHot(null)}
-                      className={cx('border-l-2 py-0.5 pl-3 text-[13px] leading-[1.5] transition-colors motion-reduce:transition-none', hot === n ? 'border-iris-700 bg-iris-50 text-night-900' : 'border-iris-300 text-mauve-700')}>
-                      <span className="font-jakarta font-extrabold text-iris-700">[{n}]</span> <RefText r={article.references[n - 1]} />
+                      className={cx('border-l-2 py-0.5 pl-3 font-inter text-[13px] leading-[1.5] transition-colors motion-reduce:transition-none', hot === n ? 'border-ember-700 bg-ember-50 text-night-900' : 'border-mauve-100 text-mauve-700')}>
+                      <span className="font-bold text-ember-700">[{n}]</span> <RefText r={article.references[n - 1]} />
                     </p>
                   ))}
                 </div>
@@ -560,33 +579,36 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
             </div>
           </div>
 
-          {/* End of the article */}
-          <div className="mt-16 grid gap-6 xl:grid-cols-[minmax(0,700px)_280px] xl:justify-center xl:gap-x-8">
-            <section id="how-to-cite" tabIndex={-1} aria-labelledby="cite-h" className="scroll-mt-24 rounded-[16px] bg-[#F5F2FF] p-6 focus:outline-none sm:p-7">
-              <h2 id="cite-h" className="font-jakarta text-xs font-extrabold uppercase tracking-[0.08em] text-iris-700">How to cite this article</h2>
-              <div role="tablist" aria-label="Citation style" className="mt-3 flex flex-wrap gap-1.5">
+          {/* End of the article: citation exporter */}
+          <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,740px)_280px] xl:justify-center xl:gap-x-8">
+            <section id="how-to-cite" tabIndex={-1} aria-labelledby="cite-h" className={cx(card, 'scroll-mt-24 p-5 focus:outline-none sm:p-8')}>
+              <h2 id="cite-h" className={H2}>How to cite this article</h2>
+              <div role="tablist" aria-label="Citation style" className="mt-4 flex flex-wrap gap-1.5">
                 {CITATION_STYLES_WITH_IEEE.map((s) => (
                   <button key={s.id} type="button" role="tab" aria-selected={citeStyle === s.id} onClick={() => setCiteStyle(s.id)}
-                    className={cx('h-8 rounded-full px-3.5 font-jakarta text-[13px] font-bold', citeStyle === s.id ? 'bg-iris-700 text-white' : 'bg-white text-night-900 ring-1 ring-iris-200 hover:bg-iris-100')}>{s.label}</button>
+                    className={cx('h-8 px-3 font-inter text-xs font-bold uppercase tracking-[0.06em]', citeStyle === s.id ? 'bg-iris-700 text-white' : 'bg-iris-50 text-iris-700 hover:bg-iris-100')}>{s.label}</button>
                 ))}
               </div>
-              <p role="tabpanel" className="mt-4 whitespace-pre-wrap break-words rounded-tile bg-white p-4 text-[14px] leading-relaxed text-night-900">{citation}</p>
-              <button type="button" onClick={copyCitation} className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-full bg-iris-700 px-5 font-jakarta text-sm font-bold text-white hover:bg-iris-800"><Copy className="h-[18px] w-[18px]" aria-hidden="true" />Copy citation</button>
-              <p className="mt-5 border-t border-iris-200 pt-4 text-sm text-mauve-800">
-                Published open access under <a href={journal.licence.url} target="_blank" rel="noreferrer" className="font-semibold text-iris-700 underline underline-offset-2">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a>.{' '}
-                <AppLink to={paths.verify()} className="inline-flex items-center gap-1 font-semibold text-iris-700 underline underline-offset-2"><Verified className="h-4 w-4" aria-hidden="true" />Verify an author certificate</AppLink>
+              <p role="tabpanel" className="mt-4 whitespace-pre-wrap break-words border-l-2 border-iris-700 bg-j3paper-cool p-4 font-inter text-[14px] leading-relaxed text-night-900">{citation}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={copyCitation} className={cx(BTN_PRIMARY, 'h-10 px-5')}><Copy className="h-[18px] w-[18px]" aria-hidden="true" />Copy citation</button>
+                {exportFile && <button type="button" onClick={() => { downloadText(citationFilename(article, citeStyle), citation); toast(`${citationFilename(article, citeStyle)} downloaded`) }} className={cx(BTN_OUTLINE, 'h-10 px-5')}><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download {citeStyle === 'ris' ? '.ris' : '.bib'}</button>}
+              </div>
+              <p className="mt-6 border-t border-mauve-100 pt-4 font-inter text-sm text-mauve-700">
+                Published open access under <a href={journal.licence.url} target="_blank" rel="noreferrer" className="font-semibold text-iris-700 underline underline-offset-2 hover:text-ember-700">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a>.{' '}
+                <AppLink to={paths.verify()} className="inline-flex items-center gap-1 font-semibold text-iris-700 underline underline-offset-2 hover:text-ember-700"><Verified className="h-4 w-4" aria-hidden="true" />Verify an author certificate</AppLink>
               </p>
             </section>
           </div>
 
           {article.related.length > 0 && (
-            <section className="mt-16" aria-labelledby="more-h">
-              <Kicker className="text-iris-700">Keep reading</Kicker>
+            <section className="mt-12" aria-labelledby="more-h">
+              <p className={LABEL}>Keep reading</p>
               <h2 id="more-h" className={cx(H2, 'mt-2')}>More from the journal</h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {article.related.slice(0, 3).map((a, i) => <ArticleTile key={a.paperId} article={a} size="small" surface={i} className="min-h-[13rem]" />)}
+                {article.related.slice(0, 3).map((a) => <ArticleListItem key={a.paperId} article={a} />)}
               </div>
-              <AppLink to={paths.issue(article.volume, article.issue)} className="mt-8 inline-flex items-center gap-1.5 font-jakarta text-sm font-bold text-iris-700 hover:underline"><ArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" />Back to Vol. {article.volume}, Issue {article.issue}</AppLink>
+              <AppLink to={paths.issue(article.volume, article.issue)} className="mt-8 inline-flex items-center gap-1.5 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:text-ember-700"><ArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" />Back to Vol. {article.volume}, Issue {article.issue}</AppLink>
             </section>
           )}
         </div>
@@ -595,15 +617,15 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
       {/* Bottom action dock: only after the title block has passed; it hides while scrolling down and returns on scroll up or after a pause. */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center sm:bottom-4 sm:px-3">
         <div role="toolbar" aria-label="Article actions" aria-hidden={!dockVisible}
-          className={cx('pointer-events-auto grid w-full grid-cols-4 overflow-hidden bg-night-900 shadow-dock transition-[transform,visibility] duration-200 motion-reduce:transition-none sm:flex sm:w-auto sm:items-center sm:gap-0.5 sm:rounded-full sm:p-1',
+          className={cx('pointer-events-auto grid w-full grid-cols-4 overflow-hidden bg-iris-700 shadow-dock transition-[transform,visibility] duration-200 motion-reduce:transition-none sm:flex sm:w-auto sm:items-center sm:gap-px sm:p-1',
             dockVisible ? 'visible translate-y-0' : 'invisible translate-y-[130%]')}>
           <button type="button" aria-label="Download PDF" onClick={download} tabIndex={dockVisible ? 0 : -1}
-            className="inline-flex h-12 items-center justify-center gap-1.5 bg-white px-1 font-jakarta text-[13px] font-bold text-night-900 hover:bg-iris-100 focus-visible:!outline-iris-700 sm:h-10 sm:rounded-full sm:px-4 sm:text-sm"><Download className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sm:hidden">PDF</span><span className="hidden sm:inline">Download PDF</span></button>
+            className="inline-flex h-12 items-center justify-center gap-1.5 bg-white px-1 font-inter text-xs font-bold uppercase tracking-[0.06em] text-iris-700 hover:bg-iris-50 focus-visible:!outline-iris-700 sm:h-10 sm:px-4"><Download className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sm:hidden">PDF</span><span className="hidden sm:inline">Download PDF</span></button>
           <CiteMenu article={article} className={dockBtn}><Quote className="h-[18px] w-[18px]" aria-hidden="true" />Cite</CiteMenu>
           <button type="button" aria-label="Share article" onClick={share} tabIndex={dockVisible ? 0 : -1} className={dockBtn}><ShareIcon className="h-[18px] w-[18px]" aria-hidden="true" />Share</button>
           <button type="button" aria-label="Copy DOI" onClick={copyDoi} tabIndex={dockVisible ? 0 : -1} className={dockBtn}><Copy className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sm:hidden">DOI</span><span className="hidden sm:inline">Copy DOI</span></button>
         </div>
       </div>
-    </>
+    </div>
   )
 }

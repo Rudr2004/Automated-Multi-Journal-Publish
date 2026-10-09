@@ -83,30 +83,30 @@ export function CommandPalette({ open, onClose, onSearch, onSuggest }: { open: b
   return (
     <div className="fixed inset-0 z-[80] flex items-start justify-center px-3 pt-[8vh] sm:px-6" role="dialog" aria-modal="true" aria-label="Search" onKeyDown={onKey}>
       <div className="absolute inset-0 bg-night-900/70 motion-safe:animate-fade-in" onClick={onClose} aria-hidden="true" />
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-block bg-white shadow-dock motion-safe:animate-slide-down">
+      <div className="relative w-full max-w-2xl overflow-hidden bg-white shadow-dock motion-safe:animate-slide-down">
         <div className="flex items-center gap-3 border-b border-mauve-100 px-5">
           <Search className="h-6 w-6 shrink-0 text-mauve-500" aria-hidden="true" />
           <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} role="combobox" aria-expanded="true" aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={rows[active] ? `${id}-${active}` : undefined}
             type="text" autoComplete="off" spellCheck={false} aria-label="Search articles, authors, DOI or Paper ID" placeholder={`Search articles, authors, DOI or ${journal.paperIdPrefix} Paper ID`}
-            className="min-w-0 flex-1 bg-transparent py-5 font-jakarta text-lg font-semibold text-night-900 placeholder:font-medium placeholder:text-mauve-400 focus:outline-none focus-visible:!outline-none" />
-          <button type="button" onClick={onClose} aria-label="Close search" className="rounded-full p-2 text-mauve-500 hover:bg-mauve-100"><Close className="h-5 w-5" aria-hidden="true" /></button>
+            className="min-w-0 flex-1 bg-transparent py-5 font-inter text-lg font-semibold text-night-900 placeholder:font-medium placeholder:text-mauve-400 focus:outline-none focus-visible:!outline-none" />
+          <button type="button" onClick={onClose} aria-label="Close search" className="p-2 text-mauve-500 hover:bg-mauve-100"><Close className="h-5 w-5" aria-hidden="true" /></button>
         </div>
         <ul id={`${id}-list`} role="listbox" className="max-h-[60vh] overflow-y-auto py-2">
           {rows.map((r, i) => (
             <li key={r.key} role="presentation">
-              {(i === 0 || rows[i - 1].group !== r.group) && <p className="px-5 pb-1 pt-3 font-jakarta text-[11px] font-extrabold uppercase tracking-[0.08em] text-mauve-500">{r.group}</p>}
+              {(i === 0 || rows[i - 1].group !== r.group) && <p className="px-5 pb-1 pt-3 font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-mauve-500">{r.group}</p>}
               <button id={`${id}-${i}`} type="button" role="option" aria-selected={active === i} tabIndex={-1} onMouseDown={(e) => e.preventDefault()} onClick={r.run} onMouseEnter={() => setActive(i)}
                 className={cx('flex w-full items-center gap-3 px-5 py-2.5 text-left', active === i ? 'bg-iris-50' : '')}>
                 {r.icon}
-                <span className="min-w-0 flex-1"><span className="block truncate font-jakarta text-sm font-bold text-night-900">{r.label}</span>{r.sub && <span className="block truncate text-xs text-mauve-600">{r.sub}</span>}</span>
+                <span className="min-w-0 flex-1"><span className="block break-words font-inter text-sm font-semibold text-night-900">{r.label}</span>{r.sub && <span className="block break-words text-xs text-mauve-600">{r.sub}</span>}</span>
                 {active === i && <span className="hidden items-center gap-1 text-xs font-semibold text-mauve-500 sm:inline-flex"><Enter className="h-4 w-4" aria-hidden="true" /> Open</span>}
               </button>
             </li>
           ))}
         </ul>
         <div className="flex items-center justify-between gap-3 border-t border-mauve-100 bg-iris-50 px-5 py-2.5 text-xs text-mauve-600">
-          <span className="inline-flex items-center gap-1"><kbd className="rounded bg-white px-1.5 py-0.5 font-jakarta font-bold text-night-900">↑</kbd><kbd className="rounded bg-white px-1.5 py-0.5 font-jakarta font-bold text-night-900">↓</kbd> to move</span>
-          <span className="inline-flex items-center gap-1"><kbd className="rounded bg-white px-1.5 py-0.5 font-jakarta font-bold text-night-900">Esc</kbd> to close</span>
+          <span className="inline-flex items-center gap-1"><kbd className="border border-mauve-200 bg-white px-1.5 py-0.5 font-inter font-semibold text-night-900">↑</kbd><kbd className="border border-mauve-200 bg-white px-1.5 py-0.5 font-inter font-semibold text-night-900">↓</kbd> to move</span>
+          <span className="inline-flex items-center gap-1"><kbd className="border border-mauve-200 bg-white px-1.5 py-0.5 font-inter font-semibold text-night-900">Esc</kbd> to close</span>
           <span className="hidden items-center gap-1 sm:inline-flex">Paste a DOI or Paper ID <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span>
         </div>
       </div>

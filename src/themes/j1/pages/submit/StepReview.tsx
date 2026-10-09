@@ -4,16 +4,16 @@ import type { StepProps } from './types'
 
 function Block({ title, step, onEdit, children }: { title: string; step: StepIndex; onEdit: (s: StepIndex) => void; children: ReactNode }) {
   return (
-    <section className="rounded-card border border-line p-5">
-      <div className="mb-3 flex items-center justify-between">
+    <section className="rounded-card border border-line">
+      <div className="flex items-center justify-between border-b border-line bg-paper px-4 py-2.5">
         <h3 className="font-serif text-lg font-semibold text-navy">{title}</h3>
-        <button type="button" onClick={() => onEdit(step)} className="text-sm font-semibold text-navy-600 hover:underline">Edit</button>
+        <button type="button" onClick={() => onEdit(step)} className="text-sm font-semibold text-scholar hover:underline">Edit</button>
       </div>
-      <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[150px_1fr]">{children}</dl>
+      <dl className="grid gap-x-6 p-4 gap-y-2 text-sm sm:grid-cols-[150px_1fr]">{children}</dl>
     </section>
   )
 }
-const Row = ({ k, v }: { k: string; v?: string }) => (<><dt className="text-ink-muted">{k}</dt><dd className="break-words font-medium">{v || '—'}</dd></>)
+const Row = ({ k, v }: { k: string; v?: string }) => (<><dt className="font-semibold text-ink-muted">{k}</dt><dd className="break-words font-medium">{v || '—'}</dd></>)
 
 export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'> & { onEdit: (s: StepIndex) => void; submitError?: string }) {
   const a = form.author
@@ -33,7 +33,7 @@ export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'
         <Row k="Mentor" v={form.mentor} /><Row k="Referral code" v={form.referralCode} /><Row k="Cover letter" v={form.coverLetter ? 'Provided' : ''} />
         <Row k="Declarations" v="All accepted" />
       </Block>
-      {submitError && <p role="alert" className="rounded-lg border border-danger/30 bg-red-50 p-3 text-sm font-medium text-danger">{submitError}</p>}
+      {submitError && <p role="alert" className="rounded border border-danger/30 bg-red-50 p-3 text-sm font-medium text-danger">{submitError}</p>}
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { Button, ButtonLink } from '../../components/Button'
 import { CopyChip } from '../../components/CopyChip'
 import { Gift, Sms, Whatsapp } from '../../components/pageIcons'
 import { Container } from '../../components/primitives'
-import { PageBand } from '../../components/PageBand'
+import { PortalHeader } from '../../components/PortalHeader'
 import { Check, Download, Email } from '../../icons'
 
 const Row = ({ k, children }: { k: string; children?: ReactNode }) => (
@@ -23,7 +23,7 @@ export function ReviewSummary({ form, missing }: { form: SubmissionForm; missing
   const abstract = form.abstract.trim()
   return (
     <div>
-      <dl className="divide-y divide-graphite-100 rounded-panel border border-graphite-200 px-4">
+      <dl className="divide-y divide-graphite-100 rounded-panel border border-graphite-200 bg-white px-4">
         <Row k="Title">{form.title}</Row>
         <Row k="Type and discipline">{form.articleType && form.subject ? `${form.articleType} · ${form.subject}` : ''}</Row>
         <Row k="Keywords">{form.keywords}</Row>
@@ -60,11 +60,11 @@ const receipt = (paperId: string, email: string, title: string) =>
 
 export function SubmitSuccess({ paperId, email, title }: { paperId: string; email: string; title: string }) {
   return (
-    <>
-      <PageBand eyebrow="Submit manuscript" title="Manuscript submitted" text="Thank you. Your paper is now in the editorial queue." />
+    <div className="bg-[#F4F9F7]">
+      <PortalHeader trail={[{ label: 'For Authors', to: paths.policy('author-guidelines') }, { label: 'Submit Manuscript', to: paths.submit }]} current="Submitted" chip="Submission received" title="Manuscript submitted" text="Thank you. Your paper is now in the editorial queue." />
       <Container className="py-10 sm:py-14">
         <div className="mx-auto max-w-3xl">
-          <section aria-labelledby="pid-h" className="rounded-sheet border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-6 text-center shadow-soft sm:p-8">
+          <section aria-labelledby="pid-h" className="rounded-sheet border border-brand-200 bg-white p-6 text-center shadow-soft sm:p-8">
             <span aria-hidden="true" className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-800 text-white motion-safe:animate-fade-in"><Check className="h-8 w-8" /></span>
             <h2 id="pid-h" className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-accent-700">Your Paper ID</h2>
             <p className="mt-1 break-all font-display text-3xl font-extrabold tracking-wide text-brand-800 sm:text-5xl" data-testid="paper-id">{paperId}</p>
@@ -80,7 +80,7 @@ export function SubmitSuccess({ paperId, email, title }: { paperId: string; emai
             </ul>
           </section>
 
-          <section aria-labelledby="next-h" className="mt-8 rounded-panel border border-graphite-200 bg-white p-5 shadow-card sm:p-7">
+          <section aria-labelledby="next-h" className="mt-8 rounded-sheet border border-graphite-200 bg-white p-5 shadow-card sm:p-8">
             <h2 id="next-h" className="font-display text-xl font-bold text-graphite-800">What happens next</h2>
             <ol className="mt-5">
               {NEXT.map(([t, d], i) => (
@@ -104,6 +104,6 @@ export function SubmitSuccess({ paperId, email, title }: { paperId: string; emai
           </div>
         </div>
       </Container>
-    </>
+    </div>
   )
 }

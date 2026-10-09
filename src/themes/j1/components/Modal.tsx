@@ -35,10 +35,10 @@ export function Modal({ open, onClose, title, children, size = 'md' }: { open: b
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-navy-900/60" onClick={onClose} aria-hidden />
       <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-        className={`relative max-h-[90vh] w-full ${size === 'xl' ? 'max-w-3xl' : 'max-w-lg'} overflow-auto rounded-card bg-white p-6 shadow-xl`}>
+        className={`relative max-h-[90vh] w-full ${size === 'xl' ? 'max-w-3xl' : 'max-w-lg'} overflow-auto rounded-card border border-line bg-white p-6 shadow-xl`}>
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 id={titleId} className="font-serif text-xl font-semibold text-navy">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded p-1 text-ink-muted hover:bg-mist-200">
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded p-1 text-ink-muted hover:bg-paper-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar">
             <X className="h-5 w-5" aria-hidden />
           </button>
         </div>

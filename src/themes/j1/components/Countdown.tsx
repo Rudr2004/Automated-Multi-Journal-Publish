@@ -12,14 +12,16 @@ export function Countdown({ deadline, windowDays = 5, tone = 'dark' }: { deadlin
 
   if (ms <= 0 || ms > windowDays * 86400000) return null
   const s = Math.floor(ms / 1000)
-  const parts = [['Days', Math.floor(s / 86400)], ['Hours', Math.floor((s % 86400) / 3600)], ['Min', Math.floor((s % 3600) / 60)], ['Sec', s % 60]] as const
+  const two = (n: number) => String(n).padStart(2, '0')
+  const parts = [[Math.floor(s / 86400), 'd'], [Math.floor((s % 86400) / 3600), 'h'], [Math.floor((s % 3600) / 60), 'm'], [s % 60, 's']] as const
   return (
-    <div role="timer" aria-label="Time left to submit" className="flex gap-2">
-      {parts.map(([label, v]) => (
-        <div key={label} className={`min-w-0 flex-1 rounded px-1 py-2 text-center ${tone === 'dark' ? 'bg-white/10' : 'border border-line bg-paper text-navy'}`}>
-          <div className="font-serif text-2xl font-semibold tabular-nums">{String(v).padStart(2, '0')}</div>
-          <div className={`text-[10px] uppercase tracking-wider ${tone === 'dark' ? 'text-navy-100' : 'text-ink-muted'}`}>{label}</div>
-        </div>
+    <div role="timer" aria-label="Time left to submit"
+      className={`flex items-center justify-center gap-x-2 rounded border px-2 py-2 font-mono text-lg font-bold tabular-nums sm:text-xl ${tone === 'dark' ? 'border-white/20 bg-white/10 text-white' : 'border-line bg-white text-navy'}`}>
+      {parts.map(([v, u], i) => (
+        <span key={u} className="inline-flex items-baseline gap-x-2">
+          {i > 0 && <span aria-hidden className="font-normal text-ink-muted">:</span>}
+          <span>{two(v)}{u}</span>
+        </span>
       ))}
     </div>
   )

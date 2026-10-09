@@ -6,7 +6,7 @@ import { focusFirstError, useVisibleErrors } from '../../../core/lib/useVisibleE
 import * as v from '../../../core/lib/validators'
 import type { ReviewerApplicationInput } from '../../../core/types'
 import { Check, Copy } from '../icons'
-import { Button } from './Button'
+import { AcButton as Button } from './AcButton'
 import { fieldClass, FormCheckboxJ3, FormFieldJ3 } from './StaticFormPartsJ3'
 import { useToast } from './Toast'
 
@@ -51,10 +51,10 @@ export function ReviewerFormJ3({ onSubmit }: { onSubmit: (v: ReviewerApplication
 
   if (reference) {
     return (
-      <div role="status" className="rounded-sheet bg-iris-50 p-8 text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-iris-700 text-white"><Check className="h-6 w-6" aria-hidden="true" /></span>
-        <h3 className="mt-4 font-jakarta text-[1.625rem] font-extrabold tracking-tight text-night-900">Application received</h3>
-        <p className="mt-2 text-base text-mauve-700">Reference <strong className="font-jakarta text-night-900">{reference}</strong>. The editorial office will review your profile and write to {f.email}.</p>
+      <div role="status" className="border border-mauve-200 bg-j3valid-50 p-8 text-center">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-j3valid-700 text-white"><Check className="h-6 w-6" aria-hidden="true" /></span>
+        <h3 className="mt-4 font-jakarta text-[1.625rem] font-semibold tracking-tight text-iris-700">Application received</h3>
+        <p className="mt-2 text-base text-mauve-700">Reference <strong className="font-inter text-night-900">{reference}</strong>. The editorial office will review your profile and write to {f.email}.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button variant="outline" onClick={async () => toast((await copyText(reference)) ? 'Reference copied' : 'Could not copy')}><Copy className="h-4 w-4" aria-hidden="true" />Copy reference</Button>
           <Button variant="primary" onClick={() => { setF(empty); setReference(null); reset() }}>Submit another</Button>
@@ -65,7 +65,7 @@ export function ReviewerFormJ3({ onSubmit }: { onSubmit: (v: ReviewerApplication
 
   return (
     <form ref={formRef} noValidate onBlur={onBlur} onSubmit={(e) => { e.preventDefault(); void submit() }} aria-label="Reviewer application" aria-busy={busy}
-      className="space-y-5 rounded-sheet bg-iris-50 p-5 sm:p-8">
+      className="space-y-5 border border-mauve-200 bg-white p-5 sm:p-8">
       <div className="grid gap-5 sm:grid-cols-2">
         <FormFieldJ3 label="Full name" name="name" required error={errors.name}><input className={fieldClass(errors.name)} value={f.name} maxLength={80} autoComplete="name" onChange={(e) => set('name', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} /></FormFieldJ3>
         <FormFieldJ3 label="Email" name="email" required error={errors.email}><input type="email" className={fieldClass(errors.email)} value={f.email} maxLength={120} autoComplete="email" onChange={(e) => set('email', e.target.value.replace(/\s/g, ''))} /></FormFieldJ3>

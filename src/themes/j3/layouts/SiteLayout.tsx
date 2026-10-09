@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { paths } from '../../../config/routes'
 import { AppLink, useRouter } from '../../../core/router'
 import type { SuggestFn } from '../../../core/types'
-import { ButtonLink, buttonClass } from '../components/Button'
 import { CommandPalette } from '../components/CommandPalette'
 import { SearchContext } from '../components/searchContext'
 import { Submit, Track } from '../icons'
@@ -38,8 +37,8 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
   useEffect(() => { setPaletteOpen(false) }, [pathname])
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-white focus:px-5 focus:py-2.5 focus:font-jakarta focus:text-sm focus:font-bold focus:text-iris-700 focus:shadow-dock">Skip to content</a>
+    <div className="flex min-h-screen flex-col bg-j3paper">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-5 focus:py-2.5 focus:font-inter focus:text-sm focus:font-semibold focus:text-iris-700 focus:shadow-dock">Skip to content</a>
       <JournalTabs />
       <UtilityBar />
       <SearchContext.Provider value={{ onSearch, onSuggest, openPalette }}>
@@ -49,9 +48,9 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
       <Footer onSubscribe={onSubscribe} />
       <CommandPalette open={paletteOpen} onClose={closePalette} onSearch={onSearch} onSuggest={onSuggest} />
       {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 bg-night-900/95 p-3 backdrop-blur sm:hidden">
-          <AppLink to={paths.track} className={`${buttonClass('light')} flex-1 px-3`}><Track className="h-4 w-4" aria-hidden="true" /> Track</AppLink>
-          <ButtonLink to={paths.submit} variant="cta" className="flex-[2] px-3"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
+        <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-white/10 bg-night-900 p-3 sm:hidden">
+          <AppLink to={paths.track} className="flex flex-1 items-center justify-center gap-2 border border-white/40 px-3 py-3 font-inter text-xs font-semibold uppercase tracking-[0.06em] text-white hover:bg-white/10"><Track className="h-4 w-4" aria-hidden="true" /> Track</AppLink>
+          <AppLink to={paths.submit} className="flex flex-[2] items-center justify-center gap-2 bg-ember-500 px-3 py-3 font-inter text-xs font-semibold uppercase tracking-[0.06em] text-night-900 hover:bg-ember-400"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</AppLink>
         </div>
       )}
     </div>

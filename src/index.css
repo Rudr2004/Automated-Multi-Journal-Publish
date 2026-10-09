@@ -28,8 +28,8 @@
 
 /* Journal 3 (Editorial Magazine): body font and violet focus ring. Scoped by the data-journal attribute, so Journals 1 and 2 are unaffected. */
 @layer base {
-  html[data-journal="j3"] body { font-family: "Inter Variable", Inter, system-ui, sans-serif; color: #3A3350; -webkit-font-smoothing: antialiased; }
-  html[data-journal="j3"] :focus-visible { outline: 2px solid #4B2E9B; outline-offset: 2px; }
+  html[data-journal="j3"] body { font-family: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif; color: #1E293B; background: #FCFBF9; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j3"] :focus-visible { outline: 2px solid #0F2B48; outline-offset: 2px; }
 }
 
 /* Journal 3 article page: while the article's compact bar is showing, the site's sticky navigation steps aside so two bars are never stacked. */
@@ -41,3 +41,6 @@ html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: tra
   html[data-journal="j4"] body { font-family: "Work Sans Variable", "Work Sans", system-ui, sans-serif; color: #475569; -webkit-font-smoothing: antialiased; }
   html[data-journal="j4"] :focus-visible { outline: 2px solid #0284C7; outline-offset: 2px; }
 }
+
+/* J2 announcement ticker: the thin progress line that fills while an announcement is on screen. */
+@keyframes j2-ticker-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }

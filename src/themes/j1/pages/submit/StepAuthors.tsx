@@ -21,7 +21,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
   return (
     <div className="space-y-8">
       <fieldset className="space-y-5">
-        <legend className="font-serif text-lg font-semibold text-navy">Corresponding author</legend>
+        <legend className="mb-1 border-b border-line pb-2 font-serif text-lg font-semibold text-navy w-full">Corresponding author</legend>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Full name" name="author.name" required error={errors['author.name']}>
             <input className={inputClass(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name"
@@ -60,16 +60,16 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
       </fieldset>
 
       <section aria-labelledby="co-h">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-line pb-2">
           <h3 id="co-h" className="font-serif text-lg font-semibold text-navy">Co-authors</h3>
-          <Button variant="secondary" size="sm" disabled={form.coAuthors.length >= 15} onClick={addCo}><Plus className="h-4 w-4" aria-hidden />Add co-author</Button>
+          <Button variant="outline" size="sm" disabled={form.coAuthors.length >= 15} onClick={addCo}><Plus className="h-4 w-4" aria-hidden />Add co-author</Button>
         </div>
         {form.coAuthors.length === 0 && <p className="mt-2 text-sm text-ink-muted">No co-authors added. Each listed co-author receives a certificate after publication.</p>}
         <ul className="mt-4 space-y-4">
           {form.coAuthors.map((c, i) => (
-            <li key={c.id} className="rounded-card border border-line bg-mist p-4">
-              <div className="mb-3 flex items-center justify-between"><span className="text-sm font-semibold">Co-author {i + 1}</span>
-                <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="rounded p-1.5 text-danger hover:bg-white"><Trash2 className="h-4 w-4" aria-hidden /></button></div>
+            <li key={c.id} className="rounded-card border border-line bg-paper p-4">
+              <div className="mb-3 flex items-center justify-between"><span className="text-sm font-semibold text-navy">Co-author {i + 1}</span>
+                <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="rounded p-1.5 text-danger hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar"><Trash2 className="h-4 w-4" aria-hidden /></button></div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                   <input className={inputClass(errors[`co.${c.id}.name`])} value={c.name} maxLength={LIMITS.name} onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />

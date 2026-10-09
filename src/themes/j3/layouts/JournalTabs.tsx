@@ -10,7 +10,7 @@ export function JournalTabs() {
         {network.map((j) => {
           const active = j.code === journal.shortName
           const href = networkHref(j)
-          const cls = cx('block rounded-full px-1 py-1.5 text-center font-jakarta text-xs font-bold sm:text-sm', active ? 'bg-white text-night-900' : href ? 'text-night-200 hover:bg-night-700 hover:text-white' : 'cursor-default text-night-400')
+          const cls = cx('block px-1 py-1.5 text-center font-jakarta text-xs font-bold sm:text-sm', active ? 'bg-white text-night-900' : href ? 'text-night-200 hover:bg-night-700 hover:text-white' : 'cursor-default text-night-400')
           return (
             <li key={j.code}>
               {href && !active

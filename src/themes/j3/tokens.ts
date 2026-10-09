@@ -1,41 +1,48 @@
-// "Editorial Magazine" design tokens for Journal 3 (IJCSD). tailwind.config.js reads this file, so every J3 colour,
-// radius and shadow is defined once here. Scales run 50 → 900 and are anchored on the brand colours:
-//   iris 700 = #4B2E9B (primary), night 900 = #1B1430 (secondary), ember 500 = #F26B3A (tertiary), mauve 700 = #3A3350 (neutral).
-// J3 uses its own radius/shadow names (rounded-tile, rounded-block …) so J1's flat 4px/no-shadow tokens are never touched.
+// "Academic Prestige" design tokens for Journal 3 (IJCSD), from docs/references/academic_prestige/DESIGN.md. tailwind.config.js reads this file, so every J3
+// colour, radius and shadow is defined once here. The token NAMES (iris, night, ember, mauve) are kept so existing J3 components pick up the new look,
+// but the values are now the reference palette:
+//   iris  = Archival Navy  (primary #0F2B48: masthead, primary buttons, links)
+//   night = Slate ink      (neutral ink and dark surfaces, 900 = deepest navy for header/footer bands)
+//   ember = Scholarly Amber (secondary: #B45309 for text/white-text fills, #FD8A42 for fills that carry dark navy text)
+//   mauve = Slate          (secondary text and hairlines: 700 #1E293B body ink, 600 #475569 metadata, 100 #E2E8F0 rules)
+// Shapes are sharp (0px). J3 keeps its own radius/shadow names (rounded-tile, rounded-block ...) so other journals are never touched.
 
 export const j3Colors = {
-  /** Primary deep violet: key brand surfaces, primary buttons, active states. */
+  /** Archival Navy: masthead, primary buttons, links, active states. 700 = #0F2B48 (primary), 600 = #1E3A5F (hover). */
   iris: {
-    50: '#F4F3F9', 100: '#DCD7EC', 200: '#C4BADE', 300: '#AC9ED1', 400: '#9482C3', 500: '#7B66B6', 600: '#634AA8', 700: '#4B2E9B', 800: '#34206B', 900: '#1C113B', DEFAULT: '#4B2E9B',
+    50: '#F2F5F9', 100: '#E1E8F1', 200: '#C5D2E2', 300: '#9DB2CB', 400: '#6E8BAE', 500: '#3E5F86', 600: '#1E3A5F', 700: '#0F2B48', 800: '#0B2038', 900: '#071627', DEFAULT: '#0F2B48',
   },
-  /** Secondary near-black indigo: header and footer backgrounds, inverted buttons, headings. */
+  /** Slate ink and deep navy surfaces. 900 = #0A1D33 (header/footer bands), 700 = #1E293B (ink). */
   night: {
-    50: '#F2F1F3', 100: '#DAD9DD', 200: '#C2C0C7', 300: '#AAA7B2', 400: '#928F9C', 500: '#7A7687', 600: '#635E71', 700: '#4B455B', 800: '#332D46', 900: '#1B1430', DEFAULT: '#1B1430',
+    50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8', 500: '#64748B', 600: '#475569', 700: '#1E293B', 800: '#10263F', 900: '#0A1D33', DEFAULT: '#0A1D33',
   },
   /**
-   * Tertiary warm orange, ONLY for "Submit Manuscript" and key calls to action.
-   * White text on #F26B3A is only 3.0:1 (fails WCAG AA), so orange buttons carry dark indigo text (night-900, 5.8:1).
-   * A darker orange (700, #A74A28) passes with white text (5.8:1) where white text is needed.
+   * Scholarly Amber. 700 (#B45309) is for amber text and borders on light surfaces (5.0:1) and for fills with white text.
+   * 500 (#FD8A42) is a fill colour: it carries dark navy text (night-900, 7.5:1), never white.
    */
   ember: {
-    50: '#FEF6F3', 100: '#FCDACE', 200: '#F9BFA9', 300: '#F7A384', 400: '#F4875F', 500: '#F26B3A', 600: '#CC5A31', 700: '#A74A28', 800: '#81391F', 900: '#5C2916', DEFAULT: '#F26B3A',
+    50: '#FFF7ED', 100: '#FFEDD5', 200: '#FED7AA', 300: '#FDBA74', 400: '#FD9D58', 500: '#FD8A42', 600: '#D9692A', 700: '#B45309', 800: '#8F4207', 900: '#6B3205', DEFAULT: '#FD8A42',
   },
-  /** Neutral muted plum grey: body text, borders, secondary text. */
+  /** Neutral slate: body text (700), secondary text (600), borders (100-200), parchment surfaces (50). */
   mauve: {
-    50: '#F3F3F5', 100: '#D9D8DD', 200: '#BEBCC6', 300: '#A4A1AE', 400: '#898597', 500: '#6F6A7F', 600: '#544E68', 700: '#3A3350', 800: '#282337', 900: '#16131E', DEFAULT: '#3A3350',
+    50: '#F8FAFC', 100: '#E2E8F0', 200: '#CBD5E1', 300: '#94A3B8', 400: '#64748B', 500: '#556377', 600: '#475569', 700: '#1E293B', 800: '#0F172A', 900: '#020617', DEFAULT: '#1E293B',
   },
+  /** Peer-validation green (Open Access, accepted, verified marks). Prefixed so it never collides with other themes' token names. */
+  j3valid: { 50: '#ECFDF5', 100: '#D1FAE5', 600: '#059669', 700: '#047857', 800: '#065F46', DEFAULT: '#047857' },
+  /** Warm editorial paper ground. */
+  j3paper: { DEFAULT: '#FCFBF9', cool: '#F8FAFC' },
 } as const
 
 export const j3Fonts = {
-  /** Plus Jakarta Sans: headlines and labels (buttons, tags, small caps). */
-  display: ['"Plus Jakarta Sans Variable"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-  /** Inter: body text. */
-  body: ['"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
+  /** Source Serif 4: titles, headings and the narrative voice. */
+  display: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Georgia', 'serif'],
+  /** Source Sans 3: interface text, metadata, DOIs, tables, labels. */
+  body: ['"Source Sans 3 Variable"', '"Source Sans 3"', 'system-ui', 'sans-serif'],
 }
 
-export const j3Radius = { tile: '16px', block: '20px', sheet: '28px' }
+export const j3Radius = { tile: '0px', block: '0px', sheet: '0px' }
 
 export const j3Shadows = {
-  lift3: '0 6px 20px rgba(27, 20, 48, 0.10)',
-  dock: '0 10px 30px rgba(27, 20, 48, 0.22)',
+  lift3: '0 2px 4px rgba(15, 43, 72, 0.06)',
+  dock: '0 4px 16px rgba(15, 43, 72, 0.14)',
 }

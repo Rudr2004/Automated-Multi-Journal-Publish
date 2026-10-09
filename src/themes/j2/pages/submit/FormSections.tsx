@@ -28,13 +28,13 @@ const cleanEmail = (s: string) => s.replace(/\s/g, '')
 /** Numbered card that holds one section. A tick replaces the number once the section is valid. */
 export function SectionCard({ id, n, title, text, done, children }: { id: string; n: number; title: string; text: string; done: boolean; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-44 rounded-panel border border-graphite-200 bg-white p-5 shadow-card sm:p-7">
-      <div className="mb-6 flex items-start gap-3">
+    <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-44 rounded-panel border border-graphite-200 bg-[#F8FBFA] p-4 sm:p-6">
+      <div className="mb-5 flex items-center gap-3 border-b border-graphite-200 pb-4">
         <span aria-hidden="true" className={cx('flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold', done ? 'bg-brand-800 text-white' : 'bg-accent-50 text-accent-800 ring-1 ring-inset ring-accent-200')}>
           {done ? <Check className="h-5 w-5" /> : n}
         </span>
-        <div>
-          <h2 id={`${id}-h`} tabIndex={-1} className="font-display text-xl font-bold text-graphite-800 focus:outline-none">{title}{done && <span className="sr-only"> (complete)</span>}</h2>
+        <div className="min-w-0">
+          <h2 id={`${id}-h`} tabIndex={-1} className="font-display text-sm font-bold uppercase tracking-[0.1em] text-brand-900 focus:outline-none">{title}{done && <span className="sr-only"> (complete)</span>}</h2>
           <p className="mt-0.5 text-sm text-graphite-600">{text}</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   return (
     <div className="space-y-8">
       <fieldset className="space-y-5">
-        <legend className="mb-1 font-display text-base font-semibold text-brand-800">Corresponding author</legend>
+        <legend className="mb-1 inline-flex items-center gap-2 font-display text-base font-semibold text-brand-800">Primary author <span className="rounded-chip bg-accent-100 px-2 py-0.5 text-xs font-semibold text-accent-900">Corresponding</span></legend>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Full name" name="author.name" required error={errors['author.name']}>
             <input className={inputCls(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name"
@@ -147,7 +147,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
         </div>
         <ul className="mt-4 space-y-4">
           {form.coAuthors.map((c, i) => (
-            <li key={c.id} className="rounded-panel border border-graphite-200 bg-graphite-50 p-4">
+            <li key={c.id} className="rounded-panel border border-graphite-200 bg-white p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm font-semibold text-graphite-800">Co-author {i + 1}</span>
                 <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="inline-flex items-center gap-1 rounded-chip px-2 py-1 text-xs font-semibold text-red-700 hover:bg-white"><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
@@ -194,8 +194,8 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
           placeholder={`Briefly explain why this work suits ${journal.shortName}, and name any reviewers you suggest.`} />
       </Field>
 
-      <fieldset className="space-y-4 rounded-panel border border-graphite-200 bg-graphite-50 p-4 sm:p-5">
-        <legend className="px-2 font-display text-base font-semibold text-brand-800">Declarations and consent</legend>
+      <fieldset className="space-y-4 rounded-panel border border-graphite-200 bg-white p-4 sm:p-5">
+        <legend className="px-2 font-display text-sm font-bold uppercase tracking-[0.1em] text-brand-900">Mandatory author declarations &amp; ethics</legend>
         <CheckField name="originality" checked={form.declarations.originality} error={errors.originality} onChange={(v) => decl('originality', v)}>
           I confirm this manuscript is original, has not been published before, and all authors have approved it.
         </CheckField>

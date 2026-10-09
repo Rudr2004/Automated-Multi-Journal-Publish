@@ -64,7 +64,7 @@ export function ReviewerFormJ2({ onSubmit }: { onSubmit: (v: ReviewerApplication
 
   return (
     <form ref={formRef} noValidate onBlur={onBlur} onSubmit={(e) => { e.preventDefault(); void submit() }} aria-label="Reviewer application" aria-busy={busy}
-      className="space-y-5 rounded-panel border border-graphite-200 bg-white p-5 shadow-card sm:p-6">
+      className="space-y-5 rounded-panel border border-graphite-200 bg-[#F8FBFA] p-5 sm:p-6">
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Full name" name="name" required error={errors.name}><input className={fieldClass(errors.name)} value={f.name} maxLength={80} autoComplete="name" onChange={(e) => set('name', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} /></FormField>
         <FormField label="Email" name="email" required error={errors.email}><input type="email" className={fieldClass(errors.email)} value={f.email} maxLength={120} autoComplete="email" onChange={(e) => set('email', e.target.value.replace(/\s/g, ''))} /></FormField>

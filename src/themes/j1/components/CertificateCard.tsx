@@ -23,8 +23,8 @@ export const certificateUrl = (number: string) => `https://${journal.domain}${pa
 /** Printable certificate of publication with a QR code that opens the verification page. */
 export function CertificateCard({ data, number }: { data: CertificateData; number: string }) {
   return (
-    <div id="certificate-print" className="relative overflow-hidden rounded-lg border-[6px] border-double border-navy bg-white p-6 text-center sm:p-10">
-      <div aria-hidden className="pointer-events-none absolute inset-2 rounded border border-navy-200" />
+    <div id="certificate-print" className="relative overflow-hidden rounded border-[6px] border-double border-navy bg-white p-6 text-center sm:p-10">
+      <div aria-hidden className="pointer-events-none absolute inset-2 border border-navy-200" />
       <div className="relative">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded bg-navy font-serif text-lg font-bold text-white">{journal.shortName}</span>
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.25em] text-navy-500">{journal.name}</p>

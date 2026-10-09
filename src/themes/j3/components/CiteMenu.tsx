@@ -5,7 +5,6 @@ import { CITATION_STYLES_WITH_IEEE, citationFilename, formatCitation, type Citat
 import { copyText, downloadText } from '../../../core/lib/clipboard'
 import type { ArticleFull } from '../../../core/types'
 import { Copy, Download } from '../icons'
-import { Button } from './Button'
 import { cx } from './primitives'
 import { useToast } from './Toast'
 
@@ -61,23 +60,23 @@ export function CiteMenu({ article, className, children }: { article: ArticleFul
       <button ref={trigger} type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen((v) => !v)} className={className}>{children}</button>
       {open && createPortal(
         <div ref={panel} id={id} role="dialog" aria-label="Cite this article" style={{ position: 'fixed', left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom }}
-          className="z-[80] max-h-[calc(100vh-16px)] overflow-auto rounded-block bg-white p-5 text-left shadow-dock ring-1 ring-mauve-100 motion-safe:animate-fade-in">
-          <p className="font-jakarta text-lg font-extrabold text-night-900">Cite this article</p>
+          className="z-[80] max-h-[calc(100vh-16px)] overflow-auto border border-mauve-100 border-t-2 border-t-iris-700 bg-white p-5 text-left shadow-dock motion-safe:animate-fade-in">
+          <p className="font-jakarta text-xl font-semibold text-iris-700">Cite this article</p>
           <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Citation style">
             {CITATION_STYLES_WITH_IEEE.map((s) => (
               <button key={s.id} type="button" aria-pressed={style === s.id} onClick={() => setStyle(s.id)}
-                className={cx('rounded-full px-3.5 py-1.5 font-jakarta text-sm font-bold', style === s.id ? 'bg-iris-700 text-white' : 'bg-iris-50 text-night-900 hover:bg-iris-100')}>{s.label}</button>
+                className={cx('px-3 py-1.5 font-inter text-xs font-bold uppercase tracking-[0.06em]', style === s.id ? 'bg-iris-700 text-white' : 'bg-iris-50 text-iris-700 hover:bg-iris-100')}>{s.label}</button>
             ))}
           </div>
-          <pre tabIndex={0} aria-label={`${style.toUpperCase()} citation`} className="mt-4 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-tile bg-iris-50 p-4 font-inter text-sm leading-relaxed text-night-900">{text}</pre>
+          <pre tabIndex={0} aria-label={`${style.toUpperCase()} citation`} className="mt-4 max-h-56 overflow-auto whitespace-pre-wrap break-words border-l-2 border-iris-700 bg-j3paper-cool p-4 font-inter text-sm leading-relaxed text-night-900">{text}</pre>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="primary" onClick={async () => { const ok = await copyText(text); toast(ok ? 'Citation copied' : 'Could not copy the citation', ok ? 'success' : 'error') }}>
+            <button type="button" className="inline-flex h-10 items-center gap-2 bg-iris-700 px-5 font-inter text-xs font-bold uppercase tracking-[0.08em] text-white hover:bg-iris-600" onClick={async () => { const ok = await copyText(text); toast(ok ? 'Citation copied' : 'Could not copy the citation', ok ? 'success' : 'error') }}>
               <Copy className="h-4 w-4" aria-hidden="true" /> Copy
-            </Button>
+            </button>
             {asFile && (
-              <Button variant="outline" onClick={() => { downloadText(citationFilename(article, style), text); toast(`${citationFilename(article, style)} downloaded`) }}>
+              <button type="button" className="inline-flex h-10 items-center gap-2 border-2 border-iris-700 px-4 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-700 hover:text-white" onClick={() => { downloadText(citationFilename(article, style), text); toast(`${citationFilename(article, style)} downloaded`) }}>
                 <Download className="h-4 w-4" aria-hidden="true" /> Download
-              </Button>
+              </button>
             )}
           </div>
         </div>,

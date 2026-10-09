@@ -23,7 +23,7 @@ export function CertificatePaper({ data, number }: { data: CertificateData; numb
       <div aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-panel border border-brand-200" />
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-brand-800 via-accent-700 to-brand-500" />
       <div className="relative">
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-soft bg-brand-800 font-display text-sm font-extrabold tracking-wide text-white">{journal.shortName}</span>
+        <img src="/journals/j2/logo.png" alt="" width={512} height={512} className="mx-auto h-16 w-16 select-none object-contain" />
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-700 sm:text-xs">{journal.name}</p>
         <h3 className="mt-4 font-display text-2xl font-bold text-brand-800 sm:text-4xl">Certificate of Publication</h3>
         <p className="mt-4 text-sm text-graphite-600">This is to certify that</p>

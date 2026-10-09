@@ -6,7 +6,7 @@ import { ButtonLink, buttonClass } from '../components/Button'
 import { DisciplineIcon, disciplines } from '../components/discipline'
 import { cx } from '../components/primitives'
 import { ChevronDown, Submit, Track } from '../icons'
-import { editorialLink, menus, primaryLinks } from './nav'
+import { apcLink, editorialLink, homeLink, menus, primaryLinks } from './nav'
 
 function Group({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -27,7 +27,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
   return (
     <div className="max-h-[calc(100vh-100px)] overflow-y-auto border-b border-graphite-200 bg-white px-4 pb-6 pt-2 shadow-pop motion-safe:animate-slide-down xl:hidden">
       <nav aria-label="Mobile">
-        {[...primaryLinks, editorialLink].map((l) => (
+        {[homeLink, ...primaryLinks, editorialLink, apcLink].map((l) => (
           <AppLink key={l.to} to={l.to} onClick={onClose} className="block border-b border-graphite-100 py-3 text-base font-semibold text-graphite-800">{l.label}</AppLink>
         ))}
         <Group id="m-disciplines" label="Disciplines">

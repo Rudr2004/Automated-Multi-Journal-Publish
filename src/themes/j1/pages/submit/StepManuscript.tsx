@@ -14,7 +14,7 @@ export function StepManuscript({ form, errors, onChange }: StepProps) {
           onChange={(e) => set('title', e.target.value.replace(/\s{2,}/g, ' '))} onBlur={() => set('title', form.title.trim())} />
       </Field>
       <Field label="Abstract" name="abstract" required error={errors.abstract} counter={`${words} / ${ABSTRACT_MAX_WORDS} words`}>
-        <textarea rows={7} className={inputClass(errors.abstract)} value={form.abstract} onChange={(e) => set('abstract', e.target.value)} onBlur={() => set('abstract', form.abstract.trim())} />
+        <textarea rows={8} className={inputClass(errors.abstract)} value={form.abstract} onChange={(e) => set('abstract', e.target.value)} onBlur={() => set('abstract', form.abstract.trim())} />
       </Field>
       <Field label="Keywords" name="keywords" required error={errors.keywords} hint="3 to 8 keywords, separated by commas.">
         <input className={inputClass(errors.keywords)} value={form.keywords} maxLength={300} placeholder="e.g. composites, graphene, tensile strength" onChange={(e) => set('keywords', e.target.value)} />
@@ -34,8 +34,8 @@ export function StepManuscript({ form, errors, onChange }: StepProps) {
         </Field>
       </div>
       <div>
-        <span className="mb-1.5 block text-sm font-medium">Manuscript file <span className="text-danger" aria-hidden>*</span></span>
-        <FileDropzone value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')}
+        <span className="mb-1.5 block text-sm font-semibold text-navy">Manuscript file <span className="text-danger" aria-hidden>*</span></span>
+        <FileDropzone title="Drag and drop your manuscript file here" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')}
           hint={`Word files only (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`} error={errors.file} />
       </div>
     </div>

@@ -12,7 +12,7 @@ const PRIVACY_HREF = paths.policy('privacy')
 const DECLARATIONS: { key: keyof SubmissionForm['declarations']; text: ReactNode }[] = [
   { key: 'originality', text: 'I confirm this manuscript is original, has not been published before, and all authors have approved it.' },
   { key: 'noSimultaneous', text: 'I confirm it is not under consideration by any other journal at the same time.' },
-  { key: 'consentData', text: (<>I consent to the journal processing the personal data in this submission (names, emails, phone numbers, affiliations) to review and publish my work, as described in the <a href={PRIVACY_HREF} target="_blank" rel="noreferrer" className="font-semibold text-navy-600 underline">Privacy Policy</a>. Author names and affiliations appear publicly if the article is published.</>) },
+  { key: 'consentData', text: (<>I consent to the journal processing the personal data in this submission (names, emails, phone numbers, affiliations) to review and publish my work, as described in the <a href={PRIVACY_HREF} target="_blank" rel="noreferrer" className="font-semibold text-scholar underline">Privacy Policy</a>. Author names and affiliations appear publicly if the article is published.</>) },
   { key: 'consentMessages', text: 'I consent to receive my Paper ID and status updates by WhatsApp, SMS and email.' },
 ]
 
@@ -21,12 +21,18 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
   return (
     <div className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Mentor name (optional)" name="mentor" error={errors.mentor}>
-          <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} onBlur={() => set('mentor', form.mentor.trim())} />
-        </Field>
-        <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens. Earn credits when a colleague refers you.">
-          <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
-        </Field>
+        <div className="space-y-2 border border-[#E9D9B5] bg-[#FFF9EE] p-4">
+          <div><h3 className="font-serif text-base font-semibold text-navy">Research guide / mentor</h3><p className="text-xs text-ink-muted">Optional. Name a supervisor if the work was done under their guidance.</p></div>
+          <Field label="Mentor name (optional)" name="mentor" error={errors.mentor}>
+            <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} onBlur={() => set('mentor', form.mentor.trim())} />
+          </Field>
+        </div>
+        <div className="space-y-2 border border-line bg-paper p-4">
+          <div><h3 className="font-serif text-base font-semibold text-navy">Referral</h3><p className="text-xs text-ink-muted">Optional. Earn credits when a colleague refers you.</p></div>
+          <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens.">
+            <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
+          </Field>
+        </div>
       </div>
       <Field label="Cover letter (optional)" name="coverLetter" error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
         <textarea rows={5} className={inputClass(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}
@@ -34,7 +40,7 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
       </Field>
 
       <fieldset className="space-y-4 rounded-card border border-line p-5">
-        <legend className="px-2 font-serif text-lg font-semibold text-navy">Declarations</legend>
+        <legend className="px-2 font-serif text-lg font-semibold text-navy">Ethical &amp; publication integrity declarations</legend>
         {DECLARATIONS.map((d) => (
           <Checkbox key={d.key} name={d.key} checked={form.declarations[d.key]} error={errors[d.key]}
             onChange={(v) => set('declarations', { ...form.declarations, [d.key]: v })}>{d.text}</Checkbox>
@@ -44,7 +50,7 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
 
       {/* Placeholder for the real reCAPTCHA widget. */}
       <div>
-        <div className="flex w-full max-w-xs items-center gap-3 rounded-lg border border-line bg-mist px-4 py-3">
+        <div className="flex w-full max-w-xs items-center gap-3 rounded border border-line bg-paper px-4 py-3">
           <button type="button" name="captcha" role="checkbox" aria-checked={form.captcha} aria-label="I am not a robot"
             onClick={() => set('captcha', !form.captcha)} className={`flex h-6 w-6 items-center justify-center rounded border-2 ${form.captcha ? 'border-oa bg-oa text-white' : 'border-ink-muted bg-white'}`}>
             {form.captcha && <Check className="h-4 w-4" aria-hidden />}

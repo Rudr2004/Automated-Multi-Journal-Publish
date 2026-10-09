@@ -92,7 +92,7 @@ export function SearchBox({ onSearch, onSuggest, id, className = '', large = fal
     <div ref={box} className={`relative ${className}`} onBlur={(e) => { if (!box.current?.contains(e.relatedTarget as Node)) close() }}>
       <form role="search" onSubmit={submit}>
         <label htmlFor={inputId} className="sr-only">Search articles, authors, keywords or DOI</label>
-        <div className={`flex overflow-hidden rounded border focus-within:border-scholar focus-within:bg-white focus-within:ring-2 focus-within:ring-scholar/20 ${nav ? 'h-9' : ''} border-line bg-mist ${nav ? '' : large ? 'h-12' : 'h-11'}`}>
+        <div className={`flex overflow-hidden rounded border focus-within:border-scholar focus-within:bg-white focus-within:ring-2 focus-within:ring-scholar/20 ${nav ? 'h-9' : ''} border-line bg-white ${nav ? '' : large ? 'h-12' : 'h-11'}`}>
           <input id={inputId} type="search" value={q} autoComplete="off" spellCheck={false} maxLength={120}
             role="combobox" aria-expanded={showList} aria-controls={listId} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
             onChange={(e) => { setQ(e.target.value); setOpen(true) }} onFocus={() => setOpen(true)} onKeyDown={onKey}

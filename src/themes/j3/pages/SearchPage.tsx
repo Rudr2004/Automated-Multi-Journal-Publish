@@ -1,5 +1,5 @@
-// Search: query box, filter chips (theme, type, year), sort, 10-per-page results as editorial rows; with no query it shows the eight themes.
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react'
+// Search: scholarly query bar with theme scope, faceted filters, sort, 10-per-page results with highlighted terms; with no query it shows the themes.
+import { Fragment, useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -7,10 +7,10 @@ import { formatDate } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
 import type { ArticleSummary } from '../../../core/types'
 import { ARTICLE_TYPES } from '../../../core/types'
-import { Button } from '../components/Button'
-import { Container, cx, EmptyState, Kicker } from '../components/primitives'
+import { AcButton, AcLabel, acInput } from '../components/AcademicUi'
+import { Container, cx } from '../components/primitives'
 import { useSearchApi } from '../components/searchContext'
-import { themeColor, themes } from '../components/themes'
+import { themes } from '../components/themes'
 import { ArrowRight, ChevronLeft, ChevronRight, Search } from '../icons'
 
 type Sort = 'relevance' | 'newest' | 'views' | 'cited'
@@ -24,22 +24,34 @@ const themeMatch = (q: string) => themes.find((t) => t.name.toLowerCase() === q.
 
 const count = <T,>(list: T[], key: (x: T) => string) => { const m = new Map<string, number>(); list.forEach((x) => m.set(key(x), (m.get(key(x)) ?? 0) + 1)); return m }
 
-function Chips({ legend, options, selected, onToggle }: { legend: string; options: { value: string; n: number }[]; selected: string[]; onToggle: (v: string) => void }) {
+function Facet({ legend, options, selected, onToggle }: { legend: string; options: { value: string; n: number }[]; selected: string[]; onToggle: (v: string) => void }) {
   if (options.length === 0) return null
   return (
-    <div role="group" aria-label={legend} className="flex flex-wrap items-center gap-2">
-      <span className="mr-1 font-jakarta text-sm font-bold text-night-900" aria-hidden="true">{legend}</span>
-      {options.map((o) => {
-        const on = selected.includes(o.value)
-        return (
-          <button key={o.value} type="button" aria-pressed={on} onClick={() => onToggle(o.value)}
-            className={cx('rounded-full px-3.5 py-2 font-jakarta text-sm font-bold', on ? 'bg-iris-700 text-white' : 'bg-iris-50 text-night-900 hover:bg-iris-100')}>
-            {o.value} <span className={on ? 'text-iris-100' : 'text-mauve-600'}>({o.n})</span>
-          </button>
-        )
-      })}
-    </div>
+    <fieldset className="border-t border-mauve-100 pt-4 first:border-t-0 first:pt-0">
+      <legend className="mb-2 font-inter text-xs font-semibold uppercase tracking-[0.08em] text-iris-700">{legend}</legend>
+      <ul className="space-y-1.5">
+        {options.map((o) => {
+          const on = selected.includes(o.value)
+          return (
+            <li key={o.value}>
+              <label className="flex cursor-pointer items-start gap-2.5 font-inter text-sm text-night-700 hover:text-iris-700">
+                <input type="checkbox" checked={on} onChange={() => onToggle(o.value)} className="mt-0.5 h-4 w-4 shrink-0 rounded-none border-mauve-300 text-iris-700 focus:ring-iris-700" />
+                <span className="min-w-0 flex-1">{o.value}</span><span className="text-mauve-600">{o.n}</span>
+              </label>
+            </li>
+          )
+        })}
+      </ul>
+    </fieldset>
   )
+}
+
+/** Wraps query words in <mark>. */
+function Hi({ text, words }: { text: string; words: string[] }) {
+  if (words.length === 0) return <>{text}</>
+  const esc = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = new RegExp(`(${words.map(esc).join('|')})`, 'gi')
+  return <>{text.split(re).map((p, i) => (i % 2 ? <mark key={i} className="bg-[#FEF3C7] px-0.5 text-inherit">{p}</mark> : <Fragment key={i}>{p}</Fragment>))}</>
 }
 
 function pageList(page: number, pages: number): (number | '…')[] {
@@ -51,17 +63,17 @@ function pageList(page: number, pages: number): (number | '…')[] {
 
 function ThemeTiles() {
   return (
-    <section aria-labelledby="themes-h" className="py-14 sm:py-20">
-      <Kicker className="text-iris-700">Browse by theme</Kicker>
-      <h2 id="themes-h" className="mb-8 mt-2 font-jakarta text-[1.75rem] font-extrabold tracking-tight text-night-900 sm:text-[2.125rem]">Eight themes, one journal</h2>
+    <section aria-labelledby="themes-h" className="py-12 sm:py-16">
+      <AcLabel className="!text-ember-700">Browse by theme</AcLabel>
+      <h2 id="themes-h" className="mb-6 mt-2 border-b-2 border-iris-700 pb-3 font-jakarta text-[1.5rem] font-semibold uppercase tracking-[0.02em] text-iris-700 sm:text-[1.75rem]">Themes</h2>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {themes.map((t, i) => (
           <li key={t.id}>
-            <AppLink to={paths.search(t.name)} className="group relative flex min-h-[180px] flex-col justify-between overflow-hidden rounded-block p-6 text-white transition-transform motion-safe:hover:-translate-y-0.5 hover:shadow-lift3" style={{ backgroundColor: t.color }}>
-              <span aria-hidden="true" className="font-jakarta text-[2.25rem] font-extrabold leading-none text-white/40">{String(i + 1).padStart(2, '0')}</span>
-              <span className="mt-6 flex items-end justify-between gap-3">
-                <span className="font-jakarta text-[1.5rem] font-extrabold leading-tight">{t.name}</span>
-                <ArrowRight className="h-6 w-6 shrink-0 transition-transform motion-safe:group-hover:translate-x-1" aria-hidden="true" />
+            <AppLink to={paths.search(t.name)} className="group flex min-h-[9rem] flex-col justify-between border border-t-2 border-mauve-100 border-t-iris-700 bg-white p-5 hover:border-iris-700">
+              <span aria-hidden="true" className="font-jakarta text-[1.75rem] font-semibold leading-none text-mauve-300">{String(i + 1).padStart(2, '0')}</span>
+              <span className="mt-5 flex items-end justify-between gap-3">
+                <span className="font-jakarta text-[1.25rem] font-semibold leading-tight text-iris-700 group-hover:text-ember-700">{t.name}</span>
+                <ArrowRight className="h-5 w-5 shrink-0 text-iris-700" aria-hidden="true" />
               </span>
             </AppLink>
           </li>
@@ -70,6 +82,8 @@ function ThemeTiles() {
     </section>
   )
 }
+
+const pageBtn = 'inline-flex h-10 min-w-10 items-center justify-center gap-1 border px-3 font-inter text-sm font-semibold'
 
 export function SearchPage({ query, results }: { query: string; results: ArticleSummary[] }) {
   const { onSearch } = useSearchApi()
@@ -83,6 +97,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
   const top = useRef<HTMLDivElement>(null)
   const inputId = useId()
   const sortId = useId()
+  const scopeId = useId()
 
   useEffect(() => { setText(query); const t = themeMatch(query); setSubjects(t ? [t] : []); setTypes([]); setYears([]); setPage(1) }, [query])
   useEffect(() => { setPage(1) }, [subjects, types, years, sort])
@@ -91,6 +106,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
   const subjectOpts = useMemo(() => [...count(results, (a) => a.subject)].map(([value, n]) => ({ value, n })), [results])
   const typeOpts = useMemo(() => { const c = count(results, (a) => a.type); return ARTICLE_TYPES.filter((t) => c.has(t)).map((value) => ({ value: value as string, n: c.get(value)! })) }, [results])
   const yearOpts = useMemo(() => [...count(results, yearOf)].sort((a, b) => b[0].localeCompare(a[0])).map(([value, n]) => ({ value, n })), [results])
+  const words = useMemo(() => (themeMatch(term) ? [] : [...new Set(term.split(/\s+/).filter((w) => w.length > 1))]), [term])
 
   const filtered = useMemo(() => {
     const list = results.filter((a) => (!subjects.length || subjects.includes(a.subject)) && (!types.length || types.includes(a.type)) && (!years.length || years.includes(yearOf(a))))
@@ -107,25 +123,35 @@ export function SearchPage({ query, results }: { query: string; results: Article
   const clear = () => { setSubjects([]); setTypes([]); setYears([]) }
   const go = (n: number) => { setPage(n); top.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }) }
   const submit = (e: FormEvent) => { e.preventDefault(); if (text.trim()) onSearch(text.trim()) }
+  const scope = subjects.length === 1 ? subjects[0] : ''
 
   return (
     <>
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
-      <section className="bg-iris-50">
-        <Container className="py-12 sm:py-16">
-          <Kicker className="text-iris-700">Search</Kicker>
-          <h1 className="mt-3 font-jakarta font-extrabold leading-[1.05] tracking-tight text-night-900" style={{ fontSize: 'clamp(32px,3.4vw,44px)' }}>
-            {term ? 'Search results' : 'Find an article'}
-          </h1>
-          <form role="search" onSubmit={submit} className="mt-6 max-w-2xl">
-            <label htmlFor={inputId} className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
-            <div className="flex h-14 items-center gap-2 rounded-full bg-white pl-5 pr-1.5 shadow-lift3 ring-1 ring-mauve-200 focus-within:ring-2 focus-within:ring-iris-700">
-              <Search className="h-5 w-5 shrink-0 text-mauve-500" aria-hidden="true" />
-              <input id={inputId} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Title, author, keyword or DOI…" autoComplete="off"
-                className="min-w-0 flex-1 bg-transparent text-base text-night-900 placeholder:text-mauve-500 focus:outline-none focus-visible:!outline-none" />
-              <button type="submit" className="h-11 shrink-0 rounded-full bg-iris-700 px-6 font-jakarta text-sm font-bold text-white hover:bg-iris-800">Search</button>
+      <section className="border-b border-mauve-100 bg-[#F8FAFC]">
+        <Container className="py-10 sm:py-14">
+          <AcLabel className="!text-ember-700">{journal.shortName} · Search the archive</AcLabel>
+          <h1 className="mt-3 font-jakarta text-[clamp(2rem,3.4vw,2.75rem)] font-semibold leading-[1.1] text-iris-700">{term ? 'Search results' : 'Find an article'}</h1>
+          <form role="search" onSubmit={submit} className="mt-6 grid max-w-4xl gap-3 md:grid-cols-[1fr_14rem_auto]">
+            <div>
+              <label htmlFor={inputId} className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-mauve-600" aria-hidden="true" />
+                <input id={inputId} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Title, author, keyword or DOI…" autoComplete="off" className={cx(acInput, '!pl-10')} />
+              </div>
             </div>
+            <div>
+              <label htmlFor={scopeId} className="sr-only">Limit results to a theme</label>
+              <select id={scopeId} value={scope} disabled={subjectOpts.length < 2 && !scope} onChange={(e) => setSubjects(e.target.value ? [e.target.value] : [])} className={cx(acInput, 'pr-8 disabled:opacity-60')}>
+                <option value="">All themes</option>
+                {subjectOpts.map((o) => <option key={o.value} value={o.value}>{o.value}</option>)}
+              </select>
+            </div>
+            <button type="submit" className="inline-flex items-center justify-center gap-2 border border-iris-700 bg-iris-700 px-8 py-3 font-inter text-xs font-semibold uppercase tracking-[0.08em] text-white hover:bg-iris-600">Search</button>
           </form>
+          {!term && (
+            <p className="mt-4 font-inter text-sm text-mauve-700">Try: {SUGGESTIONS.slice(0, 4).map((s, i) => <Fragment key={s}>{i > 0 && ', '}<AppLink to={paths.search(s)} className="font-semibold text-iris-700 underline underline-offset-4 hover:text-ember-700">{s}</AppLink></Fragment>)}</p>
+          )}
         </Container>
       </section>
 
@@ -133,74 +159,83 @@ export function SearchPage({ query, results }: { query: string; results: Article
         {!term && results.length === 0 ? (
           <ThemeTiles />
         ) : (
-          <div ref={top} className="scroll-mt-32 py-12 sm:py-16">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <p role="status" className="text-lg text-mauve-700">
-                <strong className="font-jakarta font-extrabold text-night-900">{filtered.length}</strong> result{filtered.length === 1 ? '' : 's'}{term && <> for <strong className="text-night-900">“{term}”</strong></>}
+          <div ref={top} className="scroll-mt-32 py-10 sm:py-14">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-iris-700 pb-3">
+              <p role="status" className="font-inter text-base text-mauve-700">
+                <strong className="font-semibold text-night-700">{filtered.length}</strong> result{filtered.length === 1 ? '' : 's'}{term && <> for <strong className="font-semibold text-night-700">“{term}”</strong></>}
               </p>
               <div className="flex items-center gap-2">
-                <label htmlFor={sortId} className="font-jakarta text-sm font-bold text-night-900">Sort by</label>
-                <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-11 rounded-full border border-mauve-300 bg-white px-4 font-jakarta text-sm font-bold text-night-900">
+                <label htmlFor={sortId} className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-mauve-600">Sort by</label>
+                <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 border border-mauve-300 bg-white py-0 pl-3 pr-8 font-inter text-sm font-semibold text-night-700">
                   {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
             </div>
 
-            {results.length > 0 && (
-              <div className="mt-6 space-y-3 border-y border-mauve-100 py-5">
-                <Chips legend="Theme" options={subjectOpts} selected={subjects} onToggle={toggle(setSubjects)} />
-                <Chips legend="Type" options={typeOpts} selected={types} onToggle={toggle(setTypes)} />
-                <Chips legend="Year" options={yearOpts} selected={years} onToggle={toggle(setYears)} />
-                {active > 0 && <button type="button" onClick={clear} className="font-jakarta text-sm font-bold text-iris-700 underline underline-offset-4 hover:text-iris-900">Clear all filters</button>}
-              </div>
-            )}
+            <div className={cx('mt-6 grid gap-8', results.length > 0 && 'lg:grid-cols-[15rem_1fr]')}>
+              {results.length > 0 && (
+                <aside aria-label="Refine results" className="space-y-4 self-start border border-mauve-100 bg-[#F8FAFC] p-4">
+                  <Facet legend="Theme" options={subjectOpts} selected={subjects} onToggle={toggle(setSubjects)} />
+                  <Facet legend="Article type" options={typeOpts} selected={types} onToggle={toggle(setTypes)} />
+                  <Facet legend="Year" options={yearOpts} selected={years} onToggle={toggle(setYears)} />
+                  {active > 0 && <button type="button" onClick={clear} className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-iris-700 underline underline-offset-4 hover:text-ember-700">Clear all filters</button>}
+                </aside>
+              )}
 
-            {results.length === 0 ? (
-              <div className="mt-10">
-                <EmptyState title={`No articles found for “${term}”`} text="Check the spelling, try fewer words, or start from one of these ideas." />
-                <ul className="mt-6 flex flex-wrap justify-center gap-2">
-                  {SUGGESTIONS.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded-full bg-iris-50 px-4 py-2 font-jakarta text-sm font-bold text-iris-700 hover:bg-iris-100">{s}</AppLink></li>)}
-                </ul>
-                <p className="mt-8 text-center text-sm text-mauve-700">Or browse by theme:</p>
-                <ul className="mt-3 flex flex-wrap justify-center gap-2">
-                  {themes.map((t) => <li key={t.id}><AppLink to={paths.search(t.name)} className="inline-block rounded-full border border-mauve-300 px-4 py-2 font-jakarta text-sm font-bold text-night-900 hover:bg-iris-50">{t.name}</AppLink></li>)}
-                </ul>
-              </div>
-            ) : filtered.length === 0 ? (
-              <div className="mt-10"><EmptyState title="No results match these filters" text="Remove a filter to see more articles." action={<Button variant="primary" onClick={clear}>Clear all filters</Button>} /></div>
-            ) : (
-              <ol className="mt-4" start={(current - 1) * PER_PAGE + 1}>
-                {slice.map((a, i) => (
-                  <li key={a.paperId} className="relative grid gap-x-6 border-b border-mauve-100 py-8 sm:grid-cols-[3.5rem_1fr]">
-                    <span aria-hidden="true" className="hidden font-jakarta text-[1.625rem] font-extrabold leading-none text-iris-200 sm:block">{String((current - 1) * PER_PAGE + i + 1).padStart(2, '0')}</span>
-                    <div className="min-w-0">
-                      <p className="font-jakarta text-sm font-extrabold" style={{ color: themeColor(a.subject) }}>{a.subject}</p>
-                      <h2 className="mt-1.5 font-jakarta text-[1.5rem] font-extrabold leading-snug tracking-tight text-night-900 sm:text-[1.75rem]">
-                        <AppLink to={paths.article(a.paperId)} className="hover:text-iris-700 after:absolute after:inset-0 after:content-['']">{a.title}</AppLink>
-                      </h2>
-                      <p className="mt-2 text-base font-semibold text-mauve-800">{a.authors.join(', ')}</p>
-                      <p className="mt-3 line-clamp-2 max-w-3xl text-base text-mauve-700">{a.abstract}</p>
-                      <p className="mt-3 text-sm text-mauve-600">{a.type} · Vol. {a.volume}, No. {a.issue} · pp. {a.pages} · {formatDate(a.publishedAt)}</p>
+              <div className="min-w-0">
+                {results.length === 0 ? (
+                  <div>
+                    <div className="border border-mauve-100 bg-[#F8FAFC] p-8 text-center">
+                      <p className="font-jakarta text-xl font-semibold text-iris-700">No articles found for “{term}”</p>
+                      <p className="mt-1 font-inter text-sm text-mauve-700">Check the spelling, try fewer words, or start from one of these ideas.</p>
                     </div>
-                  </li>
-                ))}
-              </ol>
-            )}
+                    <ul className="mt-6 flex flex-wrap justify-center gap-2">
+                      {SUGGESTIONS.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block border border-mauve-100 bg-[#F8FAFC] px-3 py-2 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{s}</AppLink></li>)}
+                    </ul>
+                    <p className="mt-8 text-center font-inter text-sm text-mauve-700">Or browse by theme:</p>
+                    <ul className="mt-3 flex flex-wrap justify-center gap-2">
+                      {themes.map((t) => <li key={t.id}><AppLink to={paths.search(t.name)} className="inline-block border border-mauve-300 px-3 py-2 font-inter text-sm font-semibold text-night-700 hover:border-iris-700 hover:text-iris-700">{t.name}</AppLink></li>)}
+                    </ul>
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="border border-mauve-100 bg-[#F8FAFC] p-10 text-center">
+                    <p className="font-jakarta text-xl font-semibold text-iris-700">No results match these filters</p>
+                    <p className="mt-1 font-inter text-sm text-mauve-700">Remove a filter to see more articles.</p>
+                    <AcButton className="mt-4" onClick={clear}>Clear all filters</AcButton>
+                  </div>
+                ) : (
+                  <ol start={(current - 1) * PER_PAGE + 1}>
+                    {slice.map((a, i) => (
+                      <li key={a.paperId} className="relative border-b border-mauve-100 py-6 first:pt-0">
+                        <p className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-ember-700">{a.type} · {a.subject}</p>
+                        <h2 className="mt-1.5 font-jakarta text-[1.375rem] font-semibold leading-snug text-iris-700 sm:text-[1.5rem]">
+                          <span className="sr-only">{(current - 1) * PER_PAGE + i + 1}. </span>
+                          <AppLink to={paths.article(a.paperId)} className="hover:text-ember-700 hover:underline after:absolute after:inset-0 after:content-['']"><Hi text={a.title} words={words} /></AppLink>
+                        </h2>
+                        <p className="mt-1.5 font-inter text-sm font-semibold text-night-700"><Hi text={a.authors.join(', ')} words={words} /></p>
+                        <p className="mt-2 line-clamp-2 max-w-3xl font-jakarta text-base leading-relaxed text-mauve-700"><Hi text={a.abstract} words={words} /></p>
+                        <p className="mt-2 font-inter text-xs text-mauve-600">Vol. {a.volume}, No. {a.issue} · pp. {a.pages} · {formatDate(a.publishedAt)} · {a.paperId}</p>
+                      </li>
+                    ))}
+                  </ol>
+                )}
 
-            {pages > 1 && filtered.length > 0 && (
-              <nav aria-label="Pagination" className="mt-10 flex flex-wrap items-center justify-center gap-2">
-                <button type="button" disabled={current === 1} onClick={() => go(current - 1)} className="inline-flex h-11 items-center gap-1 rounded-full border-2 border-night-900 px-4 font-jakarta text-sm font-bold text-night-900 hover:bg-night-900 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-night-900">
-                  <ChevronLeft className="h-5 w-5" aria-hidden="true" /> Previous
-                </button>
-                {pageList(current, pages).map((n, i) => n === '…' ? <span key={`g${i}`} aria-hidden="true" className="px-1 text-mauve-600">…</span> : (
-                  <button key={n} type="button" onClick={() => go(n)} aria-label={`Page ${n}`} aria-current={n === current ? 'page' : undefined}
-                    className={cx('h-11 min-w-11 rounded-full px-3 font-jakarta text-sm font-bold', n === current ? 'bg-iris-700 text-white' : 'bg-iris-50 text-night-900 hover:bg-iris-100')}>{n}</button>
-                ))}
-                <button type="button" disabled={current === pages} onClick={() => go(current + 1)} className="inline-flex h-11 items-center gap-1 rounded-full border-2 border-night-900 px-4 font-jakarta text-sm font-bold text-night-900 hover:bg-night-900 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-night-900">
-                  Next <ChevronRight className="h-5 w-5" aria-hidden="true" />
-                </button>
-              </nav>
-            )}
+                {pages > 1 && filtered.length > 0 && (
+                  <nav aria-label="Pagination" className="mt-8 flex flex-wrap items-center gap-2">
+                    <button type="button" disabled={current === 1} onClick={() => go(current - 1)} className={cx(pageBtn, 'border-iris-700 text-iris-700 hover:bg-iris-700 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-iris-700')}>
+                      <ChevronLeft className="h-5 w-5" aria-hidden="true" /> Previous
+                    </button>
+                    {pageList(current, pages).map((n, i) => n === '…' ? <span key={`g${i}`} aria-hidden="true" className="px-1 text-mauve-600">…</span> : (
+                      <button key={n} type="button" onClick={() => go(n)} aria-label={`Page ${n}`} aria-current={n === current ? 'page' : undefined}
+                        className={cx(pageBtn, n === current ? 'border-iris-700 bg-iris-700 text-white' : 'border-mauve-100 text-night-700 hover:border-iris-700')}>{n}</button>
+                    ))}
+                    <button type="button" disabled={current === pages} onClick={() => go(current + 1)} className={cx(pageBtn, 'border-iris-700 text-iris-700 hover:bg-iris-700 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-iris-700')}>
+                      Next <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </nav>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </Container>

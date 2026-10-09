@@ -8,7 +8,7 @@ import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../
 import { ButtonLink, Button } from '../components/Button'
 import { CertificateDialog } from '../components/CertificatePaper'
 import { Field, inputCls } from '../components/FieldKit'
-import { PageBand } from '../components/PageBand'
+import { PortalHeader } from '../components/PortalHeader'
 import { SearchOff } from '../components/pageIcons'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
@@ -98,10 +98,10 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
   const download = (d: PaperDocument) => { if (d.id === 'cert') request({ kind: 'cert' }); else toast(`${d.label} downloaded.`) }
 
   return (
-    <>
-      <PageBand eyebrow="Track my paper" title="Where is my paper?" text="No login needed. Enter your Paper ID and the email address you used when submitting." />
+    <div className="bg-[#F4F9F7]">
+      <PortalHeader trail={[{ label: 'For Authors', to: paths.policy('author-guidelines') }]} current="Track My Paper" chip="Manuscript status console" title="Where is my paper?" text="No login needed. Enter your Paper ID and the email address you used when submitting. Payment, copyright signing, edits and certificates are protected by an email OTP." />
       <Container className="py-8 sm:py-10">
-        <form onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 rounded-panel border border-graphite-200 bg-white p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-start sm:p-6">
+        <form onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 rounded-sheet border border-graphite-200 bg-white p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-start sm:p-8">
           <Field label="Paper ID" name="paperId" required error={errors.paperId}>
             <input className={inputCls(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
               onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
@@ -132,14 +132,14 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
               <PaperResult paper={paper} actions={{ onPay: (mode) => request({ kind: 'pay', mode }), onSign: () => request({ kind: 'sign' }), onEdit: () => request({ kind: 'edit' }), onDownload: download }} />
             )}
             {result?.kind === 'other-journal' && (
-              <div role="status" className="mx-auto max-w-xl rounded-panel border border-accent-200 bg-accent-50 p-8 text-center">
+              <div role="status" className="mx-auto max-w-xl rounded-sheet border border-accent-200 bg-accent-50 p-8 text-center">
                 <SearchOff className="mx-auto h-9 w-9 text-accent-700" aria-hidden="true" />
                 <h2 className="mt-3 font-display text-xl font-bold text-graphite-800">This Paper ID belongs to another journal</h2>
                 <p className="mt-2 text-sm text-graphite-700">Paper IDs for {journal.shortName} start with <strong>{journal.paperIdPrefix}</strong>. IDs starting with <strong>{result.code}</strong> are tracked on that journal’s own Track page. Please check the confirmation email you received.</p>
               </div>
             )}
             {result?.kind === 'not-found' && (
-              <div role="alert" className="mx-auto max-w-xl rounded-panel border border-red-700/25 bg-red-50 p-8 text-center">
+              <div role="alert" className="mx-auto max-w-xl rounded-sheet border border-red-700/25 bg-red-50 p-8 text-center">
                 <SearchOff className="mx-auto h-9 w-9 text-red-700" aria-hidden="true" />
                 <h2 className="mt-3 font-display text-xl font-bold text-graphite-800">We couldn’t find that paper</h2>
                 <p className="mt-2 text-sm text-graphite-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-accent-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
@@ -160,6 +160,6 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             paper={{ paperId: paper.paperId, title: paper.title, authors: paper.authors, publishedAt: paper.stageDates.published ?? today() }} />
         </>
       )}
-    </>
+    </div>
   )
 }

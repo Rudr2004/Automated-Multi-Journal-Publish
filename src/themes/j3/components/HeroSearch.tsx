@@ -6,17 +6,20 @@ import { useRouter } from '../../../core/router'
 import type { SearchSuggestions } from '../../../core/types'
 import { cx } from './primitives'
 import { useSearchApi } from './searchContext'
-import { Book, FactCheck, Search, Track } from '../icons'
+import { themes } from './themes'
+import { ArrowRight, Book, FactCheck, Search, Track } from '../icons'
 
 interface Row { key: string; label: string; sub?: string; icon: React.ReactNode; run: () => void }
 
-export function HeroSearch({ className }: { className?: string }) {
+/** Archive search bar with a collection scope. `scoped` adds the collection select (a theme narrows the search to that collection). */
+export function HeroSearch({ className, scoped = true }: { className?: string; scoped?: boolean }) {
   const { onSearch, onSuggest } = useSearchApi()
   const { navigate } = useRouter()
   const id = useId()
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(-1)
+  const [scope, setScope] = useState('')
   const [data, setData] = useState<SearchSuggestions | null>(null)
   const box = useRef<HTMLDivElement>(null)
   const term = q.trim()
@@ -52,7 +55,8 @@ export function HeroSearch({ className }: { className?: string }) {
     e.preventDefault()
     if (active >= 0 && rows[active]) { rows[active].run(); return }
     if (data?.direct?.article) { go(paths.article(data.direct.paperId)); return }
-    if (term) { setOpen(false); onSearch(term) }
+    if (term) { setOpen(false); onSearch(scope ? `${term} ${scope}` : term); return }
+    if (scope) { setOpen(false); navigate(paths.search(scope)) }
   }
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setActive((i) => Math.min(rows.length - 1, i + 1)) }
@@ -63,22 +67,32 @@ export function HeroSearch({ className }: { className?: string }) {
 
   return (
     <div ref={box} className={cx('relative', className)}>
-      <form role="search" onSubmit={submit} className="flex h-[52px] items-center gap-2 rounded-full bg-white pl-5 pr-1.5 shadow-lift3 ring-1 ring-mauve-200 focus-within:ring-2 focus-within:ring-iris-700">
-        <Search className="h-5 w-5 shrink-0 text-mauve-500" aria-hidden="true" />
-        <input value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
-          role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
-          type="text" autoComplete="off" aria-label="Search articles, authors, keywords, DOI or Paper ID" placeholder="Title, author, keyword or DOI…"
-          className="min-w-0 flex-1 bg-transparent text-base text-night-900 placeholder:text-mauve-500 focus:outline-none focus-visible:!outline-none" />
-        <button type="submit" className="h-10 shrink-0 rounded-full bg-iris-700 px-6 font-jakarta text-sm font-bold text-white hover:bg-iris-800">Search</button>
+      <form role="search" onSubmit={submit} className="flex flex-col gap-2 bg-white p-2 ring-1 ring-mauve-100 lg:flex-row lg:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-2 bg-iris-50 px-3 focus-within:ring-2 focus-within:ring-iris-700">
+          <Search className="h-5 w-5 shrink-0 text-mauve-600" aria-hidden="true" />
+          <input value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
+            role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
+            type="text" autoComplete="off" aria-label="Search articles, authors, keywords, DOI or Paper ID" placeholder="Search by article title, author name, keyword, DOI or Paper ID"
+            className="min-w-0 flex-1 bg-transparent py-3 font-inter text-[15px] text-night-700 placeholder:text-mauve-500 focus:outline-none focus-visible:!outline-none" />
+        </div>
+        <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap">
+          {scoped && themes.length > 0 && (
+            <select value={scope} onChange={(e) => setScope(e.target.value)} aria-label="Search scope" className="min-w-0 flex-1 bg-iris-50 px-3 py-3 font-inter text-sm text-night-700 focus:outline-none focus:ring-2 focus:ring-iris-700 sm:w-56 sm:flex-none">
+              <option value="">In this journal</option>
+              {themes.map((t) => <option key={t.id} value={t.name}>{t.name}</option>)}
+            </select>
+          )}
+          <button type="submit" className="inline-flex shrink-0 items-center justify-center gap-2 bg-iris-700 px-6 py-3 font-inter text-xs font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-iris-600">Search Archive <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        </div>
       </form>
       {show && (
-        <ul id={`${id}-list`} role="listbox" className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-block bg-white py-2 text-left shadow-dock ring-1 ring-mauve-100">
+        <ul id={`${id}-list`} role="listbox" className="absolute left-0 right-0 top-full z-30 mt-1 bg-white py-2 text-left shadow-dock ring-1 ring-mauve-100">
           {rows.map((r, i) => (
             <li key={r.key} role="presentation">
               <button id={`${id}-${i}`} type="button" role="option" aria-selected={active === i} onMouseDown={(e) => e.preventDefault()} onClick={r.run} onMouseEnter={() => setActive(i)}
                 className={cx('flex w-full items-start gap-3 px-5 py-2.5 text-left', active === i && 'bg-iris-50')}>
                 <span className="mt-0.5">{r.icon}</span>
-                <span className="min-w-0"><span className="block truncate font-jakarta text-sm font-bold text-night-900">{r.label}</span>{r.sub && <span className="block truncate text-xs text-mauve-600">{r.sub}</span>}</span>
+                <span className="min-w-0"><span className="block break-words font-inter text-sm font-semibold text-night-900">{r.label}</span>{r.sub && <span className="block break-words text-xs text-mauve-600">{r.sub}</span>}</span>
               </button>
             </li>
           ))}

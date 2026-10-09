@@ -2,10 +2,10 @@ import { Search } from '../components/uiIcons'
 import { useMemo, useState } from 'react'
 import type { ArticleSummary, IssueSummary } from '../../../mock-data/journals/j1'
 import { AccordionItem } from '../components/Accordion'
-import { ArticleCard } from '../components/ArticleCard'
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { IssueArticleCard } from '../components/IssueArticleCard'
 import { inputClass } from '../components/form'
 import { IssueCard } from '../components/IssueCard'
-import { PageHeader } from '../components/PageHeader'
 import { Container, EmptyState } from '../components/primitives'
 import { AppLink } from '../../../core/router'
 import { paths } from '../../../config/routes'
@@ -37,13 +37,18 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
 
   return (
     <>
-      <PageHeader crumbs={[{ label: 'Home', to: paths.home }, { label: 'Past Issues' }]} title="Past Issues"
-        subtitle="Browse every published volume and issue. All articles are open access and free to read." />
-      <Container className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">
+      <Container>
+        <Breadcrumbs items={[{ label: 'Home', to: paths.home }, { label: 'Past Issues' }]} />
+        <header className="border-b border-line pb-5">
+          <h1 className="font-serif text-[1.875rem] font-semibold leading-tight tracking-tight text-navy sm:text-[2.5rem] sm:leading-[3rem]">Archives: Past Issues</h1>
+          <p className="mt-2 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-muted">Browse every published volume and issue. All articles are open access and free to read.</p>
+        </header>
+      </Container>
+      <Container className="mt-8 grid gap-8 pb-12 lg:grid-cols-[260px_1fr]">
         {/* Desktop timeline */}
         <nav aria-label="Volumes timeline" className="hidden lg:block">
-          <div className="sticky top-20 rounded-card border border-line bg-white p-5">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Archive timeline</h2>
+          <div className="sticky top-20 border border-line bg-white p-5">
+            <h2 className="border-b border-line pb-3 font-serif text-[1.25rem] font-semibold text-navy">Archive timeline</h2>
             <ol className="mt-4 space-y-5 border-l border-line pl-4">
               {volumes.map((v) => (
                 <li key={v.volume} className="relative">
@@ -54,7 +59,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
                   <ul className="mt-1.5 flex flex-wrap gap-1.5">
                     {[...v.list].reverse().map((i) => (
                       <li key={i.issue}><AppLink to={i.isCurrent ? paths.currentIssue : paths.issue(i.volume, i.issue)}
-                        className="rounded bg-mist px-1.5 py-0.5 text-[11px] font-medium text-ink-muted hover:bg-navy hover:text-white" aria-label={`Volume ${i.volume}, Issue ${i.issue}, ${formatMonthYear(i.month)}`}>{MONTH(i.month).slice(0, 3)}</AppLink></li>
+                        className="rounded-sm border border-line bg-white px-1.5 py-0.5 text-[11px] font-semibold text-scholar hover:border-navy hover:bg-navy hover:text-white" aria-label={`Volume ${i.volume}, Issue ${i.issue}, ${formatMonthYear(i.month)}`}>{MONTH(i.month).slice(0, 3)}</AppLink></li>
                     ))}
                   </ul>
                 </li>
@@ -76,16 +81,16 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
           <form role="search" onSubmit={(e) => e.preventDefault()} className="relative">
             <label htmlFor="past-q" className="sr-only">Search the archive by keyword, title, author or DOI</label>
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" aria-hidden />
-            <input id="past-q" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by keyword, title, author or DOI…" className={`${inputClass()} h-12 pl-10`} />
+            <input id="past-q" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by keyword, title, author or DOI…" className="h-12 w-full rounded border border-line bg-white pl-10 pr-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-scholar focus:ring-2 focus:ring-scholar/25" />
           </form>
 
           {q ? (
             <section aria-live="polite" className="mt-6">
               <h2 className="font-serif text-xl font-semibold text-navy">{results.length} result{results.length === 1 ? '' : 's'} for “{query}”</h2>
-              <div className="mt-4 grid gap-4">
+              <div className="mt-4 space-y-4">
                 {results.length === 0
                   ? <EmptyState title="No articles match your search" hint="Check the spelling or try an author name or DOI." />
-                  : results.map((a) => <ArticleCard key={a.paperId} article={a} variant="list" />)}
+                  : results.map((a) => <IssueArticleCard key={a.paperId} article={a} highlight={query} />)}
               </div>
             </section>
           ) : (
@@ -93,7 +98,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
               {volumes.map((v) => (
                 <section key={v.volume} id={`volume-${v.volume}`} className="scroll-mt-20" aria-label={`Volume ${v.volume}, ${v.year}`}>
                   <AccordionItem open={!!open[v.volume]} onToggle={(o) => setOpen((s) => ({ ...s, [v.volume]: o }))}
-                    title={<span className="font-serif text-xl">Volume {v.volume} <span className="font-sans text-sm font-medium text-ink-muted">· {v.year} · {v.list.length} issues</span></span>}>
+                    title={<span className="font-serif text-xl">Volume {v.volume} <span className="font-sans text-sm font-semibold text-ink-muted">· {v.year} · {v.list.length} issues</span></span>}>
                     <div className="grid gap-4 md:grid-cols-2">
                       {v.list.map((i) => <IssueCard key={i.issue} issue={i} href={i.isCurrent ? paths.currentIssue : paths.issue(i.volume, i.issue)} />)}
                     </div>

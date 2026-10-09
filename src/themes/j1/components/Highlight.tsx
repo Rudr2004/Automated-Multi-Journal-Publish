@@ -6,7 +6,7 @@ export function Highlight({ text, query }: { text: string; query?: string }) {
   return (
     <>
       {text.split(re).map((part, i) =>
-        i % 2 === 1 ? <mark key={i} className="rounded-sm bg-gold-soft px-0.5 text-inherit">{part}</mark> : <span key={i}>{part}</span>)}
+        i % 2 === 1 ? <mark key={i} className="rounded-sm bg-[#FFEBC2] px-0.5 text-inherit">{part}</mark> : <span key={i}>{part}</span>)}
     </>
   )
 }

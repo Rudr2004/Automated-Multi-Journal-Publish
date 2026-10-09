@@ -25,17 +25,17 @@ export function J3FileDrop({ name, value, onChange, validate, accept, hint, erro
   return (
     <div>
       {value ? (
-        <div className="flex items-center gap-3 rounded-tile border-2 border-iris-700 bg-iris-50 p-4">
-          <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-iris-700 font-jakarta text-xs font-extrabold text-white">DOC</span>
-          <div className="min-w-0 flex-1"><p className="truncate font-jakarta text-sm font-bold text-night-900">{value.name}</p><p className="text-sm text-mauve-700">{formatSize(value.size)}</p></div>
-          <button type="button" onClick={() => { onChange(null); setLocal('') }} aria-label={`Remove ${value.name}`} className="rounded-full p-2 text-mauve-700 hover:bg-white"><Close className="h-5 w-5" aria-hidden="true" /></button>
+        <div className="flex items-center gap-3 rounded-none border border-iris-700 bg-iris-50 p-4">
+          <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-none bg-iris-700 font-inter text-xs font-bold tracking-wide text-white">DOC</span>
+          <div className="min-w-0 flex-1"><p className="break-all font-inter text-sm font-semibold text-night-900">{value.name}</p><p className="text-sm text-mauve-700">{formatSize(value.size)}</p></div>
+          <button type="button" onClick={() => { onChange(null); setLocal('') }} aria-label={`Remove ${value.name}`} className="rounded-none p-2 text-mauve-700 hover:bg-white"><Close className="h-5 w-5" aria-hidden="true" /></button>
         </div>
       ) : (
         <label htmlFor={id} onDragOver={(e) => { e.preventDefault(); setOver(true) }} onDragLeave={() => setOver(false)} onDrop={onDrop}
-          className={cx('block cursor-pointer rounded-block border-2 border-dashed p-6 text-center transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-iris-700 sm:p-8',
-            over ? 'border-iris-700 bg-iris-100' : shown ? 'border-red-700 bg-red-50' : 'border-iris-300 bg-iris-50 hover:border-iris-700')}>
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-iris-700 text-2xl font-bold text-white" aria-hidden="true">+</span>
-          <span className="mt-3 block text-base text-night-900"><span className="font-jakarta font-bold text-iris-700 underline">Choose a file</span> or drag it here</span>
+          className={cx('block cursor-pointer rounded-none border border-dashed p-6 text-center transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-iris-700 sm:p-8',
+            over ? 'border-iris-700 bg-iris-100' : shown ? 'border-red-700 bg-red-50' : 'border-iris-400 bg-j3paper-cool hover:border-iris-700')}>
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-none bg-iris-700 text-2xl font-bold text-white" aria-hidden="true">+</span>
+          <span className="mt-3 block text-base text-night-900"><span className="font-inter font-semibold text-iris-700 underline">Choose a file</span> or drag it here</span>
           <span className="mt-1 block text-sm text-mauve-700">{hint}</span>
           <input id={id} name={name} type="file" accept={accept} className="sr-only" aria-invalid={shown ? true : undefined} aria-describedby={describedBy}
             onChange={(e) => { pick(e.target.files?.[0]); e.target.value = '' }} />
