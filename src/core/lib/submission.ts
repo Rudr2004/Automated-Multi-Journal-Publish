@@ -51,7 +51,9 @@ export interface SubmissionForm {
   /** Branch of the chosen discipline (only asked for disciplines that list branches, see branches.ts). */
   branch: string
   file: { name: string; size: number } | null
-  author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string; photo: AuthorPhoto | null }
+  author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string; photo: AuthorPhoto | null
+    /** Optional academic designation (e.g. Assistant Professor, Ph.D. Scholar). Shown by J1 only; never validated in core. */
+    designation?: string }
   coAuthors: CoAuthor[]
   mentor: string
   /** Optional mentor / research-guide contact details (the form in J1 and J2 asks for them next to the co-authors). */
@@ -65,7 +67,7 @@ export interface SubmissionForm {
 
 export const initialForm: SubmissionForm = {
   title: '', abstract: '', keywords: '', articleType: '', subject: '', branch: '', file: null,
-  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '', photo: null },
+  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '', photo: null, designation: '' },
   coAuthors: [], mentor: '', mentorEmail: '', mentorInstitution: '', referralCode: '', coverLetter: '',
   declarations: { originality: false, noSimultaneous: false, consentData: false, consentMessages: false }, captcha: false,
 }

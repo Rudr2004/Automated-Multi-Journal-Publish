@@ -5,6 +5,9 @@ type ToastKind = 'success' | 'error'
 interface ToastItem { id: number; kind: ToastKind; message: string }
 const Ctx = createContext<(message: string, kind?: ToastKind) => void>(() => {})
 export const useToast = () => useContext(Ctx)
+/** Removes every error toast that is still on screen (e.g. a stale validation message once the problem is fixed). */
+const DismissCtx = createContext<() => void>(() => {})
+export const useDismissErrorToasts = () => useContext(DismissCtx)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([])
@@ -13,8 +16,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setItems((l) => [...l, { id, kind, message }])
     setTimeout(() => setItems((l) => l.filter((t) => t.id !== id)), 4000)
   }, [])
+  const dismissErrors = useCallback(() => setItems((l) => l.filter((t) => t.kind !== 'error')), [])
   return (
     <Ctx.Provider value={push}>
+      <DismissCtx.Provider value={dismissErrors}>
       {children}
       <div aria-live="polite" className="fixed bottom-20 right-4 z-[70] flex flex-col gap-2 md:bottom-6">
         {items.map((t) => (
@@ -25,6 +30,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           </div>
         ))}
       </div>
+      </DismissCtx.Provider>
     </Ctx.Provider>
   )
 }

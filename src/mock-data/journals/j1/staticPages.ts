@@ -18,11 +18,62 @@ export const staticPages: StaticPageData[] = [
     { heading: 'Duties of reviewers', list: ['Treat manuscripts as confidential documents.', 'Provide objective, constructive and timely feedback.', 'Declare conflicts of interest before accepting an invitation.'] },
     { heading: 'Handling misconduct', paragraphs: ['Allegations of plagiarism, data fabrication, image manipulation or undisclosed duplicate submission are investigated by the editor-in-chief. Outcomes may include correction, expression of concern, retraction and notification of the author’s institution.'] },
   ], ['plagiarism', 'retraction', 'conflict-of-interest'], { principles: true }),
-  P('peer-review', 'Peer Review Process', 'Every submission is screened by an editor. When the editor needs expert input, an independent reviewer is invited and a review report is prepared. Every decision is logged with its reason.', [
-    { heading: 'Review stages', list: ['Submission: you receive a Paper ID by email, SMS and WhatsApp straight away.', 'Review: the editor screens the paper for scope, quality and plagiarism. A reviewer’s report is added only when the editor asks for one, so this step is optional.', 'Decision: the editor approves, asks for changes or rejects. The reason is logged and a review report PDF is prepared for you.', 'Daily batch: decision and acceptance messages are sent once a day at 08:45 IST.', 'Revisions: changes you make are checked by the handling editor.'] },
-    { heading: 'Typical timeline', paragraphs: ['The average time to first decision is about 14 days. Authors can follow every stage at any time on Track My Paper using their Paper ID and email address.'], callout: { tone: 'info', title: 'No account needed', text: 'Authors never need to register. Signing the copyright form uses a one-time code sent to your email.' } },
-    { heading: 'When are reviewers used?', paragraphs: ['Editors invite independent reviewers when a paper needs specialist assessment. Reviewers are selected for subject expertise and the absence of conflicts. Authors may suggest reviewers, but editors are not obliged to use them.'] },
-  ], ['publication-ethics', 'reviewer-guidelines', 'conflict-of-interest']),
+  P('peer-review', 'Peer Review Process', 'How every IJMAT submission is screened, reviewed and decided: the review types we use, who may review, the criteria applied, the timeline and how to appeal. Every decision is logged with its reason.', [
+    { heading: 'Overview & Core Philosophy', paragraphs: [
+      'Independent, impartial evaluation is the foundation of trustworthy scholarship. Every manuscript submitted to the International Journal of Multidisciplinary Academic Research and Trends (IJMAT) is assessed on its technical substance, methodological soundness and relevance to the journal’s subject areas, and on nothing else.',
+      'Editorial decisions are made independently of commercial considerations and without regard to an author’s nationality, gender or institution. Authors never need an account: you receive a Paper ID at submission and can follow every stage on Track My Paper.'] },
+    { heading: 'Types of Peer Review Employed', paragraphs: ['Two layers of scrutiny are applied, so that every paper gets an appropriate level of expert assessment:'], blocks: [
+      { type: 'card-grid', title: '', items: [
+        { icon: 'eye', tag: 'Standard', title: 'Single-anonymised external review', text: 'When a paper needs specialist assessment, an independent reviewer is invited. The reviewer’s identity is kept confidential from the authors, and the reviewer’s report is evaluated by the handling editor alongside the manuscript.' },
+        { icon: 'shield-check', tag: 'Every submission', title: 'Editorial review', text: 'The handling editor screens every submission for scope, quality, ethics and similarity, and may decide on a paper directly. Special-issue and invited articles are reviewed by the editor who commissioned them.' },
+      ] },
+    ] },
+    { heading: 'Reviewer Selection & Vetting Criteria', paragraphs: ['Editors choose reviewers for subject expertise and independence. Candidates are expected to meet the following criteria:'], blocks: [
+      { type: 'icon-list', title: '', items: [
+        { icon: 'graduation', title: 'Doctoral qualification or equivalent', text: 'A PhD or equivalent research experience in the discipline of the manuscript.' },
+        { icon: 'history', title: 'Active publication record', text: 'Recent peer-reviewed publications in or close to the topic under review.' },
+        { icon: 'building', title: 'Institutional independence', text: 'No affiliation with the authors’ institution and no shared funding or project with any author.' },
+        { icon: 'block', title: 'Collaboration check', text: 'People who have co-authored with, or supervised or been supervised by, any author in the past five years are not invited.' },
+      ] },
+    ] },
+    { heading: 'Evaluation Criteria & Standard Rubric', paragraphs: ['Editors and reviewers assess manuscripts against four criteria, each in written comments rather than a numeric score:'], blocks: [
+      { type: 'card-grid', title: '', items: [
+        { mark: 'A', title: 'Novelty & significance', text: 'A clear original contribution, placed properly in the existing literature.' },
+        { mark: 'B', title: 'Methodological soundness', text: 'Methods, models, experiments or study design that are appropriate, described in enough detail and validated.' },
+        { mark: 'C', title: 'Results & statistics', text: 'Conclusions that follow from the evidence, with appropriate statistical treatment and uncertainty.' },
+        { mark: 'D', title: 'Clarity, ethics & reproducibility', text: 'Clear writing, ethical approvals where relevant, and a data availability statement as set out in the Data Policy.' },
+      ] },
+    ] },
+    { heading: 'Review Timeline & Workflow', badge: '7–14 day first decision', paragraphs: ['We aim to reach a first decision within 7 to 14 days of submission. Authors can see the current stage at any time on Track My Paper.'], blocks: [
+      { type: 'ordered-steps', layout: 'row', title: '', items: [
+        { title: 'Submission', meta: 'Paper ID issued instantly' },
+        { title: 'Editor screening', meta: 'Scope, quality, similarity' },
+        { title: 'Review (if needed)', meta: 'Independent reviewer' },
+        { title: 'Decision', meta: 'Reason is logged' },
+      ] },
+      { type: 'table', title: '', caption: 'Table 1. Workflow stages and standard durations', head: ['Workflow stage', 'Responsible party', 'Standard duration'], rows: [
+        ['Submission and Paper ID', 'Author and system', 'Instant'],
+        ['Editor screening and similarity check', 'Handling editor', 'About 2 working days'],
+        ['Reviewer invitation response', 'Invited reviewer', 'Within 3 days'],
+        ['Reviewer report', 'Independent reviewer', '7–10 days'],
+        ['Decision and notification', 'Handling editor', 'Sent in the daily batch at 08:45 IST'],
+        ['Revisions', 'Corresponding author', 'Checked by the handling editor'],
+      ] },
+    ] },
+    { heading: 'Confidentiality & Data Security', paragraphs: ['Every submitted manuscript is a confidential document. Editors, reviewers and staff are bound by the following rules:'], list: [
+      'Unpublished manuscripts must not be shared, discussed with others or used for personal research.',
+      'Manuscripts and reviewer reports must not be uploaded to public generative AI tools (see the AI Policy).',
+      'A reviewer’s identity is never disclosed to the authors, and review reports stay in the editorial tracking system.'] },
+    { heading: 'Conflict of Interest Disclosures', paragraphs: ['Reviewers and editors must decline a manuscript when they have a conflict with an author, such as shared funding, the same department, recent co-authorship or a close personal relationship. If a conflict emerges during review, the reviewer informs the editor at once and the manuscript is reassigned to another independent reviewer.'],
+      callout: { tone: 'note', title: 'Practice note (consistent with COPE guidance)', text: 'Editors who submit their own papers are excluded from every stage of the handling of that paper, which is run by an independent editor.' } },
+    { heading: 'Appeals, Complaints & Editorial Escalation', paragraphs: ['Authors may appeal a rejection if they can show a factual error or documented bias. Appeals must be made within 30 days of the decision by email to editor@ijmat.org, quoting the Paper ID.'], blocks: [
+      { type: 'ordered-steps', layout: 'list', title: 'Standard appeals procedure', items: [
+        { title: 'Point-by-point rebuttal', text: 'Send a rebuttal that addresses the editor’s and reviewers’ comments one by one.' },
+        { title: 'Independent assessment', text: 'An editor who was not involved in the original decision reviews the rebuttal.' },
+        { title: 'Final decision', text: 'An additional independent reviewer may be consulted. The outcome of the appeal is final and is sent to you in writing.' },
+      ] },
+    ] },
+  ], ['publication-ethics', 'conflict-of-interest', 'retraction', 'ai-policy'], { meta: { ref: 'IJMAT-POL-PEER-REVIEW', version: '2.0', authority: 'Editorial Office', appliesTo: 'Authors, reviewers, editors' } }),
   P('copyright-licensing', 'Copyright and Licensing', 'Authors retain copyright. All articles are published under the Creative Commons Attribution 4.0 International licence (CC BY 4.0).', [
     { heading: 'What CC BY 4.0 allows', list: ['Share — copy and redistribute the material in any medium or format.', 'Adapt — remix, transform and build upon the material for any purpose, including commercially.', 'Attribution is required: give appropriate credit, link to the licence and indicate if changes were made.'] },
     { heading: 'Copyright form', paragraphs: ['After acceptance, the corresponding author signs a copyright and licence-to-publish form through Track My Paper using an email OTP. No printing or scanning is required.'] },
@@ -148,10 +199,16 @@ const BLOCKS: Record<string, StaticBlock[]> = {
     ] },
   ],
   'peer-review': [
-    { type: 'flow', title: 'Peer review at a glance', nodes: [
-      { label: 'Submission', note: 'Paper ID issued' }, { label: 'Editor screening', note: 'Scope, quality, plagiarism' },
-      { label: 'Reviewer', note: 'Optional, if needed' }, { label: 'Decision', note: 'Reason is logged' },
-      { label: 'Acceptance', note: 'Letter and copyright form' }, { label: 'Publication', note: 'DOI and certificates' },
+    { type: 'in-brief', title: 'In Brief: Core Tenets', items: [
+      { title: 'Single-anonymised review', text: 'Reviewer identities stay confidential from authors; every report is weighed by the handling editor.' },
+      { title: 'Independent reviewers', text: 'Invited for subject expertise and the absence of conflicts, whenever a paper needs specialist input.' },
+      { title: 'Ethics first', text: 'Undisclosed conflicts, data fabrication and unethical practice are not tolerated.' },
+      { title: 'Logged, timely decisions', text: 'First decision targeted within 7 to 14 days, with the reason for every decision recorded.' },
+    ] },
+    { type: 'faq-accordion', title: 'Frequently Asked Questions', items: [
+      { q: 'Can authors suggest or exclude reviewers?', a: 'Authors may suggest reviewers with their institutional email addresses and may ask for specific people to be excluded, giving a reason. Editors are not obliged to follow suggestions and independently verify every reviewer before inviting them.' },
+      { q: 'What happens if reviewers disagree?', a: 'When recommendations conflict, the handling editor weighs the arguments in the reports and may invite an additional independent reviewer before deciding. The decision letter explains the reasoning.' },
+      { q: 'How is confidential feedback handled?', a: 'Comments for the authors are passed on in full. Reviewers may also send confidential comments to the editor, for example about ethical concerns. These are never shown to the authors.' },
     ] },
   ],
   'apc-payment': [
@@ -180,6 +237,14 @@ const BLOCKS: Record<string, StaticBlock[]> = {
   contact: [{ type: 'contact-details' }, { type: 'contact-form', title: 'Send us a message' }],
 }
 staticPages.forEach((p) => { if (BLOCKS[p.slug]) p.blocks = BLOCKS[p.slug] })
+
+/** Title-card defaults per group; pages may override single fields with `meta`. */
+const DEFAULT_META: Record<StaticGroup, NonNullable<StaticPageData['meta']>> = {
+  policies: { category: 'Editorial & Publishing Policy', version: '1.0', authority: 'Editorial Office', appliesTo: 'Authors, reviewers, editors' },
+  'for-authors': { category: 'Author Information', version: '1.0', authority: 'Editorial Office', appliesTo: 'Authors' },
+  about: { category: 'About the Journal', version: '1.0', authority: 'Editorial Office', appliesTo: 'Authors, readers' },
+}
+staticPages.forEach((p) => { p.meta = { ...DEFAULT_META[p.group], ...p.meta } })
 
 export const pageBySlug = (slug: string) => staticPages.find((p) => p.slug === slug)
 export const pagesInGroup = (g: StaticGroup) => staticPages.filter((p) => p.group === g)

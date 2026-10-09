@@ -6,13 +6,13 @@ import { doiFor, journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { formatDate, formatNumber } from '../../../core/lib/format'
 import { downloadArticlePdf } from '../../../core/lib/pdf'
-import { copyText } from '../../../core/lib/clipboard'
 import { AppLink } from '../../../core/router'
 import { Avatar } from './Avatar'
 import { OrcidIcon } from './ArticleParts'
 import { Highlight } from './Highlight'
+import { CiteArticleButton, ShareArticleButton } from './IssueDialogs'
 import { useToast } from './Toast'
-import { ChevronDown, Download, Eye, FileText, FormatQuote, LockOpen, Share2 } from './uiIcons'
+import { ChevronDown, Download, Eye, FileText, FormatQuote, LockOpen } from './uiIcons'
 
 const TYPE_ACCENT: Record<ArticleSummary['type'], string> = {
   'Research Article': 'border-l-scholar',
@@ -35,15 +35,10 @@ export function IssueArticleCard({ article, highlight, featured = false }: { art
   const href = paths.article(article.paperId)
   const absId = `abs-${article.paperId}`
 
-  const share = async () => {
-    const url = `https://${journal.domain}${href}`
-    toast((await copyText(url)) ? 'Article link copied to clipboard.' : 'Could not copy. Copy the address from the browser bar instead.')
-  }
-
   return (
     <article className={`border border-l-[3px] border-line bg-white p-5 sm:p-6 ${TYPE_ACCENT[article.type]} ${featured ? 'border-l-gold' : ''}`}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
-        <span className="rounded-sm border border-[#C4D9EE] bg-scholar-soft px-2 py-1 font-semibold uppercase tracking-wider text-scholar">{article.subject}</span>
+        <span className="rounded-sm border border-[#C4D9EE] bg-scholar-soft px-2 py-1 font-semibold text-scholar">{article.subject}</span>
         <span className="rounded-sm border border-line bg-paper px-2 py-1 font-semibold text-ink">{article.type}</span>
         <span className="rounded-sm bg-mist px-2 py-1 font-mono font-semibold tabular-nums text-ink">pp. {article.pages}</span>
         <span className="inline-flex items-center gap-1 rounded-sm border border-oa/30 bg-oa-soft px-2 py-1 font-semibold text-oa"><LockOpen className="h-3 w-3" aria-hidden />{journal.licence.name}</span>
@@ -68,7 +63,6 @@ export function IssueArticleCard({ article, highlight, featured = false }: { art
         })}
       </ul>
 
-      <p className={`mt-3 text-[0.9375rem] leading-relaxed text-ink ${open ? 'sr-only' : 'line-clamp-2'}`}>{article.abstract}</p>
       {open && (
         <div id={absId} className="mt-3 border border-line border-l-[3px] border-l-navy bg-paper p-4 text-[0.9375rem] leading-relaxed">
           <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">Abstract</p>
@@ -77,7 +71,10 @@ export function IssueArticleCard({ article, highlight, featured = false }: { art
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-[13px] text-ink-muted">
-        <span><span className="font-semibold uppercase tracking-wide">DOI:</span> <a href={`https://doi.org/${doi}`} className="font-mono tabular-nums text-scholar hover:underline">{doi}</a></span>
+        <span className="font-mono text-xs tabular-nums">
+          <span className="font-semibold">DOI</span> <a href={`https://doi.org/${doi}`} className="text-scholar hover:underline">{doi}</a>
+          <span aria-hidden className="mx-1.5">•</span><span className="font-semibold">MS ID</span> <span className="text-ink">{article.paperId}</span>
+        </span>
         <span className="ml-auto flex flex-wrap items-center gap-4 font-semibold tabular-nums text-ink">
           <span className="inline-flex items-center gap-1"><Eye className="h-4 w-4 text-ink-muted" aria-hidden />{formatNumber(article.views)}<span className="sr-only"> views</span></span>
           <span className="inline-flex items-center gap-1"><Download className="h-4 w-4 text-ink-muted" aria-hidden />{formatNumber(article.downloads)}<span className="sr-only"> downloads</span></span>
@@ -93,9 +90,10 @@ export function IssueArticleCard({ article, highlight, featured = false }: { art
         </a>
         <AppLink to={href} className={secondary}><FileText className="h-4 w-4" aria-hidden />Full Text</AppLink>
         <button type="button" aria-expanded={open} aria-controls={absId} onClick={() => setOpen(!open)} className={`${secondary} bg-scholar-soft`}>
-          <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />Abstract
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />{open ? 'Hide abstract' : 'Abstract'}
         </button>
-        <button type="button" onClick={share} aria-label={`Copy link to ${article.title}`} className={`${secondary} ml-auto w-9 justify-center px-0`}><Share2 className="h-4 w-4" aria-hidden /></button>
+        <CiteArticleButton article={article} />
+        <ShareArticleButton article={article} className={`${secondary} ml-auto w-9 justify-center px-0`} />
       </div>
     </article>
   )

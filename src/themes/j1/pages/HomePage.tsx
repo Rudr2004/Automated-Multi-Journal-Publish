@@ -1,7 +1,8 @@
-import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { MdOutlineEditNote, MdOutlineInfo, MdOutlineMailOutline, MdOutlineWorkspacePremium } from 'react-icons/md'
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { MdOutlineEditNote, MdOutlineInfo, MdOutlineMailOutline, MdOutlineOpenInNew, MdOutlineWorkspacePremium } from 'react-icons/md'
 import type { ArticleSummary, J1HomeData } from '../../../mock-data/journals/j1'
-import { journal } from '../../../config/journals/j1'
+import { api } from '../../../core/api'
+import { journal, visibleLogos } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { ApcCalculator } from '../components/ApcCalculator'
 import { Avatar } from '../components/Avatar'
@@ -9,11 +10,10 @@ import { portraitFor } from '../../../mock-data/shared/portraits'
 import { Button } from '../components/Button'
 import { CountUp } from '../components/CountUp'
 import { CfpCard, LeftSidebar, RightSidebar } from '../components/HomeSidebars'
-import { IndexedStrip } from '../components/IndexLogos'
+import { HomeArticle } from '../components/HomeArticle'
 import { IssueCover } from '../components/IssueCover'
-import { Card, PortalArticle, Tag } from '../components/PortalParts'
+import { Card, Tag } from '../components/PortalParts'
 import { Container } from '../components/primitives'
-import { ProcessStepper } from '../components/ProcessStepper'
 import { StickyRail } from '../components/StickyRail'
 import { Testimonials } from '../components/Testimonials'
 import { TrustIcon } from '../components/icons'
@@ -80,7 +80,7 @@ function Hero({ data }: { data: J1HomeData }) {
   return (
     <section aria-labelledby="hero-h" className="overflow-hidden rounded border border-line bg-paper">
       <div className="grid gap-5 p-4 sm:grid-cols-[auto_1fr] sm:gap-6 sm:p-6">
-        <AppLink to={paths.currentIssue} aria-label={`Open Volume ${ci.volume}, Issue ${ci.issue} (current issue)`} className="mx-auto block w-[132px] self-start border border-navy-700 sm:mx-0 sm:mt-2">
+        <AppLink to={paths.currentIssue} aria-label={`Open Volume ${ci.volume}, Issue ${ci.issue} (current issue)`} className="mx-auto block w-[126px] self-start border border-navy-700 sm:mx-0 sm:mt-2">
           <IssueCover volume={ci.volume} issue={ci.issue} month={ci.month} className="block h-auto w-full" />
         </AppLink>
         <div className="min-w-0">
@@ -89,7 +89,7 @@ function Hero({ data }: { data: J1HomeData }) {
             <span className="inline-flex items-center rounded-sm border border-line bg-white px-2 py-0.5 text-xs font-semibold text-navy">{journal.frequency} Publication</span>
             <span className="inline-flex items-center rounded-sm border border-line bg-white px-2 py-0.5 text-xs font-semibold text-navy">{formatMonthYear(ci.month)}</span>
           </div>
-          <h1 id="hero-h" className="mt-3 font-serif text-[1.875rem] font-semibold leading-[1.15] tracking-tight text-navy sm:text-[2.25rem] sm:leading-[1.2]">Advancing multidisciplinary academic research and trends</h1>
+          <h1 id="hero-h" className="mt-3 font-serif text-[1.75rem] font-semibold leading-[1.2] tracking-tight text-navy sm:text-[2.125rem]">Advancing Multidisciplinary Academic Research and Trends</h1>
           <p className="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-ink-muted sm:text-base">{journal.mission}</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <AppLink to={paths.submit} className={NAVY_BTN}><MdOutlineEditNote className="h-5 w-5" aria-hidden />Submit Manuscript</AppLink>
@@ -98,27 +98,28 @@ function Hero({ data }: { data: J1HomeData }) {
         </div>
       </div>
       <div className="border-t border-line px-4 py-4 sm:px-6">
-        <form role="search" onSubmit={go} className="flex">
+        <form role="search" onSubmit={go} className="flex gap-2">
           <label htmlFor="hero-search" className="sr-only">Search articles, authors, keywords or DOI</label>
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-l border border-line bg-white px-3 focus-within:border-scholar focus-within:ring-2 focus-within:ring-scholar/20">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded border border-line bg-white px-3 focus-within:border-scholar focus-within:ring-2 focus-within:ring-scholar/20">
             <Search className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden />
             <input id="hero-search" value={q} onChange={(e) => setQ(e.target.value)} maxLength={160} autoComplete="off" placeholder={`Search articles, authors, keywords, DOI (e.g., ${journal.doiPrefix}/${journal.paperIdPrefix}…)`}
               className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-muted" />
           </div>
-          <button type="submit" className="h-[46px] shrink-0 rounded-r bg-scholar px-4 text-sm font-bold text-white hover:bg-scholar-dark sm:px-5">Search<span className="hidden sm:inline"> Journal</span></button>
+          <button type="submit" className="h-[46px] shrink-0 rounded bg-scholar px-4 text-sm font-bold text-white hover:bg-scholar-dark sm:px-5">Search<span className="hidden sm:inline"> Journal</span></button>
         </form>
-        <p className="mt-2 flex flex-wrap items-center gap-x-1.5 text-xs text-ink-muted">
+        <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-ink-muted">
           Try searching:
           {journal.subjects.slice(0, 3).map((s, i) => (
             <span key={s}><AppLink to={paths.search(s)} className="text-scholar hover:underline">{s}</AppLink>{i < 2 ? ',' : ''}</span>
           ))}
+          <AppLink to={paths.pastIssues} className="ml-auto inline-flex items-center gap-0.5 font-semibold text-scholar hover:underline">Browse the archive<MdOutlineOpenInNew className="h-3 w-3" aria-hidden /></AppLink>
         </p>
       </div>
-      <dl className="grid grid-cols-2 border-t border-line bg-white sm:grid-cols-4 sm:divide-x sm:divide-line">
+      <dl className="grid grid-cols-2 border-t border-line bg-white/70 sm:grid-cols-4 sm:divide-x sm:divide-line">
         {stats.map((s) => (
-          <div key={s.id} className="border-b border-line px-4 py-3 sm:border-b-0 sm:px-5">
-            <dd className="font-serif text-2xl font-semibold tabular-nums text-navy"><CountUp value={s.value} /></dd>
-            <dt className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{s.label}</dt>
+          <div key={s.id} className="border-b border-line px-4 py-2.5 sm:border-b-0 sm:px-5">
+            <dd className="font-serif text-xl font-semibold tabular-nums text-navy"><CountUp value={s.value} /></dd>
+            <dt className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-ink-muted">{s.label}</dt>
           </div>
         ))}
       </dl>
@@ -126,36 +127,54 @@ function Hero({ data }: { data: J1HomeData }) {
   )
 }
 
-/** "Verified indexing & abstracting repositories": small caps title and the index logo tiles. */
+/** "Verified indexing & abstracting repositories": one row of five compact text tiles (name and listing status) from the visible index logos. */
 function Indexing() {
+  const logos = visibleLogos().slice(0, 5)
+  if (!logos.length) return null
   return (
-    <section aria-labelledby="idx-h" className="rounded border border-line bg-white p-4 sm:p-5">
+    <section aria-labelledby="idx-h" className="rounded border border-line bg-white p-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="idx-h" className="text-xs font-bold uppercase tracking-wider text-ink-muted">Verified indexing &amp; abstracting repositories</h2>
-        <AppLink to={paths.about('indexing')} className="inline-flex items-center gap-1 text-xs font-semibold text-scholar hover:underline">Verify our presence<span aria-hidden>↗</span></AppLink>
+        <h2 id="idx-h" className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">Verified indexing &amp; abstracting repositories</h2>
+        <AppLink to={paths.about('indexing')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-scholar hover:underline">Verify our presence<span aria-hidden>↗</span></AppLink>
       </div>
-      <IndexedStrip look="strip" limit={8} />
-      <p className="mt-2 text-xs text-ink-muted">Select a logo to see what the listing means and to verify it on the index’s own website.</p>
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Indexed and verified by">
+        {logos.map((l, i) => (
+          <li key={l.id} className={logos.length % 2 === 1 && i === logos.length - 1 ? 'col-span-2 sm:col-span-1' : ''}>
+            <a href={l.verifyUrl} target="_blank" rel="noopener noreferrer" title={`Verify on ${l.name}`}
+              className="flex h-full flex-col items-center justify-center rounded border border-line bg-paper px-2 py-2 text-center hover:border-scholar">
+              <span className="text-xs font-bold leading-tight text-navy">{l.name}</span>
+              <span className="mt-0.5 text-[10px] leading-tight text-ink-muted">{l.status}</span>
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
 
-/** Journal facts as a table with a navy label column. */
+/** Journal facts as a table with a narrow dark label column. */
+const LABEL_BG = '#001333' // allowed for this block by the J1 design brief
+const ORANGE_LINK = 'font-medium text-[#B45309] hover:underline' // dark orange: 5.0:1 on white
+
 function JournalOverview() {
+  const addressLines = (v: string) => { const p = v.split(', '); return [p[0], p.slice(1, 4).join(', '), p.slice(4).join(', ')].filter(Boolean) }
   const linked = (k: string, v: string) =>
-    k === 'Email' ? <a href={`mailto:${v}`} className="font-medium text-scholar hover:underline">{v}</a>
-      : k === 'Website' ? <a href={`https://${v}`} className="font-medium text-scholar hover:underline">{v}</a> : v
+    k === 'Email' ? <a href={`mailto:${v}`} className={ORANGE_LINK}>{v}</a>
+      : k === 'Website' ? <a href={`https://${v}`} target="_blank" rel="noopener noreferrer" className={ORANGE_LINK}>{v}<span className="sr-only"> (opens in a new tab)</span></a>
+        : k === 'Publisher' ? <AppLink to={paths.about('journal-information')} className={ORANGE_LINK}>{v}</AppLink>
+          : k === 'Address' ? <span className="block font-semibold">{addressLines(v).map((l) => <span key={l} className="block">{l}</span>)}</span> : v
   return (
     <section aria-labelledby="info-h" className="overflow-hidden rounded border border-navy bg-white">
       <header className="flex items-center justify-between gap-3 bg-navy px-4 py-3 sm:px-5">
-        <h2 id="info-h" className="flex items-center gap-2 font-serif text-[1.1875rem] font-bold text-white sm:text-[1.3125rem]"><MdOutlineInfo className="h-5 w-5 shrink-0 text-navy-200" aria-hidden />Journal Information &amp; Overview</h2>
+        <h2 id="info-h" className="flex items-center gap-2 font-serif text-[1.125rem] font-bold text-white sm:text-[1.25rem]"><MdOutlineInfo className="h-5 w-5 shrink-0 text-navy-200" aria-hidden />Journal Information &amp; Overview</h2>
         <span className="shrink-0 rounded-sm border border-[#FBD28D] bg-[#FFF7EB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A4B00]">Official Metadata</span>
       </header>
       <dl>
         {journal.info.map(([k, v]) => (
-          <div key={k} className="grid grid-cols-[7.5rem_1fr] border-t border-line first:border-t-0 sm:grid-cols-[10rem_1fr]">
-            <dt className="bg-navy px-3 py-3 text-sm font-bold text-white sm:px-4">{k}</dt>
-            <dd className={`min-w-0 break-words px-3 py-3 text-sm text-ink sm:px-4 ${['ISSN', 'Starting Year'].includes(k) ? 'font-mono tabular-nums' : ''}`}>{linked(k, v)}</dd>
+          <div key={k} className="grid grid-cols-[7rem_1fr] border-t border-line first:border-t-0">
+            <dt className="px-3 py-2.5 text-[13px] font-bold text-white" style={{ backgroundColor: LABEL_BG }}>{k}</dt>
+            <dd className={`min-w-0 break-words px-3 py-2.5 text-sm text-ink sm:px-4 ${['ISSN', 'Starting Year'].includes(k) ? 'font-mono tabular-nums' : ''}`}>{linked(k, v)}</dd>
           </div>
         ))}
       </dl>
@@ -163,12 +182,20 @@ function JournalOverview() {
   )
 }
 
-/** Segmented tabs (Latest / Most Read / Editor's Choice) in the header of the articles list. Arrow keys move between tabs. */
+/** Segmented tabs (Latest / Most Read / Most Cited) in the header of the articles list. Arrow keys move between tabs. */
 function ArticlesList({ data }: { data: J1HomeData }) {
   const ci = data.currentIssue
   const uid = useId()
+  // Most Cited ranks the current issue's articles by citations (loaded once from the API).
+  const [issueArticles, setIssueArticles] = useState<ArticleSummary[] | null>(null)
+  useEffect(() => {
+    let on = true
+    api.getCurrentIssue().then((r) => { if (on) setIssueArticles(r.articles) }).catch(() => { if (on) setIssueArticles([]) })
+    return () => { on = false }
+  }, [])
+  const cited = [...(issueArticles?.length ? issueArticles : data.latest)].sort((a, b) => b.citations - a.citations)
   const tabs: { id: string; label: string; items: ArticleSummary[] }[] = [
-    { id: 'latest', label: 'Latest', items: data.latest }, { id: 'read', label: 'Most Read', items: data.mostRead }, { id: 'choice', label: 'Editor’s Choice', items: data.editorsChoice },
+    { id: 'latest', label: 'Latest', items: data.latest }, { id: 'read', label: 'Most Read', items: data.mostRead }, { id: 'cited', label: 'Most Cited', items: cited },
   ]
   const [active, setActive] = useState('latest')
   const refs = useRef<Record<string, HTMLButtonElement | null>>({})
@@ -195,13 +222,37 @@ function ArticlesList({ data }: { data: J1HomeData }) {
         </div>
       </header>
       <div id={`${uid}-p`} role="tabpanel" aria-labelledby={`${uid}-t-${active}`}>
-        {current.items.slice(0, 5).map((a) => <PortalArticle key={a.paperId} article={a} />)}
+        {current.items.slice(0, 5).map((a) => <HomeArticle key={`${active}-${a.paperId}`} article={a} />)}
       </div>
       <AppLink to={paths.currentIssue} className="block border-t border-[#C4D9EE] bg-scholar-soft px-4 py-3 text-center text-[13px] font-bold text-navy hover:bg-[#DCE8F8]">
         View Full Volume {ci.volume} Issue {ci.issue} Table of Contents ({ci.articleCount} Articles) →
       </AppLink>
-      <p className="border-t border-line px-4 py-2.5 text-center text-xs"><AppLink to={paths.pastIssues} className="font-semibold text-scholar hover:underline">Browse past issues →</AppLink></p>
     </section>
+  )
+}
+
+// Day counts come from the existing process data: screening 2–3 days, reviewer reports 7–10 days, production 3–5 days, publication within 24 hours.
+// 'Revision' has no fixed duration in the process data, so it is not given a number.
+const LIFECYCLE = [
+  ['Screening', '2–3 days'], ['Peer Review', '7–10 days'], ['Revision', 'Editor-checked'], ['Proofing', '3–5 days'], ['DOI Release', 'Within 24 hours'],
+] as const
+
+/** The five static lifecycle step cards of the reference. */
+function Lifecycle() {
+  return (
+    <Card size="main" title="Manuscript Lifecycle & Editorial Timeline" aside={<span className="text-[11px] font-bold uppercase tracking-wider text-scholar">{journal.heroStats.find((s) => s.id === 'review')?.value.split(' ')[0] ?? '14'}-Day Cycle</span>} headingId="life-h">
+      <ol className="grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
+        {LIFECYCLE.map(([label, time], i) => (
+          <li key={label} className={`flex flex-col justify-between rounded border border-line bg-paper p-2.5 ${i === LIFECYCLE.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}>
+            <div>
+              <span className={`mx-auto mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${i === LIFECYCLE.length - 1 ? 'bg-scholar' : 'bg-navy'}`}>{i + 1}</span>
+              <span className={`block text-xs font-bold leading-tight ${i === LIFECYCLE.length - 1 ? 'text-scholar' : 'text-navy'}`}>{label}</span>
+            </div>
+            <span className="mt-2 text-[11px] text-ink-muted">{time}</span>
+          </li>
+        ))}
+      </ol>
+    </Card>
   )
 }
 
@@ -225,11 +276,10 @@ export function HomePage({ data, onSubscribe }: Props) {
 
           <Card size="main" title={`Why Scholars Publish With ${journal.shortName}`} headingId="why-h">
             <ul className="grid gap-3 sm:grid-cols-2">
-              {journal.trustLedger.map((t, i, all) => (
-                <li key={t.id} className={`rounded border border-line bg-paper p-4 ${all.length % 2 === 1 && i === all.length - 1 ? 'sm:col-span-2' : ''}`}>
+              {journal.trustLedger.slice(0, 4).map((t) => (
+                <li key={t.id} className="rounded border border-line bg-paper p-4">
                   <p className="flex items-center gap-2 font-serif text-base font-bold text-navy"><TrustIcon name={t.icon} className="h-5 w-5 shrink-0 text-scholar" aria-hidden />{t.title}</p>
                   <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">{t.text}</p>
-                  <AppLink to={t.to} className="mt-2 inline-block text-xs font-semibold text-scholar hover:underline">Learn more<span className="sr-only"> about {t.title}</span> →</AppLink>
                 </li>
               ))}
             </ul>
@@ -237,7 +287,7 @@ export function HomePage({ data, onSubscribe }: Props) {
 
           <JournalOverview />
 
-          <Card size="main" title="Manuscript Lifecycle & Editorial Timeline" aside={<span className="text-[11px] font-bold uppercase tracking-wider text-scholar">Select a stage</span>} headingId="life-h"><ProcessStepper /></Card>
+          <Lifecycle />
 
           <ArticlesList data={data} />
 
@@ -301,13 +351,13 @@ export function HomePage({ data, onSubscribe }: Props) {
 
           <section className="relative isolate overflow-hidden rounded bg-navy p-5 text-white sm:p-7" aria-labelledby="cta-h">
             <img src="/journals/j1/images/cta-network.svg" alt="" aria-hidden="true" width={360} height={250} loading="lazy" className="pointer-events-none absolute inset-y-0 right-0 -z-10 hidden h-full w-[38%] object-cover opacity-80 [mask-image:linear-gradient(to_left,black_55%,transparent)] sm:block" />
-            <div className="flex flex-wrap items-center justify-between gap-5">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0 max-w-md">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#FBD28D]">Submissions open</p>
                 <h2 id="cta-h" className="mt-1.5 font-serif text-2xl font-semibold leading-snug">Ready to Publish Your Research in {cfp.issueName.split(' — ')[0]}?</h2>
                 <p className="mt-2 text-sm leading-relaxed text-navy-100">Submit today for editor-led evaluation. The next issue closes on {formatDate(cfp.deadline.slice(0, 10))}, with a first decision in about {cfp.avgReviewDays} days.</p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex shrink-0 flex-wrap gap-3">
                 <AppLink to={paths.submit} className="inline-flex h-12 items-center justify-center rounded bg-scholar px-6 text-sm font-bold text-white hover:bg-scholar-dark">Submit Manuscript</AppLink>
                 <AppLink to={paths.apc} className="inline-flex h-12 items-center justify-center rounded border border-white/60 px-6 text-sm font-bold text-white hover:bg-white/10">Check APC</AppLink>
               </div>

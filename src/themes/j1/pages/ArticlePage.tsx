@@ -1,11 +1,11 @@
-import { CheckCircle2, Download, Eye, FileText, Mail, Quote, Share2, ShieldCheck } from '../components/uiIcons'
+import { Download, Eye, GppGood, LocalLibrary, LockOpen, Mail, Notifications, PersonAdd, Printer, Quote, Share2, ShieldCheck, Lightbulb, OpenInNew } from '../components/uiIcons'
 import { useEffect, useState, type MouseEvent } from 'react'
 import { Helmet } from 'react-helmet-async'
 import type { ArticleFull } from '../../../mock-data/journals/j1'
 import { BarFigure, CopyButton, DataTable, OrcidIcon } from '../components/ArticleParts'
-import { Avatar } from '../components/Avatar'
 import { ArticleQrCard } from '../components/ArticleQrCard'
-import { Breadcrumbs } from '../components/Breadcrumbs'
+import { AuthorPhoto, DeclarationsSection, deriveHighlights, PrevNextBar, RecommendModal } from '../components/ArticleExtras'
+import { StickyRail } from '../components/StickyRail'
 import { IndexedStrip } from '../components/IndexLogos'
 import { btnClass, Button } from '../components/Button'
 import { CiteModal } from '../components/CiteModal'
@@ -60,21 +60,32 @@ function ShareModal({ article, open, onClose }: { article: ArticleFull; open: bo
 
 const panelTitle = 'border-b border-line pb-2 text-xs font-bold uppercase tracking-[0.12em] text-navy'
 const sectionH2 = 'border-b border-line pb-2 font-serif text-[1.5rem] font-semibold leading-snug text-navy'
-const btnSecondary = 'inline-flex h-11 items-center justify-center gap-2 rounded border border-navy/70 bg-white px-4 text-sm font-semibold text-navy transition-colors hover:bg-scholar-soft'
+const ribbonSecondary = 'inline-flex h-10 items-center justify-center gap-1.5 rounded border border-line bg-white px-2.5 text-xs font-semibold text-navy transition-colors hover:border-scholar hover:bg-scholar-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar'
+const ribbonIcon = 'inline-flex h-10 w-9 items-center justify-center rounded text-ink-muted transition-colors hover:bg-mist hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar'
 
 export function ArticlePage({ article }: { article: ArticleFull }) {
   const toast = useToast()
   const [citeOpen, setCiteOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [recommend, setRecommend] = useState<'librarian' | 'scholar' | null>(null)
   const { tags, jsonLd } = getScholarMeta(article)
   const backdated = article.publishedOnline !== article.publishedAt
   const doi = doiFor(article.paperId)
   const apa = formatCitation(article, 'apa')
   const ieee = formatCitation(article, 'ieee')
+  const highlights = deriveHighlights(article)
   const hasMedia = article.sections.some((s) => s.table || s.figure)
   const mediaCount = article.sections.reduce((n, s) => n + (s.table ? 1 : 0) + (s.figure ? 1 : 0), 0)
   const firstMedia = article.sections.find((s) => s.table || s.figure)?.id
-  const toc = [{ id: 'abstract', label: 'Abstract' }, ...article.sections.map((s, i) => ({ id: s.id, label: `${i + 1}. ${s.title}` })), { id: 'references', label: 'References' }, { id: 'how-to-cite', label: 'How to cite' }]
+  const declN = article.sections.length + 1
+  const refN = article.sections.length + 2
+  const toc = [
+    { id: 'abstract', label: 'Abstract' },
+    ...article.sections.map((s, i) => ({ id: s.id, label: `${i + 1}. ${s.title}` })),
+    { id: 'declarations', label: `${declN}. Declarations & Ethics` },
+    { id: 'references', label: `${refN}. References` },
+    { id: 'how-to-cite', label: 'How to cite' },
+  ]
   const spyIds = [...toc.map((t) => t.id), ...(article.related.length ? ['related'] : [])]
   const active = useScrollSpy(spyIds)
   // A real link to the public PDF address (what Google Scholar reads); in the prototype it downloads a generated PDF.
@@ -83,7 +94,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
   // Reference-style tab bar: in-page anchors, the active tab follows the reader's scroll position.
   const sectionIds = new Set(article.sections.map((s) => s.id))
   const tabActive = (id: string) => {
-    if (id === 'abstract') return active === 'abstract' || sectionIds.has(active) || active === 'how-to-cite'
+    if (id === 'abstract') return active === 'abstract' || sectionIds.has(active) || active === 'declarations' || active === 'how-to-cite'
     if (id === 'references') return active === 'references'
     return active === id
   }
@@ -94,7 +105,9 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
     ...(article.related.length ? [{ id: 'related', label: 'Related Articles' }] : []),
   ]
 
-  const authorRole = (a: ArticleFull['authorDetails'][number]) => (a.corresponding ? 'Corresponding author' : 'Co-author')
+  const dates: [string, string][] = [['Received', article.received], ['Accepted', article.accepted], ...(backdated ? [['Issue date', article.publishedAt], ['Published online', article.publishedOnline]] as [string, string][] : [['Published', article.publishedAt]] as [string, string][])]
+  const sep = <span aria-hidden className="mx-2 text-ink-muted">|</span>
+  const crumbSep = <li aria-hidden className="text-ink-muted">/</li>
 
   return (
     <>
@@ -106,7 +119,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
       </Helmet>
 
       <Container className="pb-24 pt-6 lg:pb-12">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[220px_minmax(0,1fr)_320px]">
           {/* Article outline (xl: left rail; below xl: collapsible) */}
           <nav aria-label="Article outline" className="xl:sticky xl:top-20 xl:self-start lg:col-span-2 xl:col-span-1">
             <details className="border border-line bg-white xl:hidden">
@@ -134,30 +147,34 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
           {/* Article panel */}
           <article id="top-of-article" className="min-w-0 border border-line bg-white px-5 pb-8 sm:px-8 lg:col-start-1 xl:col-start-2 xl:row-start-1 lg:row-start-2 xl:row-start-1">
-            <Breadcrumbs items={[
-              { label: 'Home', to: paths.home }, { label: 'Current Issue', to: paths.currentIssue },
-              { label: `Vol. ${article.volume} Issue ${article.issue}`, to: paths.issue(article.volume, article.issue) }, { label: `Article ${article.paperId.slice(-5)}` },
-            ]} />
+            <nav aria-label="Breadcrumb" className="py-4 text-sm">
+              <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-muted">
+                <li><AppLink to={paths.home} className="hover:text-navy hover:underline">Home</AppLink></li>{crumbSep}
+                <li><AppLink to={paths.pastIssues} className="hover:text-navy hover:underline">Archives</AppLink></li>{crumbSep}
+                <li><AppLink to={paths.issue(article.volume, article.issue)} className="hover:text-navy hover:underline">Vol. {article.volume} Issue {article.issue}</AppLink></li>{crumbSep}
+                <li aria-current="page" className="font-medium text-ink">Article {article.paperId.slice(-5)}</li>
+              </ol>
+            </nav>
 
             <header>
               <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                <span className="rounded-sm border border-[#C4D9EE] bg-scholar-soft px-2.5 py-1 text-scholar">{article.type}</span>
-                <span className="inline-flex items-center gap-1 rounded-sm border border-[#F0C98F] bg-gold-soft px-2.5 py-1 text-[#7A4300]">Open Access ({journal.licence.name})</span>
-                <span className="rounded-sm border border-line bg-paper px-2.5 py-1 text-ink">Peer-Reviewed</span>
+                <span className="rounded-sm border border-[#C4D9EE] bg-[#EBF3FA] px-2.5 py-1 text-scholar">{article.type}</span>
+                <span className="inline-flex items-center gap-1 rounded-sm border border-[#F0C98F] bg-gold-soft px-2.5 py-1 text-[#7A4300]"><LockOpen className="h-3.5 w-3.5" aria-hidden />Open Access ({journal.licence.name})</span>
+                <span className="rounded-sm border border-[#C4D9EE] bg-[#EBF3FA] px-2.5 py-1 text-scholar">Peer-Reviewed</span>
                 <span className="text-ink-muted">{article.subject}</span>
               </div>
               <h1 className="mt-4 font-serif text-[1.875rem] font-semibold leading-[1.2] tracking-tight text-navy sm:text-[2.5rem] sm:leading-[3rem]">{article.title}</h1>
 
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2 2xl:grid-cols-3" aria-label="Authors">
+              <ul className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Authors">
                 {article.authorDetails.map((a) => (
                   <li key={a.name} className="flex gap-3 border border-line bg-mist p-3">
-                    <Avatar name={a.name} photo={a.photo} size="sm" />
+                    <AuthorPhoto name={a.name} photo={a.photo} ring={a.corresponding} />
                     <div className="min-w-0 text-[13px] leading-snug">
                       <p className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-navy">
-                        <span>{a.name}<sup className="ml-0.5 text-[10px] font-semibold text-scholar">{a.affiliations.join(',')}{a.corresponding ? '*' : ''}</sup></span>
+                        <span>{a.name}<sup className="ml-0.5 text-[10px] font-semibold text-scholar">{a.affiliations.join(',')}</sup></span>
                         {a.orcid && <OrcidIcon id={a.orcid} />}
                       </p>
-                      <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${a.corresponding ? 'text-scholar' : 'text-ink-muted'}`}>{authorRole(a)}</p>
+                      <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${a.corresponding ? 'text-scholar' : 'text-ink-muted'}`}>{a.corresponding ? <>Corresponding Author<sup>*</sup></> : 'Co-author'}</p>
                       {a.affiliations.length > 0 && <p className="mt-1 text-ink-muted">{a.affiliations.map((n) => article.affiliations[n - 1]).filter(Boolean).join('; ')}</p>}
                       {a.corresponding && a.email && (
                         <a href={`mailto:${a.email}`} className="mt-1 inline-flex items-center gap-1 break-all text-scholar hover:underline"><Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />{a.email}</a>
@@ -167,32 +184,35 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 ))}
               </ul>
 
-              <div className="mt-6 grid gap-4 border border-line bg-mist p-4 text-sm md:grid-cols-[1fr_1fr] md:divide-x md:divide-line">
-                <dl className="space-y-1 md:pr-4">
-                  {[['Received', article.received], ['Accepted', article.accepted], ...(backdated ? [['Issue date', article.publishedAt], ['Published online', article.publishedOnline]] : [['Published', article.publishedAt]])].map(([k, v]) => (
-                    <div key={k} className="flex gap-1.5"><dt className="font-bold">{k}:</dt><dd className="tabular-nums">{formatDate(v)}</dd></div>
-                  ))}
-                </dl>
-                <div className="space-y-1.5 md:pl-4">
-                  <p className="font-semibold">Volume {article.volume}, Issue {article.issue}, pp. <span className="tabular-nums">{article.pages}</span></p>
-                  <p className="flex flex-wrap items-center gap-2">
-                    <span className="font-bold">DOI:</span>
-                    <a href={`https://doi.org/${doi}`} className="break-all font-mono text-[13px] tabular-nums text-scholar hover:underline">{doi}</a>
-                    <CopyButton text={`https://doi.org/${doi}`} label="Copy DOI" />
-                  </p>
-                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
-                    <span className="inline-flex items-center gap-1 text-oa"><CheckCircle2 className="h-4 w-4" aria-hidden />DOI registered with Crossref</span>
-                    <a href={journal.licence.url} target="_blank" rel="noreferrer" className="text-scholar hover:underline">{journal.licence.name}</a>
+              <div className="mt-6 grid gap-3 border border-line bg-mist p-3 text-[13px] md:grid-cols-[1fr_auto] md:gap-0 md:divide-x md:divide-line">
+                <div className="space-y-0.5 md:pr-4">
+                  <p>{dates.slice(0, 2).map(([k, v], i) => <span key={k}>{i > 0 && sep}<span className="font-bold text-navy">{k}:</span> <span className="tabular-nums">{formatDate(v)}</span></span>)}</p>
+                  <p>{dates.slice(2).map(([k, v], i) => <span key={k}>{i > 0 && sep}<span className="font-bold text-navy">{k}:</span> <span className="tabular-nums">{formatDate(v)}</span></span>)}</p>
+                </div>
+                <div className="space-y-1 border-t border-line pt-3 md:border-t-0 md:pl-4 md:pt-0">
+                  <p className="font-semibold text-navy">Volume {article.volume}, Issue {article.issue}, pp. <span className="tabular-nums">{article.pages}</span></p>
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-mono text-[12px] tabular-nums text-scholar">DOI: {doi}</span>
+                    <CopyButton iconOnly text={`https://doi.org/${doi}`} label="Copy DOI" />
+                    <a href={`https://doi.org/${doi}`} target="_blank" rel="noreferrer"
+                      className="inline-flex items-center gap-1 rounded-sm border border-[#B7D9C4] bg-oa-soft px-2 py-0.5 text-[11px] font-semibold text-[#1F5C3A] hover:bg-[#D5EBDD]"><GppGood className="h-4 w-4" aria-hidden />Verify DOI<span aria-hidden> ↗</span><span className="sr-only"> (opens doi.org in a new tab)</span></a>
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-4">
-                <a href={paths.pdf(article.paperId)} download onClick={onPdf}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded bg-scholar px-5 text-sm font-semibold text-white transition-colors hover:bg-scholar-dark"><Download className="h-4 w-4" aria-hidden />Download PDF</a>
-                <a href="#introduction" className={btnSecondary}><FileText className="h-4 w-4" aria-hidden />View Full Text</a>
-                <button type="button" className={btnSecondary} onClick={() => setCiteOpen(true)}><Quote className="h-4 w-4" aria-hidden />Cite Article</button>
-                <button type="button" className={btnSecondary} onClick={() => setShareOpen(true)}><Share2 className="h-4 w-4" aria-hidden />Share</button>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-y border-line py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <a href={paths.pdf(article.paperId)} download onClick={onPdf}
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded bg-scholar px-3.5 text-xs font-semibold text-white transition-colors hover:bg-scholar-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-scholar"><Download className="h-4 w-4" aria-hidden />Download PDF</a>
+                  <button type="button" className={ribbonSecondary} onClick={() => setCiteOpen(true)}><Quote className="h-4 w-4" aria-hidden />Cite Article</button>
+                  <button type="button" className={ribbonSecondary} onClick={() => setRecommend('librarian')}><LocalLibrary className="h-4 w-4 text-scholar" aria-hidden />Recommend to Librarian</button>
+                  <button type="button" className={ribbonSecondary} onClick={() => setRecommend('scholar')}><PersonAdd className="h-4 w-4 text-scholar" aria-hidden />Recommend to Scholar</button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button type="button" className={ribbonIcon} title="Share article" aria-label="Share article" onClick={() => setShareOpen(true)}><Share2 className="h-5 w-5" aria-hidden /></button>
+                  <button type="button" className={ribbonIcon} title="Print article" aria-label="Print article" onClick={() => window.print()}><Printer className="h-5 w-5" aria-hidden /></button>
+                  <button type="button" className={ribbonIcon} title="Set citation alert" aria-label="Set citation alert" onClick={() => toast('We will alert you about citations (simulated).')}><Notifications className="h-5 w-5" aria-hidden /></button>
+                </div>
               </div>
             </header>
 
@@ -203,9 +223,18 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               ))}
             </nav>
 
-            <section id="abstract" className="mt-6 scroll-mt-24 border border-line border-l-[3px] border-l-navy bg-paper p-5 sm:p-6">
+            <section id="abstract" className="mt-6 scroll-mt-24 border border-line border-l-4 border-l-navy bg-mist p-5 sm:p-6">
+              {highlights.length > 0 && (
+                <>
+                  <h2 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-navy"><Lightbulb className="h-[18px] w-[18px] text-scholar" aria-hidden />Key Highlights</h2>
+                  <ul className="mt-2 list-disc space-y-1.5 pl-5 text-[13px] leading-relaxed text-ink">
+                    {highlights.map((h, i) => <li key={i}>{h}</li>)}
+                  </ul>
+                  <div className="my-4 h-px bg-line" />
+                </>
+              )}
               <h2 className="font-serif text-[1.375rem] font-semibold text-navy">Abstract</h2>
-              <p className="mt-3 text-[1.0625rem] leading-[1.75] text-ink">{article.abstract}</p>
+              <p className="mt-3 text-justify text-base leading-[1.6] text-ink">{article.abstract}</p>
               <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-4">
                 <span className="text-[13px] font-bold">Keywords:</span>
                 <ul className="flex flex-wrap gap-2" aria-label="Keywords">
@@ -218,21 +247,23 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               {article.sections.map((s, i) => (
                 <section key={s.id} id={s.id} className="scroll-mt-24 pt-6">
                   <h2 className={sectionH2}>{i + 1}. {s.title}</h2>
-                  {s.paragraphs.map((p, j) => <p key={j} className="mt-4 text-[1.0625rem] leading-[1.75] text-ink">{p}</p>)}
+                  {s.paragraphs.map((p, j) => <p key={j} className="mt-4 text-justify text-base leading-[1.6] text-ink">{p}</p>)}
                   {s.table && <DataTable table={s.table} />}
                   {s.figure && <BarFigure figure={s.figure} />}
                 </section>
               ))}
             </div>
 
-            <section id="references" className="mt-8 scroll-mt-24 border-t border-line pt-6">
+            <DeclarationsSection article={article} heading={`${declN}. Declarations, Ethics & Compliance`} />
+
+            <section id="references" className="mt-10 scroll-mt-24 border-t border-line pt-6">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-serif text-[1.5rem] font-semibold text-navy">References ({article.references.length})</h2>
+                <h2 className="font-serif text-[1.5rem] font-semibold text-navy">{refN}. References ({article.references.length})</h2>
               </div>
-              <ol className="mt-4 space-y-5">
+              <ol className="mt-4 space-y-2">
                 {article.references.map((r, i) => (
-                  <li key={i} id={`ref-${i + 1}`} className="text-[0.9375rem] leading-relaxed text-ink">
-                    <span className="font-bold">[{i + 1}]</span> {r.text}
+                  <li key={i} id={`ref-${i + 1}`} className="border-l-2 border-transparent p-2.5 text-[0.9375rem] leading-relaxed text-ink transition-colors hover:border-scholar hover:bg-mist/60">
+                    <span className="font-bold text-navy">[{i + 1}]</span> {r.text}
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 text-xs">
                       {r.doi && <><a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer" className="text-scholar hover:underline">Crossref</a><span aria-hidden className="text-ink-muted">·</span></>}
                       <a href={`https://scholar.google.com/scholar?q=${encodeURIComponent(r.text.slice(0, 120))}`} target="_blank" rel="noreferrer" className="text-scholar hover:underline">Google Scholar</a>
@@ -248,30 +279,55 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               <p className="mt-2 max-w-prose text-sm leading-relaxed">{apa}</p>
               <div className="mt-3 flex flex-wrap gap-2"><CopyButton text={apa} label="Copy citation" /><Button size="sm" variant="outline" onClick={() => setCiteOpen(true)}>More formats</Button></div>
             </section>
+            <PrevNextBar article={article} />
           </article>
 
-          {/* Right rail */}
-          <aside aria-label="Article tools" className="space-y-5 lg:col-start-2 lg:row-start-2 xl:col-start-3 xl:row-start-1 xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:self-start xl:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Right rail: pinned like the other journal rails (no inner scrollbar), so every card is reachable */}
+          <StickyRail label="Article tools" className="space-y-5 lg:col-start-2 lg:row-start-2 xl:col-start-3 xl:row-start-1">
             <section aria-labelledby="metrics-title" className="border border-line bg-white p-4">
               <h2 id="metrics-title" className={panelTitle}>Article impact &amp; metrics</h2>
-              <dl className="mt-3 grid grid-cols-3 divide-x divide-line border border-line text-center">
+              <dl className="mt-3 grid grid-cols-2 gap-3 text-center">
                 {([['Views', article.views, Eye], ['PDF downloads', article.downloads, Download], ['Citations', article.citations, Quote]] as const).map(([k, v, Icon]) => (
-                  <div key={k} className="px-1 py-3">
-                    <Icon className="mx-auto mb-1.5 h-5 w-5 text-scholar" aria-hidden />
-                    <dd className="font-serif text-[1.5rem] font-semibold leading-none tabular-nums text-navy">{formatNumber(v)}</dd>
+                  <div key={k} className="border border-line bg-mist px-2 py-3">
+                    <Icon className="mx-auto mb-1 h-4 w-4 text-scholar" aria-hidden />
+                    <dd className="font-mono text-xl font-bold leading-none tabular-nums text-navy">{formatNumber(v)}</dd>
                     <dt className="mt-1.5 text-[11px] font-semibold text-ink-muted">{k}</dt>
                   </div>
                 ))}
+                <div className="border border-[#B7D9C4] bg-oa-soft px-2 py-3">
+                  <GppGood className="mx-auto mb-1 h-4 w-4 text-oa" aria-hidden />
+                  <dd className="font-mono text-xl font-bold leading-none text-[#1F5C3A]">DOI</dd>
+                  <dt className="mt-1.5 text-[11px] font-semibold text-[#1F5C3A]">Crossref registered</dt>
+                </div>
               </dl>
               <AppLink to={paths.verify(`IJMAT-CERT-${article.paperId}`)} className="mt-3 flex items-center gap-2 border border-line p-3 text-[13px] font-semibold text-navy hover:border-scholar hover:bg-scholar-soft">
                 <ShieldCheck className="h-5 w-5 shrink-0 text-oa" aria-hidden />Verify author certificate
               </AppLink>
             </section>
 
+            <section aria-labelledby="integrity-title" className="border border-line bg-white p-4">
+              <h2 id="integrity-title" className={`${panelTitle} flex items-center gap-1.5`}><ShieldCheck className="h-4 w-4 text-oa" aria-hidden />Peer review &amp; integrity</h2>
+              <dl className="mt-3 divide-y divide-line text-[13px]">
+                {([
+                  ['Review model', 'Peer-reviewed'],
+                  ['Received', formatDate(article.received)],
+                  ['Accepted', formatDate(article.accepted)],
+                  ['Licence', journal.licence.name],
+                  ['Archival', 'DOI registered with Crossref'],
+                ] as const).map(([k, v]) => (
+                  <div key={k} className="flex items-baseline justify-between gap-3 py-1.5">
+                    <dt className="text-ink-muted">{k}</dt>
+                    <dd className="text-right font-semibold tabular-nums text-navy">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <a href={paths.policy('peer-review')} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-scholar hover:underline">Read the peer review policy<OpenInNew className="h-3.5 w-3.5" aria-hidden /></a>
+            </section>
+
             <ArticleQrCard paperId={article.paperId} />
 
             <section aria-labelledby="cite-title" className="border border-line bg-white p-4">
-              <h2 id="cite-title" className={panelTitle}>Cite this paper</h2>
+              <h2 id="cite-title" className={`${panelTitle} flex items-center gap-1.5`}><Quote className="h-4 w-4 text-scholar" aria-hidden />Cite this paper</h2>
               <p className="mt-3 text-xs text-ink-muted">Copy the standard IEEE bibliographic snippet:</p>
               <p className="mt-2 border border-line bg-mist p-3 font-mono text-[12px] leading-relaxed text-ink">{ieee}</p>
               <div className="mt-3 grid grid-cols-2 gap-2">
@@ -295,12 +351,15 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <div className="mt-3"><IndexedStrip look="compact" limit={6} /></div>
               </section>
             )}
-          </aside>
+          </StickyRail>
         </div>
 
         {article.related.length > 0 && (
           <section id="related" aria-labelledby="related-title" className="mt-10 scroll-mt-24 border-t border-line pt-8">
-            <h2 id="related-title" className="font-serif text-[1.625rem] font-semibold text-navy">Related Scholarship in {journal.shortName}</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="related-title" className="font-serif text-[1.625rem] font-semibold text-navy">Related Scholarship in {journal.shortName}</h2>
+              <AppLink to={paths.pastIssues} className="text-sm font-semibold text-scholar hover:underline">Explore archives <span aria-hidden>→</span></AppLink>
+            </div>
             <p className="mt-1 text-sm text-ink-muted">Recommended from the same journal.</p>
             <ul className="mt-5 grid gap-4 md:grid-cols-3">
               {article.related.map((r) => (
@@ -333,6 +392,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
       <CiteModal article={article} open={citeOpen} onClose={() => setCiteOpen(false)} />
       <ShareModal article={article} open={shareOpen} onClose={() => setShareOpen(false)} />
+      <RecommendModal article={article} mode={recommend} onClose={() => setRecommend(null)} />
     </>
   )
 }
