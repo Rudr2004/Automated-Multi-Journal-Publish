@@ -2,7 +2,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState, type ComponentType } from 'react'
 import { MdOutlineEditNote, MdOutlineGroups, MdOutlineHome, MdOutlineInventory2, MdOutlineMenuBook } from 'react-icons/md'
 import { journal } from '../../../config/journals/j1'
-import { nav, type NavItem } from '../../../config/navigation'
+import type { NavItem } from '../../../config/navigation'
+import { j1Nav as nav } from './navItems'
 import { paths } from '../../../config/routes'
 import { btnClass } from '../components/Button'
 import { Container } from '../components/primitives'
@@ -76,7 +77,7 @@ export function SiteHeader({ onSearch, onSuggest, onMenuOpen }: { onSearch: (q: 
 
 // Navigation row: white, slate text, Scholar Blue underline on the active item.
 const navLink = (active: boolean) =>
-  `relative inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-t px-2.5 text-sm font-semibold transition-colors xl:px-3 ${
+  `relative inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-t px-2 text-sm font-semibold transition-colors 2xl:px-3 xl:px-2.5 ${
     active ? 'text-scholar after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-scholar' : 'text-ink-muted hover:bg-mist hover:text-navy'}`
 
 const NAV_ICONS: Record<string, ComponentType<{ className?: string; 'aria-hidden'?: boolean }>> = {
@@ -140,7 +141,7 @@ function MenuItem({ item, active }: { item: NavItem; active: boolean }) {
   )
 }
 
-/** Sticky white navigation row with icons and chevrons; a search icon opens the search field. After scrolling it shows the compact mark and the Submit button. */
+/** Sticky white navigation row with icons and chevrons; an inline search field on xl screens (a magnifier opens it below xl). After scrolling it shows the compact mark and the Submit button. */
 export function MainNav({ onSearch, onSuggest }: { onSearch: (q: string) => void; onSuggest: SuggestFn }) {
   const { pathname } = useRouter()
   const [scrolled, setScrolled] = useState(false)
@@ -173,12 +174,14 @@ export function MainNav({ onSearch, onSuggest }: { onSearch: (q: string) => void
             )
           })}
         </ul>
-        {searchOpen && <SearchBox id="global-search" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="mr-2 w-64 shrink-0 xl:w-80" />}
+        {/* xl and up: inline search field. Below xl: magnifier that opens the field. */}
+        <SearchBox id="nav-search-inline" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="ml-2 hidden w-56 shrink-0 xl:block 2xl:w-72" />
+        {searchOpen && <SearchBox id="global-search" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="mr-2 w-64 shrink-0 xl:hidden" />}
         <button type="button" aria-expanded={searchOpen} aria-label={searchOpen ? 'Close search' : 'Search articles'} onClick={() => setSearchOpen(!searchOpen)}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-ink-muted hover:bg-mist hover:text-navy">
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-ink-muted hover:bg-mist hover:text-navy xl:hidden">
           {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
         </button>
-        {scrolled && <AppLink to={paths.submit} className={`ml-2 inline-flex h-9 items-center gap-1.5 rounded px-4 text-sm font-bold ${NAVY_CTA}`}><MdOutlineEditNote className="h-5 w-5" aria-hidden />Submit</AppLink>}
+        {scrolled && <AppLink to={paths.submit} aria-label="Submit" className={`ml-2 inline-flex h-9 shrink-0 items-center gap-1.5 rounded px-2.5 text-sm font-bold 2xl:px-4 ${NAVY_CTA}`}><MdOutlineEditNote className="h-5 w-5" aria-hidden /><span className="hidden 2xl:inline">Submit</span></AppLink>}
       </Container>
     </nav>
   )

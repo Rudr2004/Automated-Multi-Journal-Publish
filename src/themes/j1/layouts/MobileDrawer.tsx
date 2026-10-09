@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { nav } from '../../../config/navigation'
+import { j1Nav as nav } from './navItems'
 import { paths } from '../../../config/routes'
 import { ButtonLink } from '../components/Button'
 import { AppLink } from '../../../core/router'

@@ -140,7 +140,11 @@ export interface StaticSection {
   heading: string
   paragraphs?: string[]
   list?: string[]
-  callout?: { tone: 'info' | 'warn'; title: string; text: string }
+  callout?: { tone: 'info' | 'warn' | 'note' | 'success'; title: string; text: string }
+  /** Optional small label shown at the right of the heading (e.g. "14-day cycle"). */
+  badge?: string
+  /** Optional rich content (tables, card grids, step pipelines...) shown under the paragraphs. Themes may ignore it. */
+  blocks?: StaticBlock[]
 }
 /** Rich blocks a static page can show below its text sections. */
 export type StaticBlock =
@@ -154,6 +158,14 @@ export type StaticBlock =
   | { type: 'contact-details' }
   | { type: 'contact-form'; title: string }
   | { type: 'reviewer-form'; title: string }
+  // Rich blocks (optional for themes: a theme that does not know a type simply renders nothing for it). `title` may be '' for none.
+  | { type: 'table'; title: string; caption?: string; head: string[]; rows: string[][] }
+  | { type: 'card-grid'; title: string; items: { icon?: string; tag?: string; mark?: string; title: string; text: string }[] }
+  | { type: 'icon-list'; title: string; items: { icon: string; title: string; text: string }[] }
+  | { type: 'ordered-steps'; title: string; layout?: 'row' | 'list'; items: { title: string; text?: string; meta?: string }[] }
+  | { type: 'in-brief'; title: string; items: { title: string; text: string }[] }
+  | { type: 'callout'; tone: 'info' | 'warn' | 'note' | 'success'; title: string; text: string }
+  | { type: 'faq-accordion'; title: string; items: { q: string; a: string }[] }
 
 export interface StaticPageData {
   slug: string
@@ -161,6 +173,8 @@ export interface StaticPageData {
   title: string
   intro: string
   principles?: boolean // show "Our Ethical Principles" cards
+  /** Title-card details: category label, policy reference, version, issuing authority and audience. */
+  meta?: { category?: string; ref?: string; version?: string; authority?: string; appliesTo?: string }
   sections: StaticSection[]
   blocks?: StaticBlock[]
   updated: string

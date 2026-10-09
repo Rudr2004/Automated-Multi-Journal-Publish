@@ -26,7 +26,7 @@ export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'
       </Block>
       <Block title="Authors" step={1} onEdit={onEdit}>
         <Row k="Corresponding" v={`${a.name} (${a.email})`} /><Row k="WhatsApp" v={`${a.dialCode} ${a.whatsapp}`} />
-        <Row k="Institution" v={`${a.institution}, ${a.country}`} /><Row k="ORCID" v={a.orcid} />
+        <Row k="Institution" v={`${a.institution}, ${a.country}`} /><Row k="Designation" v={a.designation} /><Row k="ORCID" v={a.orcid} />
         <Row k="Co-authors" v={form.coAuthors.length ? form.coAuthors.map((c) => c.name).join(', ') : 'None'} />
       </Block>
       <Block title="Additional" step={2} onEdit={onEdit}>

@@ -39,7 +39,7 @@ export function SiteLayout({ children, onSearch, onSuggest }: { children: ReactN
 
       {showTop && (
         <button type="button" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`fixed left-4 z-30 flex h-11 w-11 items-center justify-center rounded border border-line bg-white text-navy hover:border-scholar hover:text-scholar md:bottom-6 bottom-20`}>
+          className="fixed bottom-20 right-3 z-30 flex h-11 w-11 items-center justify-center rounded border border-line bg-white text-navy hover:border-scholar hover:text-scholar md:bottom-24">
           <ArrowUp className="h-5 w-5" aria-hidden />
         </button>
       )}

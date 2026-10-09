@@ -24,6 +24,12 @@ export function clearDraft() {
 
 export const isPristine = (f: SubmissionForm) => JSON.stringify(sanitise(f)) === JSON.stringify(sanitise(initialForm))
 
+/** Writes the draft immediately (used by an explicit "Save draft" button). Returns the save time, or null when storage is unavailable. */
+export function saveDraftNow(form: SubmissionForm, step: StepIndex): string | null {
+  const at = new Date().toISOString()
+  try { localStorage.setItem(KEY, JSON.stringify({ form: sanitise(form), step, savedAt: at } satisfies Draft)); return at } catch { return null }
+}
+
 /** Debounced autosave. Returns the time of the last save (or null). Pass enabled=false to pause (e.g. before resuming). */
 export function useAutosave(form: SubmissionForm, step: StepIndex, enabled: boolean) {
   const [savedAt, setSavedAt] = useState<string | null>(null)

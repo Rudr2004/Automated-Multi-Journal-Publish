@@ -74,3 +74,5 @@ export { MdOutlineLockOpen as LockOpen, MdOutlineMilitaryTech as Medal, MdOutlin
 export { MdOutlineFormatQuote as FormatQuote } from 'react-icons/md'
 export { MdOutlinePause as Pause, MdOutlinePlayArrow as Play } from 'react-icons/md'
 export { MdStar as Star } from 'react-icons/md'
+
+export { MdOutlineLocalLibrary as LocalLibrary, MdOutlinePersonAdd as PersonAdd, MdOutlineLightbulb as Lightbulb, MdOutlineArrowBack as ArrowLeft, MdOutlineGppGood as GppGood, MdOutlineImage as ImageIcon, MdOutlineZoomOutMap as ZoomOut } from 'react-icons/md'

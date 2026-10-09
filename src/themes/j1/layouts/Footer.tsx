@@ -6,7 +6,7 @@ import { journal, visibleLogos } from '../../../config/journals/j1'
 import { policyLinks } from '../../../config/navigation'
 import { paths } from '../../../config/routes'
 
-const link = 'text-[13px] font-medium text-[#B4C6F2] hover:text-white hover:underline'
+const link = 'text-[13px] font-bold tracking-wide text-[#B4C6F2] hover:text-white hover:underline'
 const heading = 'mb-3 text-xs font-bold uppercase tracking-wider text-white'
 const FOOTER_LOGOS = 8
 const POLICY_SLUGS = ['peer-review', 'publication-ethics', 'plagiarism', 'open-access', 'ai-policy', 'retraction']
@@ -30,13 +30,13 @@ export function SiteFooter() {
     <footer className="mt-12 bg-navy-900 text-white">
       <Container className="pt-10 pb-2">
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="font-serif text-2xl font-semibold sm:text-[1.75rem]">Browse journals by subject</h2>
+          <h2 className="font-serif text-xl font-semibold sm:text-2xl">Browse journals by subject</h2>
           <button type="button" onClick={toTop} className="inline-flex items-center gap-1 text-sm font-semibold text-[#B4C6F2] hover:text-white">Back to top <ArrowUp className="h-4 w-4" aria-hidden /></button>
         </div>
         <ul className="columns-1 gap-x-8 sm:columns-2 lg:columns-4">
           {journal.subjectIndex.map((s) => (
             <li key={s} className="break-inside-avoid border-b border-white/10">
-              <AppLink to={paths.search(s)} className="block py-1.5 text-[13px] font-semibold text-white hover:text-[#B4C6F2] hover:underline">{s}</AppLink>
+              <AppLink to={paths.search(s)} className="block py-1.5 text-[13px] font-medium text-[#D6E0F3] hover:text-white hover:underline">{s}</AppLink>
             </li>
           ))}
         </ul>
@@ -75,8 +75,8 @@ export function SiteFooter() {
             <h2 className={heading}>Author resources</h2>
             <ul className="space-y-1.5">{authors.map(([l, to]) => <li key={l}><AppLink to={to} className={link}>{l}</AppLink></li>)}</ul>
           </nav>
-          <nav aria-label="Explore the journal">
-            <h2 className={heading}>Explore the journal</h2>
+          <nav aria-label="Explore archives">
+            <h2 className={heading}>Explore Archives</h2>
             <ul className="space-y-1.5">{archives.map(([l, to]) => <li key={l}><AppLink to={to} className={link}>{l}</AppLink></li>)}</ul>
           </nav>
           <div>

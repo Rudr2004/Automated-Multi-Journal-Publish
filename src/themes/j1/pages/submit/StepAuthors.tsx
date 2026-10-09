@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MdOutlineWorkspacePremium } from 'react-icons/md'
 import { Plus, Trash2 } from '../../components/uiIcons'
 import { ProfilePhotoField } from '../../components/ProfilePhotoField'
 import { Button } from '../../components/Button'
@@ -61,16 +62,24 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             <select className={inputClass(errors['author.country'])} value={a.country} onChange={(e) => setAuthor({ country: e.target.value })}>{COUNTRIES.map((c) => <option key={c}>{c}</option>)}</select>
           </Field>
         </div>
+        <Field label="Academic designation" name="author.designation" hint="e.g. Assistant Professor, Ph.D. Scholar, M.Tech Student">
+          <input className={inputClass()} value={a.designation ?? ''} maxLength={LIMITS.name} autoComplete="organization-title"
+            onChange={(e) => setAuthor({ designation: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ designation: (a.designation ?? '').trim() })} />
+        </Field>
         <ProfilePhotoField value={a.photo} onChange={(photo) => setAuthor({ photo })} error={errors['author.photo']} />
         <Field label="ORCID iD (optional)" name="author.orcid" error={errors['author.orcid']} hint="Format: 0000-0002-1825-0097">
           <input className={inputClass(errors['author.orcid'])} value={a.orcid} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000"
             onChange={(e) => setAuthor({ orcid: formatOrcid(e.target.value) })} />
         </Field>
+        <p className="-mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
+          <span className="inline-flex items-center gap-1.5"><span aria-hidden className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#A6CE39] text-[10px] font-bold text-[#1B3A00]">iD</span>Your ORCID links this paper to your research record.</span>
+          <a href="https://orcid.org/register" target="_blank" rel="noopener noreferrer" className="font-semibold text-scholar underline">Find or create ORCID ↗<span className="sr-only"> (opens in a new tab)</span></a>
+        </p>
       </fieldset>
 
       <section aria-labelledby="co-h">
         <div className="flex items-center justify-between border-b border-line pb-2">
-          <h3 id="co-h" className="font-serif text-lg font-semibold text-navy">Co-authors</h3>
+          <h3 id="co-h" className="font-serif text-lg font-semibold text-navy">Co-authors <span className="text-sm font-normal text-ink-muted">({form.coAuthors.length} added)</span></h3>
           <Button variant="outline" size="sm" disabled={form.coAuthors.length >= 15} onClick={addCo}><Plus className="h-4 w-4" aria-hidden />Add co-author</Button>
         </div>
         {form.coAuthors.length === 0 && <p className="mt-2 text-sm text-ink-muted">No co-authors added. Each listed co-author receives a certificate after publication.</p>}
@@ -102,13 +111,14 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
         </div>
         {!mentorOpen && <p className="mt-2 text-sm text-ink-muted">None added. Add your supervisor or mentor if the work was done under their guidance. They are acknowledged on the record; no certificate is issued unless they are also a co-author.</p>}
         {mentorOpen && (
-          <div className="mt-4 rounded-card border border-line bg-paper p-4">
+          <div className="mt-4 rounded border border-[#E8CF9A] bg-[#FFF8E8] p-4">
+            <p className="mb-3 flex gap-2 text-[13px] text-ink"><MdOutlineWorkspacePremium className="mt-0.5 h-5 w-5 shrink-0 text-[#8A4B00]" aria-hidden /><span><strong className="text-[#6B3A00]">Mentor recognition.</strong> Mentors of published papers are eligible for the Monthly Best Research Mentor recognition.</span></p>
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-semibold text-navy">Mentor</span>
               <button type="button" onClick={removeMentor} aria-label="Remove mentor" className="rounded p-1.5 text-danger hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar"><Trash2 className="h-4 w-4" aria-hidden /></button>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="Name" name="mentor" required error={errors.mentor}>
+              <Field label="Name" name="mentor" required={Boolean(form.mentorEmail.trim() || form.mentorInstitution.trim())} error={errors.mentor}>
                 <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.name} onChange={(e) => onChange({ ...form, mentor: cleanName(e.target.value) })} onBlur={() => onChange({ ...form, mentor: form.mentor.trim() })} />
               </Field>
               <Field label="Email" name="mentorEmail" error={errors.mentorEmail}>

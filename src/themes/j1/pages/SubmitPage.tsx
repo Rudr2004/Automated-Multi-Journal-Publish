@@ -4,10 +4,11 @@ import { Button } from '../components/Button'
 import { CrumbBar } from '../components/CrumbBar'
 import { Container } from '../components/primitives'
 import { Stepper } from '../components/Stepper'
-import { useToast } from '../components/Toast'
+import { MdOutlineBookmarkBorder, MdOutlineMarkEmailRead, MdOutlineSend } from 'react-icons/md'
+import { useDismissErrorToasts, useToast } from '../components/Toast'
 import { paths } from '../../../config/routes'
 import { journal } from '../../../config/journals/j1'
-import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../../../core/lib/draft'
+import { clearDraft, isPristine, loadDraft, saveDraftNow, useAutosave, type Draft } from '../../../core/lib/draft'
 import { STEPS, firstInvalidStep, initialForm, validateStep, type StepIndex, type SubmissionForm } from '../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../core/lib/useVisibleErrors'
 import { formatDate } from '../../../core/lib/format'
@@ -35,6 +36,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   initialPaperId?: string | null
 }) {
   const toast = useToast()
+  const dismissErrors = useDismissErrorToasts()
   const [form, setForm] = useState<SubmissionForm>(initialForm) // kept in memory across steps
   const [step, setStep] = useState<StepIndex>(0)
   const [pendingDraft, setPendingDraft] = useState<Draft | null>(() => (initialPaperId ? null : loadDraft()))
@@ -46,7 +48,9 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   const busy = progress !== null
 
   // Autosave stays paused while the "resume draft?" question is open.
-  const savedAt = useAutosave(form, step, !pendingDraft && !paperId)
+  const autoSavedAt = useAutosave(form, step, !pendingDraft && !paperId)
+  const [manualSavedAt, setManualSavedAt] = useState<string | null>(null)
+  const savedAt = [autoSavedAt, manualSavedAt].filter(Boolean).sort().pop() ?? null
 
   // Warn before leaving with unsaved/unsubmitted work.
   useEffect(() => {
@@ -72,7 +76,13 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
       focusFirstError(formRef.current, allErrors)
       return
     }
+    dismissErrors() // a "please fix" message from an earlier attempt is stale now
     goTo((step + 1) as StepIndex)
+  }
+
+  const saveDraft = () => {
+    const at = saveDraftNow(form, step)
+    if (at) { setManualSavedAt(at); toast('Draft saved on this device') } else toast('Could not save the draft on this device.', 'error')
   }
 
   const submit = async () => {
@@ -155,17 +165,18 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
               {step === 1 && <StepAuthors form={form} errors={errors} onChange={setForm} />}
               {step === 2 && <StepAdditional form={form} errors={errors} onChange={setForm} />}
               {step === 3 && <StepReview form={form} onEdit={goTo} submitError={submitError} />}
-              {step === 3 && (
-                <p className="mt-5 flex gap-3 border border-[#C4D9EE] bg-scholar-soft p-4 text-sm text-ink">
-                  <BellRing className="mt-0.5 h-5 w-5 shrink-0 text-scholar" aria-hidden />
-                  <span>On submitting, your <strong>Paper ID</strong> is generated instantly and sent by email, SMS and WhatsApp. You can edit the paper until the editor’s decision.</span>
-                </p>
-              )}
-              <div className="sticky bottom-0 -mx-5 mt-8 flex items-center justify-between gap-3 border-t border-line bg-white/95 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+              <p className="mt-6 flex gap-3 border border-[#C4D9EE] bg-scholar-soft p-4 text-sm text-ink">
+                <MdOutlineMarkEmailRead className="mt-0.5 h-5 w-5 shrink-0 text-scholar" aria-hidden />
+                <span>On submitting, an instant confirmation email with your unique <strong>Paper ID</strong> is generated (also sent by SMS and WhatsApp). You can edit the paper until the editor’s decision.</span>
+              </p>
+              <div className="sticky bottom-0 -mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
                 <Button variant="outline" onClick={() => goTo((step - 1) as StepIndex)} disabled={step === 0 || busy}>Back</Button>
-                {step < 3
-                  ? <Button onClick={next}>Next: {STEPS[step + 1].label}</Button>
-                  : <Button variant="submit" size="lg" onClick={submit} loading={busy}>{busy ? 'Submitting…' : 'Submit Manuscript'}</Button>}
+                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                  <Button variant="outline" onClick={saveDraft} disabled={busy}><MdOutlineBookmarkBorder className="h-5 w-5" aria-hidden />Save draft</Button>
+                  {step < 3
+                    ? <Button onClick={next}>Next: {STEPS[step + 1].label}</Button>
+                    : <Button variant="submit" size="lg" onClick={submit} loading={busy}>{!busy && <MdOutlineSend className="h-5 w-5" aria-hidden />}{busy ? 'Submitting…' : 'Submit Manuscript'}</Button>}
+                </div>
               </div>
             </form>
           </div>
