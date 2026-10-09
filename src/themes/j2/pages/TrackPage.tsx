@@ -11,6 +11,7 @@ import { Field, inputCls } from '../components/FieldKit'
 import { PortalHeader } from '../components/PortalHeader'
 import { SearchOff } from '../components/pageIcons'
 import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { useToast } from '../components/Toast'
 import { Search } from '../icons'
 import { PaperResult } from './track/PaperResult'
@@ -101,6 +102,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
     <div className="bg-[#F4F9F7]">
       <PortalHeader trail={[{ label: 'For Authors', to: paths.policy('author-guidelines') }]} current="Track My Paper" chip="Manuscript status console" title="Where is my paper?" text="No login needed. Enter your Paper ID and the email address you used when submitting. Payment, copyright signing, edits and certificates are protected by an email OTP." />
       <Container className="py-8 sm:py-10">
+<WithAwardsRail>
         <form onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 rounded-sheet border border-graphite-200 bg-white p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-start sm:p-8">
           <Field label="Paper ID" name="paperId" required error={errors.paperId}>
             <input className={inputCls(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
@@ -148,7 +150,8 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             )}
           </div>
         </div>
-      </Container>
+      </WithAwardsRail>
+</Container>
 
       {paper && (
         <>

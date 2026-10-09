@@ -7,6 +7,7 @@ import { IssueArticleCard } from '../components/IssueArticleCard'
 import { inputClass } from '../components/form'
 import { IssueCard } from '../components/IssueCard'
 import { Container, EmptyState } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { AppLink } from '../../../core/router'
 import { paths } from '../../../config/routes'
 import { formatMonthYear } from '../../../core/lib/format'
@@ -44,7 +45,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
           <p className="mt-2 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-muted">Browse every published volume and issue. All articles are open access and free to read.</p>
         </header>
       </Container>
-      <Container className="mt-8 grid gap-8 pb-12 lg:grid-cols-[260px_1fr]">
+      <WithAwardsRail className="mt-8 pb-12"><div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
         {/* Desktop timeline */}
         <nav aria-label="Volumes timeline" className="hidden lg:block">
           <div className="sticky top-20 border border-line bg-white p-5">
@@ -108,7 +109,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
             </div>
           )}
         </div>
-      </Container>
+      </div></WithAwardsRail>
     </>
   )
 }

@@ -2,10 +2,12 @@ import { ARTICLE_TYPES, SUBJECTS, type ArticleType } from '../../../../mock-data
 import { FileDropzone } from '../../components/FileDropzone'
 import { Field, inputClass } from '../../components/form'
 import { ABSTRACT_MAX_WORDS, ACCEPTED_EXT, LIMITS, MAX_FILE_MB, validateFile, wordCount } from '../../../../core/lib/submission'
+import { branchesFor } from '../../../../core/lib/branches'
 import type { StepProps } from './types'
 
 export function StepManuscript({ form, errors, onChange }: StepProps) {
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => onChange({ ...form, [k]: v })
+  const branches = branchesFor(form.subject)
   const words = wordCount(form.abstract)
   return (
     <div className="space-y-5">
@@ -27,11 +29,21 @@ export function StepManuscript({ form, errors, onChange }: StepProps) {
           </select>
         </Field>
         <Field label="Subject area" name="subject" required error={errors.subject}>
-          <select className={inputClass(errors.subject)} value={form.subject} onChange={(e) => set('subject', e.target.value)}>
+          <select className={inputClass(errors.subject)} value={form.subject} onChange={(e) => onChange({ ...form, subject: e.target.value, branch: '' })}>
             <option value="">Select…</option>
             {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </Field>
+        {branches.length > 0 && (
+          <div className="sm:col-span-2">
+            <Field label="Branch" name="branch" required error={errors.branch} hint={`A branch of ${form.subject}.`}>
+              <select className={inputClass(errors.branch)} value={form.branch} onChange={(e) => set('branch', e.target.value)}>
+                <option value="">Select a branch…</option>
+                {branches.map((b) => <option key={b}>{b}</option>)}
+              </select>
+            </Field>
+          </div>
+        )}
       </div>
       <div>
         <span className="mb-1.5 block text-sm font-semibold text-navy">Manuscript file <span className="text-danger" aria-hidden>*</span></span>

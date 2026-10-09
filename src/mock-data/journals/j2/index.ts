@@ -24,7 +24,10 @@ const home: HomeData = {
   ],
   recentSubmissions: [],
   submissionPool: [],
-  awards: [],
+  awards: [
+    { kind: 'Best Paper Award', period: 'September 2026', title: 'Vibration-Based Structural Health Monitoring of Reinforced Concrete Bridges Using Low-Cost MEMS Sensors', recipient: 'Aditi Banerjee and Lukas Weber', reason: 'Selected for practical relevance, low-cost instrumentation and a clearly reported method.' },
+    { kind: 'Best Research Mentor', period: 'September 2026', title: 'Early-Career Mentoring Excellence Award', recipient: 'Prof. Divya Menon (Tata Institute of Social Sciences)', reason: 'Recognising mentoring of early-career researchers through to published work.' },
+  ],
   perspectives: [],
   leadership: editors.filter((e) => ['Editor-in-Chief', 'Managing Editor', 'Associate Editor'].includes(e.role)).slice(0, 6),
   latest: body.slice(0, 8),

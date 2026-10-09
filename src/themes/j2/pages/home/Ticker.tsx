@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { journal } from '../../../../config/journals'
 import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
-import { ChevronLeft, Megaphone, Pause, Play } from '../../components/homeIcons'
+import { ChevronLeft, Megaphone } from '../../components/homeIcons'
 import { ArrowRight, ChevronRight } from '../../icons'
 
 interface Item { key: string; text: string; to?: string; date?: string }
@@ -17,7 +17,9 @@ export function Ticker({ notices, reviewDays }: { notices: { date: string; text:
     ...notices.map((n, i) => ({ key: `n${i}`, text: n.text, date: n.date })),
   ], [notices])
   const [i, setI] = useState(0)
-  const [paused, setPaused] = useState(reduceMotion)
+  // No pause button: the rotation stops while the pointer or keyboard focus is on the bar, and never starts for visitors who prefer reduced motion.
+  const [hover, setHover] = useState(false)
+  const paused = hover || reduceMotion()
   useEffect(() => {
     if (paused || items.length < 2) return
     const t = window.setInterval(() => setI((n) => (n + 1) % items.length), 6000)
@@ -30,7 +32,7 @@ export function Ticker({ notices, reviewDays }: { notices: { date: string; text:
   const go = (d: number) => setI((x) => (x + d + n) % n)
   const nav = 'shrink-0 rounded-chip border border-graphite-300 bg-white p-1.5 text-graphite-700 hover:border-brand-800 hover:bg-brand-50 hover:text-brand-800'
   return (
-    <section aria-label="Announcements" className="relative flex items-stretch overflow-hidden rounded-panel border border-graphite-200 bg-white text-sm shadow-card">
+    <section aria-label="Announcements" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocus={() => setHover(true)} onBlur={() => setHover(false)} className="relative flex items-stretch overflow-hidden rounded-panel border border-graphite-200 bg-white text-sm shadow-card">
       <div className="flex shrink-0 items-center gap-2 bg-brand-800 px-3 text-white sm:px-4">
         <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
           <Megaphone className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -53,9 +55,6 @@ export function Ticker({ notices, reviewDays }: { notices: { date: string; text:
             <button type="button" onClick={() => go(-1)} aria-label="Previous announcement" className={nav}><ChevronLeft className="h-4 w-4" aria-hidden="true" /></button>
             <span className="hidden min-w-[2.5rem] text-center text-xs font-semibold tabular-nums text-graphite-700 sm:inline" aria-hidden="true">{idx + 1} / {n}</span>
             <button type="button" onClick={() => go(1)} aria-label="Next announcement" className={nav}><ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
-            <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? 'Resume rotating announcements' : 'Pause rotating announcements'} className={nav}>
-              {paused ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
-            </button>
           </>
         )}
       </div>

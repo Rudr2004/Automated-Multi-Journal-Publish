@@ -6,7 +6,7 @@ import { CertificateModal } from '../components/CertificateModal'
 import { Field, inputClass } from '../components/form'
 import { OtpModal } from '../components/OtpModal'
 import { CrumbBar } from '../components/CrumbBar'
-import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { useToast } from '../components/Toast'
 import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
@@ -86,7 +86,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
   return (
     <>
       <CrumbBar items={[{ label: 'Home', to: paths.home }, { label: 'Track My Paper' }]} />
-      <Container className="py-8">
+      <WithAwardsRail className="py-8"><div>
         <header className="mb-6 border-b border-line pb-6">
           <h1 className="font-serif text-3xl font-semibold tracking-tight text-navy sm:text-[2.5rem] sm:leading-tight">Track My Paper</h1>
           <p className="mt-1.5 max-w-2xl text-base text-ink-muted">No login needed. Enter your Paper ID and the email address you used at submission.</p>
@@ -127,7 +127,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             </div>
           )}
         </div>
-      </Container>
+      </div></WithAwardsRail>
 
       {paper && (
         <>

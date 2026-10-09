@@ -3,10 +3,12 @@ import { paths } from '../../../config/routes'
 import { ButtonLink } from '../components/Button'
 import { PillTag } from '../components/PageHeader'
 import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 
 export function ComingSoon({ title }: { title: string }) {
   return (
     <Container className="py-10 sm:py-16">
+<WithAwardsRail>
       <div className="mx-auto max-w-2xl rounded-sheet border border-brand-200 bg-gradient-to-br from-brand-50 via-accent-50 to-white p-6 text-center sm:p-10">
         <PillTag>Coming soon</PillTag>
         <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-brand-800">{title}</h1>
@@ -16,7 +18,8 @@ export function ComingSoon({ title }: { title: string }) {
           <ButtonLink to={paths.currentIssue} variant="outline">Current Issue</ButtonLink>
         </div>
       </div>
-    </Container>
+    </WithAwardsRail>
+</Container>
   )
 }
 

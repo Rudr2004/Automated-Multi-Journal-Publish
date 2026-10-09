@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" stroke="#94A3B8" stroke-opacity=".16" stroke-width="1"/></pattern>
+  </defs>
+  <rect width="360" height="300" fill="#0F172A"/>
+  <rect width="360" height="300" fill="url(#g)"/>
+  <!-- truss bridge -->
+  <g stroke="#7DD3FC" stroke-width="2">
+    <path d="M30 200H330" stroke-opacity=".9"/>
+    <path d="M30 200L75 140H285L330 200" stroke-opacity=".9"/>
+    <path d="M75 140V200M120 140V200M165 140V200M210 140V200M255 140V200M285 140V200" stroke-opacity=".55"/>
+    <path d="M30 200L75 140L120 200L165 140L210 200L255 140L285 200" stroke-opacity=".7"/>
+  </g>
+  <g fill="#0F172A" stroke="#38BDF8" stroke-width="2">
+    <circle cx="30" cy="200" r="4"/><circle cx="75" cy="140" r="4"/><circle cx="120" cy="200" r="4"/><circle cx="165" cy="140" r="4"/>
+    <circle cx="210" cy="200" r="4"/><circle cx="255" cy="140" r="4"/><circle cx="285" cy="140" r="4"/><circle cx="330" cy="200" r="4"/>
+  </g>
+  <!-- piers and water line -->
+  <path d="M75 200V250M255 200V250M60 250H90M240 250H270" stroke="#CBD5E1" stroke-opacity=".6" stroke-width="2"/>
+  <path d="M20 262q20-8 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0" stroke="#38BDF8" stroke-opacity=".45" stroke-width="2"/>
+  <!-- dimension line -->
+  <g stroke="#CBD5E1" stroke-opacity=".7" stroke-width="1.5"><path d="M30 118H330M30 112V124M330 112V124M30 118l8-4v8zM330 118l-8-4v8z"/></g>
+  <text x="180" y="108" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="#CBD5E1" fill-opacity=".85">L = 300 m (schematic)</text>
+  <!-- load arrows -->
+  <g stroke="#7DD3FC" stroke-opacity=".8" stroke-width="1.5"><path d="M120 50v36M165 50v36M210 50v36M120 86l-4-8M120 86l4-8M165 86l-4-8M165 86l4-8M210 86l-4-8M210 86l4-8"/></g>
+</svg>

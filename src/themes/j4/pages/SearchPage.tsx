@@ -6,12 +6,13 @@ import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
 import type { ArticleSummary } from '../../../core/types'
 import { ARTICLE_TYPES } from '../../../core/types'
-import { ArticleRow } from '../components/ArticleRow'
 import { areas } from '../components/areas'
 import { Button } from '../components/Button'
 import { FIELD, PageBand } from '../components/PageBand'
 import { Container, EmptyState } from '../components/primitives'
 import { Facets, type FacetGroup } from './search/Facets'
+import { Close } from '../icons'
+import { ResultRow } from './search/ResultRow'
 import { SearchBox } from './search/SearchBox'
 
 type Sort = 'relevance' | 'newest' | 'views' | 'downloads'
@@ -19,8 +20,10 @@ const SORTS: { value: Sort; label: string }[] = [{ value: 'relevance', label: 'R
 const STEP = 10
 const issueKey = (a: ArticleSummary) => `Volume ${a.volume}, Issue ${a.issue}`
 const areaMatch = (q: string) => areas.find((a) => a.name.toLowerCase() === q.trim().toLowerCase())?.name
-type Sel = { area: string[]; type: string[]; issue: string[] }
-const initial = (q: string): Sel => { const a = areaMatch(q); return { area: a ? [a] : [], type: [], issue: [] } }
+type Sel = { area: string[]; type: string[]; year: string[]; issue: string[] }
+const yearKey = (a: ArticleSummary) => a.publishedAt.slice(0, 4)
+const LABEL: Record<keyof Sel, string> = { area: 'Area', type: 'Type', year: 'Year', issue: 'Issue' }
+const initial = (q: string): Sel => { const a = areaMatch(q); return { area: a ? [a] : [], type: [], year: [], issue: [] } }
 
 function tally(list: ArticleSummary[], key: (a: ArticleSummary) => string) {
   const m = new Map<string, number>()
@@ -41,35 +44,37 @@ export function SearchPage({ query, results }: { query: string; results: Article
   const terms = useMemo(() => (isArea ? [] : term.split(/\s+/).filter(Boolean)), [term, isArea])
 
   const groups = useMemo<FacetGroup[]>(() => {
-    const a = tally(results, (r) => r.subject), t = tally(results, (r) => r.type), i = tally(results, issueKey)
+    const y = tally(results, yearKey), a = tally(results, (r) => r.subject), t = tally(results, (r) => r.type), i = tally(results, issueKey)
     return [
       { key: 'area', legend: 'Research area', selected: sel.area, options: areas.filter((x) => a.has(x.name)).map((x) => ({ value: x.name, label: x.name, n: a.get(x.name)! })) },
       { key: 'type', legend: 'Article type', selected: sel.type, options: ARTICLE_TYPES.filter((x) => t.has(x)).map((x) => ({ value: x, label: x, n: t.get(x)! })) },
+      { key: 'year', legend: 'Year', selected: sel.year, options: [...y].sort((p, q) => q[0].localeCompare(p[0])).map(([v, n]) => ({ value: v, label: v, n })) },
       { key: 'issue', legend: 'Issue', selected: sel.issue, options: [...i].sort((x, y) => y[0].localeCompare(x[0], undefined, { numeric: true })).map(([v, n]) => ({ value: v, label: v, n })) },
     ]
   }, [results, sel])
 
   const filtered = useMemo(() => {
-    const list = results.filter((a) => (!sel.area.length || sel.area.includes(a.subject)) && (!sel.type.length || sel.type.includes(a.type)) && (!sel.issue.length || sel.issue.includes(issueKey(a))))
+    const list = results.filter((a) => (!sel.area.length || sel.area.includes(a.subject)) && (!sel.type.length || sel.type.includes(a.type)) && (!sel.year.length || sel.year.includes(yearKey(a))) && (!sel.issue.length || sel.issue.includes(issueKey(a))))
     if (sort === 'newest') return [...list].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     if (sort === 'views') return [...list].sort((a, b) => b.views - a.views)
     if (sort === 'downloads') return [...list].sort((a, b) => b.downloads - a.downloads)
     return list
   }, [results, sel, sort])
 
-  const active = sel.area.length + sel.type.length + sel.issue.length
+  const active = sel.area.length + sel.type.length + sel.year.length + sel.issue.length
   const toggle = (key: string, v: string) => setSel((s) => { const k = key as keyof Sel; return { ...s, [k]: s[k].includes(v) ? s[k].filter((x) => x !== v) : [...s[k], v] } })
-  const clear = () => setSel({ area: [], type: [], issue: [] })
+  const clear = () => setSel({ area: [], type: [], year: [], issue: [] })
 
   return (
     <>
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
       <PageBand label="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
         <SearchBox query={query} />
+        <p className="mt-3 max-w-3xl text-sm text-abyss-200">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-white">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
       </PageBand>
 
-      <Container className="py-10 sm:py-14">
-        <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12">
+      <div className="bg-abyss-50"><Container className="py-8 sm:py-10">
+        <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
           {results.length > 0 && <Facets groups={groups} onToggle={toggle} onClear={clear} active={active} />}
           <div className={results.length > 0 ? 'min-w-0' : 'min-w-0 lg:col-span-2'}>
             {results.length === 0 ? (
@@ -86,7 +91,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
               </>
             ) : (
               <>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-4 border-b border-abyss-300 pb-4">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-pane border border-abyss-200 bg-white px-4 py-3 shadow-hair">
                   <p role="status" aria-live="polite" className="text-base text-steel-700">
                     <strong className="font-serif4 text-2xl font-semibold tabular-nums text-abyss-900">{filtered.length}</strong> result{filtered.length === 1 ? '' : 's'}{term && <> for <strong className="text-abyss-900">“{term}”</strong></>}
                   </p>
@@ -95,11 +100,19 @@ export function SearchPage({ query, results }: { query: string; results: Article
                     <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className={FIELD}>{SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
                   </div>
                 </div>
+                {active > 0 && (
+                  <ul aria-label="Active filters" className="mb-4 flex flex-wrap items-center gap-2">
+                    {(Object.keys(sel) as (keyof Sel)[]).flatMap((k) => sel[k].map((v) => (
+                      <li key={k + v}><button type="button" onClick={() => toggle(k, v)} className="inline-flex min-h-9 items-center gap-1.5 rounded-ctl border border-abyss-300 bg-white px-2.5 text-xs font-semibold text-abyss-900 hover:border-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">{LABEL[k]}: {v}<Close className="h-4 w-4" aria-hidden="true" /><span className="sr-only"> (remove filter)</span></button></li>
+                    )))}
+                    <li><button type="button" onClick={clear} className="text-xs font-semibold text-cobalt-700 underline">Clear all</button></li>
+                  </ul>
+                )}
                 {filtered.length === 0 ? (
                   <EmptyState title="No results match these filters" text="Remove a filter to see more articles." action={<Button variant="primary" onClick={clear}>Clear all filters</Button>} />
                 ) : (
                   <>
-                    <ol aria-label="Search results">{filtered.slice(0, shown).map((a) => <ArticleRow key={a.paperId} article={a} terms={terms} abstract />)}</ol>
+                    <ol aria-label="Search results" className="space-y-3">{filtered.slice(0, shown).map((a) => <ResultRow key={a.paperId} article={a} terms={terms} />)}</ol>
                     {filtered.length > shown && <div className="mt-6 text-center"><Button variant="outline" className="h-11" onClick={() => setShown((n) => n + STEP)}>Show {Math.min(STEP, filtered.length - shown)} more of {filtered.length - shown} remaining</Button></div>}
                   </>
                 )}
@@ -107,7 +120,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
             )}
           </div>
         </div>
-      </Container>
+      </Container></div>
     </>
   )
 }

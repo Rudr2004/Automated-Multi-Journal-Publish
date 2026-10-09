@@ -3,31 +3,33 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { paths, staticGroups, staticPath } from '../../../../config/routes'
 import { AppLink } from '../../../../core/router'
 import type { StaticPageData, StaticSection } from '../../../../core/types'
-import { Check, ChevronDown, ErrorIcon, FactCheck } from '../../icons'
+import { journal } from '../../../../config/journals'
+import { formatDate } from '../../../../core/lib/format'
+import { ArrowRight, Calendar, Check, ChevronDown, ErrorIcon, FactCheck, Publish } from '../../icons'
 import { Container, cx, Label } from '../primitives'
 
 export interface TocItem { id: string; label: string; num: number }
 
-/** Dark blueprint-grid page header with breadcrumbs. */
+/** Breadcrumb bar plus the title card (group label, title, intro, meta strip) that opens every static page. */
 export function StaticBand({ page, meta }: { page: StaticPageData; meta: ReactNode }) {
   const g = staticGroups[page.group]
   return (
-    <header className="relative isolate bg-abyss-900 text-white">
-      <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
-      </div>
-      <Container className="pb-10 pt-8 sm:pb-12 sm:pt-10">
+    <header className="border-b border-abyss-200 bg-abyss-50">
+      <Container className="pb-6 pt-5 sm:pb-8">
         <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-abyss-300">
-            <li><AppLink to={paths.home} className="hover:text-white hover:underline">Home</AppLink></li><li aria-hidden="true">/</li>
-            <li><AppLink to={g.to} className="hover:text-white hover:underline">{g.label}</AppLink></li><li aria-hidden="true">/</li>
-            <li aria-current="page" className="font-medium text-white">{page.title}</li>
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-steel-600">
+            <li><AppLink to={paths.home} className="hover:text-cobalt-700 hover:underline">Home</AppLink></li><li aria-hidden="true">/</li>
+            <li><AppLink to={g.to} className="hover:text-cobalt-700 hover:underline">{g.label}</AppLink></li><li aria-hidden="true">/</li>
+            <li aria-current="page" className="font-medium text-abyss-900">{page.title}</li>
           </ol>
         </nav>
-        <Label className="mt-7 text-azure-300">{g.label}</Label>
-        <h1 className="mt-2 max-w-3xl break-words font-serif4 text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight">{page.title}</h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-abyss-200 sm:text-[1.0625rem]">{page.intro}</p>
-        <div className="mt-6 flex flex-wrap gap-2 text-[13px] tabular-nums text-abyss-100">{meta}</div>
+        <div className="relative isolate mt-4 overflow-hidden rounded-pane bg-abyss-900 p-6 text-white shadow-panel sm:p-8">
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_85%_20%,black,transparent_75%)]" />
+          <Label className="text-azure-300">{g.label}</Label>
+          <h1 className="mt-2 max-w-3xl break-words font-serif4 text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight">{page.title}</h1>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-abyss-200 sm:text-[1.0625rem]">{page.intro}</p>
+          <div className="mt-5 flex flex-wrap gap-2 border-t border-white/15 pt-4 text-[13px] tabular-nums text-abyss-100">{meta}</div>
+        </div>
       </Container>
     </header>
   )
@@ -73,7 +75,7 @@ export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageDa
   const lists = (
     <>
       {sidebar.length > 1 && (
-        <nav aria-label={`${g.label} pages`} className="mt-8">
+        <nav aria-label={`${g.label} pages`} className="mt-4 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">{g.label}</p>
           <ul className="space-y-0.5">
             {sidebar.map((p) => (
@@ -86,7 +88,7 @@ export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageDa
         </nav>
       )}
       {related.length > 0 && (
-        <nav aria-label="Related pages" className="mt-8">
+        <nav aria-label="Related pages" className="mt-8 xl:hidden">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Related pages</p>
           <ul className="space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="block min-h-[44px] py-2.5 text-sm font-medium text-cobalt-700 hover:underline lg:min-h-0 lg:py-1">{r.title} →</AppLink></li>)}</ul>
         </nav>
@@ -94,7 +96,7 @@ export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageDa
     </>
   )
   return (
-    <aside aria-label="Page navigation" className="min-w-0 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
+    <aside aria-label="Page navigation" className="min-w-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
       {toc.length > 1 && (
         <>
           <details className="group rounded-pane border border-abyss-200 bg-white lg:hidden">
@@ -103,8 +105,8 @@ export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageDa
             </summary>
             <nav aria-label="On this page" className="px-4 pb-3">{tocList}</nav>
           </details>
-          <nav aria-label="On this page" className="hidden lg:block">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">On this page</p>
+          <nav aria-label="On this page" className="hidden rounded-pane border border-abyss-200 bg-white p-4 shadow-hair lg:block">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">On this page</p>
             {tocList}
           </nav>
         </>
@@ -135,9 +137,9 @@ export function SectionClauses({ section, num, id }: { section: StaticSection; n
   const next = () => { k += 1; return { n: `${num}.${k}`, id: `c-${num}-${k}` } }
   const c = section.callout
   return (
-    <section aria-labelledby={id} className="border-t border-abyss-200 py-8 first:border-t-0 first:pt-0">
-      <h2 id={id} className="scroll-mt-28 font-serif4 text-[1.5rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.75rem]">
-        <span className="mr-3 tabular-nums text-steel-500" aria-hidden="true">{num}.</span>{section.heading}
+    <section aria-labelledby={id} className="scroll-mt-28 rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
+      <h2 id={id} className="flex scroll-mt-28 items-center gap-3 font-serif4 text-[1.375rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem]">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-sm font-semibold tabular-nums text-white" aria-hidden="true">{num}</span>{section.heading}
       </h2>
       <ol className="mt-3 list-none">
         {section.paragraphs?.map((p) => { const q = next(); return <Clause key={q.id} {...q}>{p}</Clause> })}
@@ -150,5 +152,32 @@ export function SectionClauses({ section, num, id }: { section: StaticSection; n
         </aside>
       )}
     </section>
+  )
+}
+
+/** Right rail (xl+): call for papers, journal at a glance and related policies. */
+export function RightRail({ related, groupLabel }: { related: StaticPageData[]; groupLabel: string }) {
+  const facts: [string, string][] = [['ISSN (online)', journal.issnOnline], ['Frequency', journal.frequency], ['Licence', journal.licence.name], ['Publisher', journal.publisher]]
+  return (
+    <aside aria-label="Journal information" className="hidden min-w-0 space-y-4 xl:sticky xl:top-4 xl:block xl:self-start">
+      <section className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-cobalt-700"><Calendar className="h-4 w-4" aria-hidden="true" />Call for papers</p>
+        <h2 className="mt-2 font-serif4 text-lg font-semibold leading-snug text-abyss-900">{journal.nextIssue.label}</h2>
+        <p className="mt-1 text-sm tabular-nums text-steel-600">Submission deadline {formatDate(journal.nextIssue.deadline)}</p>
+        <AppLink to={paths.submit} className="mt-3 inline-flex min-h-[40px] items-center gap-2 rounded-ctl bg-cobalt-700 px-3.5 text-sm font-semibold text-white hover:bg-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-2"><Publish className="h-4 w-4" aria-hidden="true" />Submit manuscript</AppLink>
+      </section>
+      <section className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Journal at a glance</h2>
+        <dl className="mt-3 divide-y divide-abyss-200 text-sm">
+          {facts.map(([k, v]) => <div key={k} className="py-2"><dt className="text-xs text-steel-600">{k}</dt><dd className="break-words font-medium tabular-nums text-abyss-900">{v}</dd></div>)}
+        </dl>
+      </section>
+      {related.length > 0 && (
+        <nav aria-label="Related policies" className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Related in {groupLabel} and beyond</h2>
+          <ul className="mt-2 space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="flex items-center justify-between gap-2 py-1.5 text-sm font-medium text-cobalt-700 hover:underline">{r.title}<ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>)}</ul>
+        </nav>
+      )}
+    </aside>
   )
 }

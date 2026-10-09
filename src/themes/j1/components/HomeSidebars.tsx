@@ -5,6 +5,7 @@ import { paths } from '../../../config/routes'
 import { formatDate } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
 import { Countdown } from './Countdown'
+import { AwardsCard } from './AwardsCard'
 import { Card } from './PortalParts'
 import { useToast } from './Toast'
 import { TrackForm } from './TrackForm'
@@ -107,8 +108,8 @@ const DOWNLOADS = [
   ['Peer Review Scorecard', 'PDF', MdOutlineFactCheck], ['Sample Publication Certificate', 'PDF', MdOutlineWorkspacePremium],
 ] as const
 
-/** Right column: call for papers, track a paper, index verifier, downloads and author rights. */
-export function RightSidebar() {
+/** Right column: call for papers, track a paper, recognition awards, index verifier, downloads and author rights. */
+export function RightSidebar({ awards = [] }: { awards?: J1HomeData['awards'] }) {
   const toast = useToast()
   const logos = visibleLogos()
   return (
@@ -118,6 +119,7 @@ export function RightSidebar() {
         <p className="mb-3 text-[13px] text-ink-muted">No login needed. Enter the Paper ID and email from your confirmation.</p>
         <TrackForm idPrefix="side" submitLabel="Check Review Status" />
       </Card>
+      <AwardsCard awards={awards} />
       {logos.length > 0 && (
         <Card title="Global Indexing Verifier" aside={`${logos.length} listings`} headingId="verifier-h">
           <ul className="grid grid-cols-2 gap-1.5">

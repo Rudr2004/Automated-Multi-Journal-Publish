@@ -6,6 +6,7 @@ import { paths } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { CallForPapers, EditorProfile } from '../../../../core/types'
+import { AwardsCard } from '../../components/AwardsCard'
 import { Description, EditNote, Groups, Insights, QrCode, VerifiedUser } from '../../components/homeIcons'
 import { ArrowRight, Book, Download, LinkIcon, OpenAccess, Review, Submit, Track } from '../../icons'
 
@@ -157,6 +158,7 @@ export function Sidebar({ cfp, editors }: { cfp: CallForPapers; editors: EditorP
   return (
     <aside aria-label="Journal information" className="space-y-5">
       <CallForPapersCard cfp={cfp} />
+      <AwardsCard />
       <Vitals />
       <Standards />
       <Resources />

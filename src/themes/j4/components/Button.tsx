@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { AppLink } from '../../../core/router'
 import { cx } from './primitives'
 
-export type Variant = 'primary' | 'cta' | 'outline' | 'ghost' | 'onDark' | 'light'
+export type Variant = 'primary' | 'cta' | 'outline' | 'ghost' | 'onDark' | 'light' | 'secondary' | 'inverted'
 const base = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ctl px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60'
 const variants: Record<Variant, string> = {
   primary: 'bg-abyss-900 text-white hover:bg-abyss-700',
@@ -12,6 +12,10 @@ const variants: Record<Variant, string> = {
   ghost: 'text-cobalt-700 hover:bg-azure-50',
   onDark: 'border border-white/25 text-white hover:bg-white/10',
   light: 'bg-white text-abyss-900 hover:bg-azure-50',
+  // Light slate/sky tint fill with dark text.
+  secondary: 'border border-azure-200 bg-azure-50 text-abyss-900 hover:bg-azure-100',
+  // Dark slate fill for secondary dark actions on light surfaces.
+  inverted: 'bg-abyss-800 text-white hover:bg-abyss-700',
 }
 export const buttonClass = (variant: Variant = 'primary', className?: string) => cx(base, variants[variant], className)
 

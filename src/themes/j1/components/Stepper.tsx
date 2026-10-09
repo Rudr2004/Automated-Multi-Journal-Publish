@@ -1,7 +1,7 @@
 import { Check } from './uiIcons'
 
 const HINTS: Record<string, string> = {
-  manuscript: 'Title, abstract & file', authors: 'Affiliations & contacts', additional: 'Mentor & declarations', review: 'Check & submit',
+  manuscript: 'Title, abstract & file', authors: 'Affiliations & contacts', additional: 'Cover letter & declarations', review: 'Check & submit',
 }
 
 /** Section selector for multi-step forms: a bordered panel of numbered cards. Completed sections can be clicked to go back. */

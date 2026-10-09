@@ -9,7 +9,11 @@ export interface Bootstrapped { Site: ComponentType; api: JournalApi; demo: Prot
 export async function loadJournal(): Promise<Bootstrapped> {
   // Compared directly against import.meta.env so a single-journal build drops the other journals.
   const E = import.meta.env.VITE_JOURNAL
-  if (E === 'j4' || (E !== 'j1' && E !== 'j2' && E !== 'j3' && activeJournalId === 'j4')) {
+  if (E === 'j5' || (E !== 'j1' && E !== 'j2' && E !== 'j3' && E !== 'j4' && activeJournalId === 'j5')) {
+    const [{ default: Site }, { j5Api, j5Demo }] = await Promise.all([import('./j5'), import('../mock-data/journals/j5')])
+    return { Site, api: j5Api, demo: j5Demo }
+  }
+  if (E === 'j4' || (E !== 'j1' && E !== 'j2' && E !== 'j3' && E !== 'j5' && activeJournalId === 'j4')) {
     const [{ default: Site }, { j4Api, j4Demo }] = await Promise.all([import('./j4'), import('../mock-data/journals/j4')])
     return { Site, api: j4Api, demo: j4Demo }
   }

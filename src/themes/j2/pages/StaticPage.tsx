@@ -7,6 +7,7 @@ import { AppLink, useRouter } from '../../../core/router'
 import type { BlockActions } from '../../../core/theme'
 import type { StaticPageData } from '../../../core/types'
 import { Container, cx } from '../components/primitives'
+import { AwardsCard } from '../components/AwardsCard'
 import * as I from '../icons'
 import { Print } from '../components/pageIcons'
 import { anchorId, blockTitle, StaticBlocksJ2 } from './static/StaticBlocksJ2'
@@ -215,6 +216,8 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
               <AppLink to={paths.submit} className="mt-4 flex items-center justify-center gap-2 rounded-soft bg-white px-4 py-2.5 text-sm font-bold text-brand-900 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-800"><I.Submit className="h-4 w-4" aria-hidden="true" />Submit your manuscript</AppLink>
               <AppLink to={paths.track} className="mt-2 flex items-center justify-center gap-2 rounded-soft border border-white/40 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-800"><I.Track className="h-4 w-4" aria-hidden="true" />Track manuscript</AppLink>
             </section>
+
+            <AwardsCard />
 
             {toc.length > 1 && (
               <nav aria-label="On this page" className={cx(card, 'hidden p-5 lg:block')}>

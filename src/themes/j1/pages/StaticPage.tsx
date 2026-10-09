@@ -4,6 +4,7 @@ import type { StaticPageData } from '../../../mock-data/journals/j1'
 import { inputClass } from '../components/form'
 import { Button, ButtonLink } from '../components/Button'
 import { CrumbBar } from '../components/CrumbBar'
+import { AwardsCard } from '../components/AwardsCard'
 import { Container, Panel } from '../components/primitives'
 import { TrackForm } from '../components/TrackForm'
 import { AppLink, useRouter } from '../../../core/router'
@@ -200,6 +201,7 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
               <li><AppLink to={paths.about('contact')} className="font-semibold text-scholar hover:underline">Contact form →</AppLink></li>
             </ul>
           </Panel>
+          <AwardsCard />
         </aside>
       </Container>
     </>

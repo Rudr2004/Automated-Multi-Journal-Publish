@@ -5,7 +5,7 @@ import { stageInfo } from '../../../../core/lib/stageInfo'
 import { STAGES, type TrackedPaper } from '../../../../core/types'
 import { CopyButton } from '../../components/form/Field'
 import { Label, Tag, cx } from '../../components/primitives'
-import { Check, Payments, Publish, Review, Shield, Submit, TaskDone, type IconProps } from '../../icons'
+import { Calendar, Check, FactCheck, Payments, Publish, Review, Shield, Submit, TaskDone, type IconProps } from '../../icons'
 
 const TRACK: { label: string; icon: ComponentType<IconProps> }[] = [
   { label: 'Submitted', icon: Submit }, { label: 'Screening', icon: Shield }, { label: 'Peer review', icon: Review },
@@ -108,5 +108,31 @@ export function LogTable({ paper }: { paper: TrackedPaper }) {
         </tbody>
       </table>
     </section>
+  )
+}
+
+const PAYLABEL = { 'not-due': 'Not due yet', due: 'Payment due', verifying: 'Verifying proof', paid: 'Paid' } as const
+
+/** Four summary tiles above the console, all derived from the tracked paper. */
+export function KpiTiles({ paper }: { paper: TrackedPaper }) {
+  const { complete, current } = trackerState(paper)
+  const dates = Object.values(paper.stageDates).filter(Boolean) as string[]
+  const last = dates.sort().slice(-1)[0]
+  const ready = paper.documents.filter((d) => d.available).length
+  const tiles = [
+    { icon: Review, label: 'Current stage', value: complete ? 'Complete' : TRACK[current].label, note: complete ? 'All six stages done' : `Stage ${current + 1} of 6` },
+    { icon: Payments, label: 'Payment', value: PAYLABEL[paper.payment], note: 'Article processing charge' },
+    { icon: FactCheck, label: 'Documents ready', value: `${ready} of ${paper.documents.length}`, note: 'Invoice, certificate, forms' },
+    { icon: Calendar, label: 'Last update', value: last ? formatDate(last) : 'Pending', note: 'Latest stage date' },
+  ]
+  return (
+    <ul aria-label="Paper summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {tiles.map(({ icon: Icon, label, value, note }) => (
+        <li key={label} className="flex gap-3 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+          <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.06em] text-steel-600">{label}</p><p className="font-serif4 text-lg font-semibold leading-tight tabular-nums text-abyss-900">{value}</p><p className="text-[13px] text-steel-600">{note}</p></div>
+        </li>
+      ))}
+    </ul>
   )
 }

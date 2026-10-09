@@ -12,7 +12,7 @@ import { ArrowRight, History } from '../icons'
 import { applyFilters, EMPTY, groupByType, plural, type IssueFilters } from './issue/filter'
 import { IssueGroup } from './issue/IssueGroup'
 import { IssueHeader } from './issue/IssueHeader'
-import { IssueToolbar } from './issue/IssueToolbar'
+import { IssueRail } from './issue/IssueRail'
 
 const nav = 'inline-flex min-h-11 items-center gap-2 rounded-ctl border border-abyss-300 bg-white px-4 text-sm font-semibold text-abyss-900 hover:border-cobalt-700 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600'
 
@@ -21,8 +21,6 @@ export function IssuePage({ data }: { data: IssueData }) {
   const [f, setF] = useState<IssueFilters>(EMPTY)
   const visible = useMemo(() => applyFilters(articles, f), [articles, f])
   const groups = groupByType(visible)
-  const areaNames = useMemo(() => [...new Set(articles.map((a) => a.subject))], [articles])
-  const typeNames = useMemo(() => [...new Set(articles.map((a) => a.type))], [articles])
   const prev = issue.issue > 1 ? { v: issue.volume, i: issue.issue - 1 } : null
   const next = !issue.isCurrent ? { v: issue.volume, i: issue.issue + 1 } : null
 
@@ -30,13 +28,15 @@ export function IssuePage({ data }: { data: IssueData }) {
     <>
       <Helmet><title>{`Volume ${issue.volume}, Issue ${issue.issue} (${formatMonthYear(issue.month)}) | ${journal.shortName}`}</title></Helmet>
       <IssueHeader issue={issue} />
-      <Container className="py-12 sm:py-16">
-        <IssueToolbar value={f} onChange={setF} shown={visible.length} total={articles.length} areaNames={areaNames} typeNames={typeNames} />
-        <div className="mt-10">
-          {groups.length === 0 ? (
-            <EmptyState title="No articles match these filters" text="Try a different word, or clear the area and type filters."
-              action={<Button variant="primary" onClick={() => setF({ ...EMPTY, sort: f.sort })}>Clear filters</Button>} />
-          ) : groups.map((g) => <IssueGroup key={g.type} title={plural(g.type)} items={g.items} sort={f.sort} onSort={(sort) => setF({ ...f, sort })} />)}
+      <Container className="py-8 sm:py-10">
+        <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+          <IssueRail value={f} onChange={setF} articles={articles} shown={visible.length} />
+          <div className="min-w-0">
+            {groups.length === 0 ? (
+              <EmptyState title="No articles match these filters" text="Try a different word, or clear the area and type filters."
+                action={<Button variant="primary" onClick={() => setF({ ...EMPTY, sort: f.sort })}>Clear filters</Button>} />
+            ) : groups.map((g) => <IssueGroup key={g.type} type={g.type} title={plural(g.type)} items={g.items} />)}
+          </div>
         </div>
 
         <nav aria-label="Issue navigation" className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-abyss-200 pt-6">

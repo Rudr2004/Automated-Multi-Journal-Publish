@@ -9,6 +9,7 @@ import { Container, Panel } from '../components/primitives'
 import { AppLink } from '../../../core/router'
 import { doiFor, journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
+import { AwardsCard } from '../components/AwardsCard'
 import { formatDate } from '../../../core/lib/format'
 
 export type CertificateResult = { valid: true; article: ArticleSummary; author: string } | { valid: false }
@@ -101,6 +102,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
           <Panel title="Need help?">
             <p className="text-[13px] leading-relaxed text-ink">If a certificate cannot be verified, contact the editorial office at <a href={`mailto:${journal.email}`} className="font-semibold text-scholar hover:underline">{journal.email}</a> or see the <AppLink to={paths.about('contact')} className="font-semibold text-scholar hover:underline">contact page</AppLink>.</p>
           </Panel>
+          <AwardsCard />
         </aside>
       </Container>
     </>

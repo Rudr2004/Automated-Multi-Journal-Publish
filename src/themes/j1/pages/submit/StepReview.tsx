@@ -21,7 +21,7 @@ export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'
     <div className="space-y-4">
       <p className="text-sm text-ink-muted">Please check everything before submitting. You can edit any section.</p>
       <Block title="Manuscript" step={0} onEdit={onEdit}>
-        <Row k="Title" v={form.title} /><Row k="Article type" v={form.articleType} /><Row k="Subject area" v={form.subject} />
+        <Row k="Title" v={form.title} /><Row k="Article type" v={form.articleType} /><Row k="Subject area" v={form.branch ? `${form.subject} · ${form.branch}` : form.subject} />
         <Row k="Keywords" v={form.keywords} /><Row k="File" v={form.file?.name} /><Row k="Abstract" v={form.abstract.length > 220 ? `${form.abstract.slice(0, 220)}…` : form.abstract} />
       </Block>
       <Block title="Authors" step={1} onEdit={onEdit}>
@@ -30,7 +30,7 @@ export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'
         <Row k="Co-authors" v={form.coAuthors.length ? form.coAuthors.map((c) => c.name).join(', ') : 'None'} />
       </Block>
       <Block title="Additional" step={2} onEdit={onEdit}>
-        <Row k="Mentor" v={form.mentor} /><Row k="Referral code" v={form.referralCode} /><Row k="Cover letter" v={form.coverLetter ? 'Provided' : ''} />
+        <Row k="Profile picture" v={form.author.photo?.name} /><Row k="Mentor" v={[form.mentor, form.mentorEmail && `(${form.mentorEmail})`, form.mentorInstitution && `, ${form.mentorInstitution}`].filter(Boolean).join(' ').replace(' ,', ',')} /><Row k="Referral code" v={form.referralCode} /><Row k="Cover letter" v={form.coverLetter ? 'Provided' : ''} />
         <Row k="Declarations" v="All accepted" />
       </Block>
       {submitError && <p role="alert" className="rounded border border-danger/30 bg-red-50 p-3 text-sm font-medium text-danger">{submitError}</p>}

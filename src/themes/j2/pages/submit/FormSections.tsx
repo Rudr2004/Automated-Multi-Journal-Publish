@@ -1,5 +1,5 @@
 // The three input sections of the single-page submission form: manuscript details, authors, files and declarations.
-import type { Dispatch, ReactNode, SetStateAction } from 'react'
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import {
@@ -7,11 +7,14 @@ import {
   type FormErrors, type SubmissionForm,
 } from '../../../../core/lib/submission'
 import { digitsOnly, formatOrcid, formatReferral, parseKeywords, phoneMaxLength } from '../../../../core/lib/validators'
+import { branchesFor } from '../../../../core/lib/branches'
+import { useDetectedLocation } from '../../../../core/lib/geo'
 import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
 import { AppLink } from '../../../../core/router'
 import { Button } from '../../components/Button'
 import { CheckField, Field, inputCls } from '../../components/FieldKit'
 import { FileDrop } from '../../components/FileDrop'
+import { ProfilePhotoField } from '../../components/ProfilePhotoField'
 import { Plus, Trash } from '../../components/pageIcons'
 import { Tag, cx } from '../../components/primitives'
 import { Check } from '../../icons'
@@ -45,6 +48,7 @@ export function SectionCard({ id, n, title, text, done, children }: { id: string
 
 export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => setForm((f) => ({ ...f, [k]: v }))
+  const branches = branchesFor(form.subject)
   const words = wordCount(form.abstract)
   const kw = parseKeywords(form.keywords)
   const wordTone = words === 0 ? 'text-graphite-600' : words < ABSTRACT_MIN_WORDS || words > ABSTRACT_MAX_WORDS ? 'text-cta-800' : 'text-brand-700'
@@ -74,11 +78,21 @@ export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
           </select>
         </Field>
         <Field label="Discipline" name="subject" required error={errors.subject}>
-          <select className={inputCls(errors.subject)} value={form.subject} onChange={(e) => set('subject', e.target.value)}>
+          <select className={inputCls(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
             <option value="">Select a discipline</option>
             {journal.subjects.map((s) => <option key={s}>{s}</option>)}
           </select>
         </Field>
+        {branches.length > 0 && (
+          <div className="sm:col-span-2">
+            <Field label="Branch" name="branch" required error={errors.branch} hint={`A branch of ${form.subject}.`}>
+              <select className={inputCls(errors.branch)} value={form.branch} onChange={(e) => set('branch', e.target.value)}>
+                <option value="">Select a branch</option>
+                {branches.map((b) => <option key={b}>{b}</option>)}
+              </select>
+            </Field>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -92,6 +106,11 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] }))
   const removeCo = (id: number) => setForm((f) => ({ ...f, coAuthors: f.coAuthors.filter((c) => c.id !== id) }))
   const maxPhone = phoneMaxLength(a.dialCode)
+  // Country and dialling code are pre-selected from the visitor's IP address (once, and only while they are still the defaults).
+  const geoNote = useDetectedLocation(a, setAuthor)
+  // The mentor card opens on request (like co-authors); it starts open when a draft already has mentor details.
+  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorInstitution))
+  const removeMentor = () => { setMentorOpen(false); setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorInstitution: '' })) }
 
   return (
     <div className="space-y-8">
@@ -108,7 +127,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
           </Field>
         </div>
         <div className="grid gap-5 sm:grid-cols-[minmax(0,13rem)_1fr]">
-          <Field label="Country code" name="author.dialCode" required>
+          <Field label="Country code" name="author.dialCode" required hint={geoNote || undefined}>
             <select className={inputCls()} value={a.dialCode} onChange={(e) => setAuthor({ dialCode: e.target.value, whatsapp: a.whatsapp.slice(0, phoneMaxLength(e.target.value)) })}>
               {DIAL_CODES.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
             </select>
@@ -131,6 +150,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
             </select>
           </Field>
         </div>
+        <ProfilePhotoField value={a.photo} onChange={(photo) => setAuthor({ photo })} error={errors['author.photo']} />
         <Field label="ORCID iD" name="author.orcid" error={errors['author.orcid']} hint="Format: 0000-0002-1825-0097">
           <input className={inputCls(errors['author.orcid'])} value={a.orcid} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000"
             onChange={(e) => setAuthor({ orcid: formatOrcid(e.target.value) })} />
@@ -167,6 +187,37 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
           ))}
         </ul>
       </section>
+
+      <section aria-labelledby="mentor-h">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 id="mentor-h" className="font-display text-base font-semibold text-brand-800">Mentor / research guide <span className="text-sm font-normal text-graphite-600">(optional)</span></h3>
+            <p className="text-sm text-graphite-600">{mentorOpen ? 'Acknowledged on the record. No certificate is issued unless they are also a co-author.' : 'None added. Add your supervisor or mentor if the work was done under their guidance.'}</p>
+          </div>
+          {!mentorOpen && <Button variant="outline" onClick={() => setMentorOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Add mentor</Button>}
+        </div>
+        {mentorOpen && (
+          <div className="mt-4 rounded-panel border border-graphite-200 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-graphite-800">Mentor</span>
+              <button type="button" onClick={removeMentor} aria-label="Remove mentor" className="inline-flex items-center gap-1 rounded-chip px-2 py-1 text-xs font-semibold text-red-700 hover:bg-white"><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Name" name="mentor" required error={errors.mentor}>
+                <input className={inputCls(errors.mentor)} value={form.mentor} maxLength={LIMITS.name} onChange={(e) => setForm((f) => ({ ...f, mentor: cleanName(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentor: f.mentor.trim() }))} />
+              </Field>
+              <Field label="Email" name="mentorEmail" error={errors.mentorEmail}>
+                <input type="email" className={inputCls(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => setForm((f) => ({ ...f, mentorEmail: cleanEmail(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentorEmail: f.mentorEmail.trim().toLowerCase() }))} />
+              </Field>
+              <div className="sm:col-span-2">
+                <Field label="Affiliation" name="mentorInstitution" error={errors.mentorInstitution}>
+                  <input className={inputCls(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} onChange={(e) => setForm((f) => ({ ...f, mentorInstitution: e.target.value.replace(/\s{2,}/g, ' ') }))} onBlur={() => setForm((f) => ({ ...f, mentorInstitution: f.mentorInstitution.trim() }))} />
+                </Field>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   )
 }
@@ -181,10 +232,7 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
         <FileDrop name="file" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Word files only (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Mentor name" name="mentor" error={errors.mentor}>
-          <input className={inputCls(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', cleanName(e.target.value))} onBlur={() => set('mentor', form.mentor.trim())} />
-        </Field>
+      <div className="grid gap-5">
         <Field label="Referral code" name="referralCode" error={errors.referralCode} hint="4 to 20 letters, numbers or hyphens. Earn credits when a colleague refers you.">
           <input className={inputCls(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
         </Field>

@@ -1,6 +1,6 @@
 // Shape of a journal's configuration. Every journal (j1 … j5) provides one of these in src/config/journals/<id>.ts.
 
-export type JournalId = 'j1' | 'j2' | 'j3' | 'j4'
+export type JournalId = 'j1' | 'j2' | 'j3' | 'j4' | 'j5'
 
 /** An indexing / verification logo from /public/shared/indexing. Only entries with `show: true` appear on the site. */
 export interface IndexLogo {

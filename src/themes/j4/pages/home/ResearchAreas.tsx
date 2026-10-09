@@ -8,7 +8,7 @@ import { ArrowRight } from '../../icons'
 
 export function ResearchAreas({ articles }: { articles: ArticleSummary[] }) {
   return (
-    <section aria-labelledby="areas-title" className="py-16 sm:py-24">
+    <section aria-labelledby="areas-title" className="py-12 sm:py-16">
       <Container>
         <SectionHead id="areas-title" label="Research areas" title="Nine areas, one rigorous standard" text="Browse published work by engineering area. Papers that cross areas are welcome." />
         <ul className="grid gap-px overflow-hidden rounded-pane border border-abyss-200 bg-abyss-200 sm:grid-cols-2 lg:grid-cols-3">

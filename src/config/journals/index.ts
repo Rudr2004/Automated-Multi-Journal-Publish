@@ -3,13 +3,14 @@ import { journal as j1 } from './j1'
 import { journal as j2 } from './j2'
 import { journal as j3 } from './j3'
 import { journal as j4 } from './j4'
+import { journal as j5 } from './j5'
 import { activeJournalId } from './ids'
 import type { IndexLogo, JournalConfig } from './types'
 
 export type { JournalConfig, JournalId, IndexLogo, TrustItem, Discipline } from './types'
 export { activeJournalId, activeSlug, SLUGS } from './ids'
 
-export const journal: JournalConfig = activeJournalId === 'j4' ? j4 : activeJournalId === 'j3' ? j3 : activeJournalId === 'j2' ? j2 : j1
+export const journal: JournalConfig = activeJournalId === 'j5' ? j5 : activeJournalId === 'j4' ? j4 : activeJournalId === 'j3' ? j3 : activeJournalId === 'j2' ? j2 : j1
 
 /** DOI format is always {prefix}/{Paper ID}. */
 export const doiFor = (paperId: string) => `${journal.doiPrefix}/${paperId}`

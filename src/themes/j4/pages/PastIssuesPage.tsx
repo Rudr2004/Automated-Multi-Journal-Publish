@@ -34,7 +34,31 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
 
       <Container className="py-12 sm:py-16">
         <SectionHead label="Issue matrix" title="Volumes and issues" text="Each volume holds up to twelve monthly issues. Greyed cells have not been published yet." />
-        {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : <ArchiveMatrix rows={rows} />}
+        {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
+          <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+            <aside aria-label="Archive overview" className="lg:sticky lg:top-16 lg:self-start">
+              <div className="rounded-pane border border-abyss-200 bg-white shadow-hair">
+                <h3 className="border-b border-abyss-200 bg-abyss-50 px-4 py-3 font-serif4 text-base font-semibold text-abyss-900">Jump to volume</h3>
+                <ul className="divide-y divide-abyss-100 text-sm">
+                  {rows.map((r) => (
+                    <li key={r.volume}>
+                      <a href={`#vol-${r.volume}`} className="flex min-h-11 items-center justify-between gap-3 px-4 py-2 text-abyss-900 hover:bg-azure-50 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-azure-600 lg:min-h-10">
+                        <span className="font-medium">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></span>
+                        <span className="tabular-nums text-steel-600">{r.articles}<span className="sr-only"> articles</span></span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div className="space-y-2 border-t border-abyss-200 p-4 text-[13px] text-steel-700">
+                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-azure-600 bg-azure-50" />Current issue</p>
+                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-abyss-300 bg-white" />Published issue</p>
+                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-abyss-300 bg-abyss-50" />Not yet published</p>
+                </div>
+              </div>
+            </aside>
+            <ArchiveMatrix rows={rows} />
+          </div>
+        )}
       </Container>
 
       <section aria-labelledby="archive-articles" className="border-t border-abyss-200 bg-white py-12 sm:py-16">

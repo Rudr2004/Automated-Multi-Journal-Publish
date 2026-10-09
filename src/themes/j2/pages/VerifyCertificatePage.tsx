@@ -11,6 +11,7 @@ import { Field, inputCls } from '../components/FieldKit'
 import { PageHeader, PillTag } from '../components/PageHeader'
 import { Print, ShieldOff } from '../components/pageIcons'
 import { Container } from '../components/primitives'
+import { AwardsCard } from '../components/AwardsCard'
 import { Check, Search, Verified } from '../icons'
 
 const EXAMPLE = `${journal.paperIdPrefix}-CERT-${journal.paperIdPrefix}2026000121`
@@ -98,7 +99,9 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
             </div>
           </div>
 
-          <aside aria-labelledby="how-h" className="rounded-panel border border-graphite-200 bg-white p-5 shadow-card lg:sticky lg:top-24">
+          <div className="min-w-0 space-y-5 lg:sticky lg:top-24">
+          <AwardsCard />
+          <aside aria-labelledby="how-h" className="rounded-panel border border-graphite-200 bg-white p-5 shadow-card">
             <h2 id="how-h" className="font-display text-base font-bold uppercase tracking-wide text-brand-800">How verification works</h2>
             <ol className="mt-4 space-y-4">
               {STEPS.map((s, i) => (
@@ -110,6 +113,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
             </ol>
             <p className="mt-5 border-t border-graphite-100 pt-4 text-sm text-graphite-600">Need help? Email <a className="font-semibold text-accent-700 hover:underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
           </aside>
+          </div>
         </div>
       </Container>
     </>

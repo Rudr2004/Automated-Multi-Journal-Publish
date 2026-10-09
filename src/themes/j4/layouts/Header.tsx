@@ -1,5 +1,5 @@
-// Header: a brand row (logo, full journal name, Track My Paper and Submit) that scrolls away, then a sticky row with the navigation (Research Areas is a 3-column matrix menu).
-// It turns dark slate once the page is scrolled. Search lives in the home hero; the magnifier here opens the search page.
+// Header: a brand row (logo tile, full journal name, tags, outline Track My Paper and solid Submit Manuscript) that scrolls away, then a solid dark sticky navigation bar
+// with dropdowns (Research Areas is a 3-column matrix menu) and a working search field with instant suggestions (DOI / Paper ID detection).
 import { useEffect, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -7,8 +7,8 @@ import { AppLink, useRouter } from '../../../core/router'
 import { AREA_BLURB, AREA_ICONS, areas } from '../components/areas'
 import { ArchiveSearch } from '../components/ArchiveSearch'
 import { ButtonLink, buttonClass } from '../components/Button'
-import { cx } from '../components/primitives'
-import { ChevronDown, Close, Menu, Search, Submit, Track } from '../icons'
+import { cx, Tag } from '../components/primitives'
+import { ChevronDown, Close, Menu, OpenAccess, Search, Submit, Track, Verified } from '../icons'
 import { editorialLink, menus, primaryLinks, type NavLinkItem } from './nav'
 
 type MenuId = 'areas' | 'authors' | 'about' | 'search' | null
@@ -42,7 +42,7 @@ export function Header() {
   const holdOpen = () => window.clearTimeout(closeTimer.current)
   const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu((m) => (m === 'search' ? m : null)), 140) }
 
-  const dark = scrolled
+  const dark = true // the navigation bar is solid dark slate
   const linkCls = (active: boolean) => cx('inline-flex items-center gap-1 whitespace-nowrap rounded-ctl px-2.5 py-2 text-sm font-medium transition-colors',
     dark ? (active ? 'bg-white/10 text-white' : 'text-abyss-200 hover:bg-white/10 hover:text-white') : (active ? 'bg-azure-50 text-cobalt-700' : 'text-abyss-800 hover:bg-abyss-100 hover:text-abyss-900'))
   const plain = (l: NavLinkItem) => <div key={l.to} onMouseEnter={() => setMenu((m) => (m === 'search' ? m : null))}><AppLink to={l.to} aria-current={isActive(l.to) ? 'page' : undefined} className={linkCls(isActive(l.to))}>{l.label}</AppLink></div>
@@ -50,26 +50,30 @@ export function Header() {
 
   return (
     <>
-      {/* Brand row: logo and the full journal name. It scrolls away; the navigation row below stays. */}
+      {/* Brand row: logo tile, the full journal name and tags, then Track My Paper and Submit. It scrolls away; the navigation bar below stays. */}
       <div className="border-b border-abyss-200 bg-white">
-        <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
-          <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <Logo size={64} className="h-12 w-12 sm:h-16 sm:w-16" />
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
+          <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+            <Logo size={64} tile className="h-14 w-14 border border-abyss-200 sm:h-[4.5rem] sm:w-[4.5rem]" />
             <span className="min-w-0">
-              <span className="block font-serif4 text-[1.1875rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem] lg:text-[1.5rem]">{journal.name}</span>
-              <span className="mt-1 hidden text-[13px] font-medium text-steel-600 sm:block">Monthly open access journal · ISSN {journal.issnOnline}</span>
+              <span className="block font-serif4 text-[1.1875rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem]">{journal.name}</span>
+              <span className="mt-1.5 hidden flex-wrap items-center gap-x-2 gap-y-1 sm:flex">
+                <span className="text-[13px] font-semibold tabular-nums text-steel-700">{journal.shortName} · ISSN {journal.issnOnline}</span>
+                {journal.badges.peerReviewed && <Tag tone="azure" icon={<Verified className="h-3.5 w-3.5" aria-hidden="true" />}>Peer reviewed</Tag>}
+                {journal.badges.openAccess && <Tag tone="azure" icon={<OpenAccess className="h-3.5 w-3.5" aria-hidden="true" />}>Open access</Tag>}
+                <Tag>{journal.frequency}</Tag>
+              </span>
             </span>
           </AppLink>
-          {/* Track and Submit live here while the page is at the top; the sticky row shows them once it is scrolled. */}
-          <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex">
-            <ButtonLink to={paths.track} variant="outline" className="hidden lg:inline-flex"><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</ButtonLink>
+          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+            <ButtonLink to={paths.track} variant="outline"><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</ButtonLink>
             <ButtonLink to={paths.submit} variant="cta"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
           </div>
         </div>
       </div>
 
     <div ref={root} data-j4-header onMouseEnter={holdOpen} onMouseLeave={scheduleClose}
-      className={cx('sticky top-0 z-50 border-b transition-colors duration-200 motion-reduce:transition-none', dark ? 'border-white/10 bg-abyss-900 text-white' : 'border-abyss-200 bg-white/95 text-abyss-900 backdrop-blur')}>
+      className="sticky top-0 z-50 border-b border-white/10 bg-abyss-800 text-white">
       <div className="mx-auto flex h-12 max-w-[1240px] items-center gap-4 px-4 sm:px-6">
         <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className={cx('font-serif4 text-xl font-bold tracking-tight xl:hidden', dark ? 'text-white' : 'text-abyss-900')}>{journal.shortName}</AppLink>
 
@@ -92,21 +96,21 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <div className="hidden w-[19rem] xl:block 2xl:w-[22rem]"><ArchiveSearch variant="compact" placeholder="Search title, author, DOI or Paper ID" /></div>
           <button type="button" aria-label="Search the archive" aria-expanded={menu === 'search'} aria-controls="j4-header-search" onClick={() => setMenu((m) => (m === 'search' ? null : 'search'))}
-            className={cx('rounded-ctl p-2.5', menu === 'search' ? (dark ? 'bg-white/10 text-white' : 'bg-azure-50 text-cobalt-700') : dark ? 'text-abyss-200 hover:bg-white/10 hover:text-white' : 'text-abyss-700 hover:bg-abyss-100')}>
+            className={cx('rounded-ctl p-2.5 xl:hidden', menu === 'search' ? (dark ? 'bg-white/10 text-white' : 'bg-azure-50 text-cobalt-700') : dark ? 'text-abyss-200 hover:bg-white/10 hover:text-white' : 'text-abyss-700 hover:bg-abyss-100')}>
             {menu === 'search' ? <Close className="h-5 w-5" aria-hidden="true" /> : <Search className="h-5 w-5" aria-hidden="true" />}
           </button>
-          {dark && <AppLink to={paths.track} className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-ctl px-2.5 py-2 text-sm font-medium text-abyss-200 hover:bg-white/10 hover:text-white lg:inline-flex"><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</AppLink>}
-          {dark && <ButtonLink to={paths.submit} variant="cta" className="hidden sm:inline-flex"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>}
+          {scrolled && <ButtonLink to={paths.submit} variant="cta" className="hidden sm:inline-flex" aria-label="Submit Manuscript"><Submit className="h-4 w-4" aria-hidden="true" /><span aria-hidden="true">Submit</span></ButtonLink>}
           <button type="button" onClick={() => setMobileOpen((v) => !v)} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} className={cx('rounded-ctl p-2.5 xl:hidden', dark ? 'text-white hover:bg-white/10' : 'text-abyss-800 hover:bg-abyss-100')}>
             {mobileOpen ? <Close className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
-      {/* Search: the same archive search as the home page, opened from the magnifier. It stays open until Esc, a click elsewhere or a page change. */}
+      {/* Search below xl: the magnifier opens the archive search. It stays open until Esc, a click elsewhere or a page change. */}
       {menu === 'search' && (
-        <div id="j4-header-search" className="absolute inset-x-0 top-full border-b border-abyss-200 bg-abyss-50 py-4 text-abyss-900 shadow-float motion-safe:animate-fade-in">
+        <div id="j4-header-search" className="absolute xl:hidden inset-x-0 top-full border-b border-abyss-200 bg-abyss-50 py-4 text-abyss-900 shadow-float motion-safe:animate-fade-in">
           <div className="mx-auto max-w-[1240px] px-4 sm:px-6"><ArchiveSearch autoFocus /></div>
         </div>
       )}

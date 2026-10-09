@@ -1,16 +1,16 @@
 // Journal 4 submission: a dark title band, then a sticky manuscript checklist beside one long numbered form, then a success screen.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { journal } from '../../../config/journals'
 import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../../../core/lib/draft'
 import { formatDate } from '../../../core/lib/format'
 import { initialForm, validateStep, type SubmissionForm } from '../../../core/lib/submission'
 import { useVisibleErrors } from '../../../core/lib/useVisibleErrors'
 import { Button } from '../components/Button'
-import { Container, Label } from '../components/primitives'
+import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { History } from '../icons'
 import { AuthorsSection } from './submit/AuthorsSection'
 import { Checklist } from './submit/Checklist'
+import { StepTracker, SubmitHeader } from './submit/Header'
 import { DetailsSection } from './submit/DetailsSection'
 import { DeclarationsSection, FilesSection } from './submit/FilesSections'
 import { ReviewSection } from './submit/ReviewSection'
@@ -95,14 +95,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   const props = { form, errors, setForm }
   return (
     <div>
-      <section aria-labelledby="submit-h" className="relative isolate bg-abyss-900 text-white">
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
-        <Container className="py-10 sm:py-14">
-          <Label className="text-azure-300">Submit manuscript</Label>
-          <h1 id="submit-h" className="mt-2 max-w-3xl font-serif4 font-semibold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(34px,3.8vw,54px)' }}>Submit your paper to {journal.shortName}</h1>
-          <p className="mt-3 max-w-2xl text-base text-abyss-200 sm:text-[1.0625rem]">Five short sections, about ten minutes. No account is needed: you receive a Paper ID by email, SMS and WhatsApp, and track the paper with it.</p>
-        </Container>
-      </section>
+      <SubmitHeader />
 
       <div className="bg-abyss-50 py-8 sm:py-12">
         <Container>
@@ -118,6 +111,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           <div className="grid items-start gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-8">
             <Checklist counts={counts} onJump={jump} savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
             <form ref={formRef} noValidate onSubmit={submit} onBlur={onBlur} aria-label="Manuscript submission" className="min-w-0 space-y-6">
+              <div className="lg:hidden"><StepTracker counts={counts} onJump={jump} /></div>
               <DetailsSection {...props} />
               <AuthorsSection {...props} />
               <FilesSection {...props} />

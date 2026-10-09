@@ -21,6 +21,8 @@ export function Directory({ editors }: { editors: EditorProfile[] }) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const countries = useMemo(() => [...new Set(editors.map((e) => e.country))].sort(), [editors])
 
+  const counts = useMemo(() => { const m: Record<string, number> = {}; editors.forEach((e) => { m[e.role] = (m[e.role] ?? 0) + 1 }); return m }, [editors])
+
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase()
     return editors
@@ -36,7 +38,7 @@ export function Directory({ editors }: { editors: EditorProfile[] }) {
   return (
     <section aria-labelledby={`${base}-h`}>
       <h2 id={`${base}-h`} className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-abyss-900 sm:text-[1.75rem]">Directory</h2>
-      <form role="search" aria-label="Filter the editorial directory" onSubmit={(e) => e.preventDefault()} className="mt-4 grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <form role="search" aria-label="Filter the editorial directory" onSubmit={(e) => e.preventDefault()} className="mt-4 grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div>
           <label htmlFor={`${base}-q`} className="mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Search</label>
           <div className="relative">
@@ -44,11 +46,14 @@ export function Directory({ editors }: { editors: EditorProfile[] }) {
             <input id={`${base}-q`} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, institution or area" className={cx(selectCls, 'pl-10')} />
           </div>
         </div>
-        <div><label htmlFor={`${base}-r`} className="mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Role</label>
-          <select id={`${base}-r`} value={role} onChange={(e) => setRole(e.target.value)} className={selectCls}><option value="">All roles</option>{EDITOR_ROLES.map((r) => <option key={r}>{r}</option>)}</select></div>
         <div><label htmlFor={`${base}-c`} className="mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Country</label>
           <select id={`${base}-c`} value={country} onChange={(e) => setCountry(e.target.value)} className={selectCls}><option value="">All countries</option>{countries.map((c) => <option key={c}>{c}</option>)}</select></div>
       </form>
+      <div role="group" aria-label="Filter by role" className="mt-3 flex flex-wrap gap-2">
+        {[['', 'All roles', editors.length] as const, ...EDITOR_ROLES.filter((x) => counts[x]).map((x) => [x, x, counts[x]] as const)].map(([v, label, n]) => (
+          <button key={v} type="button" aria-pressed={role === v} onClick={() => setRole(v)} className={cx('inline-flex min-h-9 items-center gap-2 rounded-ctl border px-3 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600', role === v ? 'border-abyss-900 bg-abyss-900 text-white' : 'border-abyss-300 bg-white text-abyss-900 hover:border-cobalt-700')}>{label}<span className={cx('tabular-nums', role === v ? 'text-abyss-200' : 'text-steel-600')}>{n}</span></button>
+        ))}
+      </div>
       <p role="status" aria-live="polite" className="mt-3 text-sm tabular-nums text-steel-600">
         Showing {rows.length} of {editors.length} members.{(q || role || country) && <> <button type="button" onClick={clear} className="font-semibold text-cobalt-700 underline">Clear filters</button></>}
       </p>

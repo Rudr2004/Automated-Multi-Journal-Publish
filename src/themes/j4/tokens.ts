@@ -1,6 +1,6 @@
 // "Scholarly Precision" design tokens for Journal 4 (IJECM). tailwind.config.js reads this file, so every J4 colour, radius and shadow is defined once here.
 // The brand colours sit on the Tailwind slate and sky scales (50 → 900), under J4's own names so no other journal is affected:
-//   abyss 900 = #0F172A (primary), azure 600 = #0284C7 (secondary), cobalt 700 = #0369A1 (tertiary), steel 600 = #475569 (neutral).
+//   abyss 900 = #0F172A (primary), azure 600 = #0284C7 (secondary), cobalt 700 = #0369A1 (tertiary), steel 600 = #485563 (neutral).
 //
 // Contrast (WCAG AA needs 4.5:1 for normal text, 3:1 for large text and interface parts):
 //   white on abyss-900 17.9 · steel-600 on white 7.6 · cobalt-700 on white 5.9 (links and Submit buttons, white text on it is 5.9)
@@ -11,7 +11,7 @@ export const j4Colors = {
   /** Primary deep slate navy: hero, footer, scrolled header, headings. */
   abyss: {
     50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8',
-    500: '#64748B', 600: '#475569', 700: '#334155', 800: '#1E293B', 900: '#0F172A', DEFAULT: '#0F172A',
+    500: '#64748B', 600: '#485563', 700: '#334155', 800: '#1E293B', 900: '#0F172A', DEFAULT: '#0F172A',
   },
   /** Secondary sky blue: focus rings, active states, data accents. */
   azure: {
@@ -26,7 +26,7 @@ export const j4Colors = {
   /** Neutral slate grey: body text, borders, muted text. */
   steel: {
     50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8',
-    500: '#64748B', 600: '#475569', 700: '#334155', 800: '#1E293B', 900: '#0F172A', DEFAULT: '#475569',
+    500: '#64748B', 600: '#485563', 700: '#334155', 800: '#1E293B', 900: '#0F172A', DEFAULT: '#485563',
   },
 } as const
 

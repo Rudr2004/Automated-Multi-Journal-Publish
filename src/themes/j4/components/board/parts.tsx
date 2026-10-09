@@ -1,4 +1,4 @@
-// Small parts of the Journal 4 editorial directory: portrait, detail panel, leadership summary.
+// Small parts of the Journal 4 editorial directory: portrait, detail panel, leadership cards.
 import { useState } from 'react'
 import type { EditorProfile } from '../../../../core/types'
 import { cx, Label } from '../primitives'
@@ -36,20 +36,20 @@ export function Detail({ editor }: { editor: EditorProfile }) {
   )
 }
 
-/** Editor-in-Chief and the people who lead the journal, above the directory. */
+/** Editor-in-Chief, managing and associate editors as photo cards, above the directory. */
 export function Leadership({ editors }: { editors: EditorProfile[] }) {
   const chief = editors.find((e) => e.role === 'Editor-in-Chief')
   const leaders = editors.filter((e) => e.role === 'Managing Editor' || e.role === 'Associate Editor')
   if (!chief && leaders.length === 0) return null
   return (
     <section aria-labelledby="lead-h" className="mb-10">
-      <h2 id="lead-h" className="sr-only">Journal leadership</h2>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <h2 id="lead-h" className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-abyss-900 sm:text-[1.75rem]">Journal leadership</h2>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {chief && (
           <article className="rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-5 shadow-panel">
             <Label className="text-cobalt-700">Editor-in-Chief</Label>
             <div className="mt-3 flex items-start gap-4">
-              <Portrait editor={chief} size="h-20 w-20" text="text-xl" />
+              <Portrait editor={chief} size="h-24 w-24" text="text-2xl" />
               <div className="min-w-0">
                 <h3 className="font-serif4 text-xl font-semibold leading-tight text-abyss-900">{chief.name}</h3>
                 <p className="mt-1 text-sm text-steel-700">{chief.designation}</p>
@@ -57,15 +57,20 @@ export function Leadership({ editors }: { editors: EditorProfile[] }) {
               </div>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-steel-700">{chief.shortBio}</p>
+            {chief.areas.length > 0 && <ul aria-label="Areas of expertise" className="mt-3 flex flex-wrap gap-1.5">{chief.areas.map((a) => <li key={a} className="rounded-ctl border border-abyss-200 bg-abyss-50 px-2 py-0.5 text-xs font-medium text-steel-700">{a}</li>)}</ul>}
           </article>
         )}
         <div>
           <Label className="text-steel-600">Managing and associate editors</Label>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {leaders.map((e) => (
-              <li key={e.id} className="flex items-center gap-3 rounded-pane border border-abyss-200 bg-white p-3 shadow-hair">
-                <Portrait editor={e} size="h-12 w-12" />
-                <div className="min-w-0"><p className="truncate font-serif4 text-base font-semibold text-abyss-900">{e.name}</p><p className="text-xs text-steel-600">{e.role}</p><p className="truncate text-xs text-steel-600">{e.institution}</p></div>
+              <li key={e.id} className="flex items-start gap-3 rounded-pane border border-abyss-200 bg-white p-3 shadow-hair">
+                <Portrait editor={e} size="h-16 w-16" text="text-lg" />
+                <div className="min-w-0">
+                  <p className="font-serif4 text-base font-semibold leading-snug text-abyss-900">{e.name}</p>
+                  <p className="text-xs font-semibold text-cobalt-700">{e.role}</p>
+                  <p className="text-xs text-steel-600">{e.institution}, {e.country}</p>
+                </div>
               </li>
             ))}
           </ul>

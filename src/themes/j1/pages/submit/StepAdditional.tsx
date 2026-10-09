@@ -20,13 +20,7 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => onChange({ ...form, [k]: v })
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div className="space-y-2 border border-[#E9D9B5] bg-[#FFF9EE] p-4">
-          <div><h3 className="font-serif text-base font-semibold text-navy">Research guide / mentor</h3><p className="text-xs text-ink-muted">Optional. Name a supervisor if the work was done under their guidance.</p></div>
-          <Field label="Mentor name (optional)" name="mentor" error={errors.mentor}>
-            <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} onBlur={() => set('mentor', form.mentor.trim())} />
-          </Field>
-        </div>
+      <div className="grid gap-5">
         <div className="space-y-2 border border-line bg-paper p-4">
           <div><h3 className="font-serif text-base font-semibold text-navy">Referral</h3><p className="text-xs text-ink-muted">Optional. Earn credits when a colleague refers you.</p></div>
           <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens.">

@@ -9,6 +9,7 @@ import { Button } from '../components/Button'
 import { Container, Label } from '../components/primitives'
 import { CertificatePaper } from '../components/static/Certificate'
 import { Field, inputClass } from '../components/static/fields'
+import { MdOutlinePrint as Print } from 'react-icons/md'
 import { Check, ErrorIcon, Search } from '../icons'
 
 const EXAMPLE = `${journal.paperIdPrefix}-CERT-${journal.paperIdPrefix}2026000112`
@@ -53,8 +54,9 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
         </Container>
       </header>
 
-      <Container className="py-10 sm:py-14">
-        <div className="mx-auto max-w-3xl">
+      <div className="bg-abyss-50"><Container className="py-10 sm:py-12">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <div className="min-w-0">
           <form onSubmit={submit} noValidate aria-label="Verify a certificate" className="grid gap-4 rounded-pane border border-abyss-200 bg-white p-5 shadow-panel sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
             <Field label="Certificate number" name="certificate" required error={error} hint={`Format: ${EXAMPLE}. Co-author certificates end in -A2, -A3 and so on.`}>
               <input className={inputClass(error)} value={id} maxLength={40} autoComplete="off" spellCheck={false} placeholder={EXAMPLE}
@@ -66,10 +68,11 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
           <div aria-live="polite" aria-busy={busy} className="mt-8">
             {result?.valid === true && (
               <div className="space-y-6">
-                <section aria-labelledby="valid-h" className="rounded-pane border border-abyss-200 border-l-4 border-l-azure-600 bg-white p-5 shadow-hair sm:p-6">
+                <section aria-labelledby="valid-h" className="overflow-hidden rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-5 shadow-panel sm:p-6">
                   <h2 id="valid-h" ref={heading} tabIndex={-1} className="flex items-center gap-3 font-serif4 text-[1.5rem] font-semibold text-abyss-900 focus:outline-none">
                     <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Check className="h-5 w-5" /></span>Valid certificate
                   </h2>
+                  <p className="mt-2 inline-flex rounded-ctl border border-azure-200 bg-azure-50 px-2 py-0.5 text-xs font-semibold text-azure-800">Record found for {checked.toUpperCase()}</p>
                   <dl className="mt-4 grid gap-x-4 gap-y-2 text-base sm:grid-cols-[8rem_minmax(0,1fr)]">
                     <dt className="text-steel-600">Awarded to</dt><dd className="font-semibold text-abyss-900">{result.author}</dd>
                     <dt className="text-steel-600">Article</dt><dd><AppLink to={paths.article(result.article.paperId)} className="font-semibold text-cobalt-700 underline">{result.article.title}</AppLink></dd>
@@ -78,7 +81,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
                   </dl>
                 </section>
                 <CertificatePaper number={checked.toUpperCase()} data={{ author: result.author, paperId: result.article.paperId, title: result.article.title, publishedAt: result.article.publishedAt, volume: result.article.volume, issue: result.article.issue }} />
-                <Button variant="outline" className="min-h-[44px]" onClick={() => window.print()}>Print / Save as PDF</Button>
+                <Button variant="outline" className="min-h-[44px]" onClick={() => window.print()}><Print className="h-4 w-4" aria-hidden="true" />Print / Save as PDF</Button>
               </div>
             )}
             {result?.valid === false && (
@@ -89,7 +92,22 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
             )}
           </div>
         </div>
-      </Container>
+        <aside aria-label="About verification" className="space-y-4 lg:sticky lg:top-24">
+          <section className="rounded-pane border border-abyss-200 bg-white p-5 shadow-hair">
+            <Label className="text-cobalt-700">How it works</Label>
+            <ol className="mt-3 space-y-3 text-sm text-steel-700">
+              {['Find the certificate number printed under the signature line.', 'Type it in the box, or scan the QR code on the certificate.', 'We show the matching record, or tell you we hold none.'].map((t, i) => (
+                <li key={t} className="flex gap-3"><span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-xs font-semibold tabular-nums text-white">{i + 1}</span><span>{t}</span></li>
+              ))}
+            </ol>
+          </section>
+          <section className="rounded-pane border border-abyss-200 border-l-4 border-l-azure-600 bg-white p-5 shadow-hair">
+            <Label className="text-steel-600">Need help?</Label>
+            <p className="mt-2 text-sm text-steel-700">If a genuine certificate is not found, write to <a className="font-semibold text-cobalt-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a> with the number and the article title.</p>
+          </section>
+        </aside>
+        </div>
+      </Container></div>
     </>
   )
 }

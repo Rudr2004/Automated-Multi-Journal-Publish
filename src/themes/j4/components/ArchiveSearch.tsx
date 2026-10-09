@@ -13,7 +13,9 @@ import { Book, FactCheck, Hash, Person, Search, Track } from '../icons'
 interface Row { key: string; group: string; icon: ReactNode; label: string; sub?: string; run: () => void }
 const ICON = 'h-[18px] w-[18px] shrink-0 text-cobalt-700'
 
-export function ArchiveSearch({ className, autoFocus }: { className?: string; autoFocus?: boolean }) {
+/** `bar` is the large card search; `compact` is a single slim field for the navigation bar. */
+export function ArchiveSearch({ className, autoFocus, variant = 'bar', placeholder }: { className?: string; autoFocus?: boolean; variant?: 'bar' | 'compact'; placeholder?: string }) {
+  const compact = variant === 'compact'
   const { onSearch, onSuggest } = useSearchApi()
   const { navigate } = useRouter()
   const id = useId()
@@ -68,19 +70,19 @@ export function ArchiveSearch({ className, autoFocus }: { className?: string; au
 
   return (
     <div ref={box} className={cx('relative', className)}>
-      <form role="search" onSubmit={submit} className="flex flex-col gap-3 rounded-pane border border-abyss-200 bg-white p-3 shadow-float sm:flex-row sm:items-center sm:p-4">
-        <label htmlFor={`${id}-q`} className="hidden shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600 lg:block">Search the archive</label>
-        <div className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-ctl border border-abyss-300 bg-abyss-50 px-3.5 focus-within:border-azure-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-azure-600/15">
+      <form role="search" onSubmit={submit} className={compact ? 'flex items-center gap-2' : 'flex flex-col gap-3 rounded-pane border border-abyss-200 bg-white p-3 shadow-float sm:flex-row sm:items-center sm:p-4'}>
+        <label htmlFor={`${id}-q`} className={compact ? 'sr-only' : 'hidden shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600 lg:block'}>Search the archive</label>
+        <div className={cx('flex min-w-0 flex-1 items-center gap-3 rounded-ctl border border-abyss-300 bg-abyss-50 px-3.5 focus-within:border-azure-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-azure-600/15', compact ? 'h-10' : 'h-12')}>
           <Search className="h-5 w-5 shrink-0 text-steel-500" aria-hidden="true" />
           <input id={`${id}-q`} value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
             role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
-            type="text" autoComplete="off" autoFocus={autoFocus} placeholder={`Title, author, keyword, DOI or ${journal.paperIdPrefix} Paper ID`}
-            className="min-w-0 flex-1 bg-transparent text-base text-abyss-900 placeholder:text-steel-500 focus:outline-none focus-visible:!outline-none" />
+            type="text" autoComplete="off" autoFocus={autoFocus} placeholder={placeholder ?? `Title, author, keyword, DOI or ${journal.paperIdPrefix} Paper ID`}
+            className={cx('min-w-0 flex-1 bg-transparent text-abyss-900 placeholder:text-steel-500 focus:outline-none focus-visible:!outline-none', compact ? 'text-sm' : 'text-base')} />
         </div>
-        <Button type="submit" variant="cta" className="h-12 px-8 text-base">Search</Button>
+        <Button type="submit" variant={compact ? 'primary' : 'cta'} className={compact ? 'h-10 px-4' : 'h-12 px-8 text-base'}>Search</Button>
       </form>
       {show && (
-        <ul id={`${id}-list`} role="listbox" className="absolute left-0 right-0 top-full z-40 mt-2 max-h-[22rem] overflow-auto rounded-pane border border-abyss-200 bg-white py-2 text-left shadow-float">
+        <ul id={`${id}-list`} role="listbox" className={cx('absolute top-full z-40 mt-2 max-h-[22rem] overflow-auto rounded-pane border border-abyss-200 bg-white py-2 text-left shadow-float', compact ? 'right-0 w-[min(26rem,calc(100vw-2rem))]' : 'left-0 right-0')}>
           {rows.map((r, i) => (
             <li key={r.key} role="presentation">
               {(i === 0 || rows[i - 1].group !== r.group) && <p className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-steel-500">{r.group}</p>}

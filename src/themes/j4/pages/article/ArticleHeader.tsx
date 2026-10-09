@@ -1,11 +1,13 @@
 // Dark blueprint-grid header band: type and area chips, title, authors with affiliations, the metadata strip and the primary actions.
 import { useMemo, type ReactNode } from 'react'
+import { MdOutlineVisibility as Eye } from 'react-icons/md'
 import { doiFor, journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleFull } from '../../../../core/types'
 import { areaColor } from '../../components/areas'
+import { AuthorAvatarJ4 } from '../../components/AuthorChipJ4'
 import { buttonClass } from '../../components/Button'
 import { CiteMenu } from '../../components/CiteMenu'
 import { Container } from '../../components/primitives'
@@ -26,11 +28,12 @@ function Authors({ article }: { article: ArticleFull }) {
   if (!people.length) return <p className="mt-4 text-base text-abyss-100">{(article.authors ?? []).join(', ')}</p>
   return (
     <>
-      <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-base text-white" aria-label="Authors">
+      <ul className="mt-5 flex flex-wrap gap-2.5 text-base text-white" aria-label="Authors">
         {people.map((a) => {
           const marks = [...new Set(a.affiliations.map((n) => order.indexOf(n) + 1).filter((n) => n > 0))].sort((x, y) => x - y)
           return (
-            <li key={a.name} className="inline-flex items-center gap-1.5 break-words font-medium">
+            <li key={a.name} className="inline-flex items-center gap-2 break-words rounded-ctl border border-white/15 bg-white/5 py-1.5 pl-1.5 pr-3 font-medium">
+              <AuthorAvatarJ4 name={a.name} className="h-8 w-8 text-[11px] !ring-white/25" />
               {a.name}
               {marks.length > 0 && <sup className="text-xs font-semibold text-azure-300">{marks.join(',')}</sup>}
               {a.corresponding && (a.email
@@ -42,8 +45,13 @@ function Authors({ article }: { article: ArticleFull }) {
         })}
       </ul>
       {order.length > 0 && (
-        <ol className="mt-3 space-y-0.5 text-[13px] leading-snug text-abyss-300" aria-label="Affiliations">
-          {order.map((n, i) => <li key={n} className="break-words"><sup className="mr-1 font-semibold text-azure-300">{i + 1}</sup>{article.affiliations[n - 1]}</li>)}
+        <ol className="mt-4 space-y-2 text-sm text-abyss-200" aria-label="Affiliations">
+          {order.map((n, i) => (
+            <li key={n} className="flex items-start gap-2.5 break-words">
+              <span aria-hidden="true" className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-ctl border border-azure-300/40 bg-azure-400/10 text-[11px] font-semibold tabular-nums text-azure-300">{i + 1}</span>
+              <span className="leading-5">{article.affiliations[n - 1]}</span>
+            </li>
+          ))}
         </ol>
       )}
     </>
@@ -109,11 +117,17 @@ export function ArticleHeader({ article }: { article: ArticleFull }) {
             </div>
           ))}
         </dl>
-        <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[13px] tabular-nums text-abyss-300">
-          <span><strong className="font-semibold text-white">{num(article.views)}</strong> views</span>
-          <span><strong className="font-semibold text-white">{num(article.downloads)}</strong> downloads</span>
-          <span><strong className="font-semibold text-white">{num(article.citations)}</strong> citations</span>
-        </p>
+        <ul aria-label="Article metrics" className="mt-3 inline-grid grid-cols-3 divide-x divide-white/15 overflow-hidden rounded-pane border border-white/15 bg-white/5">
+          {([['Views', article.views, Eye], ['Downloads', article.downloads, Download], ['Citations', article.citations, Quote]] as const).map(([label, value, Icon]) => (
+            <li key={label} className="flex items-center gap-2.5 px-4 py-2.5 sm:px-5">
+              <Icon className="h-5 w-5 shrink-0 text-azure-300" aria-hidden="true" />
+              <span className="leading-tight">
+                <span className="block text-lg font-semibold tabular-nums text-white">{num(value)}</span>
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-abyss-300">{label}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </Container>
     </header>
   )

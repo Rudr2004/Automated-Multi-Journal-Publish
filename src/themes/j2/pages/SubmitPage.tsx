@@ -11,12 +11,13 @@ import { AppLink } from '../../../core/router'
 import * as I from '../icons'
 import { CloudDone } from '../components/pageIcons'
 import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { useToast } from '../components/Toast'
 import { AutosaveNote, Checklist, Stepper, type ChecklistItem } from './submit/Checklist'
 import { AuthorsSection, FilesSection, ManuscriptSection, SectionCard } from './submit/FormSections'
 import { ReviewSummary, SubmitSuccess } from './submit/ReviewAndSuccess'
 
-const MANUSCRIPT_KEYS = ['title', 'abstract', 'keywords', 'articleType', 'subject']
+const MANUSCRIPT_KEYS = ['title', 'abstract', 'keywords', 'articleType', 'subject', 'branch']
 
 /** All errors in the order the controls appear on the page, so "focus first error" lands on the right one. */
 function allErrorsOf(form: SubmissionForm): FormErrors {
@@ -122,7 +123,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   return (
     <div className="bg-[#F4F9F7]">
       <header className="border-b border-brand-100 bg-gradient-to-b from-brand-50 to-[#F4F9F7]">
-        <Container className="pb-8 pt-6 sm:pt-8">
+        <Container className="!max-w-[1440px] pb-8 pt-6 sm:pt-8">
           <nav aria-label="Breadcrumb">
             <ol className="flex flex-wrap items-center gap-1 text-sm text-graphite-600">
               <li><AppLink to={paths.home} className="rounded-chip hover:text-accent-700 hover:underline">Home</AppLink></li>
@@ -152,7 +153,8 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
         </Container>
       </header>
 
-      <Container className="pb-16 pt-6">
+      <Container className="!max-w-[1440px] pb-16 pt-6">
+<WithAwardsRail>
         {pendingDraft && (
           <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-panel border border-accent-200 bg-accent-50 p-4">
             <p className="flex items-start gap-2 text-sm text-graphite-800">
@@ -164,7 +166,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           </div>
         )}
 
-        <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
+        <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]">
           <Checklist items={items} active={active} onGo={goTo} savedAt={savedAt} />
 
           <div className="min-w-0 rounded-sheet border border-graphite-200 bg-white p-4 shadow-card sm:p-8">
@@ -227,7 +229,8 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
             </ol>
           </div>
         </section>
-      </Container>
+      </WithAwardsRail>
+</Container>
     </div>
   )
 }

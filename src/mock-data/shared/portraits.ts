@@ -52,6 +52,17 @@ const PORTRAIT: Record<string, ['men' | 'women', number]> = {
   'Samir Khanna': ['men', 65], 'Tobias Hartmann': ['men', 66], 'Lucas Ferreira': ['men', 68],
   'Naresh Gowda': ['men', 69], 'Ibrahim Yusuf': ['men', 70], 'Pradeep Menon': ['men', 71],
   'Jun-ho Park': ['men', 72], 'Arnav Saxena': ['men', 73],
+  // Journal 5 (IJFRD) people: existing portrait images are reused, one image per person within this journal.
+  'Rajendra Varadarajan': ['men', 26], 'Yusuf Demirci': ['men', 27], 'Haoran Liu': ['men', 29], 'Oluwaseun Adewale': ['men', 30],
+  'Jonas Eklund': ['men', 31], 'Anton Gruber': ['men', 34], 'Takashi Morimoto': ['men', 37], 'Felix Mbeki': ['men', 40], 'Arvind Chandrasekhar': ['men', 42],
+  'Madhavi Kasturirangan': ['women', 44], 'Astrid Halvorsen': ['women', 38], 'Isabella Conti': ['women', 40], 'Sudha Ramanujam': ['women', 41],
+  'Paloma Herrera': ['women', 42], 'Nomvula Dlamini': ['women', 43], 'Gayatri Venkataraman': ['women', 46], 'Camille Rousseau': ['women', 47], 'Hye-jin Seo': ['women', 49],
+  'Ritika Bhandari': ['women', 2], 'Aiko Hasegawa': ['women', 4], 'Elodie Marchand': ['women', 5], 'Sana Qureshi': ['women', 6], 'Adaeze Okeke': ['women', 7],
+  'Nadiya Kovalenko': ['women', 9], 'Lakshmi Ranganathan': ['women', 10], 'Ingeborg Dahl': ['women', 13], 'Farah Siddiqi': ['women', 14], 'Marisol Vega': ['women', 16],
+  'Tanuja Phadke': ['women', 18], 'Joanna Wierzbicka': ['women', 20],
+  'Karan Oberoi': ['men', 1], 'Mikhail Sorokin': ['men', 2], 'Emmanuel Tetteh': ['men', 3], 'Vishal Hegde': ['men', 4], 'Pieter van der Meer': ['men', 6],
+  'Gaurav Mittal': ['men', 7], 'Hamza Idrissi': ['men', 9], 'Rafael Bianchi': ['men', 10], 'Tomasz Zielinski': ['men', 13], 'Siddharth Venkatesan': ['men', 15],
+  'Daichi Yamamoto': ['men', 16], 'Julien Moreau': ['men', 18], 'Chinedu Obiora': ['men', 20], 'Aaron Feldman': ['men', 23], 'Dhruv Khurana': ['men', 24], 'Sandeep Raghuvanshi': ['men', 25],
 }
 
 /** Portrait URL for a person's name (titles like "Dr." or "Prof." are ignored). Undefined when unknown. */

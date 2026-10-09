@@ -28,7 +28,7 @@ export function BrandBlock() {
           )}
         </span>
         <span className="mt-0.5 block font-display text-lg font-bold leading-snug tracking-tight text-graphite-900 xl:text-xl">
-          {journal.name} <span className="font-extrabold text-brand-800">({journal.shortName})</span>
+          {journal.name}
         </span>
         <span className="mt-0.5 block text-xs font-medium text-graphite-600">{journal.descriptor} · ISSN {journal.issnOnline}</span>
       </span>

@@ -1,6 +1,7 @@
 import { j2Colors, j2Fonts, j2Radius, j2Shadows } from './src/themes/j2/tokens.ts'
 import { j3Colors, j3Fonts, j3Radius, j3Shadows } from './src/themes/j3/tokens.ts'
 import { j4Colors, j4Fonts, j4Radius, j4Shadows } from './src/themes/j4/tokens.ts'
+import { j5Colors, j5Fonts } from './src/themes/j5/tokens.ts'
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -30,6 +31,8 @@ export default {
         ...j3Colors,
         // Journal 4 (Scholarly Precision)
         ...j4Colors,
+        // Journal 5 (Academic Prestige, burgundy)
+        ...j5Colors,
       },
       fontFamily: {
         serif: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Georgia', 'serif'],
@@ -40,6 +43,7 @@ export default {
         inter: j3Fonts.body,
         serif4: j4Fonts.serif,
         work: j4Fonts.work,
+        newsreader: j5Fonts.newsreader,
       },
       keyframes: {
         marquee: { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } },

@@ -3,7 +3,7 @@ import { ARTICLE_TYPES, SUBJECTS, type ArticleSummary } from '../../../mock-data
 import { inputClass } from '../components/form'
 import { PageHead, RailTitle } from '../components/PageHead'
 import { Pagination } from '../components/Pagination'
-import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { SearchBox } from '../components/SearchBox'
 import { SearchResult } from '../components/SearchResult'
 import { MdOutlineTune as SlidersHorizontal } from 'react-icons/md'
@@ -104,7 +104,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
         <SearchBox id="results-search" large className="mt-5 max-w-2xl" onSearch={(q) => navigate(paths.search(q))} />
       </PageHead>
 
-      <Container className="mt-6 grid gap-x-8 gap-y-4 pb-4 lg:grid-cols-[250px_minmax(0,1fr)]">
+      <WithAwardsRail className="mt-6 pb-4"><div className="grid gap-x-8 gap-y-4 lg:grid-cols-[250px_minmax(0,1fr)]">
         <div className="lg:hidden">
           <button type="button" aria-expanded={railOpen} aria-controls="search-facets" onClick={() => setRailOpen(!railOpen)}
             className="inline-flex h-10 items-center gap-2 rounded border border-line bg-white px-3.5 text-sm font-semibold text-navy hover:border-scholar">
@@ -159,7 +159,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
           </div>
           {pageCount > 1 && <div className="mt-6 border-t border-line pt-5"><Pagination page={current} pageCount={pageCount} onChange={setPage} /></div>}
         </section>
-      </Container>
+      </div></WithAwardsRail>
     </>
   )
 }

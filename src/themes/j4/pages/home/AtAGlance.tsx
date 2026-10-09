@@ -18,7 +18,7 @@ export function AtAGlance({ reviewDays }: { reviewDays: number }) {
     ['Publisher', journal.publisher],
   ]
   return (
-    <section aria-labelledby="glance-title" className="py-16 sm:py-24">
+    <section aria-labelledby="glance-title" className="py-12 sm:py-16">
       <Container>
         <SectionHead id="glance-title" label="Journal at a glance" title="Specification sheet" text="The essentials an author or librarian needs, in one place." />
         <dl className="grid overflow-hidden rounded-pane border border-abyss-200 md:grid-cols-2">

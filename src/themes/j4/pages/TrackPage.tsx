@@ -7,10 +7,11 @@ import type { TrackPageProps } from '../../../core/theme'
 import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../../../core/types'
 import { ButtonLink } from '../components/Button'
 import { Field, Spinner, fieldInput } from '../components/form/Field'
+import { AppLink } from '../../../core/router'
 import { Container, Label, cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { Search } from '../icons'
-import { LogTable, PaperHeader } from './track/Console'
+import { KpiTiles, LogTable, PaperHeader } from './track/Console'
 import { CertDialog, EditDialog } from './track/EditDialogs'
 import { OtpDialog } from './track/OtpDialog'
 import { PayDialog, type PayMode } from './track/PayDialog'
@@ -108,10 +109,11 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
       <section aria-labelledby="track-h" className="relative isolate bg-abyss-900 text-white">
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
         <Container className="py-10 sm:py-14">
+          <nav aria-label="Breadcrumb"><ol className="mb-5 flex flex-wrap items-center gap-x-2 text-sm text-abyss-300"><li><AppLink to={paths.home} className="hover:text-white hover:underline">Home</AppLink></li><li aria-hidden="true">/</li><li aria-current="page" className="font-medium text-white">Track My Paper</li></ol></nav>
           <Label className="text-azure-300">Status console</Label>
           <h1 id="track-h" className="mt-2 max-w-3xl font-serif4 font-semibold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(34px,3.8vw,54px)' }}>Where is my paper right now?</h1>
           <p className="mt-3 max-w-2xl text-base text-abyss-200 sm:text-[1.0625rem]">No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.</p>
-          <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-7 grid gap-4 rounded-pane border border-white/15 bg-abyss-800/80 p-4 sm:p-5 md:grid-cols-[1fr_1fr_auto] md:items-start [&_label]:text-white [&_p]:text-abyss-200 [&_p[role=alert]]:text-red-300">
+          <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-7 grid gap-4 rounded-pane bg-white p-4 shadow-panel sm:p-5 md:grid-cols-[1fr_1fr_auto] md:items-start">
             <Field label="Paper ID" name="paperId" required error={errors.paperId}>
               <input className={fieldInput(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
                 onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
@@ -121,8 +123,8 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
                 onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
             </Field>
             <button type="submit" disabled={loading} aria-busy={loading}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-ctl bg-white px-6 text-sm font-semibold text-abyss-900 transition-colors hover:bg-azure-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 disabled:opacity-60 md:mt-[1.75rem] md:w-auto">
-              {loading ? <Spinner dark /> : <Search className="h-5 w-5" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-ctl bg-abyss-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-abyss-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-2 disabled:opacity-60 md:mt-[1.75rem] md:w-auto">
+              {loading ? <Spinner /> : <Search className="h-5 w-5" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
             </button>
           </form>
         </Container>
@@ -135,6 +137,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             <div ref={resultRef} tabIndex={-1} className={cx('focus:outline-none', result && 'scroll-mt-24')}>
               {result?.kind === 'found' && paper && (
                 <div className="space-y-6">
+                  <KpiTiles paper={paper} />
                   <PaperHeader paper={paper} />
                   <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
                     <div className="min-w-0 space-y-6"><LogTable paper={paper} /><DocsPanel paper={paper} onDownload={download} /></div>

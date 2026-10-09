@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
-import { Campaign, LocateFixed, LockOpen, Play } from '../components/uiIcons'
+import { Campaign, LocateFixed, LockOpen } from '../components/uiIcons'
 
 const MINUTE = 60000
 const HOUR = 3600000
@@ -64,11 +64,10 @@ export function ResearchRibbon() {
   const [now, setNow] = useState(() => Date.now())
   const [hover, setHover] = useState(false)
   const [index, setIndex] = useState(0)
-  const [userPaused, setUserPaused] = useState(false)
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), MINUTE); return () => clearInterval(t) }, [])
 
   const items = journal.announcements.map((a) => ({ ...a, label: a.live ? `${a.text} ${closesIn(journal.nextIssue.deadline, now)}` : a.text }))
-  const stopped = hover || userPaused
+  const stopped = hover
 
   // Reduced motion: rotate through the announcements instead of scrolling.
   useEffect(() => {
@@ -87,10 +86,7 @@ export function ResearchRibbon() {
     <div className="bg-navy text-xs text-navy-100">
       <div className="mx-auto flex h-9 w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <button type="button" onClick={() => setUserPaused(!userPaused)} aria-pressed={userPaused} aria-label={userPaused ? 'Play announcements' : 'Pause announcements'} title={userPaused ? 'Play announcements' : 'Pause announcements'}
-            className="hidden h-6 w-6 shrink-0 items-center justify-center rounded text-navy-200 hover:bg-white/10 hover:text-white sm:flex">
-            {userPaused ? <Play className="h-4 w-4" aria-hidden /> : <Campaign className="h-[18px] w-[18px] text-[#FBD28D]" aria-hidden />}
-          </button>
+          <span aria-hidden className="hidden h-6 w-6 shrink-0 items-center justify-center text-[#FBD28D] sm:flex"><Campaign className="h-[18px] w-[18px]" /></span>
           <span className="shrink-0 rounded-sm bg-scholar px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             <span className="hidden sm:inline">Announcements</span><span className="sm:hidden">News</span>
           </span>

@@ -12,12 +12,21 @@
   }
 }
 
-/* Print only the certificate (Print / Save as PDF in the certificate dialog). */
+/* Print only the certificate (Print / Save as PDF on the verify page and in the certificate dialog).
+   When a certificate is on screen, everything outside its own branch of the page is removed from the layout (display: none) and the branch
+   itself is flattened (static, no fixed height or overflow), so the certificate prints once, on one landscape page. The old approach hid the page
+   with visibility and pinned the certificate with position: fixed, which kept the hidden page's height and repeated the certificate on every sheet.
+   Pages without a certificate (policies, articles) print normally. */
 @media print {
   @page { size: landscape; margin: 12mm; }
-  body * { visibility: hidden !important; }
-  #certificate-print, #certificate-print * { visibility: visible !important; }
-  #certificate-print { position: fixed; inset: 0; margin: auto; width: 100%; max-width: 1000px; height: fit-content; box-shadow: none; }
+  body:has(#certificate-print) { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body:has(#certificate-print) *:not(#certificate-print):not(#certificate-print *):not(:has(#certificate-print)) { display: none !important; }
+  body:has(#certificate-print) :has(#certificate-print) {
+    position: static !important; inset: auto !important; transform: none !important; overflow: visible !important; display: block !important;
+    width: auto !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; opacity: 1 !important;
+  }
+  #certificate-print { position: static !important; width: 100%; max-width: 960px; margin: 0 auto !important; box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
 }
 
 /* Journal 2 (Emerald Scholar): body font and teal focus ring. Scoped by the data-journal attribute set in main.tsx, so Journal 1 is unaffected. */
@@ -35,6 +44,12 @@
 /* Journal 3 article page: while the article's compact bar is showing, the site's sticky navigation steps aside so two bars are never stacked. */
 html[data-journal="j3"] [data-j3-nav] { transition: transform 0.2s ease, visibility 0.2s; }
 html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: translateY(-100%); visibility: hidden; }
+
+/* Journal 5 (Academic Prestige, burgundy): body font and burgundy focus ring. Scoped by the data-journal attribute, so the other journals are unaffected. */
+@layer base {
+  html[data-journal="j5"] body { font-family: "Work Sans Variable", "Work Sans", system-ui, sans-serif; color: #111827; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j5"] :focus-visible { outline: 2px solid #701A1E; outline-offset: 2px; }
+}
 
 /* Journal 4 (Scholarly Precision): body font and sky-blue focus ring. Scoped by the data-journal attribute, so the other journals are unaffected. */
 @layer base {

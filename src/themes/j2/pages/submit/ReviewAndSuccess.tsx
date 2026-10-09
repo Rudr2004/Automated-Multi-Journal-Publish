@@ -25,13 +25,15 @@ export function ReviewSummary({ form, missing }: { form: SubmissionForm; missing
     <div>
       <dl className="divide-y divide-graphite-100 rounded-panel border border-graphite-200 bg-white px-4">
         <Row k="Title">{form.title}</Row>
-        <Row k="Type and discipline">{form.articleType && form.subject ? `${form.articleType} · ${form.subject}` : ''}</Row>
+        <Row k="Type and discipline">{form.articleType && form.subject ? `${form.articleType} · ${form.subject}${form.branch ? ` · ${form.branch}` : ''}` : ''}</Row>
         <Row k="Keywords">{form.keywords}</Row>
         <Row k="Abstract">{abstract && (abstract.length > 200 ? `${abstract.slice(0, 200)}…` : abstract)}</Row>
         <Row k="Corresponding author">{a.name && `${a.name}${a.email ? ` (${a.email})` : ''}`}</Row>
         <Row k="WhatsApp">{a.whatsapp && `${a.dialCode} ${a.whatsapp}`}</Row>
+        <Row k="Profile picture">{a.photo?.name}</Row>
         <Row k="Affiliation">{a.institution && `${a.institution}, ${a.country}`}</Row>
         <Row k="Co-authors">{form.coAuthors.length ? form.coAuthors.map((c) => c.name || 'Unnamed').join(', ') : 'None'}</Row>
+        <Row k="Mentor">{form.mentor && [form.mentor, form.mentorEmail && `(${form.mentorEmail})`, form.mentorInstitution && `, ${form.mentorInstitution}`].filter(Boolean).join(' ').replace(' ,', ',')}</Row>
         <Row k="Manuscript file">{form.file?.name}</Row>
         <Row k="Declarations">{Object.values(form.declarations).every(Boolean) && form.captcha ? 'All confirmed' : ''}</Row>
       </dl>

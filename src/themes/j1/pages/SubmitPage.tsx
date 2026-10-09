@@ -101,7 +101,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
     return (<><CrumbBar items={crumbs} /><Container className="py-10"><SubmitSuccess paperId={paperId} email={form.author.email || 'your email address'} title={form.title} /></Container></>)
   }
 
-  const TITLES = ['Manuscript Details & Classification', 'Author & Co-author Details', 'Mentor, Cover Letter & Declarations', 'Review & Submit']
+  const TITLES = ['Manuscript Details & Classification', 'Author, Co-author & Mentor Details', 'Cover Letter & Declarations', 'Review & Submit']
   const draftTime = savedAt ? new Date(savedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : null
 
   return (

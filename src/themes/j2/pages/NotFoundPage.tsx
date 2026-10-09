@@ -2,6 +2,7 @@ import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
 import { ButtonLink } from '../components/Button'
 import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { ArrowRight, Book, Search, Track } from '../icons'
 
 const LINKS = [
@@ -13,6 +14,7 @@ const LINKS = [
 export function NotFoundPage({ what = 'page' }: { what?: string }) {
   return (
     <Container className="py-10 sm:py-16">
+<WithAwardsRail>
       <div className="mx-auto max-w-3xl rounded-sheet border border-brand-200 bg-gradient-to-br from-brand-50 via-accent-50 to-white p-6 text-center sm:p-10">
         <p className="font-display text-6xl font-extrabold tracking-tight text-brand-800 sm:text-7xl">404</p>
         <h1 className="mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">We couldn’t find that {what}</h1>
@@ -34,6 +36,7 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
           </li>
         ))}
       </ul>
-    </Container>
+    </WithAwardsRail>
+</Container>
   )
 }

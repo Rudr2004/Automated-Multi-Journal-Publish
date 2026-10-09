@@ -316,7 +316,7 @@ export function HomePage({ data, onSubscribe }: Props) {
         </div>
 
         <StickyRail label="Journal updates" className="order-2 grid content-start gap-4 md:grid-cols-2 xl:order-1 xl:block xl:space-y-4"><LeftSidebar data={data} /></StickyRail>
-        <StickyRail label="Author tools" className="order-3 grid content-start gap-4 md:grid-cols-2 xl:block xl:space-y-4"><RightSidebar /></StickyRail>
+        <StickyRail label="Author tools" className="order-3 grid content-start gap-4 md:grid-cols-2 xl:block xl:space-y-4"><RightSidebar awards={data.awards} /></StickyRail>
       </div>
     </Container>
   )

@@ -1,5 +1,6 @@
 // Submission form model: types, defaults and per-step validation (pure functions, no UI).
 import type { ArticleType } from '../types'
+import { branchesFor } from './branches'
 import * as v from './validators'
 
 export const MAX_FILE_MB = 10
@@ -20,8 +21,24 @@ export const DIAL_CODES = [
   { code: '+91', label: 'India (+91)' }, { code: '+1', label: 'USA / Canada (+1)' }, { code: '+44', label: 'United Kingdom (+44)' },
   { code: '+49', label: 'Germany (+49)' }, { code: '+65', label: 'Singapore (+65)' }, { code: '+971', label: 'UAE (+971)' },
   { code: '+234', label: 'Nigeria (+234)' }, { code: '+61', label: 'Australia (+61)' },
+  { code: '+33', label: 'France (+33)' }, { code: '+39', label: 'Italy (+39)' }, { code: '+34', label: 'Spain (+34)' }, { code: '+31', label: 'Netherlands (+31)' },
+  { code: '+46', label: 'Sweden (+46)' }, { code: '+41', label: 'Switzerland (+41)' }, { code: '+7', label: 'Russia (+7)' }, { code: '+81', label: 'Japan (+81)' },
+  { code: '+82', label: 'South Korea (+82)' }, { code: '+86', label: 'China (+86)' }, { code: '+852', label: 'Hong Kong (+852)' }, { code: '+60', label: 'Malaysia (+60)' },
+  { code: '+62', label: 'Indonesia (+62)' }, { code: '+63', label: 'Philippines (+63)' }, { code: '+66', label: 'Thailand (+66)' }, { code: '+84', label: 'Vietnam (+84)' },
+  { code: '+92', label: 'Pakistan (+92)' }, { code: '+880', label: 'Bangladesh (+880)' }, { code: '+94', label: 'Sri Lanka (+94)' }, { code: '+977', label: 'Nepal (+977)' },
+  { code: '+966', label: 'Saudi Arabia (+966)' }, { code: '+974', label: 'Qatar (+974)' }, { code: '+90', label: 'Türkiye (+90)' }, { code: '+20', label: 'Egypt (+20)' },
+  { code: '+27', label: 'South Africa (+27)' }, { code: '+254', label: 'Kenya (+254)' }, { code: '+233', label: 'Ghana (+233)' }, { code: '+64', label: 'New Zealand (+64)' },
+  { code: '+55', label: 'Brazil (+55)' }, { code: '+52', label: 'Mexico (+52)' }, { code: '+54', label: 'Argentina (+54)' },
 ]
-export const COUNTRIES = ['India', 'United States', 'United Kingdom', 'Germany', 'Singapore', 'United Arab Emirates', 'Nigeria', 'Australia', 'Canada', 'Other']
+export const COUNTRIES = [
+  'India', 'United States', 'United Kingdom', 'Germany', 'Singapore', 'United Arab Emirates', 'Nigeria', 'Australia', 'Canada',
+  'France', 'Italy', 'Spain', 'Netherlands', 'Sweden', 'Switzerland', 'Russia', 'Japan', 'South Korea', 'China', 'Hong Kong', 'Malaysia', 'Indonesia',
+  'Philippines', 'Thailand', 'Vietnam', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Saudi Arabia', 'Qatar', 'Turkey', 'Egypt', 'South Africa', 'Kenya',
+  'Ghana', 'New Zealand', 'Brazil', 'Mexico', 'Argentina', 'Other',
+]
+
+/** The corresponding author's optional profile picture: a small square JPEG thumbnail (data URL) so a saved draft can show it again. */
+export interface AuthorPhoto { name: string; size: number; dataUrl: string }
 
 export interface CoAuthor { id: number; name: string; email: string; institution: string }
 
@@ -31,10 +48,15 @@ export interface SubmissionForm {
   keywords: string
   articleType: ArticleType | ''
   subject: string
+  /** Branch of the chosen discipline (only asked for disciplines that list branches, see branches.ts). */
+  branch: string
   file: { name: string; size: number } | null
-  author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string }
+  author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string; photo: AuthorPhoto | null }
   coAuthors: CoAuthor[]
   mentor: string
+  /** Optional mentor / research-guide contact details (the form in J1 and J2 asks for them next to the co-authors). */
+  mentorEmail: string
+  mentorInstitution: string
   referralCode: string
   coverLetter: string
   declarations: { originality: boolean; noSimultaneous: boolean; consentData: boolean; consentMessages: boolean }
@@ -42,9 +64,9 @@ export interface SubmissionForm {
 }
 
 export const initialForm: SubmissionForm = {
-  title: '', abstract: '', keywords: '', articleType: '', subject: '', file: null,
-  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '' },
-  coAuthors: [], mentor: '', referralCode: '', coverLetter: '',
+  title: '', abstract: '', keywords: '', articleType: '', subject: '', branch: '', file: null,
+  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '', photo: null },
+  coAuthors: [], mentor: '', mentorEmail: '', mentorInstitution: '', referralCode: '', coverLetter: '',
   declarations: { originality: false, noSimultaneous: false, consentData: false, consentMessages: false }, captcha: false,
 }
 
@@ -75,6 +97,7 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     put(e, 'keywords', v.keywords(f.keywords))
     if (!f.articleType) e.articleType = 'Select an article type.'
     if (!f.subject) e.subject = 'Select a subject area.'
+    else if (branchesFor(f.subject).length && !branchesFor(f.subject).includes(f.branch)) e.branch = 'Select the branch of your subject area.'
     if (!f.file) e.file = 'Upload your manuscript as a Word file.'
     return e
   },
@@ -98,6 +121,13 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
       seen.add(key)
       put(e, `co.${c.id}.institution`, v.textLength(c.institution, 3, LIMITS.institution, 'institution'))
     })
+
+    // Mentor details are optional, but once any of them is filled in the name is needed and the rest must be valid.
+    const mentorName = f.mentor.trim(), mentorMail = f.mentorEmail.trim(), mentorInst = f.mentorInstitution.trim()
+    if (mentorName) put(e, 'mentor', v.personName(f.mentor, 'mentor’s name'))
+    else if (mentorMail || mentorInst) e.mentor = 'Enter the mentor’s name, or clear the other mentor details.'
+    if (mentorMail) put(e, 'mentorEmail', v.email(f.mentorEmail))
+    if (mentorInst) put(e, 'mentorInstitution', v.textLength(f.mentorInstitution, 3, LIMITS.institution, 'mentor’s institution'))
     return e
   },
   2: (f) => {

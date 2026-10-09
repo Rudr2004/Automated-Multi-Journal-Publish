@@ -4,6 +4,7 @@ import { journal } from '../../../config/journals'
 import { EDITOR_ROLES, type EditorProfile, type EditorRole } from '../../../core/types'
 import { PageHeader, PillTag } from '../components/PageHeader'
 import { cx, Container, EmptyState, Tag } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import * as I from '../icons'
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-2'
@@ -165,6 +166,7 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
       )}
 
       <Container className="pb-10 pt-8">
+<WithAwardsRail>
         <h2 className="border-b-2 border-brand-800 pb-2 font-display text-lg font-bold uppercase tracking-wide text-brand-800">{unfiltered ? 'Board directory' : 'Directory'}</h2>
         <div className="mt-5 rounded-panel border border-graphite-200 bg-white p-4 shadow-card">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -235,7 +237,8 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
               </div>
             )}
         </div>
-      </Container>
+      </WithAwardsRail>
+</Container>
 
       {selected && <ProfileDrawer editor={selected} onClose={() => setSelected(null)} />}
     </>

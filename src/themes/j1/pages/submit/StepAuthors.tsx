@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Plus, Trash2 } from '../../components/uiIcons'
+import { ProfilePhotoField } from '../../components/ProfilePhotoField'
 import { Button } from '../../components/Button'
 import { Field, inputClass } from '../../components/form'
+import { useDetectedLocation } from '../../../../core/lib/geo'
 import { COUNTRIES, DIAL_CODES, LIMITS, type SubmissionForm } from '../../../../core/lib/submission'
 import { digitsOnly, formatOrcid, phoneMaxLength } from '../../../../core/lib/validators'
 import type { StepProps } from './types'
@@ -17,6 +20,11 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
   const addCo = () => onChange({ ...form, coAuthors: [...form.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] })
   const removeCo = (id: number) => onChange({ ...form, coAuthors: form.coAuthors.filter((c) => c.id !== id) })
   const maxPhone = phoneMaxLength(a.dialCode)
+  // Country and dialling code are pre-selected from the visitor's IP address (once, and only while they are still the defaults).
+  const geoNote = useDetectedLocation(a, setAuthor)
+  // The mentor card opens on request (like co-authors); it starts open when a draft already has mentor details.
+  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorInstitution))
+  const removeMentor = () => { setMentorOpen(false); onChange({ ...form, mentor: '', mentorEmail: '', mentorInstitution: '' }) }
 
   return (
     <div className="space-y-8">
@@ -33,7 +41,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
           </Field>
         </div>
         <div className="grid gap-5 sm:grid-cols-[200px_1fr]">
-          <Field label="Country code" name="author.dialCode">
+          <Field label="Country code" name="author.dialCode" hint={geoNote || undefined}>
             <select className={inputClass()} value={a.dialCode} onChange={(e) => setAuthor({ dialCode: e.target.value, whatsapp: a.whatsapp.slice(0, phoneMaxLength(e.target.value)) })}>
               {DIAL_CODES.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
             </select>
@@ -53,6 +61,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             <select className={inputClass(errors['author.country'])} value={a.country} onChange={(e) => setAuthor({ country: e.target.value })}>{COUNTRIES.map((c) => <option key={c}>{c}</option>)}</select>
           </Field>
         </div>
+        <ProfilePhotoField value={a.photo} onChange={(photo) => setAuthor({ photo })} error={errors['author.photo']} />
         <Field label="ORCID iD (optional)" name="author.orcid" error={errors['author.orcid']} hint="Format: 0000-0002-1825-0097">
           <input className={inputClass(errors['author.orcid'])} value={a.orcid} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000"
             onChange={(e) => setAuthor({ orcid: formatOrcid(e.target.value) })} />
@@ -84,6 +93,33 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section aria-labelledby="mentor-h">
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <h3 id="mentor-h" className="font-serif text-lg font-semibold text-navy">Research guide / mentor <span className="text-sm font-normal text-ink-muted">(optional)</span></h3>
+          {!mentorOpen && <Button variant="outline" size="sm" onClick={() => setMentorOpen(true)}><Plus className="h-4 w-4" aria-hidden />Add mentor</Button>}
+        </div>
+        {!mentorOpen && <p className="mt-2 text-sm text-ink-muted">None added. Add your supervisor or mentor if the work was done under their guidance. They are acknowledged on the record; no certificate is issued unless they are also a co-author.</p>}
+        {mentorOpen && (
+          <div className="mt-4 rounded-card border border-line bg-paper p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-navy">Mentor</span>
+              <button type="button" onClick={removeMentor} aria-label="Remove mentor" className="rounded p-1.5 text-danger hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar"><Trash2 className="h-4 w-4" aria-hidden /></button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="Name" name="mentor" required error={errors.mentor}>
+                <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.name} onChange={(e) => onChange({ ...form, mentor: cleanName(e.target.value) })} onBlur={() => onChange({ ...form, mentor: form.mentor.trim() })} />
+              </Field>
+              <Field label="Email" name="mentorEmail" error={errors.mentorEmail}>
+                <input type="email" className={inputClass(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => onChange({ ...form, mentorEmail: cleanEmail(e.target.value) })} onBlur={() => onChange({ ...form, mentorEmail: form.mentorEmail.trim().toLowerCase() })} />
+              </Field>
+              <Field label="Institution" name="mentorInstitution" error={errors.mentorInstitution}>
+                <input className={inputClass(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} onChange={(e) => onChange({ ...form, mentorInstitution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => onChange({ ...form, mentorInstitution: form.mentorInstitution.trim() })} />
+              </Field>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   )

@@ -8,6 +8,7 @@ import { AppLink } from '../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../core/types'
 import { IssueArticleRow } from '../components/IssueArticleRow'
 import { Container, cx, EmptyState } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { ArrowRight, ChevronRight, Search } from '../icons'
 
 function IssueCard({ issue }: { issue: IssueSummary }) {
@@ -45,6 +46,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
     <div className="bg-brand-50/60">
       <Helmet><title>{`Past Issues | ${journal.shortName}`}</title></Helmet>
       <Container className="pb-12 pt-5 sm:pb-16">
+<WithAwardsRail>
         <nav aria-label="Breadcrumb" className="text-sm text-graphite-700">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li><AppLink to={paths.home} className="hover:text-accent-700 hover:underline">Home</AppLink></li><li aria-hidden="true"><ChevronRight className="h-4 w-4" /></li>
@@ -101,7 +103,8 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
             )}
           </section>
         )}
-      </Container>
+      </WithAwardsRail>
+</Container>
     </div>
   )
 }

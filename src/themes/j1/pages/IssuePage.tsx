@@ -13,6 +13,7 @@ import { paths } from '../../../config/routes'
 import { copyText } from '../../../core/lib/clipboard'
 import { formatDate, formatMonthYear, formatNumber } from '../../../core/lib/format'
 import { StickyRail } from '../components/StickyRail'
+import { AwardsCard } from '../components/AwardsCard'
 
 type Sort = 'latest' | 'views' | 'pages' | 'cited'
 
@@ -216,6 +217,7 @@ export function IssuePage({ data }: { data: IssueData }) {
                 </div>
               </dl>
             </section>
+            <AwardsCard />
           </StickyRail>
         </div>
       </Container>

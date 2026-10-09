@@ -8,6 +8,7 @@ import type { ArticleFull } from '../../../core/types'
 import { Container } from '../components/primitives'
 import { ArticleHeader } from './article/ArticleHeader'
 import { AbstractPanel, FullTextPanel, ReferencesPanel } from './article/ReadingPanels'
+import { OutlineRail } from './article/OutlineRail'
 import { reducedMotion, tabsFor, type TabId } from './article/shared'
 import { SidePanel } from './article/SidePanel'
 import { panelDomId, tabDomId, TabBar } from './article/TabBar'
@@ -108,7 +109,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
         <ArticleHeader article={article} />
         <TabBar tabs={tabs} active={active} onSelect={(id) => select(id)} />
         <Container className="pb-20 pt-8 sm:pt-10">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-8 xl:grid-cols-[14rem_minmax(0,1fr)_21rem] xl:gap-10">
+            <OutlineRail tabs={tabs} active={active} onSelect={(id) => select(id)} article={article} />
             <div ref={content} className="min-w-0">
               {tabs.map((t) => (
                 <div key={t.id} role="tabpanel" id={panelDomId(t.id)} aria-labelledby={tabDomId(t.id)} hidden={active !== t.id} tabIndex={0}

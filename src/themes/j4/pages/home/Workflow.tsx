@@ -16,7 +16,7 @@ const steps: { icon: ComponentType<IconProps>; title: string; text: string }[] =
 
 export function Workflow() {
   return (
-    <section aria-labelledby="flow-title" className="border-y border-abyss-200 bg-abyss-50 py-16 sm:py-24">
+    <section aria-labelledby="flow-title" className="border-y border-abyss-200 bg-abyss-50 py-12 sm:py-16">
       <Container>
         <SectionHead id="flow-title" label="Publication workflow" title="From submission to publication" text="Six stages, each visible to the author with the Paper ID."
           action={<AppLink to={paths.track} className="text-sm font-semibold text-cobalt-700 hover:underline">Track a paper →</AppLink>} />

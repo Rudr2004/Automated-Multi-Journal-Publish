@@ -5,6 +5,7 @@ import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleFigure, ArticleFull, ArticleTable, Reference } from '../../../../core/types'
 import { Label } from '../../components/primitives'
+import { AuthorCards } from './AuthorCards'
 import { H2 } from './shared'
 
 const BODY = 'max-w-[68ch] break-words font-serif4 text-[17px] leading-[1.75] text-abyss-800 sm:text-[18px]'
@@ -91,17 +92,21 @@ export function AbstractPanel({ article }: { article: ArticleFull }) {
   return (
     <div>
       <h2 className={H2}>Abstract</h2>
-      {article.abstract ? <p className={`${BODY} mt-4`}>{article.abstract}</p> : <p className="mt-4 text-steel-600">No abstract is available for this article.</p>}
+      <div id="abstract-text" className="mt-4 scroll-mt-32 rounded-pane border border-l-4 border-abyss-200 border-l-azure-600 bg-azure-50/60 p-5 sm:p-6">
+        <Label className="text-cobalt-700">Abstract</Label>
+        {article.abstract ? <p className={`${BODY} mt-2`}>{article.abstract}</p> : <p className="mt-2 text-steel-600">No abstract is available for this article.</p>}
+      </div>
       {article.keywords?.length > 0 && (
-        <div className="mt-8">
+        <div id="keywords" className="mt-8 scroll-mt-32">
           <h3><Label className="text-cobalt-700">Keywords</Label></h3>
           <ul className="mt-3 flex flex-wrap gap-2">
             {article.keywords.map((k) => <li key={k}><AppLink to={paths.search(k)} className="inline-flex min-h-9 items-center rounded-ctl border border-abyss-200 bg-white px-3 text-sm font-medium text-steel-700 hover:border-cobalt-700 hover:text-cobalt-700">{k}</AppLink></li>)}
           </ul>
         </div>
       )}
+      <AuthorCards article={article} />
       {history.some(([, v]) => v) && (
-        <div className="mt-8 max-w-[68ch]">
+        <div id="history" className="mt-10 max-w-[68ch] scroll-mt-32">
           <h3><Label className="text-cobalt-700">Publication history</Label></h3>
           <ol className="mt-3 grid gap-px overflow-hidden rounded-pane border border-abyss-200 bg-abyss-200 sm:grid-cols-3">
             {history.filter(([, v]) => v).map(([k, v]) => (
@@ -135,7 +140,7 @@ export function ReferencesPanel({ article }: { article: ArticleFull }) {
   return (
     <div>
       <h2 className={H2}>References</h2>
-      <ol className="mt-5 divide-y divide-abyss-100 border-y border-abyss-100">
+      <ol id="references-list" className="mt-5 scroll-mt-32 divide-y divide-abyss-100 border-y border-abyss-100">
         {article.references.map((r, i) => (
           <li key={i} id={`ref-${i + 1}`} tabIndex={-1} className="flex gap-3 py-3 text-[15px] leading-relaxed text-steel-700 focus:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">
             <span className="w-9 shrink-0 font-semibold tabular-nums text-cobalt-700">[{i + 1}]</span>

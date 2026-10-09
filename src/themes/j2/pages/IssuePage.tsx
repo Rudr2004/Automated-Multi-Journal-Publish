@@ -11,6 +11,7 @@ import { Button, buttonClass } from '../components/Button'
 import { countBy, toggleIn } from '../components/FilterControls'
 import { IssueArticleRow } from '../components/IssueArticleRow'
 import { Container, cx, EmptyState } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { disciplineColor, DisciplineIcon, disciplines } from '../components/discipline'
 import { typeTone } from '../components/paperType'
 import { ArrowRight, Calendar, ChevronRight, Close, GridView, ListView, Search } from '../icons'
@@ -82,6 +83,7 @@ export function IssuePage({ data }: { data: IssueData }) {
     <div className="bg-brand-50/60">
       <Helmet><title>{`Volume ${issue.volume}, Issue ${issue.issue} | ${journal.shortName}`}</title></Helmet>
       <Container className="pb-12 pt-5 sm:pb-16">
+<WithAwardsRail>
         <nav aria-label="Breadcrumb" className="text-sm text-graphite-700">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li><AppLink to={paths.home} className="hover:text-accent-700 hover:underline">Home</AppLink></li><li aria-hidden="true"><ChevronRight className="h-4 w-4" /></li>
@@ -203,7 +205,8 @@ export function IssuePage({ data }: { data: IssueData }) {
             </section>
           )
         })}
-      </Container>
+      </WithAwardsRail>
+</Container>
     </div>
   )
 }

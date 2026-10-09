@@ -4,6 +4,7 @@ import { Container } from '../components/primitives'
 import { SearchBox } from '../components/SearchBox'
 import { AppLink, useRouter } from '../../../core/router'
 import { paths } from '../../../config/routes'
+import { AwardsCard } from '../components/AwardsCard'
 
 const LINKS = [
   { to: paths.currentIssue, label: 'Current Issue', note: 'The latest published articles' },
@@ -34,11 +35,14 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
             ))}
           </ul>
         </div>
-        <aside aria-label="Return home" className="self-start border border-line bg-paper p-5">
+        <div className="space-y-5 self-start">
+        <aside aria-label="Return home" className="border border-line bg-paper p-5">
           <p className="font-serif text-[2.75rem] font-semibold leading-none tabular-nums text-navy/80" aria-hidden>404</p>
           <p className="mt-3 text-sm leading-relaxed text-ink">Nothing is wrong with your connection. The address simply doesn’t match a page on this journal.</p>
           <ButtonLink to={paths.home} variant="primary" className="mt-4">Back to Home</ButtonLink>
         </aside>
+        <AwardsCard />
+        </div>
       </Container>
     </>
   )

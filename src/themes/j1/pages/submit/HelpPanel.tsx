@@ -4,6 +4,7 @@ import { Button } from '../../components/Button'
 import { useToast } from '../../components/Toast'
 import { Panel } from '../../components/primitives'
 import { TrackForm } from '../../components/TrackForm'
+import { AwardsCard } from '../../components/AwardsCard'
 import { journal } from '../../../../config/journals/j1'
 
 const CHECKLIST = ['Manuscript in Word format (.doc / .docx)', 'Title, abstract and 3–8 keywords', 'All authors’ names and affiliations', 'Figures and tables inside the file', 'References with DOIs where available']
@@ -42,6 +43,7 @@ export function HelpPanel({ children }: { children?: ReactNode }) {
         <p className="mt-1.5 flex items-center gap-2 text-sm"><MessageCircle className="h-4 w-4 text-scholar" aria-hidden />{journal.whatsapp}</p>
       </Panel>
       <Panel title="Track existing submission"><TrackForm idPrefix="submit-trk" submitLabel="Check review status" /></Panel>
+      <AwardsCard />
     </aside>
   )
 }

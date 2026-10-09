@@ -5,7 +5,7 @@ import { EditorCard, EditorRow, ProfileLinks, RoleLabel } from '../components/Ed
 import { inputClass } from '../components/form'
 import { Modal } from '../components/Modal'
 import { PageHead, RailTitle } from '../components/PageHead'
-import { Container } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 
@@ -54,7 +54,7 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
           </dl>
         )} />
 
-      <Container className="mt-8 grid gap-8 pb-4 lg:grid-cols-[250px_minmax(0,1fr)]">
+      <WithAwardsRail className="mt-8 pb-4"><div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
         <aside aria-label="Filter the board" className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
             <RailTitle>Find a member</RailTitle>
@@ -122,7 +122,7 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
             )
           })}
         </div>
-      </Container>
+      </div></WithAwardsRail>
 
       <Modal open={!!selected} onClose={() => setSelected(null)} title={selected?.name ?? ''}>
         {selected && (

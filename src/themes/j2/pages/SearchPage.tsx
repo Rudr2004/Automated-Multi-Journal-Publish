@@ -10,6 +10,7 @@ import { ARTICLE_TYPES } from '../../../core/types'
 import { Button, ButtonLink } from '../components/Button'
 import { CheckGroup, countBy, FilterDrawer, SortSelect, toggleIn } from '../components/FilterControls'
 import { Container, cx, EmptyState } from '../components/primitives'
+import { WithAwardsRail } from '../components/WithAwardsRail'
 import { DisciplineIcon, disciplines } from '../components/discipline'
 import { PageHeader, PillTag } from '../components/PageHeader'
 import { SearchOff } from '../components/pageIcons'
@@ -93,6 +94,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
       </PageHeader>
 
       <Container className="py-6 sm:py-8">
+<WithAwardsRail>
         {!term ? (
           <section aria-labelledby="by-discipline">
             <h2 id="by-discipline" className="font-display text-2xl font-bold text-graphite-800">Explore by discipline</h2>
@@ -167,7 +169,8 @@ export function SearchPage({ query, results }: { query: string; results: Article
             </div>
           </div>
         )}
-      </Container>
+      </WithAwardsRail>
+</Container>
 
       <FilterDrawer open={drawer} onClose={() => setDrawer(false)} title="Filters"
         footer={<Button variant="primary" className="w-full" onClick={() => setDrawer(false)}>Show {filtered.length} article{filtered.length === 1 ? '' : 's'}</Button>}>
