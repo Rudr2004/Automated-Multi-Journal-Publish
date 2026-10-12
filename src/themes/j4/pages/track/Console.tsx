@@ -55,8 +55,8 @@ const TONE = { wait: 'In progress', action: 'Action needed', done: 'Complete' } 
 export function PaperHeader({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   return (
-    <div className="rounded-pane border border-abyss-200 bg-white shadow-hair">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-abyss-200 bg-abyss-900 px-5 py-3 text-white">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-abyss-200 bg-[#0b2545] px-5 py-3 text-white">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1"><Label className="text-azure-300">Paper ID</Label><strong className="break-all font-serif4 text-xl font-semibold tabular-nums tracking-wide">{paper.paperId}</strong></div>
         <CopyButton tone="dark" text={paper.paperId} label="Copy" done="Paper ID copied" />
       </div>
@@ -77,8 +77,8 @@ export function PaperHeader({ paper }: { paper: TrackedPaper }) {
 export function LogTable({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   return (
-    <section aria-labelledby="log-h" className="rounded-pane border border-abyss-200 bg-white shadow-hair">
-      <h3 id="log-h" className="border-b border-abyss-200 bg-abyss-50 px-5 py-3 font-serif4 text-lg font-semibold text-abyss-900">Activity log</h3>
+    <section aria-labelledby="log-h" className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <h3 id="log-h" className="border-b border-slate-100 px-5 py-3 font-serif4 text-base font-bold text-[#0b2545]">Activity log</h3>
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Every stage of the paper with its status and date</caption>
         <thead>
@@ -126,10 +126,10 @@ export function KpiTiles({ paper }: { paper: TrackedPaper }) {
     { icon: Calendar, label: 'Last update', value: last ? formatDate(last) : 'Pending', note: 'Latest stage date' },
   ]
   return (
-    <ul aria-label="Paper summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <ul aria-label="Paper summary" className="grid grid-cols-2 gap-3">
       {tiles.map(({ icon: Icon, label, value, note }) => (
-        <li key={label} className="flex gap-3 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+        <li key={label} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl bg-[#0b2545] text-azure-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
           <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.06em] text-steel-600">{label}</p><p className="font-serif4 text-lg font-semibold leading-tight tabular-nums text-abyss-900">{value}</p><p className="text-[13px] text-steel-600">{note}</p></div>
         </li>
       ))}

@@ -35,7 +35,7 @@ export function ArchiveList({ articles }: { articles: ArticleSummary[] }) {
       <aside aria-label="Archive filters" className="lg:sticky lg:top-16 lg:self-start">
         <div role="search" aria-label="Search the archive" className="rounded-pane border border-abyss-200 bg-white shadow-hair">
           <div className="border-b border-abyss-200 bg-abyss-50 px-4 py-3">
-            <h3 className="font-serif4 text-base font-semibold text-abyss-900">Search the archive</h3>
+            <h3 className="font-serif4 text-base font-bold text-[#0b2545]">Search the archive</h3>
             <p role="status" aria-live="polite" className="mt-0.5 text-[13px] tabular-nums text-steel-600">{dirty ? `${rows.length} of ${articles.length} articles match` : `${articles.length} articles in the archive`}</p>
           </div>
           <div className="space-y-4 p-4">
@@ -68,7 +68,7 @@ export function ArchiveList({ articles }: { articles: ArticleSummary[] }) {
       <div className="min-w-0">
         {rows.length === 0 ? <EmptyState title="No archived articles match" text="Check the spelling or remove a filter." action={<Button variant="primary" onClick={reset}>Clear filters</Button>} /> : (
           <>
-            <ol>{rows.slice(0, shown).map((a) => <ArticleRow key={a.paperId} article={a} terms={term ? [term] : []} />)}</ol>
+            <ol className="space-y-4">{rows.slice(0, shown).map((a) => <ArticleRow key={a.paperId} article={a} terms={term ? [term] : []} />)}</ol>
             {rows.length > shown && <div className="mt-6 text-center"><Button variant="outline" className="h-11" onClick={() => setShown((n) => n + STEP)}>Show {Math.min(STEP, rows.length - shown)} more of {rows.length - shown} remaining</Button></div>}
           </>
         )}

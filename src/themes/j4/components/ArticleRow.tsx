@@ -1,7 +1,7 @@
-// A result row used by the archive list and the search results (same API as before): now the full paper row with author photo chips, icon metrics and an abstract toggle.
+// A result row used by the archive list (same API as before): now the scholarly article card with author photo chips, icon metrics, quick actions and an abstract toggle.
 import type { ArticleSummary } from '../../../core/types'
-import { PaperRow } from './PaperBits'
+import { ArticleCard } from './ArticleCard'
 
 export function ArticleRow({ article, terms = [], abstract = false }: { article: ArticleSummary; terms?: string[]; abstract?: boolean }) {
-  return <PaperRow article={article} terms={terms} defaultOpen={abstract} showIssue />
+  return <ArticleCard article={article} terms={terms} defaultOpen={abstract} showIssue />
 }

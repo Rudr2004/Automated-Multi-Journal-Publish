@@ -48,7 +48,7 @@ export function CheckField({ name, checked, error, onChange, children }: { name:
 /** Confirmation panel shown after a form is sent. Announced to screen readers. */
 export function SentPanel({ title, children, actions }: { title: string; children: ReactNode; actions: ReactNode }) {
   return (
-    <div role="status" aria-live="polite" className="rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-6 shadow-panel sm:p-8">
+    <div role="status" aria-live="polite" className="rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-6 shadow-hair sm:p-8">
       <h3 className="font-serif4 text-[1.5rem] font-semibold text-abyss-900">{title}</h3>
       <div className="mt-2 text-base text-steel-600">{children}</div>
       <div className="mt-5 flex flex-wrap gap-3">{actions}</div>

@@ -17,7 +17,7 @@ export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
         return (
           <section key={r.volume} aria-labelledby={`vol-${r.volume}`} className="scroll-mt-32 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair sm:p-6">
             <header className="mb-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-              <h3 id={`vol-${r.volume}`} className="scroll-mt-32 font-serif4 text-2xl font-semibold text-abyss-900">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></h3>
+              <h3 id={`vol-${r.volume}`} className="scroll-mt-32 font-serif4 text-2xl font-bold text-[#0b2545]">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></h3>
               <p className="text-sm tabular-nums text-steel-600">{r.issues.length} of 12 issues published · {r.articles} articles</p>
             </header>
             <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">

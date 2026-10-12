@@ -7,19 +7,27 @@ import { Check, Copy } from '../../icons'
 import { cx } from '../../components/primitives'
 import { useToast } from '../../components/Toast'
 
-export type TabId = 'abstract' | 'full-text' | 'references' | 'metrics' | 'cite' | 'related'
+export type TabId = 'abstract' | 'full-text' | 'figures' | 'references'
 export interface TabDef { id: TabId; label: string }
+
+/** Figures and tables found in the sections, numbered in reading order. */
+export const exhibitsOf = (a: ArticleFull) => (a.sections ?? []).flatMap((s) => [...(s.figure ? [{ kind: 'figure' as const, section: s }] : []), ...(s.table ? [{ kind: 'table' as const, section: s }] : [])])
 
 export const tabsFor = (a: ArticleFull): TabDef[] => [
   { id: 'abstract', label: 'Abstract' },
-  ...(a.sections?.length ? [{ id: 'full-text' as const, label: 'Full text' }] : []),
+  ...(a.sections?.length ? [{ id: 'full-text' as const, label: 'Full Article' }] : []),
+  ...(exhibitsOf(a).length ? [{ id: 'figures' as const, label: `Figures & Tables (${exhibitsOf(a).length})` }] : []),
   ...(a.references?.length ? [{ id: 'references' as const, label: `References (${a.references.length})` }] : []),
-  { id: 'metrics', label: 'Metrics' },
-  { id: 'cite', label: 'Cite & share' },
-  ...(a.related?.length ? [{ id: 'related' as const, label: 'Related' }] : []),
 ]
 
-export const H2 = 'font-serif4 text-[1.5rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.75rem]'
+/** Headline navy used by the reference design for titles and section headings. */
+export const NAVY = 'text-[#0b2545]'
+export const H2 = `font-serif4 text-lg font-bold leading-tight ${NAVY}`
+/** The small uppercase label used on card headings. */
+export const CARD_H = `font-serif4 text-xs font-bold uppercase tracking-wider ${NAVY}`
+/** JetBrains Mono (loaded by the article page) with the system monospace as fallback: used for the reference's code-like labels. */
+export const MONO = 'font-[family-name:JetBrains_Mono,ui-monospace,monospace]'
+export const CARD = 'rounded border border-abyss-200 bg-white shadow-hair'
 export const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 export const num = (n: number | undefined) => (typeof n === 'number' ? new Intl.NumberFormat('en-US').format(n) : '—')
 export const pageUrl = () => window.location.href.split('#')[0]

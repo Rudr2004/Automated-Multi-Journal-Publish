@@ -1,65 +1,62 @@
-// Submission page header: dark blueprint band with reassurance tiles, and the horizontal step tracker above the form.
+// Submission page banner (reference layout): breadcrumb + portal status, serif title with icon, intro and the four-step stepper with numbered circular nodes.
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { AppLink } from '../../../../core/router'
-import { Container, cx, Label } from '../../components/primitives'
-import { Check, Email, FactCheck, History, Payments } from '../../icons'
-import { SECTIONS, type SectionId } from './shared'
+import { cx } from '../../components/primitives'
+import { Check } from '../../icons'
+import { UploadFile } from './mi'
+import { STEPS, type SectionId } from './shared'
 
-const TILES = [
-  { icon: Check, title: 'No account needed', text: 'Submit with your email address only.' },
-  { icon: Payments, title: 'Free until acceptance', text: 'No fee for submission or peer review.' },
-  { icon: History, title: 'Draft saved on this device', text: 'Leave and come back; nothing is lost.' },
-  { icon: Email, title: 'Paper ID in minutes', text: 'Sent by email, SMS and WhatsApp.' },
-]
-
-export function SubmitHeader() {
+export function SubmitHeader({ counts, onJump }: { counts: Record<SectionId, number>; onJump: (id: SectionId) => void }) {
+  const [issue, month] = journal.nextIssue.label.split(' — ')
   return (
-    <section aria-labelledby="submit-h" className="relative isolate bg-abyss-900 text-white">
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
-      <Container className="py-8 sm:py-12">
+    <div className="space-y-4 rounded-xl border border-sky-200 bg-gradient-to-br from-[#eef7ff] via-white to-[#e0effe] p-6 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
         <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-x-2 text-sm text-abyss-300">
-            <li><AppLink to={paths.home} className="hover:text-white hover:underline">Home</AppLink></li><li aria-hidden="true">/</li>
-            <li aria-current="page" className="font-medium text-white">Submit manuscript</li>
+          <ol className="flex flex-wrap items-center gap-x-1.5 font-medium text-slate-500">
+            <li><AppLink to={paths.home} className="hover:text-sky-700 hover:underline">Home</AppLink></li><li aria-hidden="true">/</li>
+            <li><AppLink to={paths.forAuthors('author-guidelines')} className="hover:text-sky-700 hover:underline">For Authors</AppLink></li><li aria-hidden="true">/</li>
+            <li aria-current="page" className="font-semibold text-sky-700">Submit Manuscript</li>
           </ol>
         </nav>
-        <div className="mt-5 grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_auto]">
-          <div>
-            <Label className="text-azure-300">Submit manuscript</Label>
-            <h1 id="submit-h" className="mt-2 max-w-3xl font-serif4 font-semibold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(32px,3.6vw,50px)' }}>Submit your paper to {journal.shortName}</h1>
-            <p className="mt-3 max-w-2xl text-base text-abyss-200 sm:text-[1.0625rem]">Five short sections, about ten minutes. No account is needed: you receive a Paper ID and track the paper with it.</p>
-          </div>
-          <AppLink to={paths.track} className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-ctl border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400">Already submitted? Track My Paper</AppLink>
-        </div>
-        <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {TILES.map(({ icon: Icon, title, text }) => (
-            <li key={title} className="flex gap-3 rounded-pane border border-white/15 bg-white/5 p-3.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-ctl bg-white text-cobalt-700"><Icon className="h-5 w-5" aria-hidden="true" /></span>
-              <div className="min-w-0"><p className="text-sm font-semibold">{title}</p><p className="mt-0.5 text-[13px] leading-snug text-abyss-200">{text}</p></div>
-            </li>
-          ))}
-        </ul>
-      </Container>
-    </section>
+        <span className="inline-flex items-center gap-1.5 rounded border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-mono text-[11px] font-medium text-emerald-800">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />Submissions Open: {issue.replace(', ', ' • ')}{month ? ` • ${month}` : ''}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        <h1 id="submit-h" className="flex items-center gap-2.5 font-serif4 text-2xl font-bold tracking-tight text-[#0b2545] sm:text-3xl">
+          <UploadFile className="h-8 w-8 shrink-0 text-sky-600" aria-hidden="true" />Submit Your Manuscript
+        </h1>
+        <p className="max-w-2xl text-xs leading-relaxed text-slate-600 sm:text-sm">Fast-track peer-reviewed scholarly publishing with zero friction. Fill in essential metadata, add research team members with profile photos, upload your manuscript, and track progress online with your Paper ID.</p>
+      </div>
+      <div className="border-t border-sky-100 pt-3"><StepTracker counts={counts} onJump={onJump} /></div>
+    </div>
   )
 }
 
-/** Five-step tracker: each step links to its section and shows complete / needs attention. */
+/** Four-step stepper: numbered circular nodes. Done = check, active = first incomplete step, the rest are muted. Each node jumps to its section. */
 export function StepTracker({ counts, onJump }: { counts: Record<SectionId, number>; onJump: (id: SectionId) => void }) {
+  const active = STEPS.findIndex((s) => counts[s.id] > 0)
   return (
-    <nav aria-label="Submission steps" className="rounded-pane border border-abyss-200 bg-white p-3 shadow-hair">
-      <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        {SECTIONS.map((s, i) => {
-          const ok = s.id !== 'review' && counts[s.id] === 0
+    <nav aria-label="Submission steps">
+      <ol className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+        {STEPS.map((s, i) => {
+          const done = counts[s.id] === 0
+          const now = i === active
+          const sub = now ? 'Active Step' : done ? 'Complete' : s.hint
           return (
             <li key={s.id}>
-              <a href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); onJump(s.id) }}
-                className="flex min-h-[44px] items-center gap-2 rounded-ctl px-2 py-1.5 hover:bg-abyss-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">
-                <span aria-hidden="true" className={cx('flex h-7 w-7 shrink-0 items-center justify-center rounded-ctl border text-xs font-semibold tabular-nums', ok ? 'border-cobalt-700 bg-cobalt-700 text-white' : 'border-abyss-300 text-steel-600')}>
-                  {ok ? <Check className="h-4 w-4" /> : i === SECTIONS.length - 1 ? <FactCheck className="h-4 w-4" /> : i + 1}
+              <a href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); onJump(s.id) }} aria-current={now ? 'step' : undefined}
+                className={cx('flex min-h-[44px] items-center gap-2 rounded-lg border p-2.5 hover:border-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600',
+                  now ? 'border-sky-600 bg-white shadow-sm' : done ? 'border-sky-200 bg-white' : 'border-slate-200 bg-slate-50/70')}>
+                <span aria-hidden="true" className={cx('flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular-nums',
+                  now ? 'bg-sky-600 text-white' : done ? 'border border-sky-300 bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-600')}>
+                  {done && !now ? <Check className="h-3.5 w-3.5" /> : i + 1}
                 </span>
-                <span className="text-[13px] font-semibold leading-tight text-abyss-900">{s.label}{ok && <span className="sr-only"> (complete)</span>}</span>
+                <span className="min-w-0">
+                  <span className={cx('block text-[11px] sm:truncate', now ? 'font-bold text-[#0b2545]' : done ? 'font-bold text-slate-800' : 'font-medium text-slate-700')}>{s.label}{done && <span className="sr-only"> (complete)</span>}</span>
+                  <span className={cx('block text-[10px] sm:truncate', now ? 'font-medium text-sky-700' : done ? 'font-medium text-slate-600' : 'text-slate-500')}>{sub}</span>
+                </span>
               </a>
             </li>
           )

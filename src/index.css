@@ -53,7 +53,7 @@ html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: tra
 
 /* Journal 4 (Scholarly Precision): body font and sky-blue focus ring. Scoped by the data-journal attribute, so the other journals are unaffected. */
 @layer base {
-  html[data-journal="j4"] body { font-family: "Work Sans Variable", "Work Sans", system-ui, sans-serif; color: #475569; -webkit-font-smoothing: antialiased; }
+  html[data-journal="j4"] body { font-family: "Inter Variable", Inter, system-ui, sans-serif; color: #475569; -webkit-font-smoothing: antialiased; }
   html[data-journal="j4"] :focus-visible { outline: 2px solid #0284C7; outline-offset: 2px; }
 }
 

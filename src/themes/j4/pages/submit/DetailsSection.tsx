@@ -1,74 +1,88 @@
-// Section 01: article details (title, type, research area, abstract, keywords).
-import { useId } from 'react'
+// Section A: article track and metadata (research area, branch, type, title, abstract, keywords).
 import { journal } from '../../../../config/journals'
+import { branchesFor } from '../../../../core/lib/branches'
 import { ABSTRACT_MAX_WORDS, ABSTRACT_MIN_WORDS, LIMITS, wordCount } from '../../../../core/lib/submission'
 import { parseKeywords } from '../../../../core/lib/validators'
 import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
-import { Field, fieldInput } from '../../components/form/Field'
 import { cx } from '../../components/primitives'
-import { Section, type SectionProps } from './shared'
+import { AccountTree, ArticleIcon, Category, Info, TitleIcon } from './mi'
+import { RField, Section, refInput, type SectionProps } from './shared'
 
 const TYPE_NOTES: Record<string, string> = {
   'Research Article': 'Original study with method, results and discussion.',
   'Review Article': 'Critical synthesis of existing work on one topic.',
   'Short Communication': 'Brief report of a focused, timely result.',
 }
+const ic = 'h-3.5 w-3.5 text-sky-600'
 
 export function DetailsSection({ form, errors, setForm }: SectionProps) {
-  const errId = useId()
   const words = wordCount(form.abstract)
   const kw = parseKeywords(form.keywords)
   const bad = words > 0 && (words < ABSTRACT_MIN_WORDS || words > ABSTRACT_MAX_WORDS)
+  const branches = branchesFor(form.subject)
+  const selectCls = (e?: string) => cx(refInput(e), 'pr-8')
   return (
-    <Section n={1} id="details" title="Article details" text="As they should appear in the published record.">
-      <Field label="Manuscript title" name="title" required error={errors.title} counter={`${form.title.length} / ${LIMITS.title}`} hint="Use the full title, without abbreviations where possible.">
-        <input className={fieldInput(errors.title)} value={form.title} maxLength={LIMITS.title} autoComplete="off" placeholder="e.g. Seismic retrofit of masonry school buildings using ferrocement jackets"
-          onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.replace(/\s{2,}/g, ' ') }))} onBlur={() => setForm((f) => ({ ...f, title: f.title.trim() }))} />
-      </Field>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <fieldset aria-describedby={errors.articleType ? errId : undefined}>
-          <legend className="mb-1.5 text-sm font-semibold text-abyss-900">Article type <span className="text-red-700" aria-hidden="true">*</span></legend>
-          <div className="space-y-2">
-            {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => {
-              const checked = form.articleType === t
-              return (
-                <label key={t} className={cx('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-ctl border p-3 focus-within:ring-2 focus-within:ring-azure-600/50',
-                  checked ? 'border-cobalt-700 bg-azure-50' : errors.articleType ? 'border-red-700 bg-red-50' : 'border-abyss-200 bg-white hover:border-abyss-400')}>
-                  <input type="radio" name="articleType" value={t} checked={checked} aria-invalid={errors.articleType ? true : undefined}
-                    onChange={() => setForm((f) => ({ ...f, articleType: t as ArticleType }))} className="mt-1 h-4 w-4 shrink-0 accent-cobalt-700" />
-                  <span><span className="block text-[15px] font-semibold text-abyss-900">{t}</span><span className="block text-[13px] leading-snug text-steel-600">{TYPE_NOTES[t]}</span></span>
-                </label>
-              )
-            })}
-          </div>
-          {errors.articleType && <p id={errId} role="alert" className="mt-1.5 text-[13px] font-semibold text-red-700">{errors.articleType}</p>}
-        </fieldset>
-
-        <Field label="Research area" name="subject" required error={errors.subject} hint="Editors use this to route your paper to the right section.">
-          <select className={fieldInput(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}>
-            <option value="">Select an area</option>
+    <Section letter="A" id="details" title="Article Track & Metadata" text="Select subject discipline and provide core indexing information." chip="Step 1 of 4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <RField label="Primary Subject Area" name="subject" required error={errors.subject} icon={<AccountTree className={ic} aria-hidden="true" />}>
+          <select className={selectCls(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
+            <option value="">Select a research area</option>
             {journal.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-        </Field>
+        </RField>
+        {branches.length > 0 ? (
+          <RField label="Academic Stream / Discipline" name="branch" required error={errors.branch} icon={<Category className={ic} aria-hidden="true" />}>
+            <select className={selectCls(errors.branch)} value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))}>
+              <option value="">Select a branch</option>
+              {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </RField>
+        ) : (
+          <RField label="Manuscript Type" name="articleType" required error={errors.articleType} icon={<ArticleIcon className={ic} aria-hidden="true" />}>
+            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value as ArticleType | '' }))}>
+              <option value="">Select a manuscript type</option>
+              {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </RField>
+        )}
       </div>
 
-      <div>
-        <Field label="Abstract" name="abstract" required error={errors.abstract} hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. State the objective, method, main results and conclusion.`}>
-          <textarea rows={9} className={cx(fieldInput(errors.abstract), 'leading-relaxed')} value={form.abstract}
-            onChange={(e) => setForm((f) => ({ ...f, abstract: e.target.value }))} onBlur={() => setForm((f) => ({ ...f, abstract: f.abstract.trim() }))} />
-        </Field>
-        <p aria-live="polite" className={cx('mt-1 text-right text-[13px] font-semibold tabular-nums', bad ? 'text-red-700' : 'text-steel-600')}>{words} / {ABSTRACT_MAX_WORDS} words</p>
-      </div>
+      {branches.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <RField label="Manuscript Type" name="articleType" required error={errors.articleType} icon={<ArticleIcon className={ic} aria-hidden="true" />}>
+            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value as ArticleType | '' }))}>
+              <option value="">Select a manuscript type</option>
+              {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </RField>
+        </div>
+      )}
+      <p className="flex items-center gap-1.5 rounded border border-slate-200 bg-slate-50 p-2 text-[11px] text-slate-600">
+        <Info className="h-3.5 w-3.5 shrink-0 text-sky-600" aria-hidden="true" />
+        {TYPE_NOTES[form.articleType] ?? 'Editors use the research area and type to route your paper to the right section.'}
+      </p>
+
+      <RField label="Article Title" name="title" required error={errors.title} counter={`${form.title.length} / ${LIMITS.title} chars`} icon={<TitleIcon className={ic} aria-hidden="true" />}
+        hint="Hint: Use the full title, without vague abbreviations. Mathematical symbols or LaTeX formulas are preserved.">
+        <textarea rows={2} className={cx(refInput(errors.title), 'resize-y font-serif4 font-semibold leading-snug text-slate-900')} value={form.title} maxLength={LIMITS.title} autoComplete="off"
+          placeholder="e.g. Seismic retrofit of masonry school buildings using ferrocement jackets"
+          onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.replace(/\s+/g, ' ').replace(/^\s/, '') }))} onBlur={() => setForm((f) => ({ ...f, title: f.title.trim() }))} />
+      </RField>
+
+      <RField label="Abstract" name="abstract" required error={errors.abstract} counter={`${words} / ${ABSTRACT_MAX_WORDS} words`}
+        hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. State the objective, method, main results and conclusion.`}>
+        <textarea rows={8} className={cx(refInput(errors.abstract), 'resize-y leading-relaxed', bad && 'border-red-700')} value={form.abstract}
+          onChange={(e) => setForm((f) => ({ ...f, abstract: e.target.value }))} onBlur={() => setForm((f) => ({ ...f, abstract: f.abstract.trim() }))} />
+      </RField>
 
       <div>
-        <Field label="Keywords" name="keywords" required error={errors.keywords} hint="3 to 8 keywords, separated by commas.">
-          <input className={fieldInput(errors.keywords)} value={form.keywords} maxLength={300} autoComplete="off" placeholder="e.g. structural health monitoring, finite element model, retrofit"
+        <RField label="Keywords" name="keywords" required error={errors.keywords} hint="3 to 8 keywords, separated by commas.">
+          <input className={refInput(errors.keywords)} value={form.keywords} maxLength={300} autoComplete="off" placeholder="e.g. structural health monitoring, finite element model, retrofit"
             onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))} />
-        </Field>
+        </RField>
         {kw.length > 0 && (
           <ul aria-label="Keyword preview" className="mt-2 flex flex-wrap gap-1.5">
-            {kw.slice(0, 12).map((k, i) => <li key={`${k}-${i}`} className="rounded-ctl border border-abyss-200 bg-abyss-50 px-2 py-1 text-xs font-medium text-steel-700">{k}</li>)}
+            {kw.slice(0, 12).map((k, i) => <li key={`${k}-${i}`} className="rounded border border-sky-100 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-800">{k}</li>)}
           </ul>
         )}
       </div>

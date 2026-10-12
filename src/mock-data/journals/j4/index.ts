@@ -23,7 +23,12 @@ const home: HomeData = {
     { date: '2026-09-24', text: 'Call for papers: a themed section on condition monitoring and digital twins for infrastructure opens for Issue 11.' },
     { date: '2026-09-12', text: 'Two new Associate Editors join the board for power systems and supply chain analytics.' },
   ],
-  recentSubmissions: [],
+  recentSubmissions: [
+    { minutes: 42, subject: 'Civil & Structural Engineering', institution: 'Indian Institute of Technology Bombay', title: 'Temperature Compensation of Vibrating-Wire Strain Gauges in Mass Concrete Pours' },
+    { minutes: 190, subject: 'Electrical & Power Systems', institution: 'University of Campinas', title: 'Rooftop Solar Hosting Capacity of Low-Voltage Feeders in Mid-Sized Indian Cities' },
+    { minutes: 1560, subject: 'Industrial & Systems Engineering', institution: 'Technical University of Munich', title: 'Digital Twin Calibration for a Bottling Line Using Sparse Sensor Data' },
+    { minutes: 2880, subject: 'Project & Engineering Management', institution: 'University of Ghana', title: 'Stakeholder Communication and Delay Recovery in Hospital Construction Projects' },
+  ],
   submissionPool: [],
   awards: [],
   perspectives: [

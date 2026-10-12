@@ -68,7 +68,7 @@ export function BlockBody({ block: b, actions }: { block: StaticBlock; actions: 
         <ol className="space-y-0 border-l border-abyss-300 pl-0">
           {b.items.map((s, n) => (
             <li key={s.title} className="relative pb-6 pl-8 last:pb-0">
-              <span aria-hidden="true" className="absolute -left-[15px] top-0 flex h-[30px] w-[30px] items-center justify-center rounded-ctl bg-abyss-900 text-sm font-semibold tabular-nums text-white">{n + 1}</span>
+              <span aria-hidden="true" className="absolute -left-[15px] top-0 flex h-[30px] w-[30px] items-center justify-center rounded-full border border-azure-200 bg-azure-50 text-sm font-bold text-cobalt-700 tabular-nums">{n + 1}</span>
               <h3 className="font-serif4 text-lg font-semibold leading-tight text-abyss-900">{s.title}</h3>
               <p className="mt-1 text-base leading-relaxed text-steel-700">{s.text}</p>
             </li>
@@ -95,7 +95,7 @@ export function BlockBody({ block: b, actions }: { block: StaticBlock; actions: 
             const Icon = iconMap[it.icon] ?? I.Book
             return (
               <li key={it.title} className="flex gap-3 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl border border-azure-200 bg-azure-50 text-cobalt-700"><Icon className="h-5 w-5" aria-hidden="true" /></span>
                 <div className="min-w-0"><h3 className="font-serif4 text-base font-semibold leading-snug text-abyss-900">{it.title}</h3><p className="mt-0.5 text-sm text-steel-600">{it.text}</p></div>
               </li>
             )

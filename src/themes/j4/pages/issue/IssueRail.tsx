@@ -1,73 +1,247 @@
-// Filter rail for the issue: search, article-type counts, research-area counts and sort. Sticky on desktop; stacked above the list on phones.
-import { useId } from 'react'
-import { ARTICLE_TYPES, type ArticleSummary } from '../../../../core/types'
-import { Button } from '../../components/Button'
-import { areaColor, areas } from '../../components/areas'
-import { FIELD } from '../../components/PageBand'
-import { TYPE_STYLE } from '../../components/PaperBits'
-import { cx } from '../../components/primitives'
-import { Close, Search } from '../../icons'
-import { EMPTY, SORTS, type IssueFilters, type IssueSort } from './filter'
+// Right sidebar of the issue page. Strict replica of the reference (current issue, cover showcase), card for card and in the same order:
+// Call for Papers, Announcements (pager), Track Manuscript Status, Copyright Agreement, Crossref DOI Lookup, Journal Metrics, Recent Submissions,
+// Manuscript Templates, Become an Editorial Member, Creative Commons Licensing. All copy and values come from the journal config and mock data.
+import { useId, useState, type FormEvent, type ReactNode } from 'react'
+import {
+  MdOutlineBadge as Badge, MdOutlineCampaign as Campaign, MdOutlineChevronLeft as Prev, MdOutlineChevronRight as Next, MdOutlineCopyright as Copyright,
+  MdOutlineDescription as Doc, MdOutlineDownloadForOffline as Offline, MdOutlineDraw as Draw, MdOutlineEditNote as EditDoc, MdOutlineFingerprint as Finger,
+  MdOutlineFolderZip as Zip, MdOutlineHowToReg as HowTo, MdOutlineManageSearch as ManageSearch, MdOutlinePriceCheck as PriceCheck, MdOutlineRateReview as Rate,
+  MdOutlineSearch as SearchIcon, MdOutlineStream as Stream, MdOutlineTaskAlt as Done, MdOutlineVerified as Ver, MdOutlineSavedSearch as SavedSearch,
+} from 'react-icons/md'
+import { journal } from '../../../../config/journals'
+import { paths } from '../../../../config/routes'
+import { formatDate } from '../../../../core/lib/format'
+import * as validate from '../../../../core/lib/validators'
+import { AppLink, useRouter } from '../../../../core/router'
+import type { ArticleSummary } from '../../../../core/types'
+import { ArrowRight as Arrow, Send } from '../../icons'
 
-const H = 'mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-700'
-const OPT = 'flex min-h-11 w-full items-center gap-2 rounded-ctl border px-2.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 lg:min-h-9'
+const CARD = 'rounded-[12px] border bg-white p-5 shadow-hair'
+const KICK = 'flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700'
+const INPUT = 'w-full rounded border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-500 focus:border-azure-600 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-600/30 min-h-11 lg:min-h-8'
+const BTN = 'flex min-h-11 w-full items-center justify-center gap-1.5 rounded bg-cobalt-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-1 lg:min-h-8'
+const SOFT = 'flex min-h-11 w-full items-center justify-center gap-1.5 rounded border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 lg:min-h-8'
 
-export function IssueRail({ value, onChange, articles, shown }: { value: IssueFilters; onChange: (f: IssueFilters) => void; articles: ArticleSummary[]; shown: number }) {
-  const id = useId()
-  const set = (p: Partial<IssueFilters>) => onChange({ ...value, ...p })
-  const dirty = !!(value.area || value.type || value.text)
-  const typeCounts = ARTICLE_TYPES.map((t) => [t, articles.filter((a) => a.type === t).length] as const).filter(([, n]) => n > 0)
-  const areaCounts = areas.map((a) => [a.name, articles.filter((x) => x.subject === a.name).length] as const).filter(([, n]) => n > 0)
-  const opt = (on: boolean) => cx(OPT, on ? 'border-abyss-900 bg-abyss-900 text-white' : 'border-transparent text-abyss-800 hover:border-abyss-300 hover:bg-abyss-50')
+const Head = ({ icon, title, chip, tail }: { icon: ReactNode; title: string; chip?: ReactNode; tail?: string }) => (
+  <div className={`flex items-center justify-between border-b border-slate-100 pb-2 ${tail ?? 'mb-3'}`}>
+    <h2 className={KICK}><span aria-hidden="true" className="text-base">{icon}</span>{title}</h2>{chip}
+  </div>
+)
+const Title = ({ icon, title, sub }: { icon?: ReactNode; title: string; sub?: string }) => (
+  <div className="mb-3 border-b border-slate-100 pb-2">
+    <div className="flex items-center gap-2">{icon && <span aria-hidden="true" className="text-lg text-cobalt-700">{icon}</span>}<h2 className="font-serif4 text-sm font-bold text-[#0b2545]">{title}</h2></div>
+    {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+  </div>
+)
 
+/** "Volume 1, Issue 10 — October 2026" -> ["Volume 1, Issue 10", "October 2026"]. */
+const splitLabel = (l: string) => { const [a, ...b] = l.split(' — '); return [a, b.join(' — ')] as const }
+
+function CallForPapers() {
+  const next = journal.nextIssue
+  const [vol, month] = splitLabel(next.label)
+  const short = vol.replace('Volume', 'Vol').replace(', Issue', ' • Iss')
   return (
-    <aside aria-label="Filter this issue" className="lg:sticky lg:top-16 lg:self-start">
-      <div role="search" className="rounded-pane border border-abyss-200 bg-white shadow-hair">
-        <div className="border-b border-abyss-200 bg-abyss-50 px-4 py-3">
-          <h2 className="font-serif4 text-base font-semibold text-abyss-900">In this issue</h2>
-          <p role="status" aria-live="polite" className="mt-0.5 text-[13px] tabular-nums text-steel-600">{dirty ? `${shown} of ${articles.length} articles shown` : `${articles.length} articles`}</p>
+    <section aria-label="Call for papers" className={`${CARD} border-[#bfdbfe]`}>
+      <Head icon={<Campaign />} title="Call for Papers" tail="" chip={<span className="rounded bg-sky-100 px-2 py-0.5 font-mono text-[10px] font-bold text-cobalt-700">{short}</span>} />
+      <div className="mt-3 space-y-2">
+        <p className="font-serif4 text-base font-extrabold leading-tight text-[#0b2545]">{vol.replace(', Issue', ' • Issue')}</p>
+        {month && <p className="text-xs font-bold text-cobalt-700">{month} Edition</p>}
+        <p className="text-xs leading-normal text-slate-600">Submissions are open for the next monthly issue. Topics span {journal.subjects.slice(0, 3).join(', ')} and related areas of engineering and management.</p>
+        <dl className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs">
+          <div className="flex items-center justify-between font-semibold text-amber-950"><dt className="text-slate-700">Submission Deadline:</dt><dd className="font-bold">{formatDate(next.deadline.slice(0, 10))}</dd></div>
+          <div className="flex items-center justify-between text-[11px] text-amber-900"><dt className="text-slate-600">First Decision Target:</dt><dd className="font-bold text-emerald-800">Within 14 days</dd></div>
+          <div className="flex items-center justify-between text-[11px] text-amber-900"><dt className="text-slate-600">Expected Publication:</dt><dd className="font-bold text-sky-900">{formatDate(next.expectedPublication)}</dd></div>
+        </dl>
+        <AppLink to={paths.submit} className={BTN}><Send className="h-4 w-4" aria-hidden="true" />Submit Manuscript</AppLink>
+      </div>
+    </section>
+  )
+}
+
+function Announcements() {
+  const list = journal.announcements
+  const [i, setI] = useState(0)
+  if (!list.length) return null
+  const cur = list[i % list.length]
+  const go = (d: number) => setI((i + d + list.length) % list.length)
+  return (
+    <section aria-label="Announcements" id="announcements-card" className={`${CARD} border-slate-200`}>
+      <Head icon={<Campaign />} title="Announcements" chip={list.some((x) => x.live) ? <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-amber-950"><span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none" />Live Updates</span> : undefined} />
+      <div className="space-y-2.5" aria-live="polite">
+        <AppLink to={cur.to} className="block font-serif4 text-sm font-bold leading-snug text-[#0b2545] transition-colors hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">{cur.text}</AppLink>
+        <div><AppLink to={cur.to} className="inline-flex items-center gap-1 text-xs font-bold text-cobalt-700 hover:text-cobalt-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">Learn More<Arrow className="h-3.5 w-3.5" aria-hidden="true" /></AppLink></div>
+      </div>
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          {list.map((x, k) => <span key={x.id} className={k === i % list.length ? 'h-2 w-2 rounded-full bg-azure-600' : 'h-1.5 w-1.5 rounded-full bg-slate-300'} />)}
         </div>
-        <div className="space-y-5 p-4">
-          <div>
-            <label htmlFor={`${id}-q`} className={`${H} block`}>Title or author</label>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-steel-500" aria-hidden="true" />
-              <input id={`${id}-q`} type="search" value={value.text} onChange={(e) => set({ text: e.target.value })} placeholder="Filter this issue" autoComplete="off" className={`${FIELD} w-full pl-9`} />
-            </div>
-          </div>
-          <fieldset>
-            <legend className={H}>Article type</legend>
-            <div className="space-y-1">
-              <button type="button" aria-pressed={!value.type} onClick={() => set({ type: '' })} className={opt(!value.type)}><span className="flex-1">All types</span><span className="tabular-nums">{articles.length}</span></button>
-              {typeCounts.map(([t, n]) => (
-                <button key={t} type="button" aria-pressed={value.type === t} onClick={() => set({ type: value.type === t ? '' : t })} className={opt(value.type === t)}>
-                  <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full ring-1 ring-white/60" style={{ backgroundColor: TYPE_STYLE[t].dot }} />
-                  <span className="flex-1">{t}</span><span className="tabular-nums">{n}</span>
-                </button>
-              ))}
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend className={H}>Research area</legend>
-            <div className="space-y-1">
-              <button type="button" aria-pressed={!value.area} onClick={() => set({ area: '' })} className={opt(!value.area)}><span className="flex-1">All areas</span><span className="tabular-nums">{articles.length}</span></button>
-              {areaCounts.map(([name, n]) => (
-                <button key={name} type="button" aria-pressed={value.area === name} onClick={() => set({ area: value.area === name ? '' : name })} className={opt(value.area === name)}>
-                  <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full ring-1 ring-white/60" style={{ backgroundColor: areaColor(name) }} />
-                  <span className="flex-1">{name}</span><span className="tabular-nums">{n}</span>
-                </button>
-              ))}
-            </div>
-          </fieldset>
-          <div>
-            <label htmlFor={`${id}-s`} className={`${H} block`}>Sort by</label>
-            <select id={`${id}-s`} value={value.sort} onChange={(e) => set({ sort: e.target.value as IssueSort })} className={`${FIELD} w-full`}>
-              {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-          </div>
-          {dirty && <Button variant="outline" onClick={() => onChange({ ...EMPTY, sort: value.sort })} className="h-11 w-full"><Close className="h-4 w-4" aria-hidden="true" />Clear filters</Button>}
+        <div className="flex items-center gap-1 text-slate-500">
+          <button type="button" onClick={() => go(-1)} disabled={list.length < 2} title="Previous announcement" aria-label="Previous announcement" className="flex min-h-8 min-w-8 items-center justify-center rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 disabled:opacity-40"><Prev className="h-4 w-4" aria-hidden="true" /></button>
+          <button type="button" onClick={() => go(1)} disabled={list.length < 2} title="Next announcement" aria-label="Next announcement" className="flex min-h-8 min-w-8 items-center justify-center rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 disabled:opacity-40"><Next className="h-4 w-4" aria-hidden="true" /></button>
         </div>
       </div>
+    </section>
+  )
+}
+
+function TrackCard() {
+  const { navigate } = useRouter()
+  const id = useId()
+  const [pid, setPid] = useState('')
+  const [mail, setMail] = useState('')
+  const [err, setErr] = useState({ pid: '', mail: '' })
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    const next = { pid: validate.paperId(pid.trim().toUpperCase()), mail: validate.email(mail) }
+    setErr(next)
+    if (next.pid || next.mail) return
+    navigate(`${paths.track}?id=${encodeURIComponent(pid.trim().toUpperCase())}&email=${encodeURIComponent(mail.trim())}`)
+  }
+  return (
+    <section aria-label="Track manuscript status" id="track-manuscript-sidebar" className={`${CARD} border-slate-200`}>
+      <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><span aria-hidden="true" className="text-lg text-cobalt-700"><SavedSearch /></span><h2 className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
+      <p className="mb-3 text-xs text-slate-500">Enter your Paper ID and the email you submitted with to see where your manuscript is in review.</p>
+      <form onSubmit={submit} noValidate className="space-y-2.5">
+        <div>
+          <label htmlFor={`${id}-p`} className="mb-1 block text-[11px] font-medium text-slate-600">Manuscript ID</label>
+          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${INPUT} font-mono`} />
+          {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
+        </div>
+        <div>
+          <label htmlFor={`${id}-m`} className="mb-1 block text-[11px] font-medium text-slate-600">Corresponding Author Email</label>
+          <input id={`${id}-m`} type="email" value={mail} onChange={(e) => setMail(e.target.value)} placeholder="author@university.edu" autoComplete="email" aria-invalid={!!err.mail} aria-describedby={err.mail ? `${id}-me` : undefined} className={INPUT} />
+          {err.mail && <p id={`${id}-me`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.mail}</p>}
+        </div>
+        <button type="submit" className={BTN}><ManageSearch className="h-4 w-4" aria-hidden="true" />Check Status</button>
+      </form>
+    </section>
+  )
+}
+
+function CopyrightCard() {
+  return (
+    <section aria-label="Copyright agreement" id="copyright-card" className={`${CARD} border-slate-200`}>
+      <Head icon={<Draw />} title="Copyright Agreement" chip={<span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600">{journal.licence.name}</span>} />
+      <p className="mb-3 text-xs leading-relaxed text-slate-600">Authors keep their copyright. After acceptance, sign the copyright form online from Track My Paper.</p>
+      <div className="space-y-2"><AppLink to={paths.track} className={SOFT}><EditDoc className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Sign Online Form</AppLink></div>
+    </section>
+  )
+}
+
+function DoiLookup() {
+  const { navigate } = useRouter()
+  const id = useId()
+  const [v, setV] = useState('')
+  const go = (e: FormEvent) => { e.preventDefault(); if (v.trim()) navigate(paths.search(v.trim())) }
+  return (
+    <section aria-label="Crossref DOI lookup" className={`${CARD} border-slate-200`}>
+      <div className="mb-2 flex items-center gap-2"><span aria-hidden="true" className="text-lg text-cobalt-700"><Finger /></span><h2 className="font-serif4 text-sm font-bold text-[#0b2545]">Crossref DOI Lookup</h2></div>
+      <p className="mb-3 text-xs text-slate-500">Find an article by its DOI and open its metadata and citation record.</p>
+      <form onSubmit={go} className="space-y-2">
+        <label htmlFor={id} className="sr-only">DOI</label>
+        <input id={id} value={v} onChange={(e) => setV(e.target.value)} placeholder={`${journal.doiPrefix}/${journal.paperIdPrefix}2026000112`} autoComplete="off" className={`${INPUT} font-mono`} />
+        <button type="submit" className={BTN}><SearchIcon className="h-4 w-4" aria-hidden="true" />Verify DOI Record</button>
+      </form>
+    </section>
+  )
+}
+
+function Metrics() {
+  const row = 'flex items-center justify-between pb-1.5 border-b border-slate-100'
+  return (
+    <section aria-label="Journal metrics" className={`${CARD} border-slate-200`}>
+      <Title title="Journal Metrics" sub="Facts published by the editorial office" />
+      <dl className="space-y-2.5 text-xs">
+        <div className={row}><dt className="text-slate-600">Publication Frequency</dt><dd className="rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-mono font-bold text-cobalt-700">{journal.frequency}</dd></div>
+        <div className={row}><dt className="text-slate-600">ISSN (Online)</dt><dd className="rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-mono font-bold text-cobalt-700">{journal.issnOnline}</dd></div>
+        <div className={row}><dt className="text-slate-600">Access Model</dt><dd className="font-mono font-semibold text-emerald-700">Open access</dd></div>
+        <div className={row}><dt className="text-slate-600">First Editorial Decision</dt><dd className="rounded bg-sky-50 px-1.5 py-0.5 font-mono font-bold text-sky-800">14 days (target)</dd></div>
+        <div className="flex items-center justify-between"><dt className="text-slate-600">Reviewers per Paper</dt><dd className="font-mono font-medium text-slate-800">At least two</dd></div>
+      </dl>
+    </section>
+  )
+}
+
+function RecentSubmissions({ articles }: { articles: ArticleSummary[] }) {
+  const list = articles.slice(0, 4)
+  if (!list.length) return null
+  return (
+    <section aria-label="Recent submissions" className={`${CARD} border-slate-200`}>
+      <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
+        <h2 className="flex items-center gap-1.5 text-xs font-bold text-[#0b2545]"><Stream className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Recent Submissions</h2>
+        <span className="flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-800"><span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none" />Published</span>
+      </div>
+      <ul className="space-y-3 text-xs">
+        {list.map((a, k) => (
+          <li key={a.paperId} className={`space-y-1 ${k < list.length - 1 ? 'border-b border-slate-100 pb-2.5' : ''}`}>
+            <div className="flex items-center justify-between gap-2">
+              <AppLink to={paths.article(a.paperId)} className="font-mono text-[11px] font-semibold text-cobalt-700 hover:underline">Paper #{a.paperId}</AppLink>
+              <span className="shrink-0 text-[10px] text-slate-500">{formatDate(a.publishedAt)}</span>
+            </div>
+            <p className="text-[11px] font-medium leading-snug text-slate-800">{a.title}</p>
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-800"><Done className="h-3.5 w-3.5" aria-hidden="true" /><span className="rounded border border-emerald-100 bg-emerald-50 px-1.5">Published, {a.type}</span></div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+function Templates() {
+  const row = 'flex items-center justify-between rounded border border-slate-200 bg-slate-50/60 p-2.5 text-xs transition-colors hover:border-sky-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600'
+  return (
+    <section aria-label="Manuscript templates" id="template-download" className={`${CARD} border-slate-200`}>
+      <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2"><span aria-hidden="true" className="text-lg text-cobalt-700"><Offline /></span><h2 className="font-serif4 text-sm font-bold text-[#0b2545]">Manuscript Templates</h2></div>
+      <p className="mb-3 text-xs text-slate-500">Prepare your submission with the official {journal.shortName} templates and forms.</p>
+      <div className="space-y-2">
+        <AppLink to={paths.forAuthors('templates')} className={`${row} min-h-11`}><span className="flex items-center gap-2 font-medium text-slate-700"><Doc className="h-4 w-4 text-blue-600" aria-hidden="true" />Manuscript template</span><span className="font-mono text-[11px] text-slate-500">DOCX</span></AppLink>
+        <AppLink to={paths.forAuthors('templates')} className={`${row} min-h-11`}><span className="flex items-center gap-2 font-medium text-slate-700"><Zip className="h-4 w-4 text-emerald-600" aria-hidden="true" />Cover letter and revision forms</span><span className="font-mono text-[11px] text-slate-500">DOCX</span></AppLink>
+      </div>
+    </section>
+  )
+}
+
+function Editorial() {
+  const perks: [typeof Ver, string][] = [[Ver, 'Review papers in your own field'], [PriceCheck, 'Clear reviewer guidelines'], [Rate, 'Reviews expected within 14 days']]
+  return (
+    <section aria-label="Become an editorial member" id="reviewer-cta" className={`${CARD} border-[#bfdbfe]`}>
+      <Head icon={<Badge />} title="Become an Editorial Member" chip={<span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-800">Open Call</span>} />
+      <div className="group relative mb-3 overflow-hidden rounded-lg border border-slate-200">
+        <img src="/journals/j4/images/cta-circuit.svg" alt="" className="h-24 w-full object-cover object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+        <div className="absolute inset-0 flex items-end bg-gradient-to-t from-[#071527]/80 via-transparent to-transparent p-2"><span className="flex items-center gap-1 text-[10px] font-medium text-white"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Join the {journal.shortName} reviewer panel</span></div>
+      </div>
+      <p className="mb-3 text-xs leading-relaxed text-slate-600">Researchers and practising engineers or managers with publication experience are invited to apply as reviewers for {journal.shortName}.</p>
+      <ul className="mb-4 space-y-1.5 text-xs">{perks.map(([I, t]) => <li key={t} className="flex items-center gap-2 text-slate-700"><I className="h-3.5 w-3.5 text-cobalt-700" aria-hidden="true" />{t}</li>)}</ul>
+      <AppLink to={paths.forAuthors('become-a-reviewer')} className={BTN}><HowTo className="h-4 w-4" aria-hidden="true" />Apply to Review<Arrow className="h-3.5 w-3.5" aria-hidden="true" /></AppLink>
+    </section>
+  )
+}
+
+function Licence() {
+  const chip = 'inline-block rounded border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-700'
+  return (
+    <section aria-label="Creative Commons licensing" className="space-y-2 rounded-[12px] border border-slate-200 bg-white p-4 text-xs shadow-hair">
+      <h2 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-slate-800"><Copyright className="h-4 w-4 text-slate-700" aria-hidden="true" />Creative Commons Licensing</h2>
+      <p className="text-[11px] leading-relaxed text-slate-600">All {journal.shortName} research articles are published under the open access <strong>Creative Commons Attribution 4.0 International License ({journal.licence.name})</strong>, permitting reuse with proper scholarly citation.</p>
+      <div className="flex items-center gap-2 pt-1"><span className={chip}>CC</span><span className={chip}>BY</span><AppLink to={paths.policy('copyright-licensing')} className="ml-auto text-[11px] font-medium text-cobalt-700 hover:underline">View License Rights</AppLink></div>
+    </section>
+  )
+}
+
+export function IssueRail({ articles = [] }: { articles?: ArticleSummary[] }) {
+  return (
+    <aside aria-label="Issue sidebar" className="min-w-0 space-y-6 lg:col-span-4">
+      <CallForPapers />
+      <Announcements />
+      <TrackCard />
+      <CopyrightCard />
+      <DoiLookup />
+      <Metrics />
+      <RecentSubmissions articles={articles} />
+      <Templates />
+      <Editorial />
+      <Licence />
     </aside>
   )
 }

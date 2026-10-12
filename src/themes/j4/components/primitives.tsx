@@ -1,12 +1,12 @@
 // Small building blocks shared by every Journal 4 page. Design only: no data loading here.
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import { ErrorIcon, Refresh } from '../icons'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
-/** Page width and side gutters (16px on phones, 24px from sm up). */
+/** Page width and side gutters: 1280px wide with 16px gutters, as in the reference (max-w-7xl, px-4). */
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cx('mx-auto w-full max-w-[1240px] px-4 sm:px-6', className)}>{children}</div>
+  return <div className={cx('mx-auto w-full max-w-7xl px-4', className)}>{children}</div>
 }
 
 export const Skeleton = ({ className }: { className?: string }) => (
@@ -65,4 +65,28 @@ export function SectionHead({ label, title, text, action, id }: { label?: string
       {action}
     </div>
   )
+}
+
+/** Hairline-bordered white card with a micro shadow (Academic Editorial Modern). `lift` adds the sky hover border. */
+export function Card({ className, lift, children, ...rest }: { className?: string; lift?: boolean; children: ReactNode } & Omit<HTMLAttributes<HTMLElement>, 'className' | 'children'>) {
+  return <section {...rest} className={cx('rounded-pane border border-abyss-200 bg-white shadow-hair', lift && 'transition duration-150 hover:-translate-y-px hover:border-azure-600 hover:shadow-panel motion-reduce:transition-none motion-reduce:hover:translate-y-0', className)}>{children}</section>
+}
+
+/** Card heading: serif title with an optional sky icon and a right-hand chip or link, over a hairline. */
+export function CardHead({ title, id, icon, aside, text, className }: { title: string; id?: string; icon?: ReactNode; aside?: ReactNode; text?: string; className?: string }) {
+  return (
+    <div className={cx('flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b border-abyss-100 pb-4', className)}>
+      <div className="min-w-0">
+        <h2 id={id} className="flex items-center gap-2 font-serif4 text-xl font-semibold leading-tight text-[#0b2545]">{icon}{title}</h2>
+        {text && <p className="mt-1 text-xs text-steel-600">{text}</p>}
+      </div>
+      {aside}
+    </div>
+  )
+}
+
+/** Pill badge for categories and status. */
+export function Pill({ children, tone = 'sky' }: { children: ReactNode; tone?: 'sky' | 'green' | 'slate' }) {
+  const t = { sky: 'border-azure-200 bg-azure-50 text-azure-800', green: 'border-emerald-200 bg-emerald-50 text-emerald-800', slate: 'border-abyss-200 bg-abyss-100 text-abyss-700' }[tone]
+  return <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold', t)}>{children}</span>
 }

@@ -1,4 +1,5 @@
-// Journal 4 static pages: numbered clauses with a sticky table of contents (left), related pages, rich blocks, and a two-column contact layout.
+// Journal 4 static pages in the reference layout: title card, sticky quick-jump bar, numbered section cards, rich blocks and the right sidebar card stack.
+// /policies/publication-ethics uses the dedicated EthicsPolicy body; every other page shares the same shell and section style.
 import { useMemo } from 'react'
 import { journal } from '../../../config/journals'
 import { staticGroups } from '../../../config/routes'
@@ -6,19 +7,12 @@ import { formatDate } from '../../../core/lib/format'
 import type { BlockActions } from '../../../core/theme'
 import type { StaticBlock, StaticPageData } from '../../../core/types'
 import { anchorId, BlockBody, blockTitle } from '../components/static/StaticBlocks'
-import { RightRail, SectionClauses, SideColumn, StaticBand, type TocItem } from '../components/static/Clauses'
+import { QuickNav, RightRail, SectionClauses, SectionHead, StaticBand, type TocItem } from '../components/static/Clauses'
+import { EthicsPolicy, ethicsToc } from '../components/static/EthicsPolicy'
 import { ContactDetails } from '../components/static/InfoBlocks'
 import { ContactForm } from '../components/static/ContactForm'
 import { Container } from '../components/primitives'
 import * as I from '../icons'
-
-const principles = [
-  { icon: I.Verified, title: 'Integrity', text: 'Honest, carefully documented research and reporting.' },
-  { icon: I.FactCheck, title: 'Transparency', text: 'Open processes and decisions that come with reasons.' },
-  { icon: I.Shield, title: 'Fairness', text: 'Impartial evaluation of the work on its merits.' },
-  { icon: I.Person, title: 'Accountability', text: 'Authors, reviewers and editors answer for their roles.' },
-  { icon: I.Book, title: 'Good practice', text: 'Guided by COPE-style principles, without claiming membership.' },
-]
 
 /** A group of blocks that render together: the contact details and the contact form share one two-column section. */
 interface Item { id: string; title: string; blocks: StaticBlock[] }
@@ -40,58 +34,47 @@ function groupBlocks(blocks: StaticBlock[]): Item[] {
 export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticPageData; sidebar: StaticPageData[]; allPages: StaticPageData[]; actions: BlockActions }) {
   const related = page.related.map((s) => allPages.find((p) => p.slug === s)).filter(Boolean) as StaticPageData[]
   const items = useMemo(() => groupBlocks(page.blocks ?? []), [page])
-  const toc = useMemo<TocItem[]>(() => [
-    ...(page.principles ? [{ id: 's-principles', label: 'Our ethical principles' }] : []),
+  const ethics = page.slug === 'publication-ethics' && page.group === 'policies'
+  const toc = useMemo<TocItem[]>(() => ethics ? ethicsToc : [
     ...page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading })),
     ...items.map((i) => ({ id: i.id, label: i.title })),
-  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items])
-  const offset = page.principles ? 1 : 0
+  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items, ethics])
 
+  const chip = 'inline-flex items-center gap-1 rounded-ctl border px-2.5 py-1 font-medium'
   return (
-    <>
-      <StaticBand page={page} meta={<>
-        <span className="inline-flex items-center gap-2 rounded-ctl border border-white/15 bg-white/5 px-3 py-1.5"><I.History className="h-4 w-4 text-azure-300" aria-hidden="true" />Updated {formatDate(page.updated)}</span>
-        {toc.length > 1 && <span className="inline-flex items-center gap-2 rounded-ctl border border-white/15 bg-white/5 px-3 py-1.5"><I.Book className="h-4 w-4 text-azure-300" aria-hidden="true" />{toc.length} sections</span>}
-        <span className="inline-flex items-center gap-2 rounded-ctl border border-white/15 bg-white/5 px-3 py-1.5"><I.OpenAccess className="h-4 w-4 text-azure-300" aria-hidden="true" />{journal.licence.name}</span>
-      </>} />
-
-      <Container className="py-8 sm:py-10">
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[15rem_minmax(0,1fr)_17rem]">
-          <SideColumn page={page} toc={toc} sidebar={sidebar} related={related} />
-          <article className="min-w-0 space-y-4">
-            {page.principles && (
-              <section aria-labelledby="s-principles" className="rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
-                <h2 id="s-principles" className="flex scroll-mt-28 items-center gap-3 font-serif4 text-[1.375rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem]"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-sm font-semibold tabular-nums text-white" aria-hidden="true">1</span>Our ethical principles</h2>
-                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {principles.map(({ icon: Icon, title, text }) => (
-                    <li key={title} className="flex gap-3 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
-                      <div className="min-w-0"><h3 className="font-serif4 text-base font-semibold text-abyss-900">{title}</h3><p className="mt-0.5 text-sm text-steel-600">{text}</p></div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-            {page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={offset + n + 1} id={anchorId(s.heading)} />)}
-            {items.map((it, i) => {
-              const num = offset + page.sections.length + i + 1
+    <Container className="py-6 sm:py-8">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-12">
+        <div className="min-w-0 space-y-5 lg:col-span-8">
+          <div>
+            <StaticBand page={page} meta={<>
+              <span className={`${chip} border-sky-200 bg-sky-100 font-semibold text-[#0b2545]`}><I.Verified className="h-3.5 w-3.5 text-cobalt-700" aria-hidden="true" />{staticGroups[page.group].label}</span>
+              <span className={`${chip} border-slate-200 bg-slate-100 text-slate-700`}><I.History className="h-3.5 w-3.5" aria-hidden="true" />Updated {formatDate(page.updated)}</span>
+              <span className={`${chip} border-emerald-200 bg-emerald-50 text-emerald-800`}><I.OpenAccess className="h-3.5 w-3.5" aria-hidden="true" />{journal.licence.name}</span>
+            </>} />
+          </div>
+          <QuickNav toc={toc} />
+          <article className="min-w-0 space-y-5">
+            {ethics && <EthicsPolicy />}
+            {!ethics && page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={n + 1} id={anchorId(s.heading)} />)}
+            {!ethics && items.map((it, i) => {
+              const num = page.sections.length + i + 1
               return (
-                <section key={it.id} aria-labelledby={it.id} className="rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
-                  <h2 id={it.id} className="mb-5 flex scroll-mt-28 items-center gap-3 font-serif4 text-[1.375rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem]"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-sm font-semibold tabular-nums text-white" aria-hidden="true">{num}</span>{it.title}</h2>
+                <section key={it.id} aria-labelledby={it.id} className="scroll-mt-28 rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
+                  <SectionHead num={num} id={it.id} title={it.title} />
                   {it.blocks.length === 2
                     ? <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"><div className="min-w-0"><ContactForm onSubmit={actions.onContact} /></div><div className="min-w-0"><ContactDetails /></div></div>
                     : <BlockBody block={it.blocks[0]} actions={actions} />}
                 </section>
               )
             })}
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-pane border border-abyss-200 bg-abyss-50 p-4 text-sm text-steel-600">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-pane border border-abyss-200 bg-white p-4 text-sm text-steel-600 shadow-hair">
               <I.History className="h-4 w-4" aria-hidden="true" />Last updated {formatDate(page.updated)}. Questions about this page:
               <a className="font-semibold text-cobalt-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>
             </p>
           </article>
-          <RightRail related={related} groupLabel={staticGroups[page.group].label} />
         </div>
-      </Container>
-    </>
+        <div className="min-w-0 lg:col-span-4"><RightRail page={page} sidebar={sidebar} related={related} groupLabel={staticGroups[page.group].label} /></div>
+      </div>
+    </Container>
   )
 }

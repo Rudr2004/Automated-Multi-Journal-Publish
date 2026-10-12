@@ -1,4 +1,4 @@
-// Search results: dark header with the search field, a facet column (area, type, issue) with counts, sorting and highlighted result rows.
+// Search results: white title card with the search field, a facet column (area, type, issue) with counts, sorting and highlighted result rows.
 import { useEffect, useId, useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { journal } from '../../../config/journals'
@@ -8,7 +8,8 @@ import type { ArticleSummary } from '../../../core/types'
 import { ARTICLE_TYPES } from '../../../core/types'
 import { areas } from '../components/areas'
 import { Button } from '../components/Button'
-import { FIELD, PageBand } from '../components/PageBand'
+import { FIELD } from '../components/PageBand'
+import { PageHead } from '../components/static/PageHead'
 import { Container, EmptyState } from '../components/primitives'
 import { Facets, type FacetGroup } from './search/Facets'
 import { Close } from '../icons'
@@ -68,12 +69,12 @@ export function SearchPage({ query, results }: { query: string; results: Article
   return (
     <>
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
-      <PageBand label="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
+      <PageHead crumbs={[{ label: 'Search' }]} eyebrow="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
         <SearchBox query={query} />
-        <p className="mt-3 max-w-3xl text-sm text-abyss-200">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-white">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
-      </PageBand>
+        <p className="mt-3 max-w-3xl text-sm text-steel-700">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-abyss-900">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
+      </PageHead>
 
-      <div className="bg-abyss-50"><Container className="py-8 sm:py-10">
+      <div className="bg-abyss-50"><Container className="py-6 sm:py-8">
         <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
           {results.length > 0 && <Facets groups={groups} onToggle={toggle} onClear={clear} active={active} />}
           <div className={results.length > 0 ? 'min-w-0' : 'min-w-0 lg:col-span-2'}>
@@ -81,7 +82,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
               <>
                 <p role="status" aria-live="polite" className="sr-only">0 results</p>
                 <EmptyState title={term ? `No articles found for “${term}”` : 'Start with a word or a research area'} text="Check the spelling, try fewer words, or browse one of the research areas below." />
-                <h2 className="mt-10 font-serif4 text-2xl font-semibold text-abyss-900">Browse by research area</h2>
+                <h2 className="mt-10 font-serif4 text-2xl font-semibold text-[#0b2545]">Browse by research area</h2>
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {areas.map((a) => (
                     <li key={a.id}><AppLink to={paths.search(a.name)} className="flex min-h-11 items-center gap-2 rounded-ctl border border-abyss-300 bg-white px-3 text-sm font-semibold text-abyss-900 hover:border-cobalt-700 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">

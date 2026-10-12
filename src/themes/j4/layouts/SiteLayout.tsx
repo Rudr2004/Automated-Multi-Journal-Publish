@@ -21,7 +21,7 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
   // Article pages carry their own mobile bar, and the submit page its own controls.
   const showBar = !pathname.includes('/article/') && !pathname.endsWith('/submit')
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-abyss-50">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-ctl focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-cobalt-700 focus:shadow-float">Skip to content</a>
       <JournalTabs />
       <UtilityBar />

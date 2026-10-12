@@ -6,11 +6,14 @@ import * as validate from '../../../core/lib/validators'
 import type { TrackPageProps } from '../../../core/theme'
 import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../../../core/types'
 import { ButtonLink } from '../components/Button'
-import { Field, Spinner, fieldInput } from '../components/form/Field'
+import { Spinner } from '../components/form/Field'
+import { RField, refInput } from './submit/shared'
 import { AppLink } from '../../../core/router'
-import { Container, Label, cx } from '../components/primitives'
+import { Container, cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { Search } from '../icons'
+import { SubmitAside } from './submit/Aside'
+import { UploadFile } from './submit/mi'
 import { KpiTiles, LogTable, PaperHeader } from './track/Console'
 import { CertDialog, EditDialog } from './track/EditDialogs'
 import { OtpDialog } from './track/OtpDialog'
@@ -106,82 +109,92 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
 
   return (
     <div>
-      <section aria-labelledby="track-h" className="relative isolate bg-abyss-900 text-white">
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
-        <Container className="py-10 sm:py-14">
-          <nav aria-label="Breadcrumb"><ol className="mb-5 flex flex-wrap items-center gap-x-2 text-sm text-abyss-300"><li><AppLink to={paths.home} className="hover:text-white hover:underline">Home</AppLink></li><li aria-hidden="true">/</li><li aria-current="page" className="font-medium text-white">Track My Paper</li></ol></nav>
-          <Label className="text-azure-300">Status console</Label>
-          <h1 id="track-h" className="mt-2 max-w-3xl font-serif4 font-semibold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(34px,3.8vw,54px)' }}>Where is my paper right now?</h1>
-          <p className="mt-3 max-w-2xl text-base text-abyss-200 sm:text-[1.0625rem]">No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.</p>
-          <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-7 grid gap-4 rounded-pane bg-white p-4 shadow-panel sm:p-5 md:grid-cols-[1fr_1fr_auto] md:items-start">
-            <Field label="Paper ID" name="paperId" required error={errors.paperId}>
-              <input className={fieldInput(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
-                onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
-            </Field>
-            <Field label="Email" name="email" required error={errors.email}>
-              <input type="email" className={fieldInput(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
-                onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
-            </Field>
-            <button type="submit" disabled={loading} aria-busy={loading}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-ctl bg-abyss-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-abyss-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-2 disabled:opacity-60 md:mt-[1.75rem] md:w-auto">
-              {loading ? <Spinner /> : <Search className="h-5 w-5" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
-            </button>
-          </form>
-        </Container>
-      </section>
-
-      <div className="bg-abyss-50 py-8 sm:py-12">
+      <div className="bg-slate-50 pb-8 pt-6 sm:pb-12">
         <Container>
-          <div aria-live="polite" aria-busy={loading}>
-            {lookupError && <p role="alert" className="rounded-ctl border border-red-700 bg-red-50 p-4 text-[15px] font-semibold text-red-700">{lookupError}</p>}
-            <div ref={resultRef} tabIndex={-1} className={cx('focus:outline-none', result && 'scroll-mt-24')}>
-              {result?.kind === 'found' && paper && (
-                <div className="space-y-6">
-                  <KpiTiles paper={paper} />
-                  <PaperHeader paper={paper} />
-                  <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
-                    <div className="min-w-0 space-y-6"><LogTable paper={paper} /><DocsPanel paper={paper} onDownload={download} /></div>
-                    <div className="min-w-0 space-y-6">
-                      <ApcPanel paper={paper} onPay={(mode) => request({ kind: 'pay', mode })} />
-                      <ActionsPanel paper={paper} onSign={() => request({ kind: 'sign' })} onEdit={() => request({ kind: 'edit' })} onCert={() => request({ kind: 'cert' })} />
-                      <ReferralPanel paper={paper} />
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+            <div className="min-w-0 space-y-6 lg:col-span-8">
+              <section aria-labelledby="track-h" className="space-y-4 rounded-xl border border-sky-200 bg-gradient-to-br from-[#eef7ff] via-white to-[#e0effe] p-6 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <nav aria-label="Breadcrumb"><ol className="flex flex-wrap items-center gap-x-1.5 font-medium text-slate-500"><li><AppLink to={paths.home} className="hover:text-sky-700 hover:underline">Home</AppLink></li><li aria-hidden="true">/</li><li><AppLink to={paths.forAuthors('author-guidelines')} className="hover:text-sky-700 hover:underline">For Authors</AppLink></li><li aria-hidden="true">/</li><li aria-current="page" className="font-semibold text-sky-700">Track My Paper</li></ol></nav>
+                  <AppLink to={paths.submit} className="inline-flex min-h-[44px] items-center gap-1.5 rounded border border-sky-200 bg-sky-50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 sm:min-h-0 sm:py-0.5"><UploadFile className="h-3.5 w-3.5" aria-hidden="true" />Submit Manuscript</AppLink>
+                </div>
+                <div className="space-y-1.5">
+                  <h1 id="track-h" className="flex items-center gap-2.5 font-serif4 text-2xl font-bold tracking-tight text-[#0b2545] sm:text-3xl"><Search className="h-8 w-8 shrink-0 text-sky-600" aria-hidden="true" />Where is my paper right now?</h1>
+                  <p className="max-w-2xl text-xs leading-relaxed text-slate-600 sm:text-sm">No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.</p>
+                </div>
+                <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_1fr_auto] md:items-start">
+                  <RField label="Paper ID" name="paperId" required error={errors.paperId}>
+                    <input className={refInput(errors.paperId, 'font-mono')} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
+                      onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+                  </RField>
+                  <RField label="Email" name="email" required error={errors.email}>
+                    <input type="email" className={refInput(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
+                      onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
+                  </RField>
+                  <button type="submit" disabled={loading} aria-busy={loading}
+                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded bg-sky-600 px-6 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2 disabled:opacity-60 md:mt-[1.625rem] md:w-auto">
+                    {loading ? <Spinner /> : <Search className="h-4 w-4" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
+                  </button>
+                </form>
+              </section>
+
+              <div aria-live="polite" aria-busy={loading}>
+                {lookupError && <p role="alert" className="rounded border border-red-700 bg-red-50 p-4 text-sm font-semibold text-red-700">{lookupError}</p>}
+                <div ref={resultRef} tabIndex={-1} className={cx('focus:outline-none focus-visible:!outline-none', result && 'scroll-mt-24')}>
+                  {result?.kind === 'found' && paper && (
+                    <div className="space-y-6">
+                      <KpiTiles paper={paper} />
+                      <PaperHeader paper={paper} />
+                      <LogTable paper={paper} />
+                      <DocsPanel paper={paper} onDownload={download} />
                     </div>
-                  </div>
+                  )}
+                  {result?.kind === 'other-journal' && (
+                    <div role="status" className="max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                      <h2 className="font-serif4 text-2xl font-bold text-[#0b2545]">This Paper ID belongs to another journal</h2>
+                      <p className="mt-2 text-sm text-slate-700">Paper IDs for {journal.shortName} start with <strong className="text-slate-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-slate-900">{result.code}</strong> are tracked on that journal’s own page. Please check your confirmation email.</p>
+                    </div>
+                  )}
+                  {result?.kind === 'not-found' && (
+                    <div role="alert" className="max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                      <h2 className="font-serif4 text-2xl font-bold text-[#0b2545]">We could not find that paper</h2>
+                      <p className="mt-2 text-sm text-slate-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-sky-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
+                      <div className="mt-4"><ButtonLink to={paths.about('contact')} variant="outline" className="min-h-[44px]">Contact the editorial office</ButtonLink></div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {result?.kind === 'other-journal' && (
-                <div role="status" className="max-w-xl rounded-pane border border-abyss-200 bg-white p-6 shadow-hair">
-                  <h2 className="font-serif4 text-2xl font-semibold text-abyss-900">This Paper ID belongs to another journal</h2>
-                  <p className="mt-2 text-[15px] text-steel-700">Paper IDs for {journal.shortName} start with <strong className="text-abyss-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-abyss-900">{result.code}</strong> are tracked on that journal’s own page. Please check your confirmation email.</p>
+              </div>
+
+              <details className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                <summary className="flex min-h-[44px] cursor-pointer items-center px-4 text-xs font-semibold text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600">Try a demo paper</summary>
+                <div className="border-t border-slate-100 p-4">
+                  <p className="text-xs text-slate-600">Select a row to fill the form, then press Track paper. Demo email codes are shown in the verification step.</p>
+                  <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {DEMOS.map((d) => (
+                      <li key={d.id}>
+                        <button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}); formRef.current?.scrollIntoView({ block: 'center' }) }}
+                          className="flex min-h-[44px] w-full flex-col items-start justify-center rounded-lg border border-slate-200 px-3 py-1.5 text-left hover:border-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600">
+                          <span className="font-mono text-xs font-semibold text-slate-900">{d.id}</span>
+                          <span className="text-[11px] text-slate-600">{d.note}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
-              {result?.kind === 'not-found' && (
-                <div role="alert" className="max-w-xl rounded-pane border border-abyss-200 bg-white p-6 shadow-hair">
-                  <h2 className="font-serif4 text-2xl font-semibold text-abyss-900">We could not find that paper</h2>
-                  <p className="mt-2 text-[15px] text-steel-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-cobalt-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
-                  <div className="mt-4"><ButtonLink to={paths.about('contact')} variant="outline" className="min-h-[44px]">Contact the editorial office</ButtonLink></div>
-                </div>
-              )}
+              </details>
+            </div>
+            <div className="min-w-0 lg:col-span-4">
+              <SubmitAside hideTrack>
+                {result?.kind === 'found' && paper && (
+                  <>
+                    <ApcPanel paper={paper} onPay={(mode) => request({ kind: 'pay', mode })} />
+                    <ActionsPanel paper={paper} onSign={() => request({ kind: 'sign' })} onEdit={() => request({ kind: 'edit' })} onCert={() => request({ kind: 'cert' })} />
+                    <ReferralPanel paper={paper} />
+                  </>
+                )}
+              </SubmitAside>
             </div>
           </div>
-
-          <details className="mt-8 rounded-pane border border-abyss-200 bg-white shadow-hair">
-            <summary className="flex min-h-[44px] cursor-pointer items-center px-4 text-sm font-semibold text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">Try a demo paper</summary>
-            <div className="border-t border-abyss-200 p-4">
-              <p className="text-sm text-steel-600">Select a row to fill the form, then press Track paper. Demo email codes are shown in the verification step.</p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {DEMOS.map((d) => (
-                  <li key={d.id}>
-                    <button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}); formRef.current?.scrollIntoView({ block: 'center' }) }}
-                      className="flex min-h-[44px] w-full flex-col items-start justify-center rounded-ctl border border-abyss-200 px-3 py-1.5 text-left hover:border-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">
-                      <span className="text-sm font-semibold tabular-nums text-abyss-900">{d.id}</span>
-                      <span className="text-[13px] text-steel-600">{d.note}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </details>
         </Container>
       </div>
 

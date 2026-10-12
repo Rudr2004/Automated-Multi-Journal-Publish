@@ -1,14 +1,12 @@
 // Reading tabs: Abstract (with keywords and history), Full text (sections, tables, figure data) and References.
 import { Fragment, useMemo } from 'react'
 import { paths } from '../../../../config/routes'
-import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleFigure, ArticleFull, ArticleTable, Reference } from '../../../../core/types'
-import { Label } from '../../components/primitives'
-import { AuthorCards } from './AuthorCards'
-import { H2 } from './shared'
+import { MdOutlineStars, MdOutlineSubject } from 'react-icons/md'
+import { exhibitsOf, H2, MONO, NAVY } from './shared'
 
-const BODY = 'max-w-[68ch] break-words font-serif4 text-[17px] leading-[1.75] text-abyss-800 sm:text-[18px]'
+const BODY = 'break-words font-work text-xs leading-relaxed text-justify text-abyss-800 sm:text-sm'
 const CITE = /\[(\d+(?:\s*[,–-]\s*\d+)*)\]/g
 
 function expand(s: string): number[] {
@@ -45,7 +43,7 @@ function Paragraph({ text, count, onRef }: { text: string; count: number; onRef:
     <p className={BODY}>
       {nodes.map((n, i) => typeof n === 'string'
         ? <Fragment key={i}>{n}</Fragment>
-        : <span key={i} className="whitespace-nowrap font-work text-[0.85em]">[{n.map((x, j) => (
+        : <span key={i} className="whitespace-nowrap text-[0.85em]">[{n.map((x, j) => (
           <Fragment key={x}>{j > 0 && ','}<button type="button" aria-label={`Reference ${x}`} onClick={() => onRef(x)} className="rounded-sm px-0.5 font-semibold text-cobalt-700 hover:underline">{x}</button></Fragment>
         ))}]</span>)}
     </p>
@@ -54,13 +52,13 @@ function Paragraph({ text, count, onRef }: { text: string; count: number; onRef:
 
 function DataTable({ table }: { table: ArticleTable }) {
   return (
-    <div role="region" aria-label={table.caption} tabIndex={0} className="max-h-[26rem] overflow-auto rounded-pane border border-abyss-200">
-      <table className="w-full min-w-[460px] border-collapse text-left text-sm">
-        <caption className="caption-top border-b border-abyss-200 bg-abyss-50 px-4 py-3 text-left font-semibold text-abyss-900">{table.caption}</caption>
-        <thead><tr>{table.head.map((h) => <th key={h} scope="col" className="sticky top-0 border-b border-abyss-300 bg-abyss-100 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-steel-700">{h}</th>)}</tr></thead>
-        <tbody>{table.rows.map((r, i) => (
-          <tr key={i} className="border-b border-abyss-100 last:border-0 even:bg-abyss-50">
-            {r.map((c, j) => j === 0 ? <th key={j} scope="row" className="px-4 py-2.5 font-semibold text-abyss-900">{c}</th> : <td key={j} className="px-4 py-2.5 tabular-nums text-steel-700">{c}</td>)}
+    <div role="region" aria-label={table.caption} tabIndex={0} className="max-h-[26rem] overflow-auto rounded-lg border border-abyss-200">
+      <table className="w-full min-w-[460px] border-collapse text-left text-xs">
+        <caption className="caption-top border-b border-abyss-200 bg-abyss-50 p-2.5 text-left text-xs font-semibold text-abyss-900">{table.caption}</caption>
+        <thead><tr>{table.head.map((h) => <th key={h} scope="col" className="sticky top-0 border-b border-abyss-200 bg-abyss-100 p-2.5 text-xs font-semibold text-[#0b2545]">{h}</th>)}</tr></thead>
+        <tbody className="divide-y divide-abyss-100">{table.rows.map((r, i) => (
+          <tr key={i} className="hover:bg-abyss-50">
+            {r.map((c, j) => j === 0 ? <th key={j} scope="row" className="p-2.5 font-medium text-abyss-900">{c}</th> : <td key={j} className={`p-2.5 text-[11px] text-steel-700 ${MONO}`}>{c}</td>)}
           </tr>))}
         </tbody>
       </table>
@@ -72,7 +70,7 @@ function DataTable({ table }: { table: ArticleTable }) {
 function FigureData({ fig, index }: { fig: ArticleFigure; index: number }) {
   const max = Math.max(...fig.values, 1)
   return (
-    <figure className="rounded-pane border border-abyss-200 bg-white p-4">
+    <figure className="rounded-lg border border-abyss-200 bg-abyss-50 p-3 shadow-hair">
       <ul className="space-y-2" aria-label={`${fig.yLabel} by ${fig.xLabel}`}>
         {fig.labels.map((l, i) => (
           <li key={l} className="grid grid-cols-[minmax(0,8rem)_1fr_3.5rem] items-center gap-3 text-sm sm:grid-cols-[10rem_1fr_4rem]">
@@ -82,37 +80,42 @@ function FigureData({ fig, index }: { fig: ArticleFigure; index: number }) {
           </li>
         ))}
       </ul>
-      <figcaption className="mt-3 border-t border-abyss-100 pt-3 text-sm text-steel-600"><strong className="font-semibold text-abyss-900">Figure {index}.</strong> {fig.caption.replace(/^Figure\s+\d+\.\s*/i, '')}</figcaption>
+      <figcaption className="mt-3 border-t border-abyss-100 pt-3 text-[11px] leading-snug text-abyss-800"><strong className="font-semibold text-abyss-900">Figure {index}.</strong> {fig.caption.replace(/^Figure\s+\d+\.\s*/i, '')}</figcaption>
     </figure>
   )
 }
 
 export function AbstractPanel({ article }: { article: ArticleFull }) {
-  const history: [string, string | undefined][] = [['Received', article.received], ['Accepted', article.accepted], ['Published online', article.publishedOnline || article.publishedAt]]
+  const figs = exhibitsOf(article).length
+  const glance = [
+    article.subject && `Research area: ${article.subject}.`,
+    `${article.type}${article.pages ? `, pages ${article.pages}` : ''}.`,
+    article.sections?.length && `${article.sections.length} sections${figs ? ` with ${figs} figure${figs === 1 ? '' : 's'} and tables` : ''}.`,
+    article.references?.length && `${article.references.length} references.`,
+  ].filter(Boolean) as string[]
   return (
-    <div>
-      <h2 className={H2}>Abstract</h2>
-      <div id="abstract-text" className="mt-4 scroll-mt-32 rounded-pane border border-l-4 border-abyss-200 border-l-azure-600 bg-azure-50/60 p-5 sm:p-6">
-        <Label className="text-cobalt-700">Abstract</Label>
-        {article.abstract ? <p className={`${BODY} mt-2`}>{article.abstract}</p> : <p className="mt-2 text-steel-600">No abstract is available for this article.</p>}
+    <div className="space-y-4 pt-1">
+      <div className="flex items-center justify-between gap-3 border-b border-abyss-100 pb-2">
+        <h2 className={`${H2} flex items-center gap-2`}><MdOutlineSubject className="h-6 w-6 text-azure-600" aria-hidden="true" />Abstract</h2>
+        <span className={`hidden text-[11px] text-steel-600 sm:inline ${MONO}`}>{article.type}</span>
       </div>
-      {article.keywords?.length > 0 && (
-        <div id="keywords" className="mt-8 scroll-mt-32">
-          <h3><Label className="text-cobalt-700">Keywords</Label></h3>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {article.keywords.map((k) => <li key={k}><AppLink to={paths.search(k)} className="inline-flex min-h-9 items-center rounded-ctl border border-abyss-200 bg-white px-3 text-sm font-medium text-steel-700 hover:border-cobalt-700 hover:text-cobalt-700">{k}</AppLink></li>)}
+      {glance.length > 0 && (
+        <div className="space-y-2 rounded-r-lg border border-l-4 border-azure-200 border-l-azure-600 bg-azure-50 p-4 text-xs">
+          <div className={`flex items-center gap-1.5 font-serif4 font-bold ${NAVY}`}><MdOutlineStars className="h-4 w-4 text-azure-600" aria-hidden="true" />At a glance</div>
+          <ul className="space-y-1.5 pl-2 text-abyss-800">
+            {glance.map((g) => <li key={g} className="flex items-start gap-1.5"><span aria-hidden="true" className="font-bold text-azure-600">•</span>{g}</li>)}
           </ul>
         </div>
       )}
-      <AuthorCards article={article} />
-      {history.some(([, v]) => v) && (
-        <div id="history" className="mt-10 max-w-[68ch] scroll-mt-32">
-          <h3><Label className="text-cobalt-700">Publication history</Label></h3>
-          <ol className="mt-3 grid gap-px overflow-hidden rounded-pane border border-abyss-200 bg-abyss-200 sm:grid-cols-3">
-            {history.filter(([, v]) => v).map(([k, v]) => (
-              <li key={k} className="bg-white px-4 py-3"><p className="text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">{k}</p><p className="mt-1 text-sm font-medium tabular-nums text-abyss-900">{formatDate(v as string)}</p></li>
-            ))}
-          </ol>
+      <div id="abstract-text" className="scroll-mt-32">
+        {article.abstract ? <p className={BODY}>{article.abstract}</p> : <p className="text-sm text-steel-600">No abstract is available for this article.</p>}
+      </div>
+      {article.keywords?.length > 0 && (
+        <div id="keywords" className="scroll-mt-32 space-y-1.5 pt-2">
+          <h3 className="text-xs font-semibold text-abyss-800">Keywords:</h3>
+          <ul className="flex flex-wrap gap-1.5">
+            {article.keywords.map((k) => <li key={k}><AppLink to={paths.search(k)} className="inline-flex min-h-9 items-center rounded border border-abyss-200 bg-abyss-100 px-2.5 text-xs text-abyss-700 hover:border-azure-600 hover:text-cobalt-700">{k}</AppLink></li>)}
+          </ul>
         </div>
       )}
     </div>
@@ -123,15 +126,34 @@ export function FullTextPanel({ article, onRef }: { article: ArticleFull; onRef:
   let fig = 0
   return (
     <div>
-      <h2 className="sr-only">Full text</h2>
+      <h2 className="sr-only">Full article</h2>
       {article.sections.map((s, i) => (
-        <section key={s.id} id={s.id} aria-labelledby={`${s.id}-h`} className={`scroll-mt-32 ${i ? 'mt-12' : ''}`}>
-          <h3 id={`${s.id}-h`} className={H2}><span className="mr-2 font-work text-base font-semibold tabular-nums text-cobalt-700">{String(i + 1).padStart(2, '0')}</span>{s.title}</h3>
-          <div className="mt-4 space-y-5">{s.paragraphs.map((p, pi) => <Paragraph key={pi} text={p} count={article.references?.length ?? 0} onRef={onRef} />)}</div>
-          {s.table && <div className="mt-6"><DataTable table={s.table} /></div>}
-          {s.figure && <div className="mt-6"><FigureData fig={s.figure} index={++fig} /></div>}
+        <section key={s.id} id={s.id} tabIndex={-1} aria-labelledby={`${s.id}-h`} className={`scroll-mt-32 space-y-3 focus:outline-none ${i ? 'pt-6' : 'pt-3'}`}>
+          <h3 id={`${s.id}-h`} className={`font-serif4 text-base font-bold leading-snug ${NAVY}`}>{i + 1}. {s.title}</h3>
+          <div className="space-y-3">{s.paragraphs.map((p, pi) => <Paragraph key={pi} text={p} count={article.references?.length ?? 0} onRef={onRef} />)}</div>
+          {s.table && <div><DataTable table={s.table} /></div>}
+          {s.figure && <div><FigureData fig={s.figure} index={++fig} /></div>}
         </section>
       ))}
+    </div>
+  )
+}
+
+/** Every figure and table of the paper in one place (hidden in print, where the full text already carries them). */
+export function FiguresPanel({ article, onGo }: { article: ArticleFull; onGo: (sectionId: string) => void }) {
+  let fig = 0
+  const items = exhibitsOf(article)
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-3 border-b border-abyss-100 pb-2"><h2 className={H2}>Figures &amp; tables</h2><span className="text-xs text-steel-600">{items.length} in total</span></div>
+      <ul id="figures-list" className="mt-5 scroll-mt-32 space-y-6">
+        {items.map(({ kind, section }) => (
+          <li key={`${section.id}-${kind}`}>
+            {kind === 'table' ? <DataTable table={section.table as ArticleTable} /> : <FigureData fig={section.figure as ArticleFigure} index={++fig} />}
+            <p className="mt-2 text-xs text-steel-600">From section <button type="button" onClick={() => onGo(section.id)} className="rounded font-semibold text-cobalt-700 underline underline-offset-2 hover:text-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">{section.title}</button></p>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -139,12 +161,12 @@ export function FullTextPanel({ article, onRef }: { article: ArticleFull; onRef:
 export function ReferencesPanel({ article }: { article: ArticleFull }) {
   return (
     <div>
-      <h2 className={H2}>References</h2>
-      <ol id="references-list" className="mt-5 scroll-mt-32 divide-y divide-abyss-100 border-y border-abyss-100">
+      <div className="flex items-center justify-between gap-3 border-b border-abyss-100 pb-2"><h2 className={H2}>References</h2><span className="text-xs text-steel-600">{article.references.length} references</span></div>
+      <ol id="references-list" className="mt-4 scroll-mt-32 divide-y divide-abyss-100 border-b border-abyss-100">
         {article.references.map((r, i) => (
-          <li key={i} id={`ref-${i + 1}`} tabIndex={-1} className="flex gap-3 py-3 text-[15px] leading-relaxed text-steel-700 focus:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">
+          <li key={i} id={`ref-${i + 1}`} tabIndex={-1} className="flex gap-3 py-3 font-work text-sm leading-relaxed text-steel-700 focus:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">
             <span className="w-9 shrink-0 font-semibold tabular-nums text-cobalt-700">[{i + 1}]</span>
-            <span className="min-w-0 max-w-[68ch] break-words">{r.text}<RefDoi r={r} /></span>
+            <span className="min-w-0 max-w-[72ch] break-words">{r.text}<RefDoi r={r} /></span>
           </li>
         ))}
       </ol>

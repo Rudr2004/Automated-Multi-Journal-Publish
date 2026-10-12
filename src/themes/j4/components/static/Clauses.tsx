@@ -1,37 +1,64 @@
-// Numbered clauses (1.1, 1.2 ...) with anchor links, the page band, and the sticky table of contents for Journal 4 static pages.
+// Journal 4 static-page building blocks in the reference's language: breadcrumb and white title card, sticky quick-jump bar, numbered section cards
+// (sky "01" tile, serif heading, subtitle), check-mark lists, callouts. The right sidebar lives in ./Rail.
 import { useEffect, useState, type ReactNode } from 'react'
-import { paths, staticGroups, staticPath } from '../../../../config/routes'
+import { MdOutlinePrint as Print, MdOutlineInfo as Info } from 'react-icons/md'
+import { paths, staticGroups } from '../../../../config/routes'
 import { AppLink } from '../../../../core/router'
 import type { StaticPageData, StaticSection } from '../../../../core/types'
 import { journal } from '../../../../config/journals'
-import { formatDate } from '../../../../core/lib/format'
-import { ArrowRight, Calendar, Check, ChevronDown, ErrorIcon, FactCheck, Publish } from '../../icons'
-import { Container, cx, Label } from '../primitives'
+import { Check, Email } from '../../icons'
+import { cx } from '../primitives'
+
+export { RightRail } from './Rail'
 
 export interface TocItem { id: string; label: string; num: number }
 
-/** Breadcrumb bar plus the title card (group label, title, intro, meta strip) that opens every static page. */
+/** Card shell shared by every numbered section. */
+export const SECTION = 'scroll-mt-28 rounded-pane border border-slate-200 bg-white p-6 shadow-hair sm:p-7'
+
+/** Breadcrumb plus the white title card (meta chips, title, intro, print and contact actions) that opens every static page. */
 export function StaticBand({ page, meta }: { page: StaticPageData; meta: ReactNode }) {
   const g = staticGroups[page.group]
+  const btn = 'inline-flex min-h-[44px] items-center gap-1.5 rounded border px-3.5 py-2 font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azure-600 sm:min-h-0'
   return (
-    <header className="border-b border-abyss-200 bg-abyss-50">
-      <Container className="pb-6 pt-5 sm:pb-8">
-        <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-steel-600">
-            <li><AppLink to={paths.home} className="hover:text-cobalt-700 hover:underline">Home</AppLink></li><li aria-hidden="true">/</li>
-            <li><AppLink to={g.to} className="hover:text-cobalt-700 hover:underline">{g.label}</AppLink></li><li aria-hidden="true">/</li>
-            <li aria-current="page" className="font-medium text-abyss-900">{page.title}</li>
-          </ol>
-        </nav>
-        <div className="relative isolate mt-4 overflow-hidden rounded-pane bg-abyss-900 p-6 text-white shadow-panel sm:p-8">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_85%_20%,black,transparent_75%)]" />
-          <Label className="text-azure-300">{g.label}</Label>
-          <h1 className="mt-2 max-w-3xl break-words font-serif4 text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight">{page.title}</h1>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-abyss-200 sm:text-[1.0625rem]">{page.intro}</p>
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-white/15 pt-4 text-[13px] tabular-nums text-abyss-100">{meta}</div>
+    <>
+      <nav aria-label="Breadcrumb">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-slate-500">
+          <li><AppLink to={paths.home} className="transition-colors hover:text-cobalt-700">Home</AppLink></li><li aria-hidden="true">/</li>
+          <li><AppLink to={g.to} className="transition-colors hover:text-cobalt-700">{g.label}</AppLink></li><li aria-hidden="true">/</li>
+          <li aria-current="page" className="font-semibold text-slate-800">{page.title}</li>
+        </ol>
+      </nav>
+      <header className="relative isolate mt-6 overflow-hidden rounded-pane border border-slate-200 bg-white p-6 shadow-hair sm:p-8">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 -z-10 h-32 w-32 rounded-bl-full bg-sky-50 opacity-60" />
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">{meta}</div>
+        <h1 className="mb-3 break-words font-serif4 text-2xl font-bold leading-tight tracking-tight text-[#0b2545] sm:text-3xl lg:text-4xl">{page.title}</h1>
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-slate-600 sm:text-base">{page.intro}</p>
+        <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 text-xs print:hidden">
+          <button type="button" onClick={() => window.print()} className={cx(btn, 'border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200')}>
+            <Print className="h-4 w-4 text-slate-500" aria-hidden="true" />Print Policy
+          </button>
+          <a href={`mailto:${journal.email}`} className={cx(btn, 'border-sky-200 bg-sky-50 text-cobalt-700 hover:bg-sky-100')}>
+            <Email className="h-4 w-4" aria-hidden="true" />Ask the editorial office
+          </a>
+          <span className="ml-auto text-xs text-slate-500">ISSN {journal.issnOnline} (online)</span>
         </div>
-      </Container>
-    </header>
+      </header>
+    </>
+  )
+}
+
+/** Numbered section header: sky tile with "01", a serif title and an optional one-line subtitle or badge. */
+export function SectionHead({ num, id, title, subtitle, badge }: { num: number; id: string; title: string; subtitle?: string; badge?: string }) {
+  return (
+    <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-sky-200 bg-sky-50 font-bold tabular-nums text-cobalt-700" aria-hidden="true">{String(num).padStart(2, '0')}</span>
+      <div className="min-w-0 flex-1">
+        <h2 id={id} className="scroll-mt-28 font-serif4 text-xl font-bold leading-snug text-[#0b2545]">{num}. {title}</h2>
+        {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
+      </div>
+      {badge && <span className="hidden shrink-0 rounded border border-sky-200 bg-sky-50 px-2 py-0.5 text-xs font-semibold text-sky-900 sm:inline">{badge}</span>}
+    </div>
   )
 }
 
@@ -46,7 +73,7 @@ function useActiveId(ids: string[]) {
     const io = new IntersectionObserver((entries) => {
       const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
       if (hit) setActive(hit.target.id)
-    }, { rootMargin: '-100px 0px -65% 0px' })
+    }, { rootMargin: '-140px 0px -65% 0px' })
     els.forEach((el) => io.observe(el))
     return () => io.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,130 +81,68 @@ function useActiveId(ids: string[]) {
   return active
 }
 
-export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageData; toc: TocItem[]; sidebar: StaticPageData[]; related: StaticPageData[] }) {
+/** Sticky quick-jump bar: a horizontally scrolling row of numbered section links with the current one highlighted. */
+export function QuickNav({ toc }: { toc: TocItem[] }) {
   const active = useActiveId(toc.map((t) => t.id))
-  const g = staticGroups[page.group]
-  const tocList = (
-    <ol className="space-y-0.5 border-l border-abyss-200">
-      {toc.map((t) => {
-        const on = t.id === active
-        return (
-          <li key={t.id}>
-            <a href={`#${t.id}`} aria-current={on ? 'location' : undefined}
-              className={cx('-ml-px flex min-h-[44px] items-center gap-2 border-l-2 py-1.5 pl-3 pr-2 text-sm leading-snug lg:min-h-0', on ? 'border-azure-600 font-semibold text-abyss-900' : 'border-transparent text-steel-600 hover:border-abyss-400 hover:text-abyss-900')}>
-              <span className="w-5 shrink-0 tabular-nums text-steel-500">{t.num}.</span><span className="min-w-0">{t.label}</span>
-            </a>
-          </li>
-        )
-      })}
-    </ol>
-  )
-  const lists = (
-    <>
-      {sidebar.length > 1 && (
-        <nav aria-label={`${g.label} pages`} className="mt-4 rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">{g.label}</p>
-          <ul className="space-y-0.5">
-            {sidebar.map((p) => (
-              <li key={p.slug}>
-                <AppLink to={staticPath(p.group, p.slug)} aria-current={p.slug === page.slug ? 'page' : undefined}
-                  className={cx('block min-h-[44px] rounded-ctl px-3 py-2.5 text-sm leading-snug lg:min-h-0 lg:py-1.5', p.slug === page.slug ? 'bg-abyss-900 font-semibold text-white' : 'text-steel-700 hover:bg-abyss-100')}>{p.title}</AppLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-      {related.length > 0 && (
-        <nav aria-label="Related pages" className="mt-8 xl:hidden">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Related pages</p>
-          <ul className="space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="block min-h-[44px] py-2.5 text-sm font-medium text-cobalt-700 hover:underline lg:min-h-0 lg:py-1">{r.title} →</AppLink></li>)}</ul>
-        </nav>
-      )}
-    </>
-  )
+  if (toc.length < 2) return null
   return (
-    <aside aria-label="Page navigation" className="min-w-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
-      {toc.length > 1 && (
-        <>
-          <details className="group rounded-pane border border-abyss-200 bg-white lg:hidden">
-            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between px-4 text-sm font-semibold text-abyss-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600 [&::-webkit-details-marker]:hidden">
-              On this page ({toc.length} sections)<ChevronDown className="h-5 w-5 group-open:rotate-180" aria-hidden="true" />
-            </summary>
-            <nav aria-label="On this page" className="px-4 pb-3">{tocList}</nav>
-          </details>
-          <nav aria-label="On this page" className="hidden rounded-pane border border-abyss-200 bg-white p-4 shadow-hair lg:block">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">On this page</p>
-            {tocList}
-          </nav>
-        </>
-      )}
-      <div className="hidden lg:block">{lists}</div>
-      <details className="mt-3 rounded-pane border border-abyss-200 bg-white lg:hidden">
-        <summary className="flex min-h-[44px] cursor-pointer list-none items-center px-4 text-sm font-semibold text-abyss-900 [&::-webkit-details-marker]:hidden">More in {g.label} and related pages</summary>
-        <div className="px-4 pb-4">{lists}</div>
-      </details>
-    </aside>
+    <nav aria-label="Quick section navigation" className="sticky top-14 z-20 rounded-pane border border-slate-200 bg-white p-2.5 shadow-hair print:hidden">
+      <p className="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Quick Policy Navigation</p>
+      <ol className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        {toc.map((t) => {
+          const on = t.id === active
+          return (
+            <li key={t.id} className="shrink-0">
+              <a href={`#${t.id}`} aria-current={on ? 'location' : undefined}
+                className={cx('inline-flex min-h-[44px] items-center whitespace-nowrap rounded px-2.5 py-1.5 font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600 sm:min-h-0', on ? 'bg-[#0b2545] text-white' : 'text-slate-700 hover:bg-[#0b2545] hover:text-white')}>
+                {t.num}. {t.label}
+              </a>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
   )
 }
 
-/** One numbered clause with a hover/focus anchor link. */
-function Clause({ id, n, children, tick }: { id: string; n: string; children: ReactNode; tick?: boolean }) {
+/** Green-tick list item: an optional bold lead-in ("Label: text") followed by the text. */
+export function TickItem({ children, lead }: { children: ReactNode; lead?: string }) {
   return (
-    <li id={id} className="group relative grid scroll-mt-28 grid-cols-[2.75rem_minmax(0,1fr)] gap-x-1 py-2 sm:grid-cols-[3.25rem_minmax(0,1fr)]">
-      <a href={`#${id}`} aria-label={`Link to clause ${n}`} className="h-fit rounded-ctl py-0.5 text-sm font-semibold tabular-nums text-cobalt-700 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600">{n}</a>
-      <div className="min-w-0 text-base leading-[1.75] text-steel-700 sm:text-[1.0625rem]">
-        {tick && <Check className="mr-1.5 inline h-4 w-4 -translate-y-px text-azure-600" aria-hidden="true" />}{children}
-      </div>
+    <li className="flex items-start gap-2.5">
+      <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden="true" />
+      <span>{lead && <strong className="font-semibold text-slate-900">{lead} </strong>}{children}</span>
     </li>
   )
 }
 
-export function SectionClauses({ section, num, id }: { section: StaticSection; num: number; id: string }) {
-  let k = 0
-  const next = () => { k += 1; return { n: `${num}.${k}`, id: `c-${num}-${k}` } }
-  const c = section.callout
+/** Callout in the reference's two styles: navy left-border note (info) and amber note with an info icon (warn). */
+export function Callout({ tone, title, children }: { tone: string; title: string; children: ReactNode }) {
+  if (tone === 'warn') {
+    return (
+      <div role="note" className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" aria-hidden="true" />
+        <span><strong className="font-semibold">{title}:</strong> {children}</span>
+      </div>
+    )
+  }
   return (
-    <section aria-labelledby={id} className="scroll-mt-28 rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
-      <h2 id={id} className="flex scroll-mt-28 items-center gap-3 font-serif4 text-[1.375rem] font-semibold leading-tight tracking-tight text-abyss-900 sm:text-[1.625rem]">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-sm font-semibold tabular-nums text-white" aria-hidden="true">{num}</span>{section.heading}
-      </h2>
-      <ol className="mt-3 list-none">
-        {section.paragraphs?.map((p) => { const q = next(); return <Clause key={q.id} {...q}>{p}</Clause> })}
-        {section.list?.map((x) => { const q = next(); return <Clause key={q.id} {...q} tick>{x}</Clause> })}
-      </ol>
-      {c && (
-        <aside role="note" className={cx('ml-[2.75rem] mt-4 flex gap-3 rounded-pane border p-4 sm:ml-[3.25rem]', c.tone === 'warn' ? 'border-amber-300 bg-amber-50' : 'border-azure-200 bg-azure-50')}>
-          {c.tone === 'warn' ? <ErrorIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" /> : <FactCheck className="mt-0.5 h-5 w-5 shrink-0 text-cobalt-700" aria-hidden="true" />}
-          <div><p className="font-serif4 text-base font-semibold text-abyss-900">{c.title}</p><p className="mt-0.5 text-[0.9375rem] text-steel-700">{c.text}</p></div>
-        </aside>
-      )}
-    </section>
+    <div role="note" className="rounded border-l-4 border-[#0b2545] bg-slate-50 p-3.5 text-xs text-slate-700">
+      <strong className="font-semibold text-slate-900">{title}:</strong> {children}
+    </div>
   )
 }
 
-/** Right rail (xl+): call for papers, journal at a glance and related policies. */
-export function RightRail({ related, groupLabel }: { related: StaticPageData[]; groupLabel: string }) {
-  const facts: [string, string][] = [['ISSN (online)', journal.issnOnline], ['Frequency', journal.frequency], ['Licence', journal.licence.name], ['Publisher', journal.publisher]]
+/** A generic policy section: paragraphs, a green-tick list and an optional callout, in the reference's section card. */
+export function SectionClauses({ section, num, id }: { section: StaticSection; num: number; id: string }) {
+  const c = section.callout
   return (
-    <aside aria-label="Journal information" className="hidden min-w-0 space-y-4 xl:sticky xl:top-4 xl:block xl:self-start">
-      <section className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-cobalt-700"><Calendar className="h-4 w-4" aria-hidden="true" />Call for papers</p>
-        <h2 className="mt-2 font-serif4 text-lg font-semibold leading-snug text-abyss-900">{journal.nextIssue.label}</h2>
-        <p className="mt-1 text-sm tabular-nums text-steel-600">Submission deadline {formatDate(journal.nextIssue.deadline)}</p>
-        <AppLink to={paths.submit} className="mt-3 inline-flex min-h-[40px] items-center gap-2 rounded-ctl bg-cobalt-700 px-3.5 text-sm font-semibold text-white hover:bg-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-2"><Publish className="h-4 w-4" aria-hidden="true" />Submit manuscript</AppLink>
-      </section>
-      <section className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Journal at a glance</h2>
-        <dl className="mt-3 divide-y divide-abyss-200 text-sm">
-          {facts.map(([k, v]) => <div key={k} className="py-2"><dt className="text-xs text-steel-600">{k}</dt><dd className="break-words font-medium tabular-nums text-abyss-900">{v}</dd></div>)}
-        </dl>
-      </section>
-      {related.length > 0 && (
-        <nav aria-label="Related policies" className="rounded-pane border border-abyss-200 bg-white p-4 shadow-hair">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Related in {groupLabel} and beyond</h2>
-          <ul className="mt-2 space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="flex items-center justify-between gap-2 py-1.5 text-sm font-medium text-cobalt-700 hover:underline">{r.title}<ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>)}</ul>
-        </nav>
-      )}
-    </aside>
+    <section aria-labelledby={id} className={SECTION}>
+      <SectionHead num={num} id={id} title={section.heading} badge={section.badge} />
+      <div className="space-y-4 text-sm leading-relaxed text-slate-700">
+        {section.paragraphs?.map((p) => <p key={p}>{p}</p>)}
+        {section.list && <ul className="space-y-3 pl-2">{section.list.map((x) => <TickItem key={x}>{x}</TickItem>)}</ul>}
+        {c && <Callout tone={c.tone} title={c.title}>{c.text}</Callout>}
+      </div>
+    </section>
   )
 }

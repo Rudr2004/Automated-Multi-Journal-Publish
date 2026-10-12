@@ -1,129 +1,266 @@
-// Home sidebars. Left: call for papers with countdown, notices, policy shortcuts. Right: track-paper quick form, downloads, indexing verifier, author rights.
-// Both are sticky rails, so they stay in view beside the long article column.
-import type { ComponentType, ReactNode } from 'react'
-import { journal, logoSrc, visibleLogos } from '../../../../config/journals'
+// Home right sidebar, as in the reference, in the reference's order: Call for Papers, Announcements (carousel), Track Manuscript Status, Copyright Agreement,
+// DOI lookup, Journal Metrics, a recent-activity stream, Manuscript Templates, Become a Reviewer and the Creative Commons note.
+// Everything is data-driven from the journal config and mock data; where the reference shows a figure the journal does not have, the card keeps its layout and shows a supported fact instead.
+import { useEffect, useId, useState, type ComponentType, type FormEvent } from 'react'
+import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate } from '../../../../core/lib/format'
-import { AppLink } from '../../../../core/router'
-import type { CallForPapers } from '../../../../core/types'
+import { formatDate, formatNumber } from '../../../../core/lib/format'
+import { AppLink, useRouter } from '../../../../core/router'
+import type { ArticleSummary, CallForPapers, IssueSummary } from '../../../../core/types'
 import { ButtonLink } from '../../components/Button'
-import { CountdownJ4 } from '../../components/CountdownJ4'
-import { Bell, Description, EventNote, FolderZip, OpenInNew, QrCode, Rights } from '../../components/homeIconsJ4'
-import { StickyRailJ4 } from '../../components/StickyRailJ4'
+import { cx } from '../../components/primitives'
+import { Assignment, Badge, Campaign, ChevronLeft, ChevronRight, Copyright, Description, DownloadOffline, Draw, Fingerprint, FolderZip, Group, Loyalty, ManageSearch, Pending, PersonAdd, RateReview, Search, Send, Stream, Verified } from '../../components/refIconsJ4'
+import { useSearchApi } from '../../components/searchContext'
 import { TrackQuickFormJ4 } from '../../components/TrackQuickFormJ4'
-import { Label } from '../../components/primitives'
-import { ArrowRight, Book, FactCheck, Shield, Submit, Track, type IconProps } from '../../icons'
+import type { IconProps } from '../../icons'
+import { splitIssueName } from './Hero'
+import { Box } from './parts'
 
-const card = 'rounded-pane border border-abyss-200 bg-white shadow-hair'
+const card = 'p-5'
 
-function Card({ title, icon: Icon, id, children, aside }: { title: string; icon?: ComponentType<IconProps>; id: string; children: ReactNode; aside?: string }) {
+const monoTag = (t: string, cls = 'bg-slate-100 text-slate-600') => <span className={cx('rounded px-1.5 py-0.5 font-mono text-[10px]', cls)}>{t}</span>
+const longDate = (iso: string) => new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+const field = 'block w-full rounded border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono text-xs text-slate-900 placeholder:text-slate-500 focus:border-azure-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-azure-600/20 focus-visible:!outline-none'
+const solid = 'flex w-full items-center justify-center gap-1.5 rounded bg-cobalt-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-cobalt-800'
+
+function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
+  const [issueName, month] = splitIssueName(cfp.issueName)
+  const short = issueName.replace('Volume ', 'Vol ').replace('Issue ', 'Iss ')
+  const rows: [string, string, string?][] = [
+    ['Submission Deadline:', longDate(cfp.deadline)],
+    ['First Decision:', `~${cfp.avgReviewDays} Days`, 'text-emerald-700'],
+    ['Expected Publication:', longDate(cfp.expectedPublication), 'text-sky-800'],
+  ]
   return (
-    <section aria-labelledby={id} className={card}>
-      <h2 id={id} className="flex items-center gap-2 border-b border-abyss-200 bg-abyss-50 px-4 py-2.5 font-serif4 text-base font-semibold text-abyss-900">
-        {Icon && <Icon className="h-5 w-5 text-cobalt-700" aria-hidden="true" />}{title}
-        {aside && <span className="ml-auto text-xs font-semibold text-steel-600">{aside}</span>}
-      </h2>
-      <div className="p-4">{children}</div>
-    </section>
+    <Box aria-labelledby="j4-side-cfp" className={cx(card, '!border-[#bfdbfe]')}>
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+        <h2 id="j4-side-cfp" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700"><Campaign className="h-4 w-4" aria-hidden="true" />Call for Papers</h2>
+        <span className="rounded bg-sky-100 px-2 py-0.5 font-mono text-[10px] font-bold text-cobalt-800">{short}</span>
+      </div>
+      <div className="mt-3 space-y-2">
+        <p className="font-serif4 text-base font-extrabold leading-tight text-[#0b2545]">{issueName}</p>
+        {month && <p className="text-xs font-bold text-cobalt-700">{month} Edition</p>}
+        <p className="text-xs leading-normal text-slate-600">Submissions invited for the next regular issue. Topics span engineering research and engineering management.</p>
+        <dl className="space-y-1.5 rounded-[8px] border border-amber-200 bg-amber-50 p-2.5 text-xs">
+          {rows.map(([k, v, tone], i) => (
+            <div key={k} className={cx('flex items-center justify-between gap-2', i === 0 ? 'font-semibold text-amber-950' : 'text-[11px] text-amber-900')}>
+              <dt className={i === 0 ? 'text-slate-700' : 'text-slate-600'}>{k}</dt>
+              <dd className={cx('font-bold', tone)}>{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <ButtonLink to={paths.submit} variant="cta" className="w-full !rounded !px-3 !py-2 !text-xs"><Send className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
+      </div>
+    </Box>
   )
 }
 
-function CallCard({ cfp }: { cfp: CallForPapers }) {
-  const [issueName] = cfp.issueName.split(' — ')
+const TILES = ['border-sky-200 bg-[#e0effe] text-cobalt-700', 'border-amber-200 bg-amber-50 text-amber-700', 'border-emerald-200 bg-emerald-50 text-emerald-700']
+const KINDS = ['text-cobalt-700', 'text-amber-700', 'text-emerald-700']
+
+function Announcements({ notices }: { notices: { date: string; text: string }[] }) {
+  const list = notices.slice(0, 3)
+  const [i, setI] = useState(0)
+  const [hold, setHold] = useState(false)
+  const id = useId()
+  const n = list.length
+  useEffect(() => {
+    if (n < 2 || hold || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    const t = window.setInterval(() => setI((x) => (x + 1) % n), 6000)
+    return () => window.clearInterval(t)
+  }, [n, hold])
+  if (!n) return null
+  const go = (d: number) => setI((x) => (x + d + n) % n)
   return (
-    <section aria-labelledby="j4-cfp" className="relative isolate overflow-hidden rounded-pane bg-abyss-900 p-4 text-white">
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:linear-gradient(to_bottom_left,black,transparent_80%)]" />
-      <Label className="text-azure-300">Call for papers</Label>
-      <h2 id="j4-cfp" className="mt-1.5 font-serif4 text-xl font-semibold leading-tight">Submit to {issueName}</h2>
-      <p className="mt-1 text-[13px] text-abyss-200">Submission window closes {formatDate(cfp.deadline.slice(0, 10))}</p>
-      <div className="mt-3"><CountdownJ4 deadline={cfp.deadline} /></div>
-      <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-ctl border border-white/15 bg-white/5 p-2"><dt className="text-abyss-300">First decision</dt><dd className="mt-0.5 font-semibold tabular-nums">~{cfp.avgReviewDays} days</dd></div>
-        <div className="rounded-ctl border border-white/15 bg-white/5 p-2"><dt className="text-abyss-300">Publication</dt><dd className="mt-0.5 font-semibold tabular-nums">{formatDate(cfp.expectedPublication)}</dd></div>
-      </dl>
-      <ButtonLink to={paths.submit} variant="cta" className="mt-3 w-full"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
-      <ButtonLink to={paths.track} variant="onDark" className="mt-2 w-full"><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</ButtonLink>
-    </section>
+    <Box aria-labelledby={`${id}-h`} className={cx(card, 'relative overflow-hidden')} onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)}>
+      <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
+        <h2 id={`${id}-h`} className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700"><Campaign className="h-5 w-5 text-amber-600" aria-hidden="true" />Announcements</h2>
+        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">Latest Updates</span>
+      </div>
+      <div className="overflow-hidden rounded-[8px]">
+        <ul className="flex transition-transform duration-500 ease-in-out motion-reduce:transition-none" style={{ transform: `translateX(-${i * 100}%)` }} aria-live={hold ? 'polite' : 'off'}>
+          {list.map((a, k) => {
+            const d = new Date(`${a.date}T12:00:00`)
+            return (
+              <li key={a.date + a.text} aria-hidden={k !== i} className="w-full shrink-0 px-0.5">
+                <div className="space-y-2 rounded-[8px] border border-slate-100 bg-slate-50/70 p-3">
+                  <div className="flex items-start gap-2.5">
+                    <div aria-hidden="true" className={cx('flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-md border', TILES[k % 3])}>
+                      <span className="font-serif4 text-2xl font-bold leading-none">{d.getDate()}</span>
+                      <span className="mt-0.5 font-mono text-[9px] font-bold uppercase">{d.toLocaleDateString('en-GB', { month: 'short' })}</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-0.5 flex items-center justify-between text-[10px] text-slate-500"><span className={cx('font-mono font-semibold', KINDS[k % 3])}>Editorial Notice</span><span>{formatDate(a.date)}</span></div>
+                      <p className="font-serif4 text-xs font-bold leading-snug text-[#0b2545]">{a.text}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-[11px] text-slate-500">
+        <div className="flex items-center gap-1.5" role="group" aria-label="Choose announcement">
+          {list.map((a, k) => <button key={a.date + k} type="button" onClick={() => setI(k)} aria-label={`Announcement ${k + 1} of ${n}`} aria-current={k === i} className={cx('rounded-full', k === i ? 'h-2 w-2 bg-azure-600' : 'h-1.5 w-1.5 bg-slate-300 hover:bg-slate-400')} />)}
+        </div>
+        <div className="flex items-center gap-1">
+          <button type="button" onClick={() => go(-1)} aria-label="Previous announcement" title="Previous Announcement" className="flex h-5 w-5 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100"><ChevronLeft className="h-4 w-4" aria-hidden="true" /></button>
+          <button type="button" onClick={() => go(1)} aria-label="Next announcement" title="Next Announcement" className="flex h-5 w-5 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100"><ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
+        </div>
+      </div>
+    </Box>
   )
 }
 
-const POLICIES: [string, string, ComponentType<IconProps>][] = [
-  ['Peer review process', paths.policy('peer-review'), Shield], ['Publication ethics', paths.policy('publication-ethics'), FactCheck],
-  ['Plagiarism policy', paths.policy('plagiarism'), FactCheck], ['Verify a certificate', paths.verify(), QrCode],
+/** DOI / Paper ID lookup: a DOI or Paper ID opens the article directly; anything else runs an archive search. */
+function DoiLookup() {
+  const { onSuggest } = useSearchApi()
+  const { navigate } = useRouter()
+  const id = useId()
+  const [q, setQ] = useState('')
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+  const run = async (e: FormEvent) => {
+    e.preventDefault()
+    const t = q.trim()
+    if (!t) { setErr('Enter a DOI or Paper ID.'); return }
+    setErr(''); setBusy(true)
+    try {
+      const d = await onSuggest(t)
+      if (d.direct?.article) navigate(paths.article(d.direct.paperId))
+      else if (d.direct) setErr(`${d.direct.paperId} is not a published article. Check the ID, or track it if it is a submission.`)
+      else navigate(paths.search(t))
+    } catch { navigate(paths.search(t)) } finally { setBusy(false) }
+  }
+  return (
+    <Box aria-labelledby={`${id}-h`} className={card}>
+      <div className="mb-2 flex items-center gap-2"><Fingerprint className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id={`${id}-h`} className="font-serif4 text-sm font-bold text-[#0b2545]">Crossref DOI Lookup</h2></div>
+      <p className="mb-3 text-xs text-slate-500">Validate direct metadata and the indexed citation record for any {journal.shortName} article.</p>
+      <form onSubmit={run} noValidate className="space-y-2">
+        <label htmlFor={`${id}-q`} className="sr-only">DOI or Paper ID</label>
+        <input id={`${id}-q`} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`${journal.doiPrefix}/${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err} aria-describedby={err ? `${id}-e` : undefined} className={field} />
+        {err && <p id={`${id}-e`} role="alert" className="text-xs font-medium text-red-700">{err}</p>}
+        <button type="submit" disabled={busy} className={cx(solid, 'disabled:opacity-60')}><Search className="h-4 w-4" aria-hidden="true" />{busy ? 'Checking…' : 'Verify DOI Record'}</button>
+      </form>
+    </Box>
+  )
+}
+
+const STREAM = [
+  { tone: 'text-sky-700', chip: 'bg-sky-50 border-sky-100' }, { tone: 'text-amber-700', chip: 'bg-amber-50 border-amber-100' },
+  { tone: 'text-purple-700', chip: 'bg-purple-50 border-purple-100' }, { tone: 'text-emerald-700', chip: 'bg-emerald-50 border-emerald-100' },
 ]
 
-export function LeftRail({ cfp, notices }: { cfp: CallForPapers; notices: { date: string; text: string }[] }) {
+const TEMPLATES: [string, string, string, ComponentType<IconProps>, string][] = [
+  ['Manuscript Template', 'Word and LaTeX', paths.forAuthors('templates'), Description, 'text-blue-600'],
+  ['Author Guidelines', 'Format and ethics', paths.policy('author-guidelines'), Assignment, 'text-emerald-600'],
+  ['APC & Payment', 'Charges and receipts', paths.forAuthors('apc-payment'), FolderZip, 'text-amber-600'],
+]
+
+export function RightRail({ notices, cfp, issue, articles }: { notices: { date: string; text: string }[]; cfp: CallForPapers; issue: IssueSummary; articles: ArticleSummary[] }) {
+  const sum = (k: 'views' | 'downloads' | 'citations') => articles.reduce((t, a) => t + a[k], 0)
+  const metrics: { k: string; v: string; cls: string }[] = [
+    { k: 'Articles in Current Issue', v: String(issue.articleCount), cls: 'rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-bold text-cobalt-700' },
+    { k: 'Views, Current Issue', v: formatNumber(sum('views')), cls: 'rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-bold text-cobalt-700' },
+    { k: 'Downloads, Current Issue', v: formatNumber(sum('downloads')), cls: 'font-semibold text-emerald-700' },
+    { k: 'Citations, Current Issue', v: formatNumber(sum('citations')), cls: 'rounded bg-sky-50 px-1.5 py-0.5 font-bold text-sky-800' },
+    { k: 'First Editorial Decision', v: `~${cfp.avgReviewDays} Days`, cls: 'font-medium text-slate-800' },
+  ]
   return (
-    <StickyRailJ4 label="Call for papers and notices" className="space-y-4">
-      <CallCard cfp={cfp} />
-      {notices.length > 0 && (
-        <Card id="j4-notices" title="Notices" icon={Bell}>
-          <ul className="divide-y divide-abyss-100">
-            {notices.slice(0, 3).map((n) => (
-              <li key={n.date} className="py-2.5 first:pt-0 last:pb-0">
-                <p className="text-xs font-semibold tabular-nums text-cobalt-700">{formatDate(n.date)}</p>
-                <p className="mt-0.5 text-[13px] leading-snug text-steel-700">{n.text}</p>
+    <aside aria-label="Author tools and journal information" className="min-w-0 space-y-6">
+      <CallForPapersCard cfp={cfp} />
+      <Announcements notices={notices} />
+
+      <Box id="track-manuscript-sidebar" aria-labelledby="j4-track" className={card}>
+        <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><ManageSearch className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id="j4-track" className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
+        <p className="mb-3 text-xs text-slate-500">Enter your Paper ID and the corresponding author email to see real-time peer-review progress. No login needed.</p>
+        <TrackQuickFormJ4 variant="ref" />
+      </Box>
+
+      <Box id="copyright-card" aria-labelledby="j4-copyright" className={card}>
+        <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <h2 id="j4-copyright" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700"><Draw className="h-4 w-4" aria-hidden="true" />Copyright Agreement</h2>
+          {monoTag(journal.licence.name)}
+        </div>
+        <p className="mb-3 text-xs leading-relaxed text-slate-600">Authors keep their copyright. Accepted authors sign the copyright form online with an email OTP, from the tracking page.</p>
+        <ButtonLink to={paths.track} variant="outline" className="w-full !rounded !border-slate-300 !bg-slate-100 !px-3 !py-1.5 !text-xs !text-slate-800 hover:!bg-slate-200 hover:!text-slate-800"><Draw className="h-4 w-4 text-azure-600" aria-hidden="true" /> Sign Online Form</ButtonLink>
+      </Box>
+
+      <DoiLookup />
+
+      <Box aria-labelledby="j4-metrics" className={card}>
+        <div className="mb-3 border-b border-slate-100 pb-2"><h2 id="j4-metrics" className="font-serif4 text-sm font-bold text-[#0b2545]">Journal Metrics</h2><p className="text-[11px] text-slate-500">Current issue, Vol. {issue.volume}, Issue {issue.issue}</p></div>
+        <dl className="space-y-2.5 text-xs">
+          {metrics.map((m, i) => (
+            <div key={m.k} className={cx('flex items-center justify-between gap-3', i < metrics.length - 1 && 'border-b border-slate-100 pb-1.5')}>
+              <dt className="text-slate-600">{m.k}</dt>
+              <dd className={cx('font-mono tabular-nums', m.cls)}>{m.v}</dd>
+            </div>
+          ))}
+        </dl>
+      </Box>
+
+      {articles.length > 0 && (
+        <Box aria-labelledby="j4-stream" className={card}>
+          <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <h2 id="j4-stream" className="flex items-center gap-1.5 text-xs font-bold text-[#0b2545]"><Stream className="h-4 w-4 text-azure-600" aria-hidden="true" />Recent Publications</h2>
+            <span className="flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-700"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />Vol {issue.volume} • Iss {issue.issue}</span>
+          </div>
+          <ul className="space-y-3 text-xs">
+            {articles.slice(0, 4).map((a, i) => (
+              <li key={a.paperId} className={cx('space-y-1', i < 3 && 'border-b border-slate-100 pb-2.5')}>
+                <AppLink to={paths.article(a.paperId)} className="block font-mono text-[11px] font-semibold text-cobalt-700 hover:underline">Paper #{a.paperId}</AppLink>
+                <p className="text-[11px] font-medium leading-snug text-slate-800">{a.title}</p>
+                <p className={cx('flex items-center gap-1.5 text-[10px]', STREAM[i % 4].tone)}>{i % 2 ? <Group className="h-3.5 w-3.5" aria-hidden="true" /> : <Pending className="h-3.5 w-3.5" aria-hidden="true" />}<span className={cx('rounded border px-1.5', STREAM[i % 4].chip)}>{a.subject}</span></p>
               </li>
             ))}
           </ul>
-        </Card>
+        </Box>
       )}
-      <Card id="j4-policies" title="Policies" icon={Shield}>
-        <ul className="-my-1 divide-y divide-abyss-100 text-sm">
-          {POLICIES.map(([label, to, Icon]) => (
-            <li key={label}><AppLink to={to} className="flex items-center justify-between gap-2 py-2.5 font-medium text-abyss-900 hover:text-cobalt-700">{label}<Icon className="h-4 w-4 shrink-0 text-steel-500" aria-hidden="true" /></AppLink></li>
-          ))}
-        </ul>
-      </Card>
-    </StickyRailJ4>
-  )
-}
 
-const DOWNLOADS: [string, string, string, ComponentType<IconProps>][] = [
-  ['Manuscript template', 'Word and LaTeX', paths.forAuthors('templates'), Description],
-  ['Author guidelines', 'Format and ethics checklist', paths.policy('author-guidelines'), Book],
-  ['APC and payment', 'Charges, GST and receipts', paths.forAuthors('apc-payment'), FolderZip],
-]
-
-export function RightRail() {
-  const logos = visibleLogos()
-  return (
-    <StickyRailJ4 label="Author tools" className="space-y-4">
-      <Card id="j4-track" title="Track My Paper" icon={Track} aside="No login">
-        <TrackQuickFormJ4 />
-      </Card>
-      <Card id="j4-downloads" title="Author downloads" icon={Description}>
+      <Box id="template-download" aria-labelledby="j4-templates" className={card}>
+        <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2"><DownloadOffline className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id="j4-templates" className="font-serif4 text-sm font-bold text-[#0b2545]">Manuscript Templates</h2></div>
+        <p className="mb-3 text-xs text-slate-500">Prepare your submission using the official {journal.shortName} formatting guidelines and stylesheet files.</p>
         <ul className="space-y-2">
-          {DOWNLOADS.map(([title, note, to, Icon]) => (
-            <li key={title}>
-              <AppLink to={to} className="flex items-center gap-3 rounded-ctl border border-abyss-200 p-2.5 hover:border-cobalt-700 hover:bg-azure-50">
-                <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-ctl bg-azure-100 text-cobalt-700"><Icon className="h-5 w-5" /></span>
-                <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-abyss-900">{title}</span><span className="block text-xs text-steel-600">{note}</span></span>
-                <ArrowRight className="h-4 w-4 shrink-0 text-steel-500" aria-hidden="true" />
+          {TEMPLATES.map(([t, note, to, Icon, tone]) => (
+            <li key={t}>
+              <AppLink to={to} className="group flex items-center justify-between gap-3 rounded border border-slate-200 bg-slate-50/60 p-2.5 text-xs transition-colors hover:border-sky-300 hover:bg-white">
+                <span className="flex items-center gap-2 font-medium text-slate-700"><Icon className={cx('h-4 w-4', tone)} aria-hidden="true" />{t}</span>
+                <span className="font-mono text-[11px] text-slate-500">{note}</span>
               </AppLink>
             </li>
           ))}
         </ul>
-      </Card>
-      {logos.length > 0 && (
-        <Card id="j4-index" title="Indexing verifier" icon={EventNote} aside={`${logos.length} active`}>
-          <ul className="space-y-2">
-            {logos.map((l) => (
-              <li key={l.id}>
-                <a href={l.verifyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-ctl border border-abyss-200 px-3 py-2 hover:border-cobalt-700">
-                  <span className="flex h-7 w-10 shrink-0 items-center justify-center">{l.file ? <img src={logoSrc(l.file)} alt="" loading="lazy" className="max-h-full max-w-full object-contain" /> : <span className="text-[10px] font-bold text-abyss-900">{l.name.slice(0, 5)}</span>}</span>
-                  <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-abyss-900">{l.name}</span><span className="block text-xs text-steel-600">{l.status}</span></span>
-                  <OpenInNew className="h-4 w-4 shrink-0 text-steel-500" aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-      <Card id="j4-rights" title="Author rights" icon={Rights}>
-        <p className="text-[13px] leading-relaxed text-steel-700">Authors keep their copyright. Every article is published under {journal.licence.name}. Accepted authors sign the copyright form online with an email OTP, from the tracking page.</p>
-        <AppLink to={paths.policy('copyright-licensing')} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-cobalt-700 hover:underline">Read the licensing policy <ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
-      </Card>
-    </StickyRailJ4>
+      </Box>
+
+      <Box id="reviewer-cta" aria-labelledby="j4-reviewer" className="space-y-3 p-4 text-xs">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <h2 id="j4-reviewer" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700"><Badge className="h-4 w-4" aria-hidden="true" />Become a Reviewer</h2>
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Open Call</span>
+        </div>
+        <div className="relative overflow-hidden rounded-[8px] border border-slate-200 bg-gradient-to-br from-[#0b2545] to-[#071527]">
+          <img src="/journals/j4/images/cta-circuit.svg" alt="" loading="lazy" className="h-36 w-full object-cover object-center" />
+          <span className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded bg-slate-900/80 px-2 py-0.5 text-[10px] font-medium text-white"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />Join the {journal.shortName} Reviewer Panel</span>
+        </div>
+        <p className="leading-relaxed text-slate-600">Researchers and practising engineers with published work are invited to join the {journal.shortName} reviewer panel and help shape fair, structured peer review.</p>
+        <ul className="space-y-1.5 pt-1 text-slate-700">
+          {([[Verified, 'Reviewer acknowledgement by the editors'], [Loyalty, 'Review within your own research areas'], [RateReview, 'A direct role in structured peer review']] as [ComponentType<IconProps>, string][]).map(([Icon, t]) => (
+            <li key={t} className="flex items-center gap-2"><Icon className="h-4 w-4 shrink-0 text-azure-600" aria-hidden="true" />{t}</li>
+          ))}
+        </ul>
+        <ButtonLink to={paths.forAuthors('become-a-reviewer')} variant="cta" className="mt-2 w-full !rounded-[6px] !px-3 !py-2 !text-xs"><PersonAdd className="h-4 w-4" aria-hidden="true" /> Apply as Reviewer →</ButtonLink>
+      </Box>
+
+      <Box className="space-y-2 p-4 text-xs">
+        <div className="flex items-center gap-2"><Copyright className="h-4 w-4 text-slate-700" aria-hidden="true" /><h2 className="text-[11px] font-bold uppercase tracking-wide text-slate-800">Creative Commons Licensing</h2></div>
+        <p className="text-[11px] leading-relaxed text-slate-600">All {journal.shortName} research articles are published under the open access <strong className="font-semibold text-slate-800">Creative Commons Attribution 4.0 International License ({journal.licence.name})</strong>, permitting unrestricted reuse with proper scholarly citation.</p>
+        <div className="flex items-center gap-2 pt-1">
+          <span className="inline-block rounded border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-700">CC</span>
+          <span className="inline-block rounded border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-700">BY</span>
+          <AppLink to={paths.policy('open-access')} className="ml-auto text-[11px] font-medium text-cobalt-700 hover:underline">View License Rights</AppLink>
+        </div>
+      </Box>
+    </aside>
   )
 }

@@ -1,66 +1,57 @@
-// Tabbed article lists: Latest, Most Read and Editor's Choice. Every row shows the area and type, the title, author photo chips, the DOI,
-// icon metrics (views, downloads, citations) and PDF / Cite actions. The abstract opens on demand, so no text is cut off.
+// "Recently Published Articles", as in the reference: a serif heading with a Latest / Most Read / Most Cited switch, then compact rows
+// (Volume / Issue, DOI and date line, serif title, authors, two-line abstract, citations chip, icon metrics, Cite, Read Article and PDF).
 import { useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
-import { doiFor, journal } from '../../../../config/journals'
+import { doiFor } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate, formatNumber } from '../../../../core/lib/format'
+import { formatNumber } from '../../../../core/lib/format'
 import { downloadArticlePdf } from '../../../../core/lib/pdf'
 import { AppLink } from '../../../../core/router'
 import type { ArticleSummary, HomeData } from '../../../../core/types'
-import { areaColor } from '../../components/areas'
-import { AuthorChipsJ4 } from '../../components/AuthorChipJ4'
 import { CiteMenu } from '../../components/CiteMenu'
-import { Eye } from '../../components/homeIconsJ4'
-import { cx, Tag } from '../../components/primitives'
-import { ArrowRight, Download, OpenAccess, Quote } from '../../icons'
+import { cx } from '../../components/primitives'
+import { Arrow, Download, Eye, Pdf, Quote } from '../../components/refIconsJ4'
+import { Box } from './parts'
 
-type TabId = 'latest' | 'read' | 'choice'
+type TabId = 'latest' | 'read' | 'cited'
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'latest', label: 'Latest' },
+  { id: 'latest', label: 'Latest Articles' },
   { id: 'read', label: 'Most Read' },
-  { id: 'choice', label: 'Editor’s Choice' },
+  { id: 'cited', label: 'Most Cited' },
 ]
 const SHOWN = 5
-const act = 'inline-flex h-8 items-center gap-1.5 rounded-ctl border border-abyss-300 bg-white px-2.5 text-xs font-semibold text-abyss-900 hover:border-cobalt-700 hover:text-cobalt-700'
+const monthYear = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 
 function Metric({ icon: Icon, n, word }: { icon: typeof Eye; n: number; word: string }) {
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold tabular-nums text-steel-700" title={word}>
-      <Icon className="h-4 w-4 text-steel-500" aria-hidden="true" />{formatNumber(n)}<span className="sr-only"> {word}</span>
+    <span className="inline-flex items-center gap-1 text-[11px] font-medium tabular-nums text-slate-500" title={word}>
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />{formatNumber(n)}<span className="sr-only"> {word}</span>
     </span>
   )
 }
 
 function Row({ a }: { a: ArticleSummary }) {
-  const color = areaColor(a.subject)
   return (
-    <article className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-ctl border px-2 py-0.5 text-xs font-semibold text-abyss-900" style={{ borderColor: `${color}66`, backgroundColor: `${color}12` }}>
-          <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />{a.subject}
-        </span>
-        <Tag>{a.type}</Tag>
-        {journal.badges.openAccess && <Tag tone="azure" icon={<OpenAccess className="h-3.5 w-3.5" aria-hidden="true" />}>Open access</Tag>}
-        <span className="ml-auto text-xs tabular-nums text-steel-600">{formatDate(a.publishedAt)} · pp. {a.pages}</span>
-      </div>
-      <h3 className="mt-2.5 font-serif4 text-lg font-semibold leading-snug text-abyss-900 sm:text-[1.1875rem]">
-        <AppLink to={paths.article(a.paperId)} className="hover:text-cobalt-700">{a.title}</AppLink>
+    <article className="border-b border-slate-100 pb-4">
+      <p className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs text-slate-500">
+        <span className="font-semibold text-cobalt-700">Volume {String(a.volume).padStart(2, '0')} Issue {String(a.issue).padStart(2, '0')}</span>
+        <span aria-hidden="true">•</span><span className="break-all">DOI: {doiFor(a.paperId)}</span>
+        <span aria-hidden="true">•</span><span>{monthYear(a.publishedAt)}</span>
+      </p>
+      <h3 className="mb-1.5 font-serif4 text-sm font-bold leading-snug text-slate-900 md:text-base">
+        <AppLink to={paths.article(a.paperId)} className="transition-colors hover:text-cobalt-700">{a.title}</AppLink>
       </h3>
-      <AuthorChipsJ4 names={a.authors} className="mt-2" />
-      <details className="group mt-2">
-        <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-semibold text-cobalt-700 hover:underline">Abstract</summary>
-        <p className="mt-1.5 text-sm leading-relaxed text-steel-700">{a.abstract}</p>
-      </details>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-abyss-100 pt-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-          <p className="text-xs tabular-nums text-steel-600">DOI {doiFor(a.paperId)}</p>
+      <p className="mb-2 text-xs text-slate-500">{a.authors.join(', ')} • <em>{a.subject}</em></p>
+      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-slate-600">{a.abstract}</p>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs font-medium">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-700">Citations: {a.citations}</span>
           <Metric icon={Eye} n={a.views} word="views" />
           <Metric icon={Download} n={a.downloads} word="downloads" />
-          <Metric icon={Quote} n={a.citations} word={a.citations === 1 ? 'citation' : 'citations'} />
+          <CiteMenu article={a} className="inline-flex items-center gap-1 text-[11px] text-slate-500 underline hover:text-cobalt-700"><Quote className="h-3.5 w-3.5" aria-hidden="true" />Cite</CiteMenu>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          <button type="button" onClick={() => downloadArticlePdf(a)} aria-label={`Download PDF: ${a.title}`} className={act}><Download className="h-3.5 w-3.5" aria-hidden="true" />PDF</button>
-          <CiteMenu article={a} className={act}><Quote className="h-3.5 w-3.5" aria-hidden="true" />Cite</CiteMenu>
+        <div className="flex items-center gap-2">
+          <AppLink to={paths.article(a.paperId)} className="text-cobalt-700 hover:underline">Read Article<span className="sr-only">: {a.title}</span></AppLink>
+          <button type="button" onClick={() => downloadArticlePdf(a)} aria-label={`Download PDF: ${a.title}`} className="flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-800 transition-colors hover:bg-slate-200"><Pdf className="h-3.5 w-3.5" aria-hidden="true" />PDF</button>
         </div>
       </div>
     </article>
@@ -71,7 +62,11 @@ export function ArticleTabs({ data }: { data: HomeData }) {
   const [tab, setTab] = useState<TabId>('latest')
   const base = useId()
   const refs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const lists = useMemo<Record<TabId, ArticleSummary[]>>(() => ({ latest: data.latest, read: data.mostRead, choice: data.editorsChoice }), [data])
+  const lists = useMemo<Record<TabId, ArticleSummary[]>>(() => {
+    const seen = new Map<string, ArticleSummary>()
+    ;[...data.latest, ...data.mostRead, ...data.editorsChoice].forEach((a) => seen.set(a.paperId, a))
+    return { latest: data.latest, read: data.mostRead, cited: [...seen.values()].sort((a, b) => b.citations - a.citations) }
+  }, [data])
   const list = lists[tab].slice(0, SHOWN)
 
   const onKey = (e: KeyboardEvent, i: number) => {
@@ -81,21 +76,23 @@ export function ArticleTabs({ data }: { data: HomeData }) {
   }
 
   return (
-    <section aria-labelledby={`${base}-h`} className="overflow-hidden rounded-pane border border-abyss-200 bg-white shadow-hair">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-abyss-200 bg-abyss-50 px-3 py-2.5 sm:px-4">
-        <h2 id={`${base}-h`} className="sr-only">Browse articles</h2>
-        <div role="tablist" aria-label="Article lists" className="flex flex-wrap items-center gap-1.5">
+    <Box id="archives" aria-labelledby={`${base}-h`} className="p-5 md:p-6">
+      <div className="mb-4 flex flex-col items-start justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
+        <h2 id={`${base}-h`} className="font-serif4 text-xl font-bold text-[#0b2545]">Recently Published Articles</h2>
+        <div role="tablist" aria-label="Article lists" className="flex items-center gap-1 rounded-[8px] bg-slate-100 p-0.5 text-xs font-medium">
           {TABS.map((t, i) => (
             <button key={t.id} ref={(el) => { refs.current[t.id] = el }} type="button" role="tab" id={`${base}-${t.id}`} aria-selected={tab === t.id} aria-controls={`${base}-panel`} tabIndex={tab === t.id ? 0 : -1}
               onClick={() => setTab(t.id)} onKeyDown={(e) => onKey(e, i)}
-              className={cx('rounded-ctl px-3.5 py-2 text-sm font-semibold transition-colors', tab === t.id ? 'bg-abyss-900 text-white' : 'text-abyss-800 hover:bg-abyss-200/60')}>{t.label}</button>
+              className={cx('rounded-md px-3 py-1 transition-colors', tab === t.id ? 'bg-cobalt-700 text-white shadow-[0_1px_2px_rgba(15,23,42,0.2)]' : 'text-slate-600 hover:text-slate-900')}>{t.label}</button>
           ))}
         </div>
-        <AppLink to={paths.search('')} className="inline-flex items-center gap-1 text-sm font-semibold text-cobalt-700 hover:underline">View all articles <ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
       </div>
-      <div role="tabpanel" id={`${base}-panel`} aria-labelledby={`${base}-${tab}`} className="divide-y divide-abyss-200">
+      <div role="tabpanel" id={`${base}-panel`} aria-labelledby={`${base}-${tab}`} className="space-y-4">
         {list.map((a) => <Row key={`${tab}-${a.paperId}`} a={a} />)}
       </div>
-    </section>
+      <div className="pt-3 text-right">
+        <AppLink to={paths.search('')} className="inline-flex items-center gap-1 text-xs font-semibold text-cobalt-700 hover:text-cobalt-800">View All Articles <Arrow className="h-4 w-4" aria-hidden="true" /></AppLink>
+      </div>
+    </Box>
   )
 }

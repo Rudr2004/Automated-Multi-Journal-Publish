@@ -7,6 +7,7 @@ import { AppLink } from '../../../core/router'
 import type { CertificateResult } from '../../../core/types'
 import { Button } from '../components/Button'
 import { Container, Label } from '../components/primitives'
+import { PageHead } from '../components/static/PageHead'
 import { CertificatePaper } from '../components/static/Certificate'
 import { Field, inputClass } from '../components/static/fields'
 import { MdOutlinePrint as Print } from 'react-icons/md'
@@ -43,21 +44,13 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
 
   return (
     <>
-      <header className="relative isolate bg-abyss-900 text-white">
-        <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_80%_20%,black,transparent_75%)]" />
-        </div>
-        <Container className="pb-12 pt-10 sm:pb-14 sm:pt-12">
-          <Label className="text-azure-300">Certificate verification</Label>
-          <h1 className="mt-2 max-w-3xl font-serif4 text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight">Is this certificate genuine?</h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-abyss-200 sm:text-[1.0625rem]">Enter the certificate number printed on an author certificate, or scan its QR code, to confirm that {journal.shortName} issued it.</p>
-        </Container>
-      </header>
+      <PageHead crumbs={[{ label: 'Verify certificate' }]} eyebrow="Certificate verification" title="Is this certificate genuine?"
+        intro={<>Enter the certificate number printed on an author certificate, or scan its QR code, to confirm that {journal.shortName} issued it.</>} />
 
-      <div className="bg-abyss-50"><Container className="py-10 sm:py-12">
+      <div className="bg-abyss-50"><Container className="py-6 sm:py-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="min-w-0">
-          <form onSubmit={submit} noValidate aria-label="Verify a certificate" className="grid gap-4 rounded-pane border border-abyss-200 bg-white p-5 shadow-panel sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+          <form onSubmit={submit} noValidate aria-label="Verify a certificate" className="grid gap-4 rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
             <Field label="Certificate number" name="certificate" required error={error} hint={`Format: ${EXAMPLE}. Co-author certificates end in -A2, -A3 and so on.`}>
               <input className={inputClass(error)} value={id} maxLength={40} autoComplete="off" spellCheck={false} placeholder={EXAMPLE}
                 onChange={(e) => { setId(e.target.value.replace(/\s/g, '')); setError('') }} />
@@ -69,8 +62,8 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
             {result?.valid === true && (
               <div className="space-y-6">
                 <section aria-labelledby="valid-h" className="overflow-hidden rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-5 shadow-panel sm:p-6">
-                  <h2 id="valid-h" ref={heading} tabIndex={-1} className="flex items-center gap-3 font-serif4 text-[1.5rem] font-semibold text-abyss-900 focus:outline-none">
-                    <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-ctl bg-abyss-900 text-azure-300"><Check className="h-5 w-5" /></span>Valid certificate
+                  <h2 id="valid-h" ref={heading} tabIndex={-1} className="flex items-center gap-3 font-serif4 text-[1.5rem] font-semibold text-[#0b2545] focus:outline-none">
+                    <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-ctl border border-azure-200 bg-azure-50 text-cobalt-700"><Check className="h-5 w-5" /></span>Valid certificate
                   </h2>
                   <p className="mt-2 inline-flex rounded-ctl border border-azure-200 bg-azure-50 px-2 py-0.5 text-xs font-semibold text-azure-800">Record found for {checked.toUpperCase()}</p>
                   <dl className="mt-4 grid gap-x-4 gap-y-2 text-base sm:grid-cols-[8rem_minmax(0,1fr)]">
@@ -92,12 +85,12 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
             )}
           </div>
         </div>
-        <aside aria-label="About verification" className="space-y-4 lg:sticky lg:top-24">
+        <aside aria-label="About verification" className="space-y-4 lg:sticky lg:top-16">
           <section className="rounded-pane border border-abyss-200 bg-white p-5 shadow-hair">
             <Label className="text-cobalt-700">How it works</Label>
             <ol className="mt-3 space-y-3 text-sm text-steel-700">
               {['Find the certificate number printed under the signature line.', 'Type it in the box, or scan the QR code on the certificate.', 'We show the matching record, or tell you we hold none.'].map((t, i) => (
-                <li key={t} className="flex gap-3"><span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-ctl bg-abyss-900 text-xs font-semibold tabular-nums text-white">{i + 1}</span><span>{t}</span></li>
+                <li key={t} className="flex gap-3"><span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-azure-200 bg-azure-50 text-xs font-bold tabular-nums text-cobalt-700">{i + 1}</span><span>{t}</span></li>
               ))}
             </ol>
           </section>

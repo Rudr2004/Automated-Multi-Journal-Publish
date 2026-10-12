@@ -33,8 +33,8 @@ export const j4Colors = {
 export const j4Fonts = {
   /** Source Serif 4: journal name, page titles, article titles. */
   serif: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Georgia', 'serif'],
-  /** Work Sans: body text, interface, buttons, tags and table headers. */
-  work: ['"Work Sans Variable"', '"Work Sans"', 'system-ui', 'sans-serif'],
+  /** Inter: body text, interface, buttons, tags and table headers. */
+  work: ['"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
 }
 
 /** Crisp 6–8px corners, set under J4's own names. */

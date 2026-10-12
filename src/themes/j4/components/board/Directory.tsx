@@ -37,7 +37,7 @@ export function Directory({ editors }: { editors: EditorProfile[] }) {
 
   return (
     <section aria-labelledby={`${base}-h`}>
-      <h2 id={`${base}-h`} className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-abyss-900 sm:text-[1.75rem]">Directory</h2>
+      <h2 id={`${base}-h`} className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-[#0b2545] sm:text-[1.75rem]">Directory</h2>
       <form role="search" aria-label="Filter the editorial directory" onSubmit={(e) => e.preventDefault()} className="mt-4 grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div>
           <label htmlFor={`${base}-q`} className="mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-steel-600">Search</label>

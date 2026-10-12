@@ -1,6 +1,6 @@
 // Journal 4 (IJECM) theme: "Scholarly Precision". Registers its pages with the shared containers.
 import '@fontsource-variable/source-serif-4'
-import '@fontsource-variable/work-sans'
+import '@fontsource-variable/inter'
 import type { Theme } from '../../core/theme'
 import { SiteShell } from '../../core/site/SiteShell'
 import { AsyncView } from './components/AsyncView'

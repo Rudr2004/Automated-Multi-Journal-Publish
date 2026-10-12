@@ -27,7 +27,7 @@ export function Success({ paperId, email, title }: { paperId: string; email: str
   useEffect(() => { head.current?.focus() }, [])
   return (
     <div>
-      <section aria-labelledby="done-h" className="relative isolate bg-abyss-900 text-white">
+      <section aria-labelledby="done-h" className="relative isolate bg-[#0b2545] text-white">
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.10)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_30%_20%,black,transparent_75%)]" />
         <Container className="py-12 sm:py-16">
           <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-ctl bg-azure-400 text-abyss-900"><Check className="h-6 w-6" /></span>

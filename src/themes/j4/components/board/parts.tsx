@@ -43,10 +43,10 @@ export function Leadership({ editors }: { editors: EditorProfile[] }) {
   if (!chief && leaders.length === 0) return null
   return (
     <section aria-labelledby="lead-h" className="mb-10">
-      <h2 id="lead-h" className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-abyss-900 sm:text-[1.75rem]">Journal leadership</h2>
+      <h2 id="lead-h" className="font-serif4 text-[1.5rem] font-semibold tracking-tight text-[#0b2545] sm:text-[1.75rem]">Journal leadership</h2>
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {chief && (
-          <article className="rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-5 shadow-panel">
+          <article className="rounded-pane border border-abyss-200 border-t-4 border-t-azure-600 bg-white p-5 shadow-hair">
             <Label className="text-cobalt-700">Editor-in-Chief</Label>
             <div className="mt-3 flex items-start gap-4">
               <Portrait editor={chief} size="h-24 w-24" text="text-2xl" />

@@ -16,7 +16,7 @@ export function applyFilters(articles: ArticleSummary[], f: IssueFilters): Artic
   const t = f.text.trim().toLowerCase()
   const list = articles.filter((a) =>
     (!f.area || a.subject === f.area) && (!f.type || a.type === f.type) &&
-    (!t || a.title.toLowerCase().includes(t) || a.subject.toLowerCase().includes(t) || a.authors.some((n) => n.toLowerCase().includes(t))))
+    (!t || a.title.toLowerCase().includes(t) || a.subject.toLowerCase().includes(t) || a.paperId.toLowerCase().includes(t) || a.authors.some((n) => n.toLowerCase().includes(t))))
   const by: Record<IssueSort, (a: ArticleSummary, b: ArticleSummary) => number> = {
     pages: (a, b) => startPage(a) - startPage(b),
     title: (a, b) => a.title.localeCompare(b.title),

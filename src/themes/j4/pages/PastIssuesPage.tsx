@@ -1,11 +1,16 @@
-// Past issues as an archive matrix (volumes by issue number) with a filterable list of every archived article below.
+// Past issues (reference language: cover showcase card, white hairline cards on the slate canvas): a header card with the latest cover, the archive matrix
+// (volumes by issue number) and a filterable list of every archived article below.
 import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { journal } from '../../../config/journals'
-import { formatNumber } from '../../../core/lib/format'
+import { paths } from '../../../config/routes'
+import { formatMonthYear, formatNumber } from '../../../core/lib/format'
+import { AppLink } from '../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../core/types'
-import { PageBand } from '../components/PageBand'
-import { Container, EmptyState, SectionHead } from '../components/primitives'
+import { buttonClass } from '../components/Button'
+import { IssueCover } from '../components/IssueCover'
+import { Container, EmptyState } from '../components/primitives'
+import { ArrowRight, Send } from '../icons'
 import { ArchiveList } from './archive/ArchiveList'
 import { ArchiveMatrix, type VolumeRow } from './archive/ArchiveMatrix'
 
@@ -19,54 +24,88 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
     })
   }, [issues])
   const stats: [string, string][] = [['Volumes', String(rows.length)], ['Issues', String(issues.length)], ['Articles', formatNumber(articles.length)]]
+  const latest = issues.find((i) => i.isCurrent) ?? [...issues].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0]
 
   return (
-    <>
+    <div className="bg-abyss-50">
       <Helmet><title>{`Past issues | ${journal.shortName}`}</title></Helmet>
-      <PageBand label="Archive" title="Past issues"
-        aside={
-          <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-pane border border-white/15 bg-white/15 text-center tabular-nums">
-            {stats.map(([k, v]) => <div key={k} className="bg-abyss-800 px-5 py-3"><dt className="text-xs font-semibold uppercase tracking-[0.06em] text-abyss-300">{k}</dt><dd className="mt-1 font-serif4 text-2xl font-semibold">{v}</dd></div>)}
-          </dl>
-        }>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-abyss-200 sm:text-[1.0625rem]">Every issue of {journal.name}. Choose a published issue in the matrix to open its table of contents, or search all articles below.</p>
-      </PageBand>
+      <Container className="py-6 sm:py-8">
+        <nav aria-label="Breadcrumb" className="mb-5">
+          <ol className="flex flex-wrap items-center gap-x-2 text-xs text-steel-600">
+            <li><AppLink to={paths.home} className="hover:text-cobalt-700 hover:underline">Home</AppLink></li><li aria-hidden="true" className="text-abyss-400">/</li>
+            <li aria-current="page" className="font-medium text-abyss-900">Archive</li>
+          </ol>
+        </nav>
 
-      <Container className="py-12 sm:py-16">
-        <SectionHead label="Issue matrix" title="Volumes and issues" text="Each volume holds up to twelve monthly issues. Greyed cells have not been published yet." />
-        {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
-          <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-            <aside aria-label="Archive overview" className="lg:sticky lg:top-16 lg:self-start">
-              <div className="rounded-pane border border-abyss-200 bg-white shadow-hair">
-                <h3 className="border-b border-abyss-200 bg-abyss-50 px-4 py-3 font-serif4 text-base font-semibold text-abyss-900">Jump to volume</h3>
-                <ul className="divide-y divide-abyss-100 text-sm">
-                  {rows.map((r) => (
-                    <li key={r.volume}>
-                      <a href={`#vol-${r.volume}`} className="flex min-h-11 items-center justify-between gap-3 px-4 py-2 text-abyss-900 hover:bg-azure-50 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-azure-600 lg:min-h-10">
-                        <span className="font-medium">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></span>
-                        <span className="tabular-nums text-steel-600">{r.articles}<span className="sr-only"> articles</span></span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <div className="space-y-2 border-t border-abyss-200 p-4 text-[13px] text-steel-700">
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-azure-600 bg-azure-50" />Current issue</p>
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-abyss-300 bg-white" />Published issue</p>
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-abyss-300 bg-abyss-50" />Not yet published</p>
+        <section aria-labelledby="archive-title" className="rounded-pane border border-sky-200 bg-white p-4 shadow-hair sm:p-6">
+          <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_13rem] lg:gap-10">
+            <div className="min-w-0 space-y-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-cobalt-700">Archive</p>
+              <h1 id="archive-title" className="font-serif4 text-2xl font-bold leading-tight tracking-tight text-[#0b2545] md:text-[2rem]">Past issues</h1>
+              <p className="max-w-2xl text-sm leading-relaxed text-abyss-700">Every issue of {journal.name}. Choose a published issue in the matrix to open its table of contents, or search all articles below.</p>
+              <dl className="grid max-w-md grid-cols-3 gap-3 rounded-pane border border-abyss-200 bg-abyss-50 px-3.5 py-3 text-xs tabular-nums">
+                {stats.map(([k, v]) => <div key={k}><dt className="text-[11px] text-steel-600">{k}</dt><dd className="mt-0.5 font-serif4 text-xl font-bold text-abyss-900">{v}</dd></div>)}
+              </dl>
+              {latest && (
+                <div className="flex flex-wrap gap-2">
+                  <AppLink to={paths.issue(latest.volume, latest.issue)} className={buttonClass('cta', 'min-h-11 px-3.5 py-2 text-xs lg:min-h-9')}>Open latest issue<ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
+                  <AppLink to={paths.submit} className={buttonClass('outline', 'min-h-11 px-3.5 py-2 text-xs lg:min-h-9')}><Send className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Submit manuscript</AppLink>
                 </div>
-              </div>
-            </aside>
-            <ArchiveMatrix rows={rows} />
+              )}
+            </div>
+            {latest && (
+              <AppLink to={paths.issue(latest.volume, latest.issue)} aria-label={`Open Volume ${latest.volume}, Issue ${latest.issue}, ${formatMonthYear(latest.month)}`}
+                className="mx-auto block w-40 rounded-pane transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:w-full">
+                <IssueCover issue={latest} />
+              </AppLink>
+            )}
           </div>
-        )}
+        </section>
+
+        <section aria-labelledby="archive-matrix" className="mt-8">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-cobalt-700">Issue matrix</p>
+            <h2 id="archive-matrix" className="mt-1 font-serif4 text-xl font-bold text-[#0b2545] md:text-2xl">Volumes and issues</h2>
+            <p className="mt-1 text-sm text-abyss-700">Each volume holds up to twelve monthly issues. Greyed cells have not been published yet.</p>
+          </div>
+          {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
+            <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+              <aside aria-label="Archive overview" className="lg:sticky lg:top-16 lg:self-start">
+                <div className="rounded-pane border border-abyss-200 bg-white shadow-hair">
+                  <h3 className="border-b border-abyss-200 bg-abyss-50 px-4 py-3 font-serif4 text-base font-bold text-[#0b2545]">Jump to volume</h3>
+                  <ul className="divide-y divide-abyss-100 text-sm">
+                    {rows.map((r) => (
+                      <li key={r.volume}>
+                        <a href={`#vol-${r.volume}`} className="flex min-h-11 items-center justify-between gap-3 border-l-[3px] border-transparent px-4 py-2 text-abyss-900 hover:border-azure-600 hover:bg-azure-50 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-azure-600 lg:min-h-10">
+                          <span className="font-medium">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></span>
+                          <span className="tabular-nums text-steel-600">{r.articles}<span className="sr-only"> articles</span></span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="space-y-2 border-t border-abyss-200 p-4 text-[13px] text-steel-700">
+                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-azure-600 bg-azure-50" />Current issue</p>
+                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-abyss-300 bg-white" />Published issue</p>
+                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-abyss-300 bg-abyss-50" />Not yet published</p>
+                  </div>
+                </div>
+              </aside>
+              <ArchiveMatrix rows={rows} />
+            </div>
+          )}
+        </section>
       </Container>
 
-      <section aria-labelledby="archive-articles" className="border-t border-abyss-200 bg-white py-12 sm:py-16">
+      <section aria-labelledby="archive-articles" className="border-t border-abyss-200 py-10 sm:py-12">
         <Container>
-          <SectionHead id="archive-articles" label="Archive search" title="All archived articles" text="Filter by research area, article type or issue, or search by title and author." />
+          <div className="mb-5">
+            <p className="text-xs font-bold uppercase tracking-wider text-cobalt-700">Archive search</p>
+            <h2 id="archive-articles" className="mt-1 font-serif4 text-xl font-bold text-[#0b2545] md:text-2xl">All archived articles</h2>
+            <p className="mt-1 text-sm text-abyss-700">Filter by research area, article type or issue, or search by title and author.</p>
+          </div>
           <ArchiveList articles={articles} />
         </Container>
       </section>
-    </>
+    </div>
   )
 }

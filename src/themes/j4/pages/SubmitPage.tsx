@@ -1,18 +1,20 @@
-// Journal 4 submission: a dark title band, then a sticky manuscript checklist beside one long numbered form, then a success screen.
+// Journal 4 submission (reference layout): banner with stepper, then the lettered form cards (8 of 12) beside the helper sidebar (4 of 12), then a success screen.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../../../core/lib/draft'
+import { clearDraft, isPristine, loadDraft, saveDraftNow, useAutosave, type Draft } from '../../../core/lib/draft'
 import { formatDate } from '../../../core/lib/format'
 import { initialForm, validateStep, type SubmissionForm } from '../../../core/lib/submission'
 import { useVisibleErrors } from '../../../core/lib/useVisibleErrors'
+import { api } from '../../../core/api'
 import { Button } from '../components/Button'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { History } from '../icons'
+import { PreFooter } from './home/Closing'
 import { AuthorsSection } from './submit/AuthorsSection'
-import { Checklist } from './submit/Checklist'
-import { StepTracker, SubmitHeader } from './submit/Header'
+import { SubmitAside } from './submit/Aside'
+import { SubmitHeader } from './submit/Header'
 import { DetailsSection } from './submit/DetailsSection'
-import { DeclarationsSection, FilesSection } from './submit/FilesSections'
+import { DeclarationsSection, FilesSection, ReferralSection } from './submit/FilesSections'
 import { ReviewSection } from './submit/ReviewSection'
 import { errorCounts, type SectionId } from './submit/shared'
 import { Success } from './submit/Success'
@@ -92,36 +94,42 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
 
   if (paperId) return <Success paperId={paperId} email={submittedEmail.current || form.author.email || 'your email address'} title={form.title} />
 
+  const saveNow = () => {
+    const at = saveDraftNow(form, 0)
+    toast(at ? 'Draft saved on this device.' : 'Could not save a draft in this browser.', at ? 'success' : 'error')
+  }
+
   const props = { form, errors, setForm }
   return (
-    <div>
-      <SubmitHeader />
-
-      <div className="bg-abyss-50 py-8 sm:py-12">
-        <Container>
-          {pendingDraft && (
-            <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-pane border border-azure-200 bg-white p-4 shadow-hair">
-              <p className="flex items-start gap-2 text-[15px] text-abyss-900">
-                <History className="mt-0.5 h-5 w-5 shrink-0 text-cobalt-700" aria-hidden="true" />
-                <span>A draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong> was found{pendingDraft.form.title && <>: “{pendingDraft.form.title}”</>}.</span>
-              </p>
-              <div className="flex flex-wrap gap-2"><Button variant="cta" className="min-h-[44px]" onClick={resume}>Restore draft</Button><Button variant="outline" className="min-h-[44px]" onClick={discard}>Start fresh</Button></div>
-            </div>
-          )}
-          <div className="grid items-start gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-8">
-            <Checklist counts={counts} onJump={jump} savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
+    <div className="bg-slate-50 pb-8 pt-6 sm:pb-12">
+      <Container>
+        {pendingDraft && (
+          <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-white p-4 shadow-sm">
+            <p className="flex items-start gap-2 text-sm text-[#0b2545]">
+              <History className="mt-0.5 h-5 w-5 shrink-0 text-sky-700" aria-hidden="true" />
+              <span>A draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong> was found{pendingDraft.form.title && <>: “{pendingDraft.form.title}”</>}.</span>
+            </p>
+            <div className="flex flex-wrap gap-2"><Button variant="cta" className="min-h-[44px]" onClick={resume}>Restore draft</Button><Button variant="outline" className="min-h-[44px]" onClick={discard}>Start fresh</Button></div>
+          </div>
+        )}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          <div className="min-w-0 space-y-6 lg:col-span-8">
+            <section aria-labelledby="submit-h"><SubmitHeader counts={counts} onJump={jump} /></section>
             <form ref={formRef} noValidate onSubmit={submit} onBlur={onBlur} aria-label="Manuscript submission" className="min-w-0 space-y-6">
-              <div className="lg:hidden"><StepTracker counts={counts} onJump={jump} /></div>
               <DetailsSection {...props} />
               <AuthorsSection {...props} />
               <FilesSection {...props} />
               <DeclarationsSection {...props} />
-              <ReviewSection form={form} missing={missing} busy={busy} submitError={submitError} onJump={jump} />
+              <ReferralSection {...props} />
+              <ReviewSection form={form} missing={missing} busy={busy} submitError={submitError} onJump={jump} onSaveDraft={saveNow}
+                savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
               <p role="status" className="sr-only">{announce}</p>
             </form>
           </div>
-        </Container>
-      </div>
+          <div className="min-w-0 lg:col-span-4"><SubmitAside /></div>
+        </div>
+        <div className="mt-10"><PreFooter onSubscribe={(email) => api.subscribe(email)} /></div>
+      </Container>
     </div>
   )
 }
