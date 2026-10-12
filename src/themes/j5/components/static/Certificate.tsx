@@ -32,37 +32,40 @@ const corner = 'pointer-events-none absolute h-3 w-3 rotate-45 bg-ochre-700'
 
 export function CertificatePaper({ data, number }: { data: CertificateData; number: string }) {
   return (
-    <div id="certificate-print" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} className="relative overflow-hidden rounded-sm border-2 border-wine-800 bg-[#FFFBF3] p-3 text-center sm:p-4">
+    <div id="certificate-print" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+    {/* The shared print rule makes #certificate-print position: static, so the positioned frame and its clipped decorations live one level in. */}
+    <div className="relative overflow-hidden rounded-sm border-2 border-wine-800 bg-[#FFFBF3] p-3 text-center sm:p-4">
       <div aria-hidden="true" className="pointer-events-none absolute inset-[7px] border border-ochre-700" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-[12px] border-[3px] border-double border-wine-800/70" />
       <span aria-hidden="true" className={`${corner} left-[5px] top-[5px]`} /><span aria-hidden="true" className={`${corner} right-[5px] top-[5px]`} />
       <span aria-hidden="true" className={`${corner} bottom-[5px] left-[5px]`} /><span aria-hidden="true" className={`${corner} bottom-[5px] right-[5px]`} />
       <img aria-hidden="true" alt="" src="/journals/j5/images/orbits.svg" className="pointer-events-none absolute left-1/2 top-1/2 w-[120%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-[0.07] [filter:sepia(1)_saturate(3)_hue-rotate(-20deg)]" />
-      <div className="relative px-4 pb-4 pt-8 sm:px-12 sm:pb-6 sm:pt-10">
-        <p className="font-newsreader text-[2.25rem] font-semibold leading-none tracking-[0.12em] text-wine-800 sm:text-5xl">{journal.shortName}</p>
+      <div className="relative px-4 pb-4 pt-8 sm:px-12 sm:pb-6 sm:pt-10 print:!pb-3 print:!pt-5">
+        <p className="font-newsreader text-[2.25rem] font-semibold leading-none tracking-[0.12em] text-wine-800 sm:text-5xl print:!text-[2.5rem]">{journal.shortName}</p>
         <p className="mx-auto mt-2 max-w-md font-work text-[11px] font-semibold uppercase leading-relaxed tracking-[0.16em] text-ochre-800">{journal.name}</p>
-        <OrnamentRule className="mx-auto mt-4 max-w-sm" />
-        <h3 className="mt-5 font-newsreader text-[1.75rem] font-semibold leading-tight text-obsidian-900 sm:text-[2.5rem]">Certificate of Publication</h3>
-        <p className="mt-5 font-serif4 text-sm italic text-obsidian-600">This is to certify that</p>
-        <p className="mx-auto mt-1 max-w-xl break-words border-b border-ochre-700/50 pb-2 font-newsreader text-[1.75rem] font-semibold leading-tight text-wine-800 sm:text-[2.5rem]">{data.author}</p>
-        <p className="mt-4 font-serif4 text-sm italic text-obsidian-600">is an author of the open access article</p>
+        <OrnamentRule className="mx-auto mt-4 max-w-sm print:!mt-2" />
+        <h3 className="mt-5 font-newsreader text-[1.75rem] font-semibold leading-tight text-obsidian-900 sm:text-[2.5rem] print:!mt-3 print:!text-[2rem]">Certificate of Publication</h3>
+        <p className="mt-5 font-serif4 text-sm italic text-obsidian-600 print:!mt-3">This is to certify that</p>
+        <p className="mx-auto mt-1 max-w-xl break-words border-b border-ochre-700/50 pb-2 font-newsreader text-[1.75rem] font-semibold leading-tight text-wine-800 sm:text-[2.5rem] print:!text-[2rem]">{data.author}</p>
+        <p className="mt-4 font-serif4 text-sm italic text-obsidian-600 print:!mt-2">is an author of the open access article</p>
         <p className="mx-auto mt-2 max-w-2xl font-newsreader text-base font-medium italic leading-snug text-obsidian-900 sm:text-xl">“{data.title}”</p>
-        <p className="mt-4 font-work text-[13px] tabular-nums text-obsidian-700">{data.volume ? <>Volume {data.volume}, Issue {data.issue} · </> : null}Published {formatDate(data.publishedAt)}</p>
+        <p className="mt-4 font-work text-[13px] tabular-nums text-obsidian-700 print:!mt-2">{data.volume ? <>Volume {data.volume}, Issue {data.issue} · </> : null}Published {formatDate(data.publishedAt)}</p>
         <p className="break-all font-work text-[13px] tabular-nums text-obsidian-700">DOI {doiFor(data.paperId)}</p>
-        <div className="mt-7 grid items-end gap-5 border-t border-ochre-700/40 pt-5 sm:grid-cols-[1fr_auto_1fr]">
+        <div className="mt-7 grid items-end gap-5 border-t border-ochre-700/40 pt-5 sm:grid-cols-[1fr_auto_1fr] print:!mt-4 print:!pt-3">
           <div className="text-center sm:text-left">
-            <div className="mx-auto h-9 w-44 border-b border-obsidian-700 sm:mx-0" aria-hidden="true" />
+            <div className="mx-auto h-9 w-44 print:!h-6 border-b border-obsidian-700 sm:mx-0" aria-hidden="true" />
             <p className="mt-1.5 font-newsreader text-base font-semibold text-obsidian-900">Editor-in-Chief</p>
             <p className="font-work text-xs text-obsidian-600">{journal.name}</p>
             <p className="mt-2 break-all font-work text-xs text-obsidian-600">Certificate no. <strong className="tabular-nums text-obsidian-900">{number}</strong></p>
           </div>
-          <div className="flex justify-center"><Seal /></div>
+          <div className="flex justify-center"><Seal className="h-24 w-24 print:!h-20 print:!w-20" /></div>
           <div className="flex items-center justify-center gap-3 sm:justify-end">
             <div className="text-right font-work text-xs text-obsidian-600"><p className="font-semibold text-obsidian-900">Scan to verify</p><p>{journal.domain}</p></div>
             <QRCodeSVG value={certificateUrl(number)} size={84} level="M" fgColor="#4C0519" bgColor="transparent" role="img" aria-label={`QR code for certificate ${number}`} />
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
