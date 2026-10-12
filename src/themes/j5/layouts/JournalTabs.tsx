@@ -6,7 +6,7 @@ import { cx } from '../components/primitives'
 export function JournalTabs() {
   return (
     <nav aria-label="Our journals" className="bg-obsidian-900">
-      <ul className="mx-auto grid max-w-[1240px] grid-cols-5 gap-1 px-2 py-1.5 sm:px-4">
+      <ul className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 py-1.5 sm:px-4">
         {network.map((j) => {
           const active = j.code === journal.shortName
           const href = networkHref(j)

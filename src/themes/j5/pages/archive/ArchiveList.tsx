@@ -1,16 +1,27 @@
-// Searchable, filterable list of every archived article (by text, research area, article type and issue), newest first, with a sticky filter rail.
+// Searchable, filterable list of every archived article (text, research area, article type, issue), newest first. The filter card follows the
+// issue reference's left panel (labels, grey controls); results are the same article cards as the issue page.
 import { useEffect, useId, useMemo, useState } from 'react'
+import { MdOutlineExpandMore as ExpandMore } from 'react-icons/md'
 import type { ArticleSummary } from '../../../../core/types'
 import { ARTICLE_TYPES } from '../../../../core/types'
 import { ArticleRow } from '../../components/ArticleRow'
 import { Button } from '../../components/Button'
 import { areas } from '../../components/areas'
-import { FIELD } from '../../components/PageBand'
-import { EmptyState } from '../../components/primitives'
+import { cx, EmptyState } from '../../components/primitives'
 import { Search } from '../../icons'
 
 const STEP = 10
-const lab = 'mb-1.5 block font-work text-[11px] font-semibold uppercase tracking-[0.12em] text-wine-800'
+const LABEL = 'block font-work text-base font-normal uppercase tracking-wider text-[#564241]'
+const CTRL = 'w-full rounded border border-[#6B7280] bg-[#F4F5FC] font-work text-base text-[#141B2B] placeholder:text-[#6F5A58] focus:bg-[#E9EDFF] focus:outline-none focus-visible:ring-2 focus-visible:ring-wine-700'
+
+function Select({ id, value, onChange, children }: { id: string; value: string; onChange: (v: string) => void; children: React.ReactNode }) {
+  return (
+    <div className="relative">
+      <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className={cx(CTRL, 'cursor-pointer appearance-none px-3 py-2 pr-9')}>{children}</select>
+      <ExpandMore className="pointer-events-none absolute right-2.5 top-2.5 h-[18px] w-[18px] text-[#6F5A58]" aria-hidden="true" />
+    </div>
+  )
+}
 
 export function ArchiveList({ articles }: { articles: ArticleSummary[] }) {
   const id = useId()
@@ -31,41 +42,39 @@ export function ArchiveList({ articles }: { articles: ArticleSummary[] }) {
   const reset = () => { setQ(''); setArea(''); setType(''); setIss('') }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-      <aside aria-label="Archive filters" className="lg:sticky lg:top-16 lg:self-start">
-        <div role="search" aria-label="Search the archive" className="rounded border border-wine-800/20 border-t-2 border-t-wine-800 bg-white shadow-none">
-          <div className="border-b border-wine-800/15 bg-[#FBF8F4] px-4 py-3">
-            <h3 className="font-newsreader text-lg font-semibold text-obsidian-900">Search the archive</h3>
-            <p role="status" aria-live="polite" className="mt-0.5 text-[13px] tabular-nums text-obsidian-600">{dirty ? `${rows.length} of ${articles.length} articles match` : `${articles.length} articles in the archive`}</p>
+    <div className="grid items-start gap-8 lg:grid-cols-12">
+      <aside aria-label="Archive filters" className="min-w-0 lg:col-span-3 lg:sticky lg:top-16">
+        <div role="search" aria-label="Search the archive" className="space-y-6 rounded bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-2 pb-1">
+            <h3 className="font-newsreader text-base text-[#141B2B]">Search the archive</h3>
+            <span role="status" aria-live="polite" className="rounded bg-[#E1E8FD] px-2 py-0.5 font-work text-base tabular-nums text-[#564241]">{dirty ? `${rows.length} of ${articles.length}` : `${articles.length} articles`}</span>
           </div>
-          <div className="space-y-4 p-4">
-            <div>
-              <label htmlFor={`${id}-q`} className={lab}>Title or author</label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-obsidian-500" aria-hidden="true" />
-                <input id={`${id}-q`} type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder="Search all issues" className={`${FIELD} w-full pl-9`} />
-              </div>
+          <div className="space-y-1.5">
+            <label htmlFor={`${id}-q`} className={LABEL}>Title or Author</label>
+            <div className="relative flex items-center">
+              <Search className="pointer-events-none absolute left-2.5 h-[18px] w-[18px] text-[#6F5A58]" aria-hidden="true" />
+              <input id={`${id}-q`} type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder="Search all issues" className={cx(CTRL, 'py-1.5 pl-9 pr-3')} />
             </div>
-            <div>
-              <label htmlFor={`${id}-a`} className={lab}>Research area</label>
-              <select id={`${id}-a`} value={area} onChange={(e) => setArea(e.target.value)} className={`${FIELD} w-full`}><option value="">All areas</option>{areas.map((a) => <option key={a.id} value={a.name}>{a.name}</option>)}</select>
-            </div>
-            <div>
-              <label htmlFor={`${id}-t`} className={lab}>Article type</label>
-              <select id={`${id}-t`} value={type} onChange={(e) => setType(e.target.value)} className={`${FIELD} w-full`}><option value="">All types</option>{ARTICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select>
-            </div>
-            <div>
-              <label htmlFor={`${id}-i`} className={lab}>Issue</label>
-              <select id={`${id}-i`} value={iss} onChange={(e) => setIss(e.target.value)} className={`${FIELD} w-full`}>
-                <option value="">All issues</option>{issueKeys.map((k) => { const [v, n] = k.split('.'); return <option key={k} value={k}>Volume {v}, Issue {n}</option> })}
-              </select>
-            </div>
-            {dirty && <Button variant="outline" onClick={reset} className="h-11 w-full">Clear filters</Button>}
           </div>
+          <div className="space-y-1.5">
+            <label htmlFor={`${id}-a`} className={LABEL}>Research Area</label>
+            <Select id={`${id}-a`} value={area} onChange={setArea}><option value="">All areas</option>{areas.map((a) => <option key={a.id} value={a.name}>{a.name}</option>)}</Select>
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor={`${id}-t`} className={LABEL}>Article Type</label>
+            <Select id={`${id}-t`} value={type} onChange={setType}><option value="">All types</option>{ARTICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</Select>
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor={`${id}-i`} className={LABEL}>Issue</label>
+            <Select id={`${id}-i`} value={iss} onChange={setIss}>
+              <option value="">All issues</option>{issueKeys.map((k) => { const [v, n] = k.split('.'); return <option key={k} value={k}>Volume {v}, Issue {n}</option> })}
+            </Select>
+          </div>
+          {dirty && <button type="button" onClick={reset} className="inline-flex min-h-11 w-full items-center justify-center gap-1 rounded border border-[#DCC0BE]/50 bg-[#E9EDFF] px-3 py-2.5 font-work text-xs font-medium uppercase tracking-wider text-[#141B2B] transition-colors motion-reduce:transition-none hover:bg-[#E1E8FD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">Clear filters</button>}
         </div>
       </aside>
 
-      <div className="min-w-0">
+      <div className="min-w-0 lg:col-span-9">
         {rows.length === 0 ? <EmptyState title="No archived articles match" text="Check the spelling or remove a filter." action={<Button variant="primary" onClick={reset}>Clear filters</Button>} /> : (
           <>
             <ol>{rows.slice(0, shown).map((a) => <ArticleRow key={a.paperId} article={a} terms={term ? [term] : []} />)}</ol>

@@ -1,4 +1,4 @@
-// IJFRD submission: a dark title band, then a sticky manuscript checklist beside one long numbered form, then a success screen.
+// IJFRD submission: breadcrumb and title card with step tiles, a lettered form (8 columns) beside a quick-reference rail (4 columns), then a success screen.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../../../core/lib/draft'
 import { formatDate } from '../../../core/lib/format'
@@ -9,8 +9,8 @@ import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { History } from '../icons'
 import { AuthorsSection } from './submit/AuthorsSection'
-import { Checklist } from './submit/Checklist'
-import { StepTracker, SubmitHeader } from './submit/Header'
+import { SubmitAside } from './submit/Checklist'
+import { SubmitHeader } from './submit/Header'
 import { DetailsSection } from './submit/DetailsSection'
 import { DeclarationsSection, FilesSection } from './submit/FilesSections'
 import { ReviewSection } from './submit/ReviewSection'
@@ -93,35 +93,34 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
   if (paperId) return <Success paperId={paperId} email={submittedEmail.current || form.author.email || 'your email address'} title={form.title} />
 
   const props = { form, errors, setForm }
+  const saveDraft = () => toast(savedAt ? `Draft saved at ${clock(savedAt)} on this device.` : 'Autosave is on. Your draft stays on this device.')
   return (
-    <div>
-      <SubmitHeader />
-
-      <div className="bg-[#FBF8F4] py-8 sm:py-12">
-        <Container>
-          {pendingDraft && (
-            <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded border border-ochre-200 bg-white p-4 ">
-              <p className="flex items-start gap-2 text-[15px] text-obsidian-900">
-                <History className="mt-0.5 h-5 w-5 shrink-0 text-wine-700" aria-hidden="true" />
-                <span>A draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong> was found{pendingDraft.form.title && <>: “{pendingDraft.form.title}”</>}.</span>
-              </p>
-              <div className="flex flex-wrap gap-2"><Button variant="cta" className="min-h-[44px]" onClick={resume}>Restore draft</Button><Button variant="outline" className="min-h-[44px]" onClick={discard}>Start fresh</Button></div>
-            </div>
-          )}
-          <div className="grid items-start gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-8">
-            <Checklist counts={counts} onJump={jump} savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
-            <form ref={formRef} noValidate onSubmit={submit} onBlur={onBlur} aria-label="Manuscript submission" className="min-w-0 space-y-6">
-              <div className="lg:hidden"><StepTracker counts={counts} onJump={jump} /></div>
+    <div className="bg-[#F9F9FF] py-6 sm:py-10">
+      <Container>
+        {pendingDraft && (
+          <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#DCC0BE]/60 bg-white p-4 shadow-sm">
+            <p className="flex items-start gap-2 font-serif4 text-[15px] text-[#141B2B]">
+              <History className="mt-0.5 h-5 w-5 shrink-0 text-wine-800" aria-hidden="true" />
+              <span>A draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong> was found{pendingDraft.form.title && <>: “{pendingDraft.form.title}”</>}.</span>
+            </p>
+            <div className="flex flex-wrap gap-2"><Button variant="cta" className="min-h-[44px]" onClick={resume}>Restore draft</Button><Button variant="outline" className="min-h-[44px]" onClick={discard}>Start fresh</Button></div>
+          </div>
+        )}
+        <div className="grid items-start gap-8 lg:grid-cols-12">
+          <div className="flex min-w-0 flex-col gap-8 lg:col-span-8">
+            <SubmitHeader counts={counts} onJump={jump} savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
+            <form ref={formRef} noValidate onSubmit={submit} onBlur={onBlur} aria-label="Manuscript submission" className="flex min-w-0 flex-col gap-8">
               <DetailsSection {...props} />
               <AuthorsSection {...props} />
               <FilesSection {...props} />
               <DeclarationsSection {...props} />
-              <ReviewSection form={form} missing={missing} busy={busy} submitError={submitError} onJump={jump} />
+              <ReviewSection form={form} missing={missing} busy={busy} submitError={submitError} onJump={jump} onSaveDraft={saveDraft} />
               <p role="status" className="sr-only">{announce}</p>
             </form>
           </div>
-        </Container>
-      </div>
+          <div className="min-w-0 lg:col-span-4 lg:pt-[3.25rem]"><SubmitAside /></div>
+        </div>
+      </Container>
     </div>
   )
 }

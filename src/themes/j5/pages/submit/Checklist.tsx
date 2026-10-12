@@ -1,67 +1,76 @@
-// Sticky left pane of the submission page: manuscript checklist with live completeness, APC note and what happens next.
-import { journal } from '../../../../config/journals'
-import { cx } from '../../components/primitives'
-import { Check } from '../../icons'
-import { SECTIONS, type SectionId } from './shared'
+// Right rail of the submission page (reference order): recent submissions, indexing and archiving, fast-track milestones, editorial assistance.
+import { journal, visibleLogos } from '../../../../config/journals'
+import { paths } from '../../../../config/routes'
+import { AppLink } from '../../../../core/router'
+import type { ReactNode } from 'react'
+import { Feed, Lock, Mail, Phone, Speed, Bolt, Support, VerifiedI } from './mi'
 
-const NEXT = [
-  'Paper ID is sent by email, SMS and WhatsApp.',
-  'An editor screens scope, completeness and similarity.',
-  'Peer review, then a decision with written reasons.',
-  'If accepted: sign the copyright form, then pay the APC.',
+function Card({ icon, title, pill, children, tone = 'white' }: { icon: ReactNode; title: string; pill?: ReactNode; children: ReactNode; tone?: 'white' | 'low' }) {
+  return (
+    <section aria-label={title} className={`flex flex-col gap-3.5 rounded-xl p-5 shadow-sm ${tone === 'white' ? 'border border-[#DCC0BE]/40 bg-white' : 'bg-[#F1F3FF]'}`}>
+      <div className={`flex items-center justify-between gap-2 rounded-lg px-3 py-1.5 ${tone === 'white' ? 'bg-[#F1F3FF]' : ''}`}>
+        <div className="flex items-center gap-2 text-wine-900">{icon}<h2 className="font-newsreader text-base font-bold">{title}</h2></div>
+        {pill}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+const MILESTONES = [
+  { dot: 'bg-wine-900', title: 'Initial Desk Screening', text: 'An editor checks scope, completeness and similarity.' },
+  { dot: 'bg-ochre-700', title: 'Peer Review', text: 'Experts review the work against a published checklist.' },
+  { dot: 'bg-bordeaux-700', title: 'Publication & DOI', text: 'Layout, Crossref DOI and author certificates.' },
 ]
 
-export function Checklist({ counts, savedLabel, onJump }: { counts: Record<SectionId, number>; savedLabel: string; onJump: (id: SectionId) => void }) {
-  const required = SECTIONS.filter((s) => s.id !== 'review')
-  const done = required.filter((s) => counts[s.id] === 0).length
-  const pct = Math.round((done / required.length) * 100)
+export function SubmitAside() {
+  const logos = visibleLogos()
   return (
-    <aside aria-label="Manuscript checklist" className="space-y-4 lg:sticky lg:top-24">
-      <div className="rounded border border-[#E6DCD0] bg-white">
-        <div className="border-b border-[#E6DCD0] bg-bordeaux-900 px-4 py-3 text-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ochre-300">Manuscript checklist</p>
-          <p className="mt-1 flex items-baseline justify-between gap-3"><span className="font-newsreader text-lg font-semibold">{done} of {required.length} sections complete</span><span className="text-sm tabular-nums text-bordeaux-200">{pct}%</span></p>
-          <div role="progressbar" aria-label="Form completeness" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div className="h-full bg-ochre-400 motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${pct}%` }} />
-          </div>
+    <aside aria-label="Submission quick reference" className="flex flex-col gap-6 lg:sticky lg:top-28">
+      <Card icon={<Feed className="h-5 w-5" aria-hidden="true" />} title="Recent Submissions"
+        pill={<span className="flex items-center gap-1 rounded-full bg-[#E9EDFF] px-2 py-0.5 font-work text-xs font-semibold text-wine-900"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-700" />Confidential</span>}>
+        <p className="font-serif4 text-[15px] leading-6 text-[#564241]">Submissions are not listed publicly until an article is published. After you submit, follow your own paper with its Paper ID and email.</p>
+        <AppLink to={paths.track} className="font-work text-xs font-bold text-wine-800 underline">Already submitted? Track your paper</AppLink>
+        <p className="flex items-center justify-center gap-1 pt-1 font-work text-xs text-[#564241]"><Lock className="h-4 w-4 text-wine-900" aria-hidden="true" />Confidential submission queue</p>
+      </Card>
+
+      <Card icon={<VerifiedI className="h-5 w-5" aria-hidden="true" />} title="Indexing & Archiving"
+        pill={<span className="flex items-center gap-1 rounded-full bg-[#E9EDFF] px-2.5 py-0.5 font-work text-xs font-semibold text-ochre-700"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ochre-700" />{logos.length} Listed</span>}>
+        <ul className="flex flex-col gap-2.5 rounded-lg bg-[#F1F3FF] p-2">
+          {logos.map((l) => (
+            <li key={l.id} className="flex h-11 items-center justify-center rounded-lg border border-[#DCC0BE]/30 bg-white p-2.5 shadow-sm">
+              {l.file ? <img src={`/shared/indexing/${l.file}`} alt={l.name} className="max-h-6 max-w-[140px] object-contain" /> : <span className="font-work text-sm font-bold text-wine-900">{l.name}</span>}
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center justify-between gap-2 font-work text-[11px] text-[#564241]">
+          <span>Permanent DOI under 10.55041</span>
+          <AppLink to={paths.about('indexing')} className="font-semibold text-ochre-700 underline">Indexing details</AppLink>
         </div>
-        <ol className="p-2">
-          {SECTIONS.map((s, i) => {
-            const n = s.id === 'review' ? 0 : counts[s.id]
-            const ok = s.id !== 'review' && n === 0
-            return (
-              <li key={s.id}>
-                <a href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); onJump(s.id) }}
-                  className="flex min-h-[44px] items-start gap-3 rounded px-2 py-2 hover:bg-[#F4EEE6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">
-                  <span aria-hidden="true" className={cx('mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded border text-xs font-semibold tabular-nums', ok ? 'border-wine-700 bg-wine-800 text-white' : 'border-obsidian-300 bg-white text-obsidian-600')}>
-                    {ok ? <Check className="h-4 w-4" /> : i + 1}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-obsidian-900">{s.label}</span>
-                    <span className="block text-[13px] leading-snug text-obsidian-600">
-                      {s.id === 'review' ? s.hint : ok ? 'Complete' : `${n} item${n === 1 ? '' : 's'} to complete`}
-                    </span>
-                  </span>
-                </a>
-              </li>
-            )
-          })}
-        </ol>
-        <p className="border-t border-[#E6DCD0] px-4 py-2.5 text-[13px] text-obsidian-600" aria-live="polite">{savedLabel}</p>
-      </div>
+      </Card>
 
-      <div className="rounded border border-ochre-200 bg-[#FBF8F4] p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-wine-700">Article processing charge</p>
-        <p className="mt-1 font-newsreader text-lg font-semibold text-obsidian-900">No fee until acceptance</p>
-        <p className="mt-1 text-[13px] leading-snug text-obsidian-700">Submitting and peer review are free. If accepted: {'₹'}{journal.apc.inr.toLocaleString('en-IN')} + {journal.apc.gstPercent}% GST (Indian authors) or US${journal.apc.usd}.</p>
-      </div>
-
-      <div className="hidden rounded border border-[#E6DCD0] bg-white p-4 lg:block">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-obsidian-600">What happens next</p>
-        <ol className="mt-2 space-y-2">
-          {NEXT.map((t, i) => <li key={t} className="flex gap-2.5 text-[13px] leading-snug text-obsidian-700"><span className="font-semibold tabular-nums text-obsidian-900">{i + 1}.</span>{t}</li>)}
+      <section aria-label="Editorial milestones" className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2.5 rounded-lg bg-[#F1F3FF] px-3 py-1.5 text-wine-900"><Speed className="h-5 w-5" aria-hidden="true" /><h2 className="font-newsreader text-lg font-bold">Editorial Milestones</h2></div>
+        <ol className="relative flex flex-col gap-5 pl-6">
+          {MILESTONES.map((m) => (
+            <li key={m.title} className="relative">
+              <span aria-hidden="true" className={`absolute -left-6 top-1.5 h-3 w-3 rounded-full ring-4 ring-[#E9EDFF] ${m.dot}`} />
+              <h3 className="font-work text-xs font-bold text-[#141B2B]">{m.title}</h3>
+              <p className="mt-0.5 font-serif4 text-xs leading-[18px] text-[#564241]">{m.text}</p>
+            </li>
+          ))}
         </ol>
-      </div>
+        <div className="flex items-center gap-2 rounded-lg bg-[#E9EDFF] p-3"><Bolt className="h-5 w-5 text-wine-900" aria-hidden="true" /><span className="font-work text-xs font-bold text-wine-900">Every decision comes with written reasons</span></div>
+      </section>
+
+      <section aria-label="Editorial assistance" className="flex flex-col gap-3 rounded-xl bg-[#F1F3FF] p-6 shadow-sm">
+        <h2 className="flex items-center gap-2 font-newsreader text-lg font-bold text-wine-900"><Support className="h-5 w-5" aria-hidden="true" />Editorial Assistance</h2>
+        <p className="font-work text-xs leading-[18px] text-[#564241]">Facing difficulty with your submission or file upload? Write to the editorial office and we will help.</p>
+        <div className="flex flex-col gap-1 font-work text-[11px] text-[#141B2B]">
+          <a href={`mailto:${journal.email}`} className="flex min-h-[28px] items-center gap-1.5 break-all hover:text-wine-900 hover:underline"><Mail className="h-4 w-4 shrink-0" aria-hidden="true" />{journal.email}</a>
+          <span className="flex items-center gap-1.5 text-[#564241]"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp: {journal.whatsapp}</span>
+        </div>
+      </section>
     </aside>
   )
 }

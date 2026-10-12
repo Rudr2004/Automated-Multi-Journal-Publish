@@ -1,13 +1,29 @@
-// Past issues as an archive matrix (volumes by issue number) with a filterable list of every archived article below.
+// Past issues, in the issue reference's visual language: wine banner (breadcrumb, label chip, title, stats box), a 3 + 9 workspace with a
+// "Jump to volume" card and the volume plates, then every archived article with the same filter card and article cards.
 import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { MdOutlineHistory as HistoryIcon } from 'react-icons/md'
 import { journal } from '../../../config/journals'
+import { paths } from '../../../config/routes'
 import { formatNumber } from '../../../core/lib/format'
+import { AppLink } from '../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../core/types'
-import { PageBand, PARCHMENT, PlateHead } from '../components/PageBand'
 import { Container, EmptyState } from '../components/primitives'
+import { ArrowRight } from '../icons'
 import { ArchiveList } from './archive/ArchiveList'
 import { ArchiveMatrix, type VolumeRow } from './archive/ArchiveMatrix'
+
+const GREY = 'text-[#6F5A58]'
+
+function BarHeading({ id, title, note }: { id?: string; title: string; note?: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <div aria-hidden="true" className="h-6 w-1.5 rounded-full bg-wine-800" />
+      <h2 id={id} className="font-newsreader text-lg font-bold text-[#141B2B]">{title}</h2>
+      {note && <span className={`font-work text-xs ${GREY}`}>• {note}</span>}
+    </div>
+  )
+}
 
 export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; articles: ArticleSummary[] }) {
   const rows = useMemo<VolumeRow[]>(() => {
@@ -19,56 +35,85 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
     })
   }, [issues])
   const stats: [string, string][] = [['Volumes', String(rows.length)], ['Issues', String(issues.length)], ['Articles', formatNumber(articles.length)]]
+  const current = issues.find((i) => i.isCurrent)
 
   return (
     <>
       <Helmet><title>{`Past issues | ${journal.shortName}`}</title></Helmet>
-      <PageBand label="Archive" title="Past issues"
-        aside={
-          <div className="border border-ochre-300/40 p-1">
-            <dl className="grid grid-cols-3 gap-px overflow-hidden border border-ochre-300/25 bg-ochre-300/25 text-center tabular-nums">
-              {stats.map(([k, v]) => <div key={k} className="bg-wine-900 px-4 py-3 sm:px-6"><dt className="font-work text-[11px] font-semibold uppercase tracking-[0.1em] text-bordeaux-200">{k}</dt><dd className="mt-1 font-newsreader text-3xl font-semibold">{v}</dd></div>)}
-            </dl>
-          </div>
-        }>
-        <p className="mt-4 max-w-xl font-serif4 text-base leading-relaxed text-bordeaux-100 sm:text-[1.0625rem]">Every issue of {journal.name}. Choose a published issue in the matrix to open its table of contents, or search all articles below.</p>
-      </PageBand>
-
-      <div className={PARCHMENT}><Container className="py-12 sm:py-16">
-        <PlateHead label="Issue matrix" title="Volumes and issues" text="Each volume holds up to twelve monthly issues. Greyed cells have not been published yet." />
-        {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
-          <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-            <aside aria-label="Archive overview" className="lg:sticky lg:top-16 lg:self-start">
-              <div className="rounded border border-wine-800/20 border-t-2 border-t-wine-800 bg-white shadow-none">
-                <h3 className="border-b border-wine-800/15 bg-[#FBF8F4] px-4 py-3 font-newsreader text-lg font-semibold text-obsidian-900">Jump to volume</h3>
-                <ul className="divide-y divide-obsidian-100 text-sm">
-                  {rows.map((r) => (
-                    <li key={r.volume}>
-                      <a href={`#vol-${r.volume}`} className="flex min-h-11 items-center justify-between gap-3 px-4 py-2 text-obsidian-900 transition-colors hover:bg-ochre-50 hover:text-wine-700 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-wine-700 lg:min-h-10">
-                        <span className="font-newsreader text-base font-semibold">Volume {r.volume} <span className="font-work text-sm font-normal text-obsidian-600">· {r.year}</span></span>
-                        <span className="tabular-nums text-obsidian-600">{r.articles}<span className="sr-only"> articles</span></span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <div className="space-y-2 border-t border-wine-800/15 p-4 text-[13px] text-obsidian-700">
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-ochre-600 bg-ochre-50" />Current issue</p>
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-obsidian-300 bg-white" />Published issue</p>
-                  <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-obsidian-300 bg-obsidian-50" />Not yet published</p>
-                </div>
-              </div>
-            </aside>
-            <ArchiveMatrix rows={rows} />
-          </div>
-        )}
-      </Container></div>
-
-      <section aria-labelledby="archive-articles" className="border-t border-wine-800/20 bg-white py-12 sm:py-16">
+      <div className="bg-[#F9F9FF] pt-4">
         <Container>
-          <PlateHead id="archive-articles" label="Archive search" title="All archived articles" text="Filter by research area, article type or issue, or search by title and author." />
-          <ArchiveList articles={articles} />
+          <section className="relative overflow-hidden rounded border border-[#6B1822] px-6 py-8 text-white shadow-lg sm:px-10" style={{ background: 'linear-gradient(135deg, rgb(74, 14, 23) 0%, rgb(59, 8, 16) 100%)' }}>
+            <div className="flex flex-col gap-6">
+              <nav aria-label="Breadcrumb">
+                <ol className="flex flex-wrap items-center gap-2 font-work text-base text-amber-200/80">
+                  <li><AppLink to={paths.home} className="transition-colors hover:text-white">Home</AppLink></li><li aria-hidden="true">/</li>
+                  <li aria-current="page" className="font-medium text-amber-300">Archives</li>
+                </ol>
+              </nav>
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="inline-flex items-center gap-1.5 rounded bg-amber-400 px-2.5 py-0.5 font-work text-base font-bold uppercase tracking-wider text-[#3B0810] shadow-sm"><HistoryIcon className="h-[13px] w-[13px]" aria-hidden="true" />Archives</span>
+                  <span className="rounded border border-amber-300/40 bg-black/30 px-2.5 py-0.5 font-work text-xs font-semibold uppercase tracking-wide text-amber-200">{journal.shortName} • ISSN {journal.issnOnline}</span>
+                </div>
+                <div>
+                  <h1 className="font-newsreader text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">Past issues</h1>
+                  <p className="max-w-3xl pt-1.5 font-serif4 text-sm leading-relaxed text-amber-100/90 sm:text-base">Every issue of {journal.name}. Choose a published issue in the matrix to open its table of contents, or search all articles below.</p>
+                </div>
+                <dl className="grid max-w-xl grid-cols-3 gap-3 rounded border border-[#6B1822] bg-black/30 p-4 font-work">
+                  {stats.map(([k, v]) => <div key={k}><dt className="text-[10px] uppercase text-amber-200/80">{k}</dt><dd className="mt-0.5 font-mono text-sm font-medium tabular-nums text-white">{v}</dd></div>)}
+                </dl>
+                {current && (
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <AppLink to={paths.issue(current.volume, current.issue)} className="inline-flex min-h-11 items-center gap-2 rounded bg-amber-400 px-4 py-2.5 font-work text-xs font-bold uppercase tracking-wider text-[#3B0810] shadow transition-colors motion-reduce:transition-none hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Open current issue<ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
         </Container>
-      </section>
+      </div>
+
+      <div className="bg-[#F9F9FF]"><Container className="space-y-12 pb-12 pt-8">
+        <div className="space-y-5">
+          <BarHeading title="Volumes and issues" note="Each volume holds up to twelve monthly issues. Greyed cells have not been published yet." />
+          {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
+            <div className="grid items-start gap-8 lg:grid-cols-12">
+              <aside aria-label="Archive overview" className="min-w-0 space-y-6 lg:col-span-3">
+                <div className="space-y-6 rounded bg-white p-5 shadow-sm">
+                  <div className="flex items-center justify-between gap-2 pb-1">
+                    <h3 className="font-newsreader text-base text-[#141B2B]">Jump to volume</h3>
+                    <span className="rounded bg-[#E1E8FD] px-2 py-0.5 font-work text-base text-[#564241]">{rows.length} {rows.length === 1 ? 'volume' : 'volumes'}</span>
+                  </div>
+                  <ul className="space-y-1 font-work text-base">
+                    {rows.map((r) => (
+                      <li key={r.volume}>
+                        <a href={`#vol-${r.volume}`} className="flex min-h-11 w-full items-center justify-between rounded px-2.5 py-1.5 text-[#564241] transition-colors hover:bg-[#F4F5FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 motion-reduce:transition-none lg:min-h-0">
+                          <span className="flex items-center gap-2"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-wine-800" />Volume {r.volume} <span className={GREY}>· {r.year}</span></span>
+                          <span className={`tabular-nums ${GREY}`}>{r.articles}<span className="sr-only"> articles</span></span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="space-y-3 rounded bg-[#F4F5FC] p-4 shadow-sm">
+                  <h3 className="font-work text-base font-bold uppercase tracking-wider text-[#564241]">Key</h3>
+                  <ul className="space-y-2 font-work text-[13px] text-[#564241]">
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-ochre-700 bg-ochre-50" />Current issue</li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-[#DCC0BE] bg-white" />Published issue</li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-[#DCC0BE] bg-[#F4F5FC]" />Not yet published</li>
+                  </ul>
+                </div>
+              </aside>
+              <div className="min-w-0 lg:col-span-9"><ArchiveMatrix rows={rows} /></div>
+            </div>
+          )}
+        </div>
+
+        <section aria-labelledby="archive-articles" className="space-y-5">
+          <BarHeading id="archive-articles" title="All archived articles" note="Filter by research area, article type or issue, or search by title and author." />
+          <ArchiveList articles={articles} />
+        </section>
+      </Container></div>
     </>
   )
 }

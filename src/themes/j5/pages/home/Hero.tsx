@@ -1,80 +1,90 @@
-// Home hero: a dark bordeaux card with a ruled-paper and orbit motif (headline, intro, search, action buttons, fact row) beside the "Official Journal Issue" card with its cover.
+// Home hero, as in the reference: a 7-column "About the Journal" card with four feature tiles and a check row, beside a 5-column wine "Call for Papers" plate
+// (timeline card, Submit button, editor email). Every figure comes from the journal config or the call for papers.
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate, formatMonthYear } from '../../../../core/lib/format'
+import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
-import type { IssueSummary } from '../../../../core/types'
-import { ArchiveSearch } from '../../components/ArchiveSearch'
-import { ButtonLink } from '../../components/Button'
-import { Fingerprint, Tune, UploadFile } from '../../components/homeIconsJ5'
-import { Label, RuledMotif } from '../../components/primitives'
-import { areas } from '../../components/areas'
-import { Logo } from '../../layouts/Header'
-import { ArrowRight, Book, Calendar, Download, OpenAccess, Verified } from '../../icons'
+import type { CallForPapers } from '../../../../core/types'
+import { Event, Fingerprint, Policy, PublishedWithChanges, Speed, VerifiedUser } from '../../components/homeIconsJ5'
+import { Container } from '../../components/primitives'
+import { ArrowRight, Book, OpenAccess, Publish, Verified } from '../../icons'
 
-function IssueCard({ issue }: { issue: IssueSummary }) {
+const tile = 'group rounded border border-[#dcc0be] bg-[#f4f5fc] p-3.5 transition hover:border-wine-800'
+
+export function Hero({ cfp }: { cfp: CallForPapers }) {
+  const [issueName, issueMonth] = cfp.issueName.split(' — ')
+  const features = [
+    { Icon: OpenAccess, title: 'Open Access Dissemination', text: `Free global access under ${journal.licence.name}, with a permanent Crossref DOI for every article.` },
+    { Icon: VerifiedUser, title: 'Structured Peer Review', text: 'Every paper is screened by an editor and reviewed by experts against a published checklist, with written reasons for each decision.' },
+    { Icon: Policy, title: 'Published Ethics Policies', text: 'Publication ethics, plagiarism, conflict-of-interest and retraction policies are published for authors, reviewers and editors.' },
+    { Icon: PublishedWithChanges, title: 'Monthly Publication', text: `A new ${journal.frequency.toLowerCase()} issue with online publication and Crossref DOI deposit for every article.` },
+  ]
   return (
-    <aside aria-label="Current issue" className="overflow-hidden rounded border border-obsidian-200 bg-white">
-      <div className="flex items-center justify-between gap-2 border-b border-obsidian-200 bg-[#FBF8F4] px-4 py-2.5">
-        <Label className="text-wine-800">Official Journal Issue</Label>
-        <span className="text-xs font-semibold tabular-nums text-obsidian-700">ISSN {journal.issnOnline}</span>
-      </div>
-      <div className="relative">
-        <img src="/journals/j5/images/issue-cover.svg" alt="" width={360} height={300} className="block h-auto w-full" />
-        <Logo size={52} tile className="absolute right-3 top-3 border border-obsidian-200" />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-bordeaux-900 via-bordeaux-900/85 to-transparent px-4 pb-3 pt-10 text-white">
-          <p className="font-newsreader text-xl font-semibold leading-tight">{journal.shortName}</p>
-          <p className="text-sm text-bordeaux-100">Volume {issue.volume}, Issue {issue.issue} · {formatMonthYear(issue.publishedAt)}</p>
+    <section aria-labelledby="hero-title" className="border-b border-obsidian-200 bg-[#f9f9ff] px-0 py-8">
+      <Container>
+        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
+          <div className="flex flex-col justify-between rounded border border-[#dcc0be] bg-white p-6 shadow-sm sm:p-8 lg:col-span-7">
+            <div>
+              <div className="mb-4 flex items-center justify-between border-b border-obsidian-200 pb-2">
+                <span className="flex items-center gap-1.5 font-work text-xs font-semibold uppercase tracking-widest text-wine-800"><Book className="h-4 w-4" aria-hidden="true" />About the Journal</span>
+              </div>
+              <h2 id="hero-title" className="mb-3 font-newsreader text-2xl font-semibold leading-tight text-[#141b2b] sm:text-3xl">
+                {journal.name} <span className="text-[#9b4500]">({journal.shortName})</span>
+              </h2>
+              <p className="mb-6 font-serif4 text-sm leading-relaxed text-[#564241]">
+                {journal.name} ({journal.shortName}) is an international, open access, peer-reviewed {journal.frequency.toLowerCase()} journal published from {journal.publisherCity}. It is built for rigorous research that others can build on.
+              </p>
+              <div className="mb-6 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                {features.map(({ Icon, title, text }) => (
+                  <div key={title} className={tile}>
+                    <div className="mb-1 flex items-center gap-2 text-wine-800"><Icon className="h-[18px] w-[18px]" aria-hidden="true" /><h3 className="font-newsreader text-sm font-semibold text-[#141b2b] group-hover:text-wine-800">{title}</h3></div>
+                    <p className="font-work text-xs text-[#564241]">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <ul className="flex flex-wrap items-center justify-between gap-3 border-t border-obsidian-200 pt-4 font-work text-xs">
+              <li className="flex items-center gap-1 font-medium text-[#141b2b]"><VerifiedUser className="h-4 w-4 text-[#9b4500]" aria-hidden="true" />Structured Peer Review</li>
+              <li className="flex items-center gap-1 font-medium text-[#141b2b]"><OpenAccess className="h-4 w-4 text-emerald-700" aria-hidden="true" />Open Access ({journal.licence.name})</li>
+              <li className="flex items-center gap-1 font-medium text-[#141b2b]"><Verified className="h-4 w-4 text-wine-800" aria-hidden="true" />Crossref DOI for every article</li>
+            </ul>
+          </div>
+
+          <div className="relative flex flex-col justify-between overflow-hidden rounded border border-[#6b1e2f] bg-gradient-to-br from-wine-800 to-[#51020b] p-6 text-white shadow-lg sm:p-8 lg:col-span-5">
+            <Book aria-hidden="true" className="pointer-events-none absolute -bottom-12 -right-12 h-[240px] w-[240px] opacity-10" />
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="rounded bg-amber-400 px-2.5 py-1 font-work text-[11px] font-bold uppercase tracking-wider text-amber-950 shadow">Call for Papers</span>
+                <span className="font-work text-xs text-amber-200">{issueName.replace('Volume', 'Vol.')}{issueMonth ? ` (${issueMonth})` : ''}</span>
+              </div>
+              <h3 className="mb-3 font-newsreader text-2xl font-bold leading-tight text-white sm:text-3xl">Call for Papers: <span className="block">{issueName}{issueMonth ? `, ${issueMonth}` : ''}</span></h3>
+              <p className="mb-5 font-serif4 text-xs leading-relaxed text-[#f4f5fc] sm:text-sm">The Editorial Board invites researchers worldwide to submit original manuscripts for this issue. Submissions are reviewed on a rolling basis.</p>
+              <dl className="mb-6 space-y-2.5 rounded border border-white/20 bg-black/25 p-4 font-work text-xs text-white backdrop-blur-sm">
+                {[
+                  [Event, 'Submission Deadline:', formatDate(cfp.deadline.slice(0, 10))],
+                  [Speed, 'First Decision Target:', `About ${cfp.avgReviewDays} days`],
+                  [Publish, 'Expected Publication:', formatDate(cfp.expectedPublication)],
+                  [Fingerprint, 'Crossref DOI Prefix:', journal.doiPrefix],
+                ].map(([Icon, k, v], i) => {
+                  const I = Icon as typeof Event
+                  return (
+                    <div key={k as string} className={`flex items-center justify-between gap-3 ${i ? 'border-t border-white/10 pt-2' : ''}`}>
+                      <dt className="flex items-center gap-1.5 text-amber-200"><I className="h-[15px] w-[15px]" aria-hidden="true" />{k as string}</dt>
+                      <dd className={`font-bold ${i === 3 ? 'font-mono text-amber-300' : ''}`}>{v as string}</dd>
+                    </div>
+                  )
+                })}
+              </dl>
+            </div>
+            <div className="pt-2">
+              <AppLink to={paths.submit} className="inline-flex w-full items-center justify-center gap-2 rounded bg-amber-400 px-6 py-3.5 font-work text-sm font-bold uppercase tracking-wider text-stone-950 shadow-lg transition hover:bg-amber-300 active:scale-95 motion-reduce:active:scale-100">
+                <span>Submit Manuscript Now</span><ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
+              </AppLink>
+              <p className="mt-2.5 text-center font-work text-[11px] text-amber-200">Email enquiries welcome: <a className="font-medium text-white underline hover:text-amber-300" href={`mailto:${journal.email}`}>{journal.email}</a></p>
+            </div>
+          </div>
         </div>
-      </div>
-      <dl className="divide-y divide-obsidian-100 px-4 text-sm tabular-nums">
-        {[['Published', formatDate(issue.publishedAt)], ['Articles', String(issue.articleCount)], ['Issue DOI', issue.doi]].map(([k, v]) => (
-          <div key={k} className="flex items-baseline justify-between gap-3 py-2"><dt className="text-obsidian-600">{k}</dt><dd className="min-w-0 break-all text-right font-semibold text-obsidian-900">{v}</dd></div>
-        ))}
-      </dl>
-      <div className="flex items-center gap-2 p-4 pt-3">
-        <ButtonLink to={paths.currentIssue} variant="primary" className="flex-1">View full issue <ArrowRight className="h-4 w-4" aria-hidden="true" /></ButtonLink>
-        <AppLink to={paths.pastIssues} aria-label="Past issues" className="inline-flex h-10 w-10 items-center justify-center rounded border border-obsidian-300 text-obsidian-800 hover:border-wine-800 hover:text-wine-800"><Book className="h-5 w-5" aria-hidden="true" /></AppLink>
-      </div>
-    </aside>
-  )
-}
-
-export function Hero({ issue }: { issue: IssueSummary }) {
-  const tries = areas.slice(0, 2).map((a) => a.name)
-  const fact = 'inline-flex items-center gap-1.5'
-  return (
-    <section aria-labelledby="hero-title" className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_21rem] xl:grid-cols-[minmax(0,1fr)_22.5rem]">
-      <div className="relative isolate overflow-hidden rounded bg-bordeaux-900 p-5 text-white sm:p-7 lg:p-8">
-        <RuledMotif orbits={false} />
-        <img src="/journals/j5/images/hero-atom.svg" alt="" width={220} height={220} className="pointer-events-none absolute right-6 top-6 -z-10 hidden h-auto w-44 opacity-90 lg:block xl:w-52" />
-        <Label className="text-ochre-300">{journal.descriptor}</Label>
-        <h1 id="hero-title" className="mt-3 max-w-2xl font-newsreader lg:max-w-[34rem] xl:max-w-[36rem] font-semibold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(30px,3.2vw,46px)' }}>{journal.tagline}</h1>
-        <p className="mt-3 max-w-2xl font-serif4 text-[1.0625rem] leading-relaxed text-bordeaux-100 lg:max-w-[34rem] xl:max-w-[36rem]">{journal.mission}</p>
-
-        <div className="mt-5 max-w-2xl">
-          <ArchiveSearch />
-          <p className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-bordeaux-200">
-            <span>Browse:</span>
-            {tries.map((t) => <AppLink key={t} to={paths.search(t)} className="font-semibold text-ochre-300 hover:text-white hover:underline">{t}</AppLink>)}
-            <AppLink to={paths.search('')} className="inline-flex items-center gap-1 font-semibold text-ochre-300 hover:text-white hover:underline"><Tune className="h-4 w-4" aria-hidden="true" /> Advanced search</AppLink>
-          </p>
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <ButtonLink to={paths.submit} variant="onDarkCta"><UploadFile className="h-[18px] w-[18px]" aria-hidden="true" /> Submit Manuscript</ButtonLink>
-          <ButtonLink to={paths.policy('author-guidelines')} variant="onDark"><Book className="h-[18px] w-[18px]" aria-hidden="true" /> Author Guidelines</ButtonLink>
-          <ButtonLink to={paths.forAuthors('templates')} variant="onDark"><Download className="h-[18px] w-[18px]" aria-hidden="true" /> Article Templates</ButtonLink>
-        </div>
-
-        <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-4 text-xs text-bordeaux-100">
-          <li className={fact}><Verified className="h-4 w-4 text-ochre-300" aria-hidden="true" /><strong className="font-semibold text-white">ISSN</strong> {journal.issnOnline} (Online)</li>
-          <li className={fact}><Fingerprint className="h-4 w-4 text-ochre-300" aria-hidden="true" /><strong className="font-semibold text-white">Crossref DOI</strong> {journal.doiPrefix}</li>
-          {journal.badges.openAccess && <li className={fact}><OpenAccess className="h-4 w-4 text-ochre-300" aria-hidden="true" /><strong className="font-semibold text-white">Licence</strong> {journal.licence.name}</li>}
-          <li className={fact}><Calendar className="h-4 w-4 text-ochre-300" aria-hidden="true" /><strong className="font-semibold text-white">Frequency</strong> {journal.frequency}</li>
-        </ul>
-      </div>
-      <IssueCard issue={issue} />
+      </Container>
     </section>
   )
 }

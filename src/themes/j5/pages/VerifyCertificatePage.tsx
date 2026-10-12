@@ -6,7 +6,7 @@ import { formatDate } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
 import type { CertificateResult } from '../../../core/types'
 import { Button } from '../components/Button'
-import { ClassicHeader } from '../components/ClassicHeader'
+import { LightHeader } from '../components/static/LightHeader'
 import { Container } from '../components/primitives'
 import { Kicker, OrnamentRule } from '../components/signature'
 import { CertificatePaper, Seal } from '../components/static/Certificate'
@@ -45,7 +45,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
 
   return (
     <>
-      <ClassicHeader crumbs={[{ label: 'Verify certificate' }]} kicker="Certificate verification" title="Is this certificate genuine?"
+      <LightHeader crumbs={[{ label: 'Verify certificate' }]} badge="Certificate verification" title="Is this certificate genuine?"
         intro={<>Enter the certificate number printed on an author certificate, or scan its QR code, to confirm that {journal.shortName} issued it.</>} />
 
       <div className="bg-[#FBF8F4]"><Container className="py-10 sm:py-12">

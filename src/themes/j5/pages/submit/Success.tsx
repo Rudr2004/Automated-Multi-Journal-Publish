@@ -5,8 +5,9 @@ import { paths } from '../../../../config/routes'
 import { downloadText } from '../../../../core/lib/clipboard'
 import { Button, ButtonLink } from '../../components/Button'
 import { CopyButton } from '../../components/form/Field'
-import { Container, Label } from '../../components/primitives'
-import { Check, Download } from '../../icons'
+import { Container } from '../../components/primitives'
+import { Download } from '../../icons'
+import { CheckCircle } from './mi'
 
 const NEXT: [string, string][] = [
   ['Submitted', 'Done. Your Paper ID was sent by email, SMS and WhatsApp.'],
@@ -26,42 +27,34 @@ export function Success({ paperId, email, title }: { paperId: string; email: str
   const head = useRef<HTMLHeadingElement>(null)
   useEffect(() => { head.current?.focus() }, [])
   return (
-    <div>
-      <section aria-labelledby="done-h" className="relative isolate border-b-2 border-ochre-600 bg-bordeaux-900 text-white">
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_0%,rgba(251,191,36,0.16),transparent_60%),radial-gradient(ellipse_at_0%_100%,rgba(162,45,53,0.35),transparent_55%)]" />
-        <Container className="py-12 sm:py-16">
-          <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded bg-ochre-400 text-obsidian-900"><Check className="h-6 w-6" /></span>
-          <Label className="mt-5 text-ochre-300">Manuscript submitted</Label>
-          <h1 id="done-h" ref={head} tabIndex={-1} className="mt-2 max-w-3xl font-newsreader font-semibold leading-[1.1] tracking-tight focus:outline-none" style={{ fontSize: 'clamp(34px,3.8vw,54px)' }}>Received. Your paper is in the screening queue.</h1>
-          <div className="mt-8 max-w-2xl rounded border border-white/15 bg-black/25 p-5">
-            <dl className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-ochre-300">Your Paper ID</dt>
-                <dd className="mt-1 break-all font-newsreader text-[1.75rem] font-semibold tabular-nums tracking-wide sm:text-[2.25rem]" data-testid="paper-id">{paperId}</dd>
-              </div>
-              <div><CopyButton tone="dark" text={paperId} label="Copy Paper ID" done="Paper ID copied" /></div>
-              <div className="sm:col-span-2 border-t border-white/15 pt-3 text-sm text-bordeaux-200">
-                <span className="text-bordeaux-300">Reserved DOI </span><span className="break-all font-semibold text-white">{doiFor(paperId)}</span>
-              </div>
-            </dl>
+    <div className="bg-[#F9F9FF] py-8 sm:py-14">
+      <Container>
+        <section aria-labelledby="done-h" className="mx-auto flex max-w-2xl flex-col items-center rounded-2xl border border-[#DCC0BE]/40 bg-white p-6 text-center shadow-xl sm:p-10">
+          <span aria-hidden="true" className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#E9EDFF] text-wine-900"><CheckCircle className="h-10 w-10" /></span>
+          <span className="font-work text-[11px] font-bold uppercase tracking-widest text-ochre-700">Submission Confirmed</span>
+          <h1 id="done-h" ref={head} tabIndex={-1} className="mt-1 font-newsreader text-2xl font-bold leading-8 text-wine-900 focus:outline-none sm:text-[1.75rem]">Manuscript Dispatched Successfully</h1>
+          <p className="mt-2 font-serif4 text-[15px] leading-6 text-[#564241]">
+            Your paper has been assigned Paper ID: <strong className="break-all font-mono text-base text-[#141B2B]" data-testid="paper-id">{paperId}</strong>. Confirmation was sent to <strong className="break-all text-[#141B2B]">{email}</strong> by email, SMS and WhatsApp. Keep the Paper ID safe: with your email it is all you need to track the paper.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <CopyButton text={paperId} label="Copy Paper ID" done="Paper ID copied" />
+            <span className="font-work text-xs text-[#564241]">Reserved DOI <strong className="break-all text-[#141B2B]">{doiFor(paperId)}</strong></span>
           </div>
-          <p className="mt-4 max-w-2xl text-sm text-bordeaux-200">Confirmation sent to <strong className="break-all text-white">{email}</strong> by email, SMS and WhatsApp. Keep the Paper ID safe: with your email it is all you need to track the paper.</p>
-        </Container>
-      </section>
 
-      <Container className="py-12 sm:py-16">
-        <section aria-labelledby="next-h" className="max-w-3xl">
-          <h2 id="next-h" className="font-newsreader text-[1.75rem] font-semibold text-obsidian-900">What happens next</h2>
-          <ol className="mt-5 overflow-hidden rounded border border-[#E6DCD0] bg-white">
-            {NEXT.map(([t, d], i) => (
-              <li key={t} className="grid grid-cols-[2.25rem_1fr] gap-3 border-b border-[#E6DCD0] px-4 py-3 last:border-b-0 sm:grid-cols-[2.25rem_9rem_1fr]">
-                <span aria-hidden="true" className="font-semibold tabular-nums text-obsidian-600">{String(i + 1).padStart(2, '0')}</span>
-                <span className="font-semibold text-obsidian-900">{t}{i === 0 && <span className="sr-only"> (done)</span>}</span>
-                <span className="col-start-2 text-[15px] text-obsidian-600 sm:col-start-auto">{d}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 w-full text-left">
+            <h2 className="font-newsreader text-lg font-bold text-wine-900">What happens next</h2>
+            <ol className="mt-3 flex flex-col gap-1 rounded-lg bg-[#F1F3FF] p-3.5 font-work text-xs text-[#141B2B]">
+              {NEXT.map(([t, d], i) => (
+                <li key={t} className="grid grid-cols-[1.75rem_6.5rem_1fr] items-baseline gap-2 py-1">
+                  <span aria-hidden="true" className="tabular-nums text-[#564241]">{String(i + 1).padStart(2, '0')}</span>
+                  <strong>{t}{i === 0 && <span className="sr-only"> (done)</span>}</strong>
+                  <span className="text-[#564241]">{d}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
             <ButtonLink to={paths.track} variant="cta" className="min-h-[44px] px-5">Track this paper</ButtonLink>
             <Button variant="outline" className="min-h-[44px] px-5" onClick={() => downloadText(`${paperId}-receipt.txt`, receipt(paperId, email, title))}><Download className="h-4 w-4" aria-hidden="true" />Download receipt</Button>
           </div>

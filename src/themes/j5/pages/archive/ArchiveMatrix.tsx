@@ -5,7 +5,7 @@ import { formatMonthYear } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { IssueSummary } from '../../../../core/types'
 import { cx } from '../../components/primitives'
-import { Kicker, OrnamentRule } from '../../components/signature'
+import { Kicker } from '../../components/signature'
 
 const SLOTS = Array.from({ length: 12 }, (_, i) => i + 1)
 
@@ -17,11 +17,11 @@ export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
       {rows.map((r) => {
         const byNo = new Map(r.issues.map((i) => [i.issue, i]))
         return (
-          <section key={r.volume} aria-labelledby={`vol-${r.volume}`} className="scroll-mt-32 rounded-sm border border-wine-800/35 bg-white p-1.5">
-            <div className="rounded-sm border border-wine-800/20 p-4 sm:p-6">
+          <section key={r.volume} aria-labelledby={`vol-${r.volume}`} className="scroll-mt-32 rounded border border-[#DCC0BE]/30 bg-white p-1.5 shadow-sm">
+            <div className="rounded p-4 sm:p-5">
               <header className="grid items-center gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)]">
                 <div className="flex items-baseline gap-3">
-                  <span aria-hidden="true" className="font-newsreader text-[3.5rem] font-semibold leading-none text-wine-800 sm:text-[4.25rem]">{r.volume}</span>
+                  <span aria-hidden="true" className="font-newsreader text-[3.5rem] font-semibold leading-none text-wine-900 sm:text-[4.25rem]">{r.volume}</span>
                   <div>
                     <Kicker>Volume</Kicker>
                     <h3 id={`vol-${r.volume}`} className="mt-1 scroll-mt-32 font-newsreader text-2xl font-semibold text-obsidian-900"><span className="sr-only">Volume {r.volume}, </span>{r.year}</h3>
@@ -29,7 +29,7 @@ export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
                 </div>
                 <p className="font-work text-sm tabular-nums text-obsidian-600 sm:text-right">{r.issues.length} of 12 issues published<span aria-hidden="true"> · </span><br className="sm:hidden" />{r.articles} articles</p>
               </header>
-              <OrnamentRule className="my-5" />
+              <div aria-hidden="true" className="my-5 border-t border-[#E1E8FD]" />
               <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                 {SLOTS.map((n) => {
                   const i = byNo.get(n)
@@ -45,9 +45,9 @@ export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
                       {i ? (
                         <AppLink to={paths.issue(i.volume, i.issue)} aria-label={`Volume ${i.volume}, Issue ${i.issue}, ${formatMonthYear(i.month)}, ${i.articleCount} articles${i.isCurrent ? ', current issue' : ''}`}
                           className={cx('block min-h-[92px] rounded-sm border p-3 text-obsidian-900 transition-[border-color,transform,background-color] duration-150 motion-safe:hover:-translate-y-px motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700',
-                            i.isCurrent ? 'border-ochre-700 bg-ochre-50 hover:bg-ochre-100' : 'border-wine-800/25 bg-[#FBF8F4] hover:border-wine-800 hover:text-wine-800')}>{inner}</AppLink>
+                            i.isCurrent ? 'border-ochre-700 bg-ochre-50 hover:bg-ochre-100' : 'border-[#DCC0BE]/60 bg-[#F4F5FC] hover:border-wine-800 hover:text-wine-800')}>{inner}</AppLink>
                       ) : (
-                        <div aria-label={`Issue ${n}, not yet published`} role="group" className="min-h-[92px] rounded-sm border border-dashed border-obsidian-200 bg-obsidian-50 p-3 text-obsidian-500">{inner}</div>
+                        <div aria-label={`Issue ${n}, not yet published`} role="group" className="min-h-[92px] rounded-sm border border-dashed border-[#DCC0BE] bg-[#F9F9FF] p-3 text-[#6F5A58]">{inner}</div>
                       )}
                     </li>
                   )

@@ -5,29 +5,28 @@ import { downloadArticlePdf } from '../../../../core/lib/pdf'
 import type { ArticleFull } from '../../../../core/types'
 import { Check, Copy } from '../../icons'
 import { cx } from '../../components/primitives'
-import { OrnamentRule } from '../../components/signature'
 import { useToast } from '../../components/Toast'
 
-export type TabId = 'abstract' | 'full-text' | 'references' | 'metrics' | 'cite' | 'related'
+export type TabId = 'abstract' | 'authors-section' | 'full-text' | 'references' | 'metrics' | 'disclosures' | 'cite-panel'
 export interface TabDef { id: TabId; label: string }
 
+/** Anchor tabs of the sticky bar, in the reference's order. Full text and References appear only when the article has them. */
 export const tabsFor = (a: ArticleFull): TabDef[] => [
   { id: 'abstract', label: 'Abstract' },
-  ...(a.sections?.length ? [{ id: 'full-text' as const, label: 'Full text' }] : []),
-  ...(a.references?.length ? [{ id: 'references' as const, label: `References (${a.references.length})` }] : []),
-  { id: 'metrics', label: 'Metrics' },
-  { id: 'cite', label: 'Cite & share' },
-  ...(a.related?.length ? [{ id: 'related' as const, label: 'Related' }] : []),
+  { id: 'authors-section', label: 'Authors & Certificates' },
+  ...(a.sections?.length ? [{ id: 'full-text' as const, label: 'Full Text & Figures' }] : []),
+  ...(a.references?.length ? [{ id: 'references' as const, label: 'References' }] : []),
+  { id: 'metrics', label: 'Metrics & Charts' },
+  { id: 'disclosures', label: 'Declarations' },
+  { id: 'cite-panel', label: 'Cite' },
 ]
 
-export const H2 = 'font-newsreader text-[1.5rem] font-semibold leading-tight tracking-tight text-obsidian-900 sm:text-[1.75rem]'
-/** Panel title with the J5 ornament rule underneath. */
-export const PanelTitle = ({ children }: { children: ReactNode }) => (
-  <>
-    <h2 className={H2}>{children}</h2>
-    <OrnamentRule className="mt-3 max-w-xs" />
-  </>
-)
+/** Small uppercase label used for card and block headings. */
+export const LABEL = 'font-work text-[11px] font-bold uppercase tracking-wider text-obsidian-600'
+/** White card with hairline border. */
+export const CARD = 'rounded border border-[#DCC0BE] bg-white shadow-sm'
+/** Section heading (Newsreader). */
+export const H2 = 'font-newsreader text-xl font-semibold text-obsidian-900'
 export const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 export const num = (n: number | undefined) => (typeof n === 'number' ? new Intl.NumberFormat('en-US').format(n) : '—')
 export const pageUrl = () => window.location.href.split('#')[0]

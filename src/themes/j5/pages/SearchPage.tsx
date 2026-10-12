@@ -8,7 +8,8 @@ import type { ArticleSummary } from '../../../core/types'
 import { ARTICLE_TYPES } from '../../../core/types'
 import { areas } from '../components/areas'
 import { Button } from '../components/Button'
-import { FIELD, PageBand, PARCHMENT } from '../components/PageBand'
+import { FIELD, PARCHMENT } from '../components/PageBand'
+import { LightHeader } from '../components/static/LightHeader'
 import { Container, EmptyState } from '../components/primitives'
 import { ElementTile, OrnamentRule } from '../components/signature'
 import { Facets, type FacetGroup } from './search/Facets'
@@ -69,10 +70,12 @@ export function SearchPage({ query, results }: { query: string; results: Article
   return (
     <>
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
-      <PageBand label="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
-        <SearchBox query={query} />
-        <p className="mt-4 max-w-3xl font-serif4 text-base leading-relaxed text-bordeaux-100">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-white">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
-      </PageBand>
+      <LightHeader crumbs={[{ label: 'Search' }]} badge="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
+        <div className="mt-5 border-t border-[#E6DCD0] pt-4">
+          <SearchBox query={query} />
+          <p className="mt-4 max-w-3xl font-serif4 text-sm leading-relaxed text-obsidian-600">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-obsidian-900">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
+        </div>
+      </LightHeader>
 
       <div className={PARCHMENT}><Container className="py-8 sm:py-12">
         <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">

@@ -6,7 +6,8 @@ import { formatDate } from '../../../core/lib/format'
 import type { BlockActions } from '../../../core/theme'
 import type { StaticBlock, StaticPageData } from '../../../core/types'
 import { anchorId, BlockBody, blockTitle } from '../components/static/StaticBlocks'
-import { RightRail, SectionClauses, SideColumn, StaticBand, type TocItem } from '../components/static/Clauses'
+import { RightRail, SectionClauses, StaticBand, type TocItem } from '../components/static/Clauses'
+import { DoubleRule } from '../components/PageBand'
 import { ContactDetails } from '../components/static/InfoBlocks'
 import { ContactForm } from '../components/static/ContactForm'
 import { Container } from '../components/primitives'
@@ -37,7 +38,7 @@ function groupBlocks(blocks: StaticBlock[]): Item[] {
   return items
 }
 
-export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticPageData; sidebar: StaticPageData[]; allPages: StaticPageData[]; actions: BlockActions }) {
+export function StaticPage({ page, allPages, actions }: { page: StaticPageData; allPages: StaticPageData[]; actions: BlockActions }) {
   const related = page.related.map((s) => allPages.find((p) => p.slug === s)).filter(Boolean) as StaticPageData[]
   const items = useMemo(() => groupBlocks(page.blocks ?? []), [page])
   const toc = useMemo<TocItem[]>(() => [
@@ -47,37 +48,38 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
   ].map((t, n) => ({ ...t, num: n + 1 })), [page, items])
   const offset = page.principles ? 1 : 0
 
+  const label = (n: number) => `${staticGroups[page.group].label} · Section ${n}`
+  const card = 'scroll-mt-28 rounded border border-[#E6DCD0] bg-white p-6 shadow-sm sm:p-8'
+  const h2 = 'scroll-mt-28 font-newsreader text-xl font-semibold leading-tight text-obsidian-900 sm:text-2xl'
+  const eyebrow = (n: number) => <><DoubleRule tone="light" className="mb-3" /><p className="mb-2 flex items-center gap-2 font-work text-xs font-bold uppercase tracking-wider text-wine-800"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-wine-800" />{label(n)}</p></>
+
   return (
     <div className="bg-[#FBF8F4]">
-      <StaticBand page={page} meta={<>
-        <span className="inline-flex items-center gap-2 rounded border border-ochre-300/30 bg-white/5 px-3 py-1.5"><I.History className="h-4 w-4 text-ochre-300" aria-hidden="true" />Updated {formatDate(page.updated)}</span>
-        {toc.length > 1 && <span className="inline-flex items-center gap-2 rounded border border-ochre-300/30 bg-white/5 px-3 py-1.5"><I.Book className="h-4 w-4 text-ochre-300" aria-hidden="true" />{toc.length} sections</span>}
-        <span className="inline-flex items-center gap-2 rounded border border-ochre-300/30 bg-white/5 px-3 py-1.5"><I.OpenAccess className="h-4 w-4 text-ochre-300" aria-hidden="true" />{journal.licence.name}</span>
-      </>} />
-
-      <Container className="py-8 sm:py-12">
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[15rem_minmax(0,1fr)_17rem]">
-          <SideColumn page={page} toc={toc} sidebar={sidebar} related={related} />
-          <article className="min-w-0 space-y-4">
+      <Container className="py-10">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+          <div className="min-w-0 space-y-10 lg:col-span-8">
+            <StaticBand page={page} toc={toc} />
             {page.principles && (
-              <section aria-labelledby="s-principles" className="rounded border border-[#E6DCD0] bg-white p-5  sm:p-7">
-                <h2 id="s-principles" className="flex scroll-mt-28 items-center gap-3 font-newsreader text-[1.375rem] font-semibold leading-tight tracking-tight text-obsidian-900 sm:text-[1.625rem]"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-wine-800 text-sm font-semibold tabular-nums text-white" aria-hidden="true">1</span>Our ethical principles</h2>
-                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              <section aria-labelledby="s-principles" className={card}>
+                {eyebrow(1)}
+                <h2 id="s-principles" className={h2}>1. Our ethical principles</h2>
+                <ul className="mt-4 grid gap-4 sm:grid-cols-2">
                   {principles.map(({ icon: Icon, title, text }) => (
-                    <li key={title} className="flex gap-3 rounded border border-[#E6DCD0] bg-white p-4 ">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-wine-800 text-ochre-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
-                      <div className="min-w-0"><h3 className="font-newsreader text-base font-semibold text-obsidian-900">{title}</h3><p className="mt-0.5 font-serif4 text-[0.9375rem] text-obsidian-700">{text}</p></div>
+                    <li key={title} className="rounded border border-[#E6DCD0] bg-[#F4EEE6] p-4">
+                      <div className="mb-1.5 flex items-center gap-2 text-wine-800"><Icon className="h-[18px] w-[18px]" aria-hidden="true" /><h3 className="font-newsreader text-sm font-bold text-obsidian-900">{title}</h3></div>
+                      <p className="font-work text-xs leading-relaxed text-obsidian-600">{text}</p>
                     </li>
                   ))}
                 </ul>
               </section>
             )}
-            {page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={offset + n + 1} id={anchorId(s.heading)} />)}
+            {page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={offset + n + 1} id={anchorId(s.heading)} label={label(offset + n + 1)} />)}
             {items.map((it, i) => {
               const num = offset + page.sections.length + i + 1
               return (
-                <section key={it.id} aria-labelledby={it.id} className="rounded border border-[#E6DCD0] bg-white p-5  sm:p-7">
-                  <h2 id={it.id} className="mb-5 flex scroll-mt-28 items-center gap-3 font-newsreader text-[1.375rem] font-semibold leading-tight tracking-tight text-obsidian-900 sm:text-[1.625rem]"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-wine-800 text-sm font-semibold tabular-nums text-white" aria-hidden="true">{num}</span>{it.title}</h2>
+                <section key={it.id} aria-labelledby={it.id} className={card}>
+                  {eyebrow(num)}
+                  <h2 id={it.id} className={`mb-5 ${h2}`}>{num}. {it.title}</h2>
                   {it.blocks.length === 2
                     ? <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"><div className="min-w-0"><ContactForm onSubmit={actions.onContact} /></div><div className="min-w-0"><ContactDetails /></div></div>
                     : <BlockBody block={it.blocks[0]} actions={actions} />}
@@ -88,8 +90,8 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
               <I.History className="h-4 w-4" aria-hidden="true" />Last updated {formatDate(page.updated)}. Questions about this page:
               <a className="font-semibold text-wine-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>
             </p>
-          </article>
-          <RightRail related={related} groupLabel={staticGroups[page.group].label} />
+          </div>
+          <div className="min-w-0 lg:col-span-4"><RightRail related={related} /></div>
         </div>
       </Container>
     </div>

@@ -1,7 +1,7 @@
 // Shared pieces for article listings (issue, archive, search): colour-coded paper types, author photo chips with ORCID badges,
 // icon metrics and the full article row. Scholarly look: hairline borders, a type-coloured left rule, tabular numbers.
 import { useId, useState, type ReactNode } from 'react'
-import { MdOutlineVisibility as Eye } from 'react-icons/md'
+import { MdOutlinePictureAsPdf as PdfIcon, MdOutlineVisibility as Eye } from 'react-icons/md'
 import { doiFor } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { formatDate, formatNumber } from '../../../core/lib/format'
@@ -9,10 +9,11 @@ import { AppLink } from '../../../core/router'
 import type { ArticleSummary, ArticleType } from '../../../core/types'
 import { orcidFor } from '../../../mock-data/shared/identity'
 import { portraitFor } from '../../../mock-data/shared/portraits'
+import { downloadArticlePdf } from '../../../core/lib/pdf'
 import { ChevronDown, Download, Quote } from '../icons'
+import { CiteMenu } from './CiteMenu'
 import { cx } from './primitives'
-import { ArticleActions, AreaTag, Highlight } from './PageBand'
-import { Kicker } from './signature'
+import { Highlight } from './PageBand'
 
 /** Paper-type colours: `bar` is the left rule, `chip` the label (all text colours pass 4.5:1 on their tint). */
 export const TYPE_STYLE: Record<ArticleType, { bar: string; chip: string; dot: string }> = {
@@ -67,41 +68,76 @@ export function Metrics({ views, downloads, citations, className }: { views: num
   return <p className={cx('flex items-center gap-4 text-[13px] font-semibold tabular-nums text-obsidian-800', className)}>{item(Eye, views, 'views')}{item(Download, downloads, 'downloads')}{item(Quote, citations, 'citations')}</p>
 }
 
-const TOGGLE = 'inline-flex h-11 items-center gap-1 rounded border border-obsidian-300 bg-[#FBF8F4] px-3 text-xs font-semibold text-obsidian-900 hover:border-wine-700 hover:text-wine-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 lg:h-9'
+// Issue-reference article card: a solid type label, a research-area chip cycling through the reference palette, a one-line title,
+// author photo + name + ORCID "iD", then a DOI / metrics / action row. Text greys are #6F5A58 (the reference #897270 is 4.1:1 on white).
+const GREY = 'text-[#6F5A58]'
+const SEP = <span aria-hidden="true" className="text-[#DCC0BE]">•</span>
+const TYPE_SOLID: Record<ArticleType, string> = {
+  'Research Article': 'bg-wine-800 text-white', 'Review Article': 'bg-ochre-700 text-white',
+  'Short Communication': 'bg-[#6B1E2F] text-white', Editorial: 'bg-bordeaux-900 text-white',
+}
+/** The reference gives area chips different tints; they are assigned by a stable hash of the area name. */
+const AREA_TINTS = [
+  'border-[#DCC0BE]/30 bg-[#E9EDFF] text-wine-900', 'border-amber-300 bg-amber-50 text-amber-900', 'border-ochre-700/30 bg-ochre-700/10 text-ochre-700',
+  'border-[#DCC0BE]/30 bg-[#E1E8FD] text-[#141B2B]', 'border-wine-800/30 bg-wine-800/10 text-wine-800',
+]
+const tintOf = (subject: string) => AREA_TINTS[[...subject].reduce((n, c) => n + c.charCodeAt(0), 0) % AREA_TINTS.length]
+
+const BTN = 'inline-flex items-center gap-1.5 rounded px-2.5 py-1.5 font-work text-base font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 min-h-11 lg:min-h-0'
+const BTN_GREY = `${BTN} border border-[#DCC0BE]/60 bg-[#E9EDFF] text-[#141B2B] hover:bg-[#E1E8FD]`
 
 /** One article in a listing. `showIssue` adds the volume/issue to the meta line (archive and search). */
 export function PaperRow({ article: a, terms = [], defaultOpen = false, showIssue = false, extra }: { article: ArticleSummary; terms?: string[]; defaultOpen?: boolean; showIssue?: boolean; extra?: ReactNode }) {
   const [open, setOpen] = useState(defaultOpen)
   const absId = useId()
   const doi = doiFor(a.paperId)
+  const stat = (Icon: typeof Eye, n: number, word: string) => (
+    <span className="inline-flex items-center gap-1" title={word}><Icon className="h-[15px] w-[15px]" aria-hidden="true" />{formatNumber(n)}<span className="sr-only"> {word}</span></span>
+  )
   return (
-    <li className={cx('mt-3 rounded border border-l-[3px] border-wine-800/15 bg-white p-4 shadow-none transition-[border-color,transform] duration-150 first:mt-0 hover:border-wine-800/50 motion-safe:hover:-translate-y-px motion-reduce:transition-none sm:p-5', TYPE_STYLE[a.type].bar)}>
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
-        <TypeChip type={a.type} />
-        <AreaTag subject={a.subject} />
-        <span className="tabular-nums text-obsidian-600">{showIssue && <>Vol. {a.volume}, Issue {a.issue} · </>}pp. {a.pages} · {formatDate(a.publishedAt)}</span>
+    <li className="mt-6 space-y-4 rounded border border-[#DCC0BE]/30 bg-white p-6 shadow-sm transition-shadow first:mt-0 hover:shadow-md motion-reduce:transition-none">
+      <div className={cx('flex flex-wrap items-center gap-2 font-work text-base', GREY)}>
+        <span className={cx('rounded px-2.5 py-0.5 text-base font-semibold uppercase shadow-sm', TYPE_SOLID[a.type])}>{a.type}</span>
+        {SEP}
+        <span className={cx('rounded border px-2.5 py-0.5 text-xs font-medium', tintOf(a.subject))}>{a.subject}</span>
+        {SEP}
+        <span>{showIssue && <>Vol. {a.volume}, Issue {a.issue} · </>}pp. {a.pages}</span>
+        {SEP}
+        <span>{formatDate(a.publishedAt)}</span>
       </div>
-      <h3 className="mt-2 font-newsreader text-[1.1875rem] font-semibold leading-snug text-obsidian-900 sm:text-[1.3125rem]">
-        <AppLink to={paths.article(a.paperId)} className="hover:text-wine-700"><Highlight text={a.title} terms={terms} /></AppLink>
+      <h3 className="font-newsreader text-base font-semibold leading-snug text-[#141B2B]">
+        <AppLink to={paths.article(a.paperId)} className="transition-colors hover:text-wine-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700"><Highlight text={a.title} terms={terms} /></AppLink>
       </h3>
-      <div className="mt-2.5"><AuthorChips names={a.authors} terms={terms} /></div>
+      <ul aria-label="Authors" className="flex flex-wrap items-center gap-x-3 gap-y-1.5 font-work text-base text-[#141B2B]">
+        {a.authors.map((n) => {
+          const orcid = orcidFor(n)
+          return (
+            <li key={n} className="inline-flex items-center gap-1.5">
+              <Avatar name={n} size={20} />
+              <AppLink to={paths.search(n)} className="font-medium hover:text-wine-800 hover:underline"><Highlight text={n} terms={terms} /></AppLink>
+              {orcid && <a href={`https://orcid.org/${orcid}`} target="_blank" rel="noreferrer" title={`ORCID: ${orcid}`} aria-label={`ORCID iD of ${n} (opens in a new tab)`} className="text-[13px] font-bold text-emerald-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">iD</a>}
+            </li>
+          )
+        })}
+      </ul>
       {open && (
-        <div id={absId} className="mt-3 rounded border border-l-[3px] border-obsidian-200 border-l-wine-800 bg-[#FBF8F4] p-3.5">
-          <Kicker>Abstract</Kicker>
-          <p className="mt-1 font-serif4 text-[15px] leading-relaxed text-obsidian-800"><Highlight text={a.abstract} terms={terms} /></p>
+        <div id={absId} className="rounded bg-[#F4F5FC] p-4 text-[#564241]">
+          <p className="font-serif4 text-base leading-relaxed"><Highlight text={a.abstract} terms={terms} /></p>
         </div>
       )}
-      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-obsidian-100 pt-3">
-        <p className="min-w-0 text-[13px] text-obsidian-600"><span className="font-semibold uppercase tracking-[0.06em]">DOI</span>{' '}
-          <a href={`https://doi.org/${doi}`} target="_blank" rel="noreferrer" className="break-all tabular-nums text-wine-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">{doi}<span className="sr-only"> (opens in a new tab)</span></a></p>
-        <Metrics views={a.views} downloads={a.downloads} citations={a.citations} className="sm:ml-auto" />
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <ArticleActions article={a} />
-        <button type="button" aria-expanded={open} aria-controls={open ? absId : undefined} onClick={() => setOpen(!open)} className={TOGGLE}>
-          Abstract<ChevronDown className={cx('h-4 w-4 transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
-        </button>
-        {extra}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E1E8FD] pt-3 font-work text-base">
+        <p className="min-w-0"><span className={GREY}>DOI:</span>{' '}
+          <a href={`https://doi.org/${doi}`} target="_blank" rel="noreferrer" className="break-all font-mono text-sm font-medium text-wine-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">{doi}<span className="sr-only"> (opens in a new tab)</span></a></p>
+        <p className={cx('flex items-center gap-4 tabular-nums', GREY)}>{stat(Eye, a.views, 'views')}{stat(Download, a.downloads, 'downloads')}{stat(Quote, a.citations, 'citations')}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <AppLink to={paths.article(a.paperId)} className={cx(BTN, 'bg-wine-900 font-semibold uppercase text-white shadow-sm hover:bg-wine-800 px-3')}><Eye className="h-[15px] w-[15px]" aria-hidden="true" />View Article</AppLink>
+          <button type="button" onClick={() => downloadArticlePdf(a)} aria-label={`Download PDF: ${a.title}`} className={cx(BTN, 'border border-wine-900/20 bg-wine-900/10 text-wine-900 hover:bg-wine-800 hover:text-white')}><PdfIcon className="h-[15px] w-[15px]" aria-hidden="true" />PDF</button>
+          <CiteMenu article={a} className={BTN_GREY}><Quote className="h-[15px] w-[15px]" aria-hidden="true" />Cite</CiteMenu>
+          <button type="button" aria-expanded={open} aria-controls={open ? absId : undefined} onClick={() => setOpen(!open)} className={BTN_GREY}>
+            Abstract<ChevronDown className={cx('h-[14px] w-[14px] transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
+          </button>
+          {extra}
+        </div>
       </div>
     </li>
   )

@@ -15,8 +15,8 @@ const PAY_TEXT: Record<PaymentStatus, { label: string; text: string }> = {
 }
 
 const Panel = ({ id, title, aside, children }: { id: string; title: string; aside?: React.ReactNode; children: React.ReactNode }) => (
-  <section aria-labelledby={id} className="rounded border border-[#E6DCD0] bg-white">
-    <div className="flex items-center justify-between gap-2 border-b border-[#E6DCD0] bg-[#F4EEE6] px-4 py-3"><h3 id={id} className="font-newsreader text-lg font-semibold text-obsidian-900">{title}</h3>{aside}</div>
+  <section aria-labelledby={id} className="rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm">
+    <div className="flex items-center justify-between gap-2 border-b border-[#DCC0BE]/40 bg-[#F1F3FF] px-4 py-3"><h3 id={id} className="font-newsreader text-lg font-bold text-wine-900">{title}</h3>{aside}</div>
     <div className="p-4">{children}</div>
   </section>
 )
@@ -33,7 +33,7 @@ export function ApcPanel({ paper, onPay }: { paper: TrackedPaper; onPay: (m: Pay
         <tbody className="[&_td]:py-1 [&_td]:text-right [&_th]:py-1 [&_th]:text-left [&_th]:font-normal [&_th]:text-obsidian-600">
           <tr><th scope="row">APC</th><td>{i.fmt(i.base)}</td><td>{u.fmt(u.base)}</td></tr>
           <tr><th scope="row">GST {journal.apc.gstPercent}%</th><td>{i.fmt(i.gst)}</td><td>n/a</td></tr>
-          <tr className="border-t border-[#E6DCD0] font-semibold text-obsidian-900 [&_th]:font-semibold [&_th]:text-obsidian-900"><th scope="row">Total</th><td>{i.fmt(i.total)}</td><td>{u.fmt(u.total)}</td></tr>
+          <tr className="border-t border-[#DCC0BE]/40 font-semibold text-obsidian-900 [&_th]:font-semibold [&_th]:text-obsidian-900"><th scope="row">Total</th><td>{i.fmt(i.total)}</td><td>{u.fmt(u.total)}</td></tr>
         </tbody>
       </table>
       {paper.payment === 'due' && (
@@ -49,7 +49,7 @@ export function ApcPanel({ paper, onPay }: { paper: TrackedPaper; onPay: (m: Pay
 export function DocsPanel({ paper, onDownload }: { paper: TrackedPaper; onDownload: (d: PaperDocument) => void }) {
   return (
     <Panel id="docs-h" title="Documents">
-      <ul className="divide-y divide-[#E6DCD0]">
+      <ul className="divide-y divide-[#DCC0BE]/40">
         {paper.documents.map((d) => (
           <li key={d.id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
             <div className="min-w-0">
@@ -85,7 +85,7 @@ export function ReferralPanel({ paper }: { paper: TrackedPaper }) {
   return (
     <Panel id="ref-h" title="Referral credits">
       <p className="text-sm text-obsidian-700"><strong className="font-newsreader text-2xl font-semibold tabular-nums text-obsidian-900">{r.credits}</strong> {r.credits === 1 ? 'credit' : 'credits'} · {r.referred} colleague{r.referred === 1 ? '' : 's'} referred</p>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">Your code <strong className="rounded border border-[#E6DCD0] bg-[#F4EEE6] px-2 py-1 tabular-nums tracking-wide">{r.code}</strong><CopyButton text={r.code} done="Code copied" /></div>
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">Your code <strong className="rounded border border-[#DCC0BE]/40 bg-[#F1F3FF] px-2 py-1 tabular-nums tracking-wide">{r.code}</strong><CopyButton text={r.code} done="Code copied" /></div>
     </Panel>
   )
 }

@@ -72,7 +72,7 @@ export function PayDialog({ open, onClose, paperId, initialMode = 'online', onPa
     <Modal open={open} onClose={onClose} title="Pay article processing charge" size="lg">
       <p className="text-[15px] text-obsidian-700">Paper ID <strong className="tabular-nums text-obsidian-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
 
-      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 rounded border border-[#E6DCD0] bg-obsidian-100 p-1">
+      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 rounded border border-[#DCC0BE]/40 bg-obsidian-100 p-1">
         {([['online', 'Pay online'], ['proof', 'Upload proof']] as const).map(([m, label]) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}
             className={cx('min-h-[44px] rounded px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700', mode === m ? 'bg-white text-obsidian-900' : 'text-obsidian-600 hover:text-obsidian-900')}>{label}</button>
@@ -87,10 +87,10 @@ export function PayDialog({ open, onClose, paperId, initialMode = 'online', onPa
         </div>
       </fieldset>
 
-      <dl className="mt-4 overflow-hidden rounded border border-[#E6DCD0] text-sm tabular-nums">
-        <div className="flex justify-between border-b border-[#E6DCD0] px-3 py-2"><dt className="text-obsidian-600">APC</dt><dd>{fmt(base)}</dd></div>
-        <div className="flex justify-between border-b border-[#E6DCD0] px-3 py-2"><dt className="text-obsidian-600">GST ({india ? `${journal.apc.gstPercent}%` : 'not applicable'})</dt><dd>{fmt(gst)}</dd></div>
-        <div className="flex justify-between bg-[#F4EEE6] px-3 py-2 font-semibold text-obsidian-900"><dt>Total</dt><dd>{fmt(total)}</dd></div>
+      <dl className="mt-4 overflow-hidden rounded border border-[#DCC0BE]/40 text-sm tabular-nums">
+        <div className="flex justify-between border-b border-[#DCC0BE]/40 px-3 py-2"><dt className="text-obsidian-600">APC</dt><dd>{fmt(base)}</dd></div>
+        <div className="flex justify-between border-b border-[#DCC0BE]/40 px-3 py-2"><dt className="text-obsidian-600">GST ({india ? `${journal.apc.gstPercent}%` : 'not applicable'})</dt><dd>{fmt(gst)}</dd></div>
+        <div className="flex justify-between bg-[#F1F3FF] px-3 py-2 font-semibold text-obsidian-900"><dt>Total</dt><dd>{fmt(total)}</dd></div>
       </dl>
 
       {failed && <p role="alert" className="mt-4 text-sm font-semibold text-red-700">{failed}</p>}
@@ -107,7 +107,7 @@ export function PayDialog({ open, onClose, paperId, initialMode = 'online', onPa
         </div>
       ) : (
         <div className="mt-4 space-y-4">
-          <div className="rounded border border-[#E6DCD0] bg-[#F4EEE6] p-4 text-sm">
+          <div className="rounded border border-[#DCC0BE]/40 bg-[#F1F3FF] p-4 text-sm">
             <p className="font-semibold text-obsidian-900">{india ? 'Pay by UPI or bank transfer' : 'Pay by bank (wire) transfer'}</p>
             <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-[7rem_1fr]">
               {india ? (<><dt className="text-obsidian-600">UPI ID</dt><dd className="break-all font-semibold">pay@{journal.domain.split('.')[0]}</dd></>) : (<><dt className="text-obsidian-600">Bank details</dt><dd className="font-semibold">Sent to your email on request</dd></>)}

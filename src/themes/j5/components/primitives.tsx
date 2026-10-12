@@ -4,9 +4,9 @@ import { ErrorIcon, Refresh } from '../icons'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
-/** Page width and side gutters (16px on phones, 24px from sm up). */
+/** Page width and side gutters (16px on phones, 24px from sm, 32px from lg: max-w-7xl as in the reference). */
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cx('mx-auto w-full max-w-[1240px] px-4 sm:px-6', className)}>{children}</div>
+  return <div className={cx('mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', className)}>{children}</div>
 }
 
 export const Skeleton = ({ className }: { className?: string }) => (

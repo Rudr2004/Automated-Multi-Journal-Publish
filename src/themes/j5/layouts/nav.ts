@@ -4,6 +4,7 @@ import { paths } from '../../../config/routes'
 
 export interface NavLinkItem { label: string; to: string; note?: string }
 export interface NavMenu { id: 'authors' | 'about'; label: string; links: NavLinkItem[] }
+export interface NavDropdown { id: string; label: string; links: NavLinkItem[] }
 
 export const primaryLinks: NavLinkItem[] = [
   { label: 'Current Issue', to: paths.currentIssue },
@@ -11,7 +12,6 @@ export const primaryLinks: NavLinkItem[] = [
 ]
 export const editorialLink: NavLinkItem = { label: 'Editorial Board', to: paths.editorialBoard }
 
-const feature = ['publication-ethics', 'peer-review', 'open-access', 'copyright-licensing', 'plagiarism']
 
 export const menus: NavMenu[] = [
   {
@@ -31,8 +31,23 @@ export const menus: NavMenu[] = [
       { label: 'Aims & Scope', to: paths.about('aims-scope') },
       { label: 'Journal Information', to: paths.about('journal-information') },
       { label: 'Indexing', to: paths.about('indexing') },
-      { label: 'Contact', to: paths.about('contact') },
-      ...feature.map((s) => policyLinks.find((p) => p.slug === s)!).map((p) => ({ label: p.label, to: p.to })),
     ],
   },
 ]
+
+/** Reviewer menu of the navigation bar (all pages already exist in the journal). */
+export const reviewerMenu: NavDropdown = {
+  id: 'reviewers', label: 'For Reviewers',
+  links: [
+    { label: 'Reviewer Guidelines', to: paths.policy('reviewer-guidelines') },
+    { label: 'Peer Review Process', to: paths.policy('peer-review') },
+    { label: 'Become a Reviewer', to: paths.forAuthors('become-a-reviewer') },
+    { label: 'Conflict of Interest', to: paths.policy('conflict-of-interest') },
+  ],
+}
+
+/** Policies menu: every policy page of the journal. */
+export const policiesMenu: NavDropdown = { id: 'policies', label: 'Policies', links: policyLinks.map((p) => ({ label: p.label, to: p.to })) }
+
+export const apcLink: NavLinkItem = { label: 'APC Payment', to: paths.forAuthors('apc-payment') }
+export const contactLink: NavLinkItem = { label: 'Contact Us', to: paths.about('contact') }

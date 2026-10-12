@@ -6,11 +6,13 @@ import * as validate from '../../../core/lib/validators'
 import type { TrackPageProps } from '../../../core/theme'
 import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../../../core/types'
 import { ButtonLink } from '../components/Button'
-import { Field, Spinner, fieldInput } from '../components/form/Field'
-import { ClassicHeader } from '../components/ClassicHeader'
+import { Field, Spinner } from '../components/form/Field'
+import { AppLink } from '../../../core/router'
 import { Container, cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
-import { Search } from '../icons'
+import { Search, Track } from '../icons'
+import { Chevron as ChevronRight } from './submit/mi'
+import { inp } from './submit/shared'
 import { KpiTiles, LogTable, PaperHeader } from './track/Console'
 import { CertDialog, EditDialog } from './track/EditDialogs'
 import { OtpDialog } from './track/OtpDialog'
@@ -106,25 +108,44 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
 
   return (
     <div>
-      <ClassicHeader id="track-h" crumbs={[{ label: 'Track My Paper' }]} kicker="Status console" title="Where is my paper right now?"
-        intro="No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.">
-          <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-7 grid gap-4 rounded border-t-4 border-t-ochre-700 bg-white p-4 text-obsidian-900 sm:p-5 md:grid-cols-[1fr_1fr_auto] md:items-start">
-            <Field label="Paper ID" name="paperId" required error={errors.paperId}>
-              <input className={fieldInput(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
-                onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
-            </Field>
-            <Field label="Email" name="email" required error={errors.email}>
-              <input type="email" className={fieldInput(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
-                onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
-            </Field>
-            <button type="submit" disabled={loading} aria-busy={loading}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded bg-wine-800 px-6 text-sm font-semibold text-white transition-colors hover:bg-wine-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 focus-visible:ring-offset-2 disabled:opacity-60 md:mt-[1.75rem] md:w-auto">
-              {loading ? <Spinner /> : <Search className="h-5 w-5" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
-            </button>
-          </form>
-      </ClassicHeader>
+      <div className="bg-[#F9F9FF] pt-6 sm:pt-10">
+        <Container>
+          <nav aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2 font-work text-xs text-[#564241]">
+              <li><AppLink to={paths.home} className="transition-colors hover:text-wine-900">Home</AppLink></li>
+              <li aria-hidden="true"><ChevronRight className="h-4 w-4 text-[#DCC0BE]" /></li>
+              <li><AppLink to={paths.policy('author-guidelines')} className="transition-colors hover:text-wine-900">For Authors</AppLink></li>
+              <li aria-hidden="true"><ChevronRight className="h-4 w-4 text-[#DCC0BE]" /></li>
+              <li aria-current="page" className="font-semibold text-wine-900">Track My Paper</li>
+            </ol>
+          </nav>
+          <div className="mt-4 flex flex-col gap-5 rounded-xl border border-[#DCC0BE]/40 bg-white p-5 shadow-sm sm:p-8">
+            <div className="flex max-w-2xl flex-col gap-2">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded border border-wine-800/20 bg-wine-800/10 px-2.5 py-0.5 font-work text-[11px] font-bold uppercase tracking-wider text-wine-900">
+                <Track className="h-3.5 w-3.5" aria-hidden="true" />Status console
+              </span>
+              <h1 id="track-h" className="font-newsreader text-2xl font-bold leading-tight tracking-tight text-wine-900 sm:text-3xl">Where is my paper right now?</h1>
+              <p className="font-serif4 text-sm leading-relaxed text-[#564241]">No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.</p>
+            </div>
+            <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 border-t border-[#DCC0BE]/30 pt-4 md:grid-cols-[1fr_1fr_auto] md:items-start">
+              <Field label="Paper ID" name="paperId" required error={errors.paperId}>
+                <input className={inp(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
+                  onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+              </Field>
+              <Field label="Email" name="email" required error={errors.email}>
+                <input type="email" className={inp(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
+                  onChange={(e) => { setEmail(e.target.value.replace(/\s/g, '')); setErrors((x) => ({ ...x, email: undefined })) }} onBlur={() => setEmail(email.trim().toLowerCase())} />
+              </Field>
+              <button type="submit" disabled={loading} aria-busy={loading}
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-wine-800 px-6 font-work text-[13px] font-bold text-white shadow-sm transition-colors hover:bg-wine-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-800 focus-visible:ring-offset-2 disabled:opacity-60 md:mt-[1.75rem] md:w-auto">
+                {loading ? <Spinner /> : <Search className="h-5 w-5" aria-hidden="true" />}{loading ? 'Searching…' : 'Track paper'}
+              </button>
+            </form>
+          </div>
+        </Container>
+      </div>
 
-      <div className="bg-[#FBF8F4] py-8 sm:py-12">
+      <div className="bg-[#F9F9FF] py-6 sm:py-8">
         <Container>
           <div aria-live="polite" aria-busy={loading}>
             {lookupError && <p role="alert" className="rounded border border-red-700 bg-red-50 p-4 text-[15px] font-semibold text-red-700">{lookupError}</p>}
@@ -144,14 +165,14 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
                 </div>
               )}
               {result?.kind === 'other-journal' && (
-                <div role="status" className="max-w-xl rounded border border-[#E6DCD0] bg-white p-6 ">
-                  <h2 className="font-newsreader text-2xl font-semibold text-obsidian-900">This Paper ID belongs to another journal</h2>
+                <div role="status" className="max-w-xl rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm p-6 ">
+                  <h2 className="font-newsreader text-2xl font-bold text-wine-900">This Paper ID belongs to another journal</h2>
                   <p className="mt-2 text-[15px] text-obsidian-700">Paper IDs for {journal.shortName} start with <strong className="text-obsidian-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-obsidian-900">{result.code}</strong> are tracked on that journal’s own page. Please check your confirmation email.</p>
                 </div>
               )}
               {result?.kind === 'not-found' && (
-                <div role="alert" className="max-w-xl rounded border border-[#E6DCD0] bg-white p-6 ">
-                  <h2 className="font-newsreader text-2xl font-semibold text-obsidian-900">We could not find that paper</h2>
+                <div role="alert" className="max-w-xl rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm p-6 ">
+                  <h2 className="font-newsreader text-2xl font-bold text-wine-900">We could not find that paper</h2>
                   <p className="mt-2 text-[15px] text-obsidian-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-wine-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
                   <div className="mt-4"><ButtonLink to={paths.about('contact')} variant="outline" className="min-h-[44px]">Contact the editorial office</ButtonLink></div>
                 </div>
@@ -159,15 +180,15 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             </div>
           </div>
 
-          <details className="mt-8 rounded border border-[#E6DCD0] bg-white ">
+          <details className="mt-8 rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm ">
             <summary className="flex min-h-[44px] cursor-pointer items-center px-4 text-sm font-semibold text-wine-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">Try a demo paper</summary>
-            <div className="border-t border-[#E6DCD0] p-4">
+            <div className="border-t border-[#DCC0BE]/40 p-4">
               <p className="text-sm text-obsidian-600">Select a row to fill the form, then press Track paper. Demo email codes are shown in the verification step.</p>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {DEMOS.map((d) => (
                   <li key={d.id}>
                     <button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}); formRef.current?.scrollIntoView({ block: 'center' }) }}
-                      className="flex min-h-[44px] w-full flex-col items-start justify-center rounded border border-[#E6DCD0] px-3 py-1.5 text-left hover:border-wine-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">
+                      className="flex min-h-[44px] w-full flex-col items-start justify-center rounded border border-[#DCC0BE]/40 px-3 py-1.5 text-left hover:border-wine-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700">
                       <span className="text-sm font-semibold tabular-nums text-obsidian-900">{d.id}</span>
                       <span className="text-[13px] text-obsidian-600">{d.note}</span>
                     </button>

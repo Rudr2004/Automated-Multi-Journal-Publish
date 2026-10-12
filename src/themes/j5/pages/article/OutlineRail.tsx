@@ -1,77 +1,45 @@
-// Left rail: the article outline. Every tab is listed; the open tab expands to its sections, and the section in view is highlighted (scroll-spy).
-import { useEffect, useMemo, useState } from 'react'
+// Left rail (2 of 12 columns): the article outline. The Abstract group lists its blocks; the rest are single links to the sections below.
 import type { ArticleFull } from '../../../../core/types'
 import { cx } from '../../components/primitives'
-import { Kicker } from '../../components/signature'
-import { reducedMotion, type TabDef, type TabId } from './shared'
 
 interface Item { id: string; label: string }
 
-export function outlineFor(article: ArticleFull, tab: TabId): Item[] {
-  if (tab === 'abstract') {
-    return [
-      { id: 'abstract-text', label: 'Abstract' },
-      ...(article.keywords?.length ? [{ id: 'keywords', label: 'Keywords' }] : []),
-      ...(article.authorDetails?.length ? [{ id: 'authors', label: 'Authors' }] : []),
-      { id: 'history', label: 'Publication history' },
-    ]
-  }
-  if (tab === 'full-text') return (article.sections ?? []).map((s, i) => ({ id: s.id, label: `${String(i + 1).padStart(2, '0')}  ${s.title}` }))
-  if (tab === 'references') return [{ id: 'references-list', label: `All ${article.references.length} references` }]
-  return []
-}
+const LINK = 'block rounded px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 motion-reduce:transition-none'
 
-export function OutlineRail({ tabs, active, onSelect, article }: { tabs: TabDef[]; active: TabId; onSelect: (id: TabId) => void; article: ArticleFull }) {
-  const items = useMemo(() => outlineFor(article, active), [article, active])
-  const [current, setCurrent] = useState('')
-
-  useEffect(() => {
-    setCurrent(items[0]?.id ?? '')
-    const els = items.map((i) => document.getElementById(i.id)).filter((e): e is HTMLElement => !!e)
-    if (!els.length || typeof IntersectionObserver === 'undefined') return
-    const seen = new Map<string, boolean>()
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => seen.set(e.target.id, e.isIntersecting))
-      const first = els.find((el) => seen.get(el.id))
-      if (first) setCurrent(first.id)
-    }, { rootMargin: '-130px 0px -55% 0px' })
-    els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
-  }, [items])
-
-  const go = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' })
-    setCurrent(id)
-  }
-
+export function OutlineRail({ article, current, onGo }: { article: ArticleFull; current: string; onGo: (id: string) => void }) {
+  const abstractItems: Item[] = [
+    { id: 'abstract', label: 'Abstract' },
+    ...(article.keywords?.length ? [{ id: 'keywords', label: 'Keywords' }] : []),
+    { id: 'authors-section', label: 'Authors & Certs' },
+    { id: 'publication-history', label: 'Publication history' },
+  ]
+  const rest: Item[] = [
+    ...(article.sections ?? []).map((s) => ({ id: s.id, label: s.title })),
+    ...(article.references?.length ? [{ id: 'references', label: `References (${article.references.length})` }] : []),
+    ...(article.related?.length ? [{ id: 'related-articles', label: 'Related Articles' }] : []),
+    { id: 'metrics', label: 'Visual Metrics' },
+    { id: 'disclosures', label: 'Declarations' },
+    { id: 'cite-panel', label: 'Cite Article' },
+  ]
+  const go = (id: string) => (e: React.MouseEvent) => { e.preventDefault(); onGo(id) }
+  const inAbstract = abstractItems.some((i) => i.id === current)
   return (
-    <nav aria-label="Article outline" className="hidden xl:sticky xl:top-28 xl:block xl:self-start print:hidden">
-      <Kicker className="mb-2 px-2">Outline</Kicker>
-      <ol className="space-y-0.5 border-l border-obsidian-200">
-        {tabs.map((t) => {
-          const on = t.id === active
-          return (
-            <li key={t.id}>
-              <button type="button" aria-current={on ? 'true' : undefined} onClick={() => onSelect(t.id)}
-                className={cx('-ml-px flex min-h-9 w-full items-center border-l-2 px-3 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-wine-700',
-                  on ? 'border-wine-800 text-wine-800' : 'border-transparent text-obsidian-600 hover:text-obsidian-900')}>{t.label}</button>
-              {on && items.length > 0 && (
-                <ul className="mb-1.5 ml-3 space-y-0.5 border-l border-obsidian-100 pl-2">
-                  {items.map((i) => (
-                    <li key={i.id}>
-                      <button type="button" onClick={() => go(i.id)} aria-current={current === i.id ? 'location' : undefined}
-                        className={cx('flex min-h-8 w-full items-start rounded px-2 py-1 text-left text-[13px] leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 [overflow-wrap:anywhere]',
-                          current === i.id ? 'bg-ochre-50 font-semibold text-wine-700' : 'text-obsidian-600 hover:bg-obsidian-50 hover:text-obsidian-900')}>
-                        <span className="whitespace-pre-wrap">{i.label}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          )
-        })}
-      </ol>
-    </nav>
+    <aside aria-label="Article outline" className="hidden space-y-3 lg:sticky lg:top-28 lg:col-span-2 lg:block lg:self-start print:hidden">
+      <h2 className="font-work text-[11px] font-bold uppercase tracking-wider text-obsidian-600">Outline</h2>
+      <nav className="space-y-1 font-work text-xs">
+        <div className={cx('space-y-1 rounded p-1.5', inAbstract && 'bg-[#E1E8FD]/60')}>
+          <a href="#abstract" onClick={go('abstract')} aria-current={inAbstract ? 'location' : undefined} className={cx(LINK, 'font-semibold text-wine-900')}>Abstract</a>
+          <div className="space-y-0.5 pl-3 text-[11px] text-[#564241]">
+            {abstractItems.map((i) => (
+              <a key={i.id} href={`#${i.id}`} onClick={go(i.id)} className={cx('block rounded px-1 py-0.5 transition-colors hover:text-wine-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 motion-reduce:transition-none', current === i.id && 'font-medium text-wine-900 hover:underline')}>{i.label}</a>
+            ))}
+          </div>
+        </div>
+        {rest.map((i) => (
+          <a key={i.id} href={`#${i.id}`} onClick={go(i.id)} aria-current={current === i.id ? 'location' : undefined}
+            className={cx(LINK, 'break-words', current === i.id ? 'font-semibold text-wine-900' : 'text-[#564241] hover:text-wine-800')}>{i.label}</a>
+        ))}
+      </nav>
+    </aside>
   )
 }

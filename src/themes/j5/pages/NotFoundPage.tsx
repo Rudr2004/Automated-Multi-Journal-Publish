@@ -3,8 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
 import { ButtonLink } from '../components/Button'
-import { Dateline } from '../components/ClassicHeader'
-import { FIELD } from '../components/PageBand'
+import { DoubleRule, FIELD } from '../components/PageBand'
 import { Container, cx } from '../components/primitives'
 import { useSearchApi } from '../components/searchContext'
 import { Kicker, OrnamentRule } from '../components/signature'
@@ -42,11 +41,14 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
   return (
     <div className="bg-[#FBF8F4]">
       <Container className="py-10 sm:py-14">
-        <div className="mx-auto max-w-5xl rounded border border-[#E6DCD0] border-t-4 border-t-wine-800 bg-white p-6 sm:p-10">
+        <nav aria-label="Breadcrumb" className="mx-auto mb-6 flex max-w-5xl flex-wrap items-center gap-2 border-b border-[#E6DCD0] pb-2 font-work text-xs text-obsidian-600">
+          <AppLink to={paths.home} className="hover:text-wine-800">Home</AppLink><span aria-hidden="true" className="text-obsidian-400">/</span><span aria-current="page" className="font-medium text-wine-800">Page not found</span>
+        </nav>
+        <div className="mx-auto max-w-5xl rounded border border-[#E6DCD0] bg-white p-6 shadow-sm sm:p-10">
+          <DoubleRule tone="light" className="mb-5" />
           <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_17rem] lg:grid-cols-[minmax(0,1fr)_19rem]">
             <div className="min-w-0">
-              <Dateline className="!text-obsidian-600" />
-              <Kicker className="mt-4">Error 404 · Lost in the literature</Kicker>
+              <Kicker>Error 404 · Lost in the literature</Kicker>
               <h1 className="mt-2 font-newsreader text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight text-obsidian-900">We couldn’t find that {what}</h1>
               <OrnamentRule className="mt-4 max-w-xs" />
               <p className="mt-4 max-w-xl font-serif4 text-base leading-relaxed text-obsidian-700 sm:text-lg">The link may be outdated or mistyped, or the {what} may have moved. Search the journal, or pick one of the places below.</p>

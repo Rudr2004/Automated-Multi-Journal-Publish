@@ -1,28 +1,29 @@
-// Header: a brand row (logo tile, full journal name, tags, outline Track My Paper and solid Submit Manuscript) that scrolls away, then a solid dark sticky navigation bar
-// with dropdowns (Research Areas is a 3-column matrix menu) and a working search field with instant suggestions (DOI / Paper ID detection).
+// Header, as in the reference: a parchment masthead (logo, scholarly badges, journal name, tagline and three action buttons), a dark Journal Xplore band
+// (search with DOI / Paper-ID detection) and a sticky white navigation bar with uppercase links and hover / click dropdowns.
 import { useEffect, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink, useRouter } from '../../../core/router'
-import { AREA_BLURB, AREA_ICONS, areas } from '../components/areas'
+import { areas } from '../components/areas'
 import { ArchiveSearch } from '../components/ArchiveSearch'
-import { ButtonLink, buttonClass } from '../components/Button'
-import { cx, Tag } from '../components/primitives'
-import { ChevronDown, Close, Menu, OpenAccess, Search, Submit, Track, Verified } from '../icons'
-import { editorialLink, menus, primaryLinks, type NavLinkItem } from './nav'
-
-type MenuId = 'areas' | 'authors' | 'about' | 'search' | null
+import { Badge, ExpandMore, PublicIcon } from '../components/homeIconsJ5'
+import { cx } from '../components/primitives'
+import { Book, Close, Menu, Submit, Track } from '../icons'
+import { apcLink, contactLink, editorialLink, menus, policiesMenu, reviewerMenu, type NavDropdown, type NavLinkItem } from './nav'
 
 /** The IJFRD logo, shown whole. It has a white background, so on the dark footer it sits on a white tile. */
 export function Logo({ size = 64, tile, className }: { size?: number; tile?: boolean; className?: string }) {
   return <img src="/journals/j5/logo.png" alt="" width={size} height={size} style={{ width: size, height: size }} className={cx('shrink-0 object-contain', tile && 'rounded bg-white p-1', className)} />
 }
 
+const shell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'
+const chip = 'rounded border px-2 py-0.5 font-work text-[11px] uppercase tracking-wider'
+const dot = <span aria-hidden="true" className="text-[#dcc0be]">•</span>
+
 export function Header() {
   const { pathname } = useRouter()
-  const [menu, setMenu] = useState<MenuId>(null)
+  const [menu, setMenu] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const closeTimer = useRef<number>()
   const isActive = (to: string) => pathname === to || pathname.startsWith(`${to}/`)
@@ -31,131 +32,125 @@ export function Header() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(null) }
     const onDown = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setMenu(null) }
-    const onScroll = () => setScrolled(window.scrollY > 80)
     document.addEventListener('keydown', onKey)
     document.addEventListener('mousedown', onDown)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onDown); window.removeEventListener('scroll', onScroll) }
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onDown) }
   }, [])
-  // Menus open when the pointer enters a button (or on click / Enter) and close shortly after it leaves the header, on Esc, or on a click elsewhere.
-  const openMenu = (id: Exclude<MenuId, null>) => { window.clearTimeout(closeTimer.current); setMenu(id) }
+  // Dropdowns open when the pointer enters a button (or on click / Enter) and close shortly after it leaves the bar, on Esc, or on a click elsewhere.
+  const openMenu = (id: string) => { window.clearTimeout(closeTimer.current); setMenu(id) }
   const holdOpen = () => window.clearTimeout(closeTimer.current)
-  const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu((m) => (m === 'search' ? m : null)), 140) }
+  const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu(null), 140) }
 
-  const dark = true // the navigation bar is solid wine
-  const linkCls = (active: boolean) => cx('inline-flex items-center gap-1 whitespace-nowrap rounded px-2.5 py-2 text-sm font-medium transition-colors',
-    dark ? (active ? 'bg-bordeaux-900/70 text-white' : 'text-wine-100 hover:bg-bordeaux-900/50 hover:text-white') : (active ? 'bg-ochre-50 text-wine-700' : 'text-obsidian-800 hover:bg-wine-50 hover:text-wine-900'))
-  const plain = (l: NavLinkItem) => <div key={l.to} onMouseEnter={() => setMenu((m) => (m === 'search' ? m : null))}><AppLink to={l.to} aria-current={isActive(l.to) ? 'page' : undefined} className={linkCls(isActive(l.to))}>{l.label}</AppLink></div>
-  const chev = (open: boolean) => <ChevronDown className={cx('h-4 w-4 transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
+  const link = 'flex items-center gap-1 whitespace-nowrap px-3 py-3.5 font-work text-xs font-medium uppercase leading-4 tracking-wider transition-colors'
+  const idle = 'text-[#564241] hover:bg-[#f4f5fc] hover:text-wine-800'
+  const on = 'border-b-2 border-[#9b4500] bg-[#9b4500]/10 font-bold text-[#9b4500]'
+  const plain = (l: NavLinkItem, active: boolean, marker?: string) => (
+    <div key={l.to} onMouseEnter={() => setMenu(null)}>
+      <AppLink to={l.to} aria-current={active ? 'page' : undefined} className={cx(link, active ? on : idle)}>{marker && <span aria-hidden="true" className={cx('h-1.5 w-1.5 rounded-full', marker)} />}{l.label}</AppLink>
+    </div>
+  )
+  const dropdown = (m: NavDropdown, wide?: boolean) => {
+    const open = menu === m.id
+    return (
+      <div key={m.id} className="relative" onMouseEnter={() => openMenu(m.id)}>
+        <button type="button" aria-expanded={open} aria-haspopup="true" onClick={() => (open ? setMenu(null) : openMenu(m.id))} className={cx(link, 'cursor-pointer', idle, open && 'text-wine-800')}>
+          {m.label}<ExpandMore className={cx('h-3.5 w-3.5 text-[#897270] transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
+        </button>
+        {open && (
+          <ul className={cx('absolute left-0 top-full z-50 max-h-[460px] overflow-y-auto rounded border border-[#dcc0be] bg-white py-1.5 shadow-lg motion-safe:animate-fade-in', wide ? 'w-80' : 'w-64')}>
+            {m.links.map((l) => (
+              <li key={l.to + l.label}><AppLink to={l.to} className="block px-4 py-2 font-work text-xs text-[#141b2b] transition-colors hover:bg-[#f4f5fc] hover:text-wine-800">{l.label}</AppLink></li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+  const authors = menus.find((m) => m.id === 'authors')!
+  const about = menus.find((m) => m.id === 'about')!
+  const areaMenu: NavDropdown = { id: 'areas', label: 'Research Areas', links: areas.map((a) => ({ label: a.name, to: paths.search(a.name) })) }
+  const mobileGroups: NavDropdown[] = [areaMenu, authors, policiesMenu, reviewerMenu, about]
+  const flat: NavLinkItem[] = [{ label: 'Home', to: paths.home }, { label: 'Current Issue', to: paths.currentIssue }, { label: 'Archives', to: paths.pastIssues }, apcLink, editorialLink, contactLink]
+  const mobileLink = 'block border-b border-obsidian-100 py-3.5 font-work text-sm font-semibold uppercase tracking-wider text-[#141b2b]'
 
   return (
     <>
-      {/* Brand row: logo tile, the full journal name and tags, then Track My Paper and Submit. It scrolls away; the navigation bar below stays. */}
-      <div className="border-b-[4px] border-double border-wine-800/40 bg-[#FBF8F4]">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
-          <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-            <Logo size={64} tile className="h-14 w-14 border border-obsidian-200 sm:h-[4.5rem] sm:w-[4.5rem]" />
-            <span className="min-w-0">
-              <span className="block font-newsreader text-[1.1875rem] font-semibold leading-tight tracking-tight text-obsidian-900 sm:text-[1.625rem]">{journal.name}</span>
-              <span className="mt-1.5 hidden flex-wrap items-center gap-x-2 gap-y-1 sm:flex">
-                <span className="text-[13px] font-semibold tabular-nums text-obsidian-700">{journal.shortName} · ISSN {journal.issnOnline}</span>
-                {journal.badges.peerReviewed && <Tag tone="azure" icon={<Verified className="h-3.5 w-3.5" aria-hidden="true" />}>Peer reviewed</Tag>}
-                {journal.badges.openAccess && <Tag tone="azure" icon={<OpenAccess className="h-3.5 w-3.5" aria-hidden="true" />}>Open access</Tag>}
-                <Tag>{journal.frequency}</Tag>
-              </span>
-            </span>
-          </AppLink>
-          <div className="hidden shrink-0 items-center gap-2 sm:flex">
-            <ButtonLink to={paths.track} variant="outline"><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</ButtonLink>
-            <ButtonLink to={paths.submit} variant="cta"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
-          </div>
-        </div>
-      </div>
-
-    <div ref={root} data-j5-header onMouseEnter={holdOpen} onMouseLeave={scheduleClose}
-      className="sticky top-0 z-50 border-b-2 border-ochre-600 bg-wine-800 text-white">
-      <div className="mx-auto flex h-12 max-w-[1240px] items-center gap-4 px-4 sm:px-6">
-        <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className={cx('font-newsreader text-xl font-bold tracking-tight xl:hidden', dark ? 'text-white' : 'text-obsidian-900')}>{journal.shortName}</AppLink>
-
-        <nav aria-label="Main" className="hidden items-center xl:flex">
-          {primaryLinks.map(plain)}
-          <div onMouseEnter={() => openMenu('areas')}>
-            <button type="button" aria-expanded={menu === 'areas'} aria-haspopup="true" onClick={() => openMenu('areas')} className={linkCls(menu === 'areas')}>Research Areas {chev(menu === 'areas')}</button>
-          </div>
-          {plain(editorialLink)}
-          {menus.map((m) => (
-            <div key={m.id} className="relative" onMouseEnter={() => openMenu(m.id)}>
-              <button type="button" aria-expanded={menu === m.id} aria-haspopup="true" onClick={() => openMenu(m.id)} className={linkCls(menu === m.id)}>{m.label} {chev(menu === m.id)}</button>
-              {menu === m.id && (
-                <div className={cx('absolute top-full z-50 mt-1 w-72 rounded border border-obsidian-200 bg-white p-2 text-obsidian-900 shadow-lift motion-safe:animate-fade-in', m.id === 'about' ? 'right-0' : 'left-0')}>
-                  <ul>{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} className="block rounded px-3 py-2 hover:bg-obsidian-100"><span className="block text-sm font-semibold text-obsidian-900">{l.label}</span>{l.note && <span className="block text-xs text-obsidian-600">{l.note}</span>}</AppLink></li>)}</ul>
+      {/* Masthead and Journal Xplore band: they scroll away; the navigation bar below stays. */}
+      <div className="w-full border-b border-obsidian-200 bg-[#fdfbf7] shadow-sm">
+        <div className={cx(shell, 'py-5')}>
+          <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
+            <div className="flex flex-1 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+              <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="group shrink-0">
+                <img src="/journals/j5/logo.png" alt="" width={96} height={96} className="h-auto w-20 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none sm:w-24" />
+              </AppLink>
+              <div className="flex min-w-0 max-w-3xl flex-col space-y-1.5 lg:max-w-none">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
+                  <span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-wine-800')}>ISSN: {journal.issnOnline}</span>{dot}
+                  <span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-[#9b4500]')}>Crossref DOI: {journal.doiPrefix}</span>{dot}
+                  <span className={cx(chip, 'border-[#dcc0be] bg-white text-[#564241]')}>{journal.frequency}</span>
+                  {journal.badges.peerReviewed && <>{dot}<span className={cx(chip, 'border-wine-800/20 bg-wine-800/10 font-medium text-wine-800')}>Peer reviewed</span></>}
+                  {journal.badges.openAccess && <>{dot}<span className={cx(chip, 'border-amber-300 bg-amber-50 font-semibold text-amber-900')}>Open access</span></>}
                 </div>
-              )}
+                <p className="font-newsreader text-2xl font-bold leading-tight tracking-tight text-wine-800 sm:text-3xl lg:whitespace-nowrap lg:text-[1.05rem] min-[1100px]:text-[1.2rem] xl:text-[1.5rem] 2xl:text-[1.6rem]">
+                  International Journal of Fundamental Research and Development <span className="text-[#9b4500]">({journal.shortName})</span>
+                </p>
+                <p className="font-serif4 text-sm italic leading-snug text-[#564241]">A peer-reviewed open access international journal dedicated to fundamental research and the development that follows from it</p>
+              </div>
             </div>
-          ))}
-        </nav>
+            <div className="flex w-full shrink-0 flex-row items-stretch justify-center gap-2.5 lg:w-56 lg:flex-col">
+              <AppLink to={paths.track} className="inline-flex flex-1 items-center justify-center gap-2 rounded border border-wine-800 bg-white px-3 py-2 font-work text-xs uppercase tracking-wider text-wine-800 shadow-sm transition hover:bg-[#f4f5fc] hover:shadow lg:flex-initial"><Track className="h-4 w-4" aria-hidden="true" /><span>Track Paper</span></AppLink>
+              <AppLink to={paths.submit} className="inline-flex flex-1 items-center justify-center gap-2 rounded bg-wine-800 px-4 py-2.5 font-work text-xs font-semibold uppercase tracking-wider text-white shadow transition hover:bg-bordeaux-900 hover:shadow-md lg:flex-initial"><Submit className="h-4 w-4" aria-hidden="true" /><span>Submit Research Paper</span></AppLink>
+              <AppLink to={paths.forAuthors('become-a-reviewer')} className="inline-flex flex-1 items-center justify-center gap-2 rounded border border-[#dcc0be] bg-[#e1e8fd] px-3 py-2 font-work text-xs uppercase tracking-wider text-[#141b2b] shadow-sm transition hover:bg-[#e9edff] lg:flex-initial"><Badge className="h-4 w-4" aria-hidden="true" /><span>Become a Reviewer</span></AppLink>
+            </div>
+          </div>
+        </div>
 
-        <div className="ml-auto flex items-center gap-1.5">
-          <div className="hidden w-[19rem] xl:block 2xl:w-[22rem]"><ArchiveSearch variant="compact" placeholder="Search title, author or DOI" /></div>
-          <button type="button" aria-label="Search the archive" aria-expanded={menu === 'search'} aria-controls="j5-header-search" onClick={() => setMenu((m) => (m === 'search' ? null : 'search'))}
-            className={cx('rounded p-2.5 xl:hidden', menu === 'search' ? (dark ? 'bg-bordeaux-900/70 text-white' : 'bg-wine-50 text-wine-800') : dark ? 'text-wine-100 hover:bg-bordeaux-900/50 hover:text-white' : 'text-obsidian-700 hover:bg-obsidian-100')}>
-            {menu === 'search' ? <Close className="h-5 w-5" aria-hidden="true" /> : <Search className="h-5 w-5" aria-hidden="true" />}
-          </button>
-          {scrolled && <ButtonLink to={paths.submit} variant="onDarkCta" className="hidden sm:inline-flex" aria-label="Submit Manuscript"><Submit className="h-4 w-4" aria-hidden="true" /><span aria-hidden="true">Submit</span></ButtonLink>}
-          <button type="button" onClick={() => setMobileOpen((v) => !v)} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} className={cx('rounded p-2.5 xl:hidden', dark ? 'text-white hover:bg-white/10' : 'text-obsidian-800 hover:bg-obsidian-100')}>
-            {mobileOpen ? <Close className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
-          </button>
+        {/* Journal Xplore band */}
+        <div className="relative z-30 bg-[#581016] text-white shadow-md">
+          <div className={cx(shell, 'flex items-center justify-between gap-4 py-2')}>
+            <AppLink to={paths.search('')} className="hidden shrink-0 items-center gap-1.5 rounded bg-[#f5a81c] px-3.5 py-1.5 font-work text-xs font-extrabold uppercase tracking-[0.05em] text-[#4a0e12] shadow-sm hover:bg-[#fbbf24] md:flex"><PublicIcon className="h-4 w-4" aria-hidden="true" />Journal Xplore</AppLink>
+            <div className="mx-2 w-full max-w-2xl flex-1"><ArchiveSearch variant="xplore" placeholder="Search articles, DOI, author, keywords across Xplore..." /></div>
+            <AppLink to={paths.forAuthors('submission-process')} className="hidden shrink-0 items-center gap-1.5 rounded bg-[#f5a81c] px-3 py-1.5 font-work text-xs font-bold uppercase tracking-wider text-[#4a0e12] shadow transition hover:bg-[#fbbf24] lg:flex"><Book className="h-4 w-4" aria-hidden="true" />Knowledge Hub</AppLink>
+          </div>
         </div>
       </div>
 
-      {/* Search below xl: the magnifier opens the archive search. It stays open until Esc, a click elsewhere or a page change. */}
-      {menu === 'search' && (
-        <div id="j5-header-search" className="absolute xl:hidden inset-x-0 top-full border-b border-obsidian-200 bg-[#FBF8F4] py-4 text-obsidian-900 shadow-lift motion-safe:animate-fade-in">
-          <div className="mx-auto max-w-[1240px] px-4 sm:px-6"><ArchiveSearch autoFocus /></div>
-        </div>
-      )}
-
-      {/* Research Areas: a 3-column matrix of the nine fundamental-research areas. */}
-      {menu === 'areas' && (
-        <div className="absolute inset-x-0 top-full hidden border-b border-obsidian-200 bg-white text-obsidian-900 shadow-lift motion-safe:animate-fade-in xl:block">
-          <div className="mx-auto max-w-[1240px] px-6 py-6">
-            <div className="mb-4 flex items-end justify-between">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-wine-700">Research areas</p>
-              <AppLink to={paths.search('')} className="text-sm font-semibold text-wine-700 hover:underline">Browse all articles →</AppLink>
-            </div>
-            <ul className="grid grid-cols-3 gap-px overflow-hidden rounded border border-obsidian-200 bg-obsidian-200">
-              {areas.map((a) => {
-                const Icon = AREA_ICONS[a.id]
-                return (
-                  <li key={a.id} className="bg-white">
-                    <AppLink to={paths.search(a.name)} className="flex h-full items-start gap-3 p-4 hover:bg-[#FBF8F4]">
-                      <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded" style={{ backgroundColor: `${a.color}18`, color: a.color }}>{Icon && <Icon className="h-5 w-5" />}</span>
-                      <span className="min-w-0"><span className="block font-newsreader text-base font-semibold leading-snug text-obsidian-900">{a.name}</span><span className="mt-0.5 block text-[13px] leading-snug text-obsidian-600">{AREA_BLURB[a.id]}</span></span>
-                    </AppLink>
-                  </li>
-                )
-              })}
-            </ul>
+      {/* Navigation bar: sticky. */}
+      <div ref={root} data-j5-header onMouseEnter={holdOpen} onMouseLeave={scheduleClose} className="sticky top-0 z-50 border-b border-obsidian-200 bg-white shadow-sm">
+        <div className={cx(shell, 'relative flex min-h-[48px] items-center justify-between')}>
+          <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className="font-newsreader text-xl font-bold tracking-tight text-wine-800 xl:hidden">{journal.shortName}</AppLink>
+          <nav aria-label="Main" className="hidden items-center xl:flex">
+            {plain({ label: 'Home', to: paths.home }, pathname === paths.home)}
+            {plain({ label: 'Current Issue', to: paths.currentIssue }, isActive(paths.currentIssue), 'bg-[#9b4500]')}
+            {plain({ label: 'Archives', to: paths.pastIssues }, isActive(paths.pastIssues))}
+            {dropdown(areaMenu)}
+            {dropdown(authors)}
+            {dropdown(policiesMenu, true)}
+            {dropdown(reviewerMenu)}
+            {dropdown(about)}
+            {plain(apcLink, isActive(apcLink.to))}
+            {plain(editorialLink, isActive(editorialLink.to))}
+            {plain(contactLink, isActive(contactLink.to))}
+          </nav>
+          <div className="ml-auto flex items-center gap-1 xl:hidden">
+            <button type="button" onClick={() => setMobileOpen((v) => !v)} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} className="rounded p-2.5 text-[#141b2b] hover:bg-[#f4f5fc]">
+              {mobileOpen ? <Close className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
+            </button>
           </div>
         </div>
-      )}
-
-      {mobileOpen && (
-        <nav aria-label="Mobile" className="max-h-[calc(100vh-48px)] overflow-y-auto border-t border-obsidian-200 bg-white px-4 pb-6 pt-2 text-obsidian-900 motion-safe:animate-slide-down sm:px-6 xl:hidden">
-          {[...primaryLinks, editorialLink].map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className="block border-b border-obsidian-100 py-3.5 font-newsreader text-lg font-semibold">{l.label}</AppLink>)}
-          {[{ id: 'areas', label: 'Research Areas', links: areas.map((a) => ({ label: a.name, to: paths.search(a.name) })) }, ...menus].map((m) => (
-            <details key={m.id} className="group border-b border-obsidian-100">
-              <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-newsreader text-lg font-semibold">{m.label}<ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-              <ul className="pb-3">{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block rounded px-2 py-2 text-sm text-obsidian-700 hover:bg-obsidian-100">{l.label}</AppLink></li>)}</ul>
-            </details>
-          ))}
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            <AppLink to={paths.track} onClick={() => setMobileOpen(false)} className={buttonClass('outline')}><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</AppLink>
-            <ButtonLink to={paths.submit} variant="cta"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</ButtonLink>
-          </div>
-        </nav>
-      )}
-    </div>
+        {mobileOpen && (
+          <nav aria-label="Mobile" className="max-h-[calc(100vh-48px)] overflow-y-auto border-t border-obsidian-200 bg-white px-4 pb-6 pt-2 motion-safe:animate-slide-down sm:px-6 xl:hidden">
+            {flat.slice(0, 3).map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className={mobileLink}>{l.label}</AppLink>)}
+            {mobileGroups.map((m) => (
+              <details key={m.id} className="group border-b border-obsidian-100">
+                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-work text-sm font-semibold uppercase tracking-wider text-[#141b2b]">{m.label}<ExpandMore className="h-5 w-5 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+                <ul className="pb-3">{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block rounded px-2 py-2 text-sm text-[#564241] hover:bg-[#f4f5fc]">{l.label}</AppLink></li>)}</ul>
+              </details>
+            ))}
+            {flat.slice(3).map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className={mobileLink}>{l.label}</AppLink>)}
+          </nav>
+        )}
+      </div>
     </>
   )
 }

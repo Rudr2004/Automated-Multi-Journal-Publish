@@ -55,16 +55,16 @@ const TONE = { wait: 'In progress', action: 'Action needed', done: 'Complete' } 
 export function PaperHeader({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   return (
-    <div className="rounded border border-[#E6DCD0] bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E6DCD0] bg-bordeaux-900 px-5 py-3 text-white">
+    <div className="rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DCC0BE]/40 bg-wine-800 px-5 py-3 text-white">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1"><Label className="text-ochre-300">Paper ID</Label><strong className="break-all font-newsreader text-xl font-semibold tabular-nums tracking-wide">{paper.paperId}</strong></div>
         <CopyButton tone="dark" text={paper.paperId} label="Copy" done="Paper ID copied" />
       </div>
       <div className="p-5 sm:p-6">
-        <h2 id="paper-h" className="font-newsreader text-[1.375rem] font-semibold leading-snug text-obsidian-900 sm:text-[1.625rem]">{paper.title}</h2>
+        <h2 id="paper-h" className="font-newsreader text-[1.375rem] font-bold leading-snug text-wine-900 sm:text-[1.625rem]">{paper.title}</h2>
         <p className="mt-2 text-[15px] text-obsidian-600"><span className="sr-only">Authors: </span>{paper.authors.join(', ')}</p>
         <div className="mt-6"><Tracker paper={paper} /></div>
-        <div className={cx('mt-6 rounded border p-4', info.tone === 'action' ? 'border-wine-700 bg-ochre-50' : 'border-[#E6DCD0] bg-[#F4EEE6]')}>
+        <div className={cx('mt-6 rounded-lg border p-4', info.tone === 'action' ? 'border-wine-700 bg-ochre-50' : 'border-[#DCC0BE]/40 bg-[#F1F3FF]')}>
           <Tag tone={info.tone === 'action' ? 'azure' : 'plain'}>{TONE[info.tone]}</Tag>
           <h3 className="mt-2 font-newsreader text-lg font-semibold text-obsidian-900">{info.title}</h3>
           <p className="mt-1 text-[15px] leading-relaxed text-obsidian-700">{info.text}</p>
@@ -77,12 +77,12 @@ export function PaperHeader({ paper }: { paper: TrackedPaper }) {
 export function LogTable({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   return (
-    <section aria-labelledby="log-h" className="rounded border border-[#E6DCD0] bg-white">
-      <h3 id="log-h" className="border-b border-[#E6DCD0] bg-[#F4EEE6] px-5 py-3 font-newsreader text-lg font-semibold text-obsidian-900">Activity log</h3>
+    <section aria-labelledby="log-h" className="rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm">
+      <h3 id="log-h" className="border-b border-[#DCC0BE]/40 bg-[#F1F3FF] px-5 py-3 font-newsreader text-lg font-bold text-wine-900">Activity log</h3>
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Every stage of the paper with its status and date</caption>
         <thead>
-          <tr className="border-b border-[#E6DCD0] text-xs uppercase tracking-[0.06em] text-obsidian-600">
+          <tr className="border-b border-[#DCC0BE]/40 text-xs uppercase tracking-[0.06em] text-obsidian-600">
             <th scope="col" className="px-5 py-2.5 font-semibold">Stage</th>
             <th scope="col" className="px-2 py-2.5 font-semibold">Status</th>
             <th scope="col" className="px-5 py-2.5 text-right font-semibold">Date</th>
@@ -95,7 +95,7 @@ export function LogTable({ paper }: { paper: TrackedPaper }) {
             const status = past ? 'Complete' : now ? (info.tone === 'done' ? 'Complete' : info.tone === 'action' ? 'Action needed' : 'In progress') : 'Upcoming'
             const date = paper.stageDates[s.id]
             return (
-              <tr key={s.id} aria-current={now ? 'step' : undefined} className={cx('border-b border-[#E6DCD0] align-top last:border-b-0', now && 'bg-ochre-50')}>
+              <tr key={s.id} aria-current={now ? 'step' : undefined} className={cx('border-b border-[#DCC0BE]/40 align-top last:border-b-0', now && 'bg-ochre-50')}>
                 <th scope="row" className="px-5 py-3 font-semibold text-obsidian-900">
                   <span className="mr-2 tabular-nums text-obsidian-600">{String(i + 1).padStart(2, '0')}</span>{s.label}
                   {i === 2 && paper.decisionNote && (past || now) && <span className="mt-1 block pl-7 text-[13px] font-normal text-obsidian-600">Editor’s note: {paper.decisionNote}</span>}
@@ -128,7 +128,7 @@ export function KpiTiles({ paper }: { paper: TrackedPaper }) {
   return (
     <ul aria-label="Paper summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {tiles.map(({ icon: Icon, label, value, note }) => (
-        <li key={label} className="flex gap-3 rounded border border-[#E6DCD0] bg-white p-4">
+        <li key={label} className="flex gap-3 rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm p-4">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-wine-800 text-ochre-300"><Icon className="h-5 w-5" aria-hidden="true" /></span>
           <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.06em] text-obsidian-600">{label}</p><p className="font-newsreader text-lg font-semibold leading-tight tabular-nums text-obsidian-900">{value}</p><p className="text-[13px] text-obsidian-600">{note}</p></div>
         </li>

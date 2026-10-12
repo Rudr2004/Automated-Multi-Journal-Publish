@@ -1,60 +1,47 @@
-// Announcement ticker: rotates the journal's announcements one at a time. Megaphone badge, previous / next buttons.
-// There is no pause button: the rotation stops while the pointer or keyboard focus is on the bar and never starts for visitors who prefer reduced motion. Items come from the journal config; extra items (e.g. notices) can be passed in.
-import { useEffect, useMemo, useState } from 'react'
+// Top notice bar, as in the reference: a "Call for Papers" badge followed by one continuous right-to-left scrolling line of alerts separated by amber stars.
+// The line pauses on hover and keyboard focus and has its own pause button; it does not move for visitors who prefer reduced motion (the notices wrap instead).
+// Items come from the journal config (announcements, next issue, licence); extra items (e.g. notices) can be passed in.
+import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { journal } from '../../../config/journals'
 import { formatDate } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
-import { ArrowRight } from '../icons'
-import { ChevronLeft, ChevronRight, Megaphone } from './homeIconsJ5'
+import { Megaphone, Pause, Play } from './homeIconsJ5'
 
-interface Item { key: string; text: string; to?: string; date?: string }
-const reduceMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+interface Item { key: string; node: ReactNode }
 
 export function AnnouncementTickerJ5({ extra = [] }: { extra?: { date: string; text: string }[] }) {
+  const [paused, setPaused] = useState(false)
+  const year = journal.nextIssue.expectedPublication.slice(0, 4)
   const items = useMemo<Item[]>(() => [
-    ...journal.announcements.map((a) => ({ key: a.id, text: a.text, to: a.to })),
-    ...extra.map((n, i) => ({ key: `n${i}`, text: n.text, date: n.date })),
+    ...journal.announcements.map((a) => ({ key: a.id, node: a.to ? <AppLink to={a.to} className="hover:underline">{a.text}</AppLink> : <>{a.text}</> })),
+    { key: 'x-next', node: <>Online monthly journal · Next issue: <strong>{journal.nextIssue.label}</strong> · Submission deadline <strong>{formatDate(journal.nextIssue.deadline.slice(0, 10))}</strong></> },
+    { key: 'x-doi', node: <>Crossref DOI prefix <strong>{journal.doiPrefix}</strong> for every published article</> },
+    { key: 'x-oa', node: <>Open access under <strong>{journal.licence.name}</strong>: authors keep their copyright</> },
+    ...extra.map((n, i) => ({ key: `n${i}`, node: <><strong>{formatDate(n.date)}</strong> · {n.text}</> })),
   ], [extra])
-  const [i, setI] = useState(0)
-  const [hover, setHover] = useState(false)
-  const paused = hover || reduceMotion()
-  useEffect(() => {
-    if (paused || items.length < 2) return
-    const t = window.setInterval(() => setI((n) => (n + 1) % items.length), 6000)
-    return () => window.clearInterval(t)
-  }, [paused, items.length])
   if (!items.length) return null
-  const n = items.length
-  const idx = i % n
-  const cur = items[idx]
-  const go = (d: number) => setI((x) => (x + d + n) % n)
-  const btn = 'shrink-0 rounded border border-white/20 p-1.5 text-bordeaux-100 hover:bg-white/10 hover:text-white'
+  const line = (hidden: boolean) => (
+    <span aria-hidden={hidden || undefined} className={hidden ? 'j5-dup inline-flex items-center gap-6 pr-6' : 'inline-flex items-center gap-6 pr-6'}>
+      {items.map((it) => (
+        <Fragment key={it.key}><span>{it.node}</span><span aria-hidden="true" className="text-amber-300">✦</span></Fragment>
+      ))}
+    </span>
+  )
   return (
-    <section aria-label="Announcements" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocus={() => setHover(true)} onBlur={() => setHover(false)} className="border-b border-white/10 bg-bordeaux-900 text-sm text-bordeaux-100">
-      <div className="mx-auto flex min-h-[2.5rem] max-w-[1240px] items-center gap-3 px-4 py-1 sm:px-6">
-        <span className="flex shrink-0 items-center gap-2 text-white">
-          <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-ochre-400/20 text-ochre-300">
-            <Megaphone className="h-[18px] w-[18px]" aria-hidden="true" />
-            {!paused && n > 1 && <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-ochre-300 ring-2 ring-bordeaux-900" />}
-          </span>
-          <span className="hidden text-[11px] font-semibold uppercase tracking-[0.08em] text-ochre-300 sm:inline">Announcements</span>
-        </span>
-        <div className="min-w-0 flex-1" aria-live={paused ? 'polite' : 'off'} aria-atomic="true">
-          <p key={cur.key} className="font-medium leading-snug motion-safe:animate-fade-in">
-            {cur.date && <span className="mr-2 inline-block rounded bg-white/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-ochre-300">{formatDate(cur.date)}</span>}
-            {cur.to
-              ? <AppLink to={cur.to} className="text-white hover:underline">{cur.text} <ArrowRight className="inline h-4 w-4 align-text-bottom text-ochre-300" aria-hidden="true" /></AppLink>
-              : cur.text}
-          </p>
+    <section aria-label="Announcements" className="relative z-50 overflow-hidden border-b border-[#6b1e2f] bg-[#51020b] px-4 py-2 text-white">
+      <div className="mx-auto flex max-w-[1600px] items-center">
+        <div className="z-10 mr-3 flex shrink-0 items-center gap-1.5 rounded border border-amber-300/30 bg-[#6b1e2f] px-2.5 py-0.5 font-work text-[11px] font-semibold uppercase tracking-[0.08em] text-amber-200 shadow-sm">
+          <Megaphone className="h-3.5 w-3.5" aria-hidden="true" /><span>Call for Papers {year}</span>
         </div>
-        <span className="hidden shrink-0 whitespace-nowrap text-xs tabular-nums text-bordeaux-200 lg:inline">ISSN {journal.issnOnline} · DOI {journal.doiPrefix}</span>
-        {n > 1 && (
-          <span className="flex shrink-0 items-center gap-1.5">
-            <button type="button" onClick={() => go(-1)} aria-label="Previous announcement" className={btn}><ChevronLeft className="h-4 w-4" aria-hidden="true" /></button>
-            <span className="hidden min-w-[2.25rem] text-center text-xs font-semibold tabular-nums text-bordeaux-200 sm:inline" aria-hidden="true">{idx + 1} / {n}</span>
-            <button type="button" onClick={() => go(1)} aria-label="Next announcement" className={btn}><ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
-          </span>
-        )}
+        <div className="w-full overflow-hidden whitespace-nowrap motion-reduce:overflow-visible">
+          <div className={`j5-marquee font-work text-xs tracking-wide text-[#f4f5fc] sm:text-sm ${paused ? 'j5-paused' : ''}`}>
+            {line(false)}{line(true)}
+          </div>
+        </div>
+        <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} aria-label={paused ? 'Resume scrolling announcements' : 'Pause scrolling announcements'}
+          className="z-10 ml-3 shrink-0 rounded border border-white/25 p-1 text-white hover:bg-white/10 motion-reduce:hidden">
+          {paused ? <Play className="h-3.5 w-3.5" aria-hidden="true" /> : <Pause className="h-3.5 w-3.5" aria-hidden="true" />}
+        </button>
       </div>
     </section>
   )

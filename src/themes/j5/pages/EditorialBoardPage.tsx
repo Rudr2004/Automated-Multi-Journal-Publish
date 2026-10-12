@@ -6,7 +6,7 @@ import { ButtonLink } from '../components/Button'
 import { Directory } from '../components/board/Directory'
 import { Leadership } from '../components/board/parts'
 import { areas } from '../components/areas'
-import { ClassicHeader } from '../components/ClassicHeader'
+import { LightHeader } from '../components/static/LightHeader'
 import { Container } from '../components/primitives'
 import { Kicker, OrnamentRule } from '../components/signature'
 import { ArrowRight } from '../icons'
@@ -15,14 +15,14 @@ export function EditorialBoardPage({ editors }: { editors: EditorProfile[] }) {
   const countries = new Set(editors.map((e) => e.country)).size
   return (
     <>
-      <ClassicHeader crumbs={[{ label: 'Editorial Board' }]} kicker={`${journal.shortName} · Editorial Board`} title="Editorial Board"
+      <LightHeader crumbs={[{ label: 'Editorial Board' }]} badge={`${journal.shortName} · Editorial Board`} title="Editorial Board"
         intro={`The editors and reviewers who assess every submission across our nine research areas. ${editors.length} members from ${countries} countries.`}>
-        <dl className="mt-7 grid max-w-2xl grid-cols-3 gap-3">
+        <dl className="mt-6 grid max-w-2xl grid-cols-3 gap-3 border-t border-[#E6DCD0] pt-4">
           {[['Members', editors.length], ['Countries', countries], ['Research areas', areas.length]].map(([k, v]) => (
-            <div key={k} className="rounded border border-ochre-300/30 bg-white/5 p-3"><dd className="font-newsreader text-2xl font-semibold tabular-nums text-ochre-300">{v}</dd><dt className="text-xs text-wine-200">{k}</dt></div>
+            <div key={k} className="rounded border border-[#E6DCD0] bg-[#F4EEE6] p-3"><dd className="font-newsreader text-2xl font-semibold tabular-nums text-wine-800">{v}</dd><dt className="font-work text-xs text-obsidian-600">{k}</dt></div>
           ))}
         </dl>
-      </ClassicHeader>
+      </LightHeader>
       <div className="bg-[#FBF8F4]"><Container className="py-10 sm:py-12">
         <Leadership editors={editors} />
         <Directory editors={editors} />

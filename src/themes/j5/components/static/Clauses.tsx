@@ -1,109 +1,46 @@
 // Numbered clauses (1.1, 1.2 ...) with anchor links, the page band, and the sticky table of contents for Journal 5 (IJFRD) static pages.
-import { useEffect, useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { paths, staticGroups, staticPath } from '../../../../config/routes'
 import { AppLink } from '../../../../core/router'
 import type { StaticPageData, StaticSection } from '../../../../core/types'
-import { journal } from '../../../../config/journals'
+import { journal, logoSrc, visibleLogos } from '../../../../config/journals'
 import { formatDate } from '../../../../core/lib/format'
-import { ArrowRight, Calendar, Check, ChevronDown, ErrorIcon, FactCheck, Publish } from '../../icons'
+import { ArrowRight, Calendar, Check, Download, ErrorIcon, FactCheck, History, OpenAccess, Publish, Verified } from '../../icons'
 import { cx } from '../primitives'
-import { ClassicHeader } from '../ClassicHeader'
-import { DropCap, Kicker, OrnamentRule } from '../signature'
+import { TrackQuickFormJ5 } from '../TrackQuickFormJ5'
+import { DoubleRule } from '../PageBand'
+import { DropCap, Kicker } from '../signature'
 
 export interface TocItem { id: string; label: string; num: number }
 
-/** Classical header (breadcrumb, kicker, title, ornament rule, intro, meta strip) that opens every static page. */
-export function StaticBand({ page, meta }: { page: StaticPageData; meta: ReactNode }) {
+/** Light header card (reference: breadcrumb, banner with rule, meta chips, title, intro, quick index chips). */
+export function StaticBand({ page, toc }: { page: StaticPageData; toc: TocItem[] }) {
   const g = staticGroups[page.group]
   return (
-    <ClassicHeader crumbs={[{ label: g.label, to: g.to }, { label: page.title }]} kicker={g.label} title={page.title} intro={page.intro}>
-      <div className="mt-6 flex flex-wrap gap-2 border-t border-ochre-300/30 pt-4 text-[13px] tabular-nums text-bordeaux-100">{meta}</div>
-    </ClassicHeader>
-  )
-}
-
-/** Tracks which section heading is nearest the top of the viewport. */
-function useActiveId(ids: string[]) {
-  const [active, setActive] = useState(ids[0] ?? '')
-  const key = ids.join('|')
-  useEffect(() => {
-    setActive(ids[0] ?? '')
-    if (typeof IntersectionObserver === 'undefined') return
-    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[]
-    const io = new IntersectionObserver((entries) => {
-      const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
-      if (hit) setActive(hit.target.id)
-    }, { rootMargin: '-100px 0px -65% 0px' })
-    els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
-  return active
-}
-
-export function SideColumn({ page, toc, sidebar, related }: { page: StaticPageData; toc: TocItem[]; sidebar: StaticPageData[]; related: StaticPageData[] }) {
-  const active = useActiveId(toc.map((t) => t.id))
-  const g = staticGroups[page.group]
-  const tocList = (
-    <ol className="space-y-0.5 border-l border-[#E6DCD0]">
-      {toc.map((t) => {
-        const on = t.id === active
-        return (
-          <li key={t.id}>
-            <a href={`#${t.id}`} aria-current={on ? 'location' : undefined}
-              className={cx('-ml-px flex min-h-[44px] items-center gap-2 border-l-2 py-1.5 pl-3 pr-2 text-sm leading-snug lg:min-h-0', on ? 'border-wine-800 font-semibold text-wine-900' : 'border-transparent text-obsidian-600 hover:border-obsidian-400 hover:text-obsidian-900')}>
-              <span className="w-5 shrink-0 tabular-nums text-obsidian-500">{t.num}.</span><span className="min-w-0">{t.label}</span>
-            </a>
-          </li>
-        )
-      })}
-    </ol>
-  )
-  const lists = (
     <>
-      {sidebar.length > 1 && (
-        <nav aria-label={`${g.label} pages`} className="mt-4 rounded border border-[#E6DCD0] bg-white p-4 ">
-          <Kicker className="mb-2">{g.label}</Kicker>
-          <ul className="space-y-0.5">
-            {sidebar.map((p) => (
-              <li key={p.slug}>
-                <AppLink to={staticPath(p.group, p.slug)} aria-current={p.slug === page.slug ? 'page' : undefined}
-                  className={cx('block min-h-[44px] rounded px-3 py-2.5 text-sm leading-snug lg:min-h-0 lg:py-1.5', p.slug === page.slug ? 'bg-wine-800 font-semibold text-white' : 'text-obsidian-700 hover:bg-obsidian-100')}>{p.title}</AppLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-      {related.length > 0 && (
-        <nav aria-label="Related pages" className="mt-8 xl:hidden">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-obsidian-600">Related pages</p>
-          <ul className="space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="block min-h-[44px] py-2.5 text-sm font-medium text-wine-700 hover:underline lg:min-h-0 lg:py-1">{r.title} →</AppLink></li>)}</ul>
-        </nav>
-      )}
-    </>
-  )
-  return (
-    <aside aria-label="Page navigation" className="min-w-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
-      {toc.length > 1 && (
-        <>
-          <details className="group rounded border border-[#E6DCD0] bg-white lg:hidden">
-            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between px-4 text-sm font-semibold text-obsidian-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-wine-700 [&::-webkit-details-marker]:hidden">
-              On this page ({toc.length} sections)<ChevronDown className="h-5 w-5 group-open:rotate-180" aria-hidden="true" />
-            </summary>
-            <nav aria-label="On this page" className="px-4 pb-3">{tocList}</nav>
-          </details>
-          <nav aria-label="On this page" className="hidden rounded border border-[#E6DCD0] bg-white p-4  lg:block">
-            <Kicker className="mb-3">On this page</Kicker>
-            {tocList}
+      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 border-b border-[#E6DCD0] pb-2 font-work text-xs text-obsidian-600">
+        <AppLink to={paths.home} className="hover:text-wine-800">Home</AppLink><span aria-hidden="true" className="text-obsidian-400">/</span>
+        <AppLink to={g.to} className="hover:text-wine-800">{g.label}</AppLink><span aria-hidden="true" className="text-obsidian-400">/</span>
+        <span aria-current="page" className="font-medium text-wine-800">{page.title}</span>
+      </nav>
+      <header className="rounded border border-[#E6DCD0] bg-white p-6 shadow-sm sm:p-8">
+        <DoubleRule tone="light" className="mb-3" />
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded border border-wine-800/20 bg-wine-800/10 px-2.5 py-1 font-work text-[11px] font-bold uppercase tracking-wider text-wine-800"><Verified className="h-4 w-4" aria-hidden="true" />{g.label} · {journal.shortName}</span>
+          <span className="inline-flex items-center gap-1.5 font-work text-xs text-obsidian-600"><History className="h-4 w-4" aria-hidden="true" />Updated {formatDate(page.updated)}</span>
+        </div>
+        <h1 className="mb-3 font-newsreader text-2xl font-bold leading-tight tracking-tight text-wine-800 sm:text-3xl lg:text-4xl">{page.title}</h1>
+        <p className="mb-6 font-serif4 text-sm leading-relaxed text-obsidian-600 sm:text-base">{page.intro}</p>
+        {toc.length > 1 && (
+          <nav aria-label="On this page" className="border-t border-[#E6DCD0] pt-4">
+            <span className="mb-2.5 block font-work text-[11px] font-bold uppercase tracking-wider text-obsidian-600">Sections &amp; quick index:</span>
+            <ul className="flex flex-wrap gap-2 font-work text-xs">
+              {toc.map((t) => <li key={t.id}><a href={`#${t.id}`} className="inline-flex min-h-[32px] items-center rounded border border-[#E6DCD0] bg-[#F4EEE6] px-2.5 py-1 text-obsidian-800 transition hover:bg-[#EBE2D6] hover:text-wine-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-wine-700">{t.label}</a></li>)}
+            </ul>
           </nav>
-        </>
-      )}
-      <div className="hidden lg:block">{lists}</div>
-      <details className="mt-3 rounded border border-[#E6DCD0] bg-white lg:hidden">
-        <summary className="flex min-h-[44px] cursor-pointer list-none items-center px-4 text-sm font-semibold text-obsidian-900 [&::-webkit-details-marker]:hidden">More in {g.label} and related pages</summary>
-        <div className="px-4 pb-4">{lists}</div>
-      </details>
-    </aside>
+        )}
+      </header>
+    </>
   )
 }
 
@@ -112,23 +49,25 @@ function Clause({ id, n, children, tick }: { id: string; n: string; children: Re
   return (
     <li id={id} className="group relative grid scroll-mt-28 grid-cols-[2.75rem_minmax(0,1fr)] gap-x-1 border-b border-dotted border-[#E6DCD0] py-3 last:border-b-0 sm:grid-cols-[3.25rem_minmax(0,1fr)]">
       <a href={`#${id}`} aria-label={`Link to clause ${n}`} className="h-fit rounded py-0.5 font-newsreader text-base font-semibold tabular-nums text-ochre-700 hover:text-wine-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-wine-700">{n}</a>
-      <div className="min-w-0 font-serif4 text-base leading-[1.75] text-obsidian-800 sm:text-[1.0625rem]">
+      <div className="min-w-0 font-serif4 text-[0.9375rem] leading-[1.7] text-obsidian-800 sm:text-base">
         {tick && <Check className="mr-1.5 inline h-4 w-4 -translate-y-px text-ochre-600" aria-hidden="true" />}{children}
       </div>
     </li>
   )
 }
 
-export function SectionClauses({ section, num, id }: { section: StaticSection; num: number; id: string }) {
+const DOTS = ['bg-wine-800', 'bg-ochre-700', 'bg-emerald-600']
+const DOT_TXT = ['text-wine-800', 'text-ochre-700', 'text-emerald-800']
+
+export function SectionClauses({ section, num, id, label }: { section: StaticSection; num: number; id: string; label: string }) {
   let k = 0
   const next = () => { k += 1; return { n: `${num}.${k}`, id: `c-${num}-${k}` } }
   const c = section.callout
   return (
-    <section aria-labelledby={id} className="scroll-mt-28 rounded border border-[#E6DCD0] bg-white p-5 sm:p-7">
-      <h2 id={id} className="flex scroll-mt-28 items-center gap-3 font-newsreader text-[1.375rem] font-semibold leading-tight tracking-tight text-obsidian-900 sm:text-[1.625rem]">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-wine-800 text-sm font-semibold tabular-nums text-white" aria-hidden="true">{num}</span>{section.heading}
-      </h2>
-      <OrnamentRule className="mt-3" />
+    <section aria-labelledby={id} className="scroll-mt-28 rounded border border-[#E6DCD0] bg-white p-6 shadow-sm sm:p-8">
+      <DoubleRule tone="light" className="mb-3" />
+      <p className={cx('mb-2 flex items-center gap-2 font-work text-xs font-bold uppercase tracking-wider', DOT_TXT[num % 3])}><span aria-hidden="true" className={cx('h-2 w-2 rounded-full', DOTS[num % 3])} />{label}</p>
+      <h2 id={id} className="scroll-mt-28 font-newsreader text-xl font-semibold leading-tight text-obsidian-900 sm:text-2xl">{num}. {section.heading}</h2>
       <ol className="mt-3 list-none">
         {section.paragraphs?.map((p, i) => { const q = next(); return <Clause key={q.id} {...q}>{i === 0 && p.length > 90 ? <DropCap text={p} /> : p}</Clause> })}
         {section.list?.map((x) => { const q = next(); return <Clause key={q.id} {...q} tick>{x}</Clause> })}
@@ -143,29 +82,75 @@ export function SectionClauses({ section, num, id }: { section: StaticSection; n
   )
 }
 
-/** Right rail (xl+): call for papers, journal at a glance and related policies. */
-export function RightRail({ related, groupLabel }: { related: StaticPageData[]; groupLabel: string }) {
-  const facts: [string, string][] = [['ISSN (online)', journal.issnOnline], ['Frequency', journal.frequency], ['Licence', journal.licence.name], ['Publisher', journal.publisher]]
+const SIDE = 'rounded border border-[#E6DCD0] bg-white p-5 shadow-sm'
+const SIDE_H = 'mb-3 flex items-center justify-between gap-2 border-b border-[#E6DCD0] pb-2'
+const SIDE_T = 'font-work text-xs font-bold uppercase tracking-wider text-obsidian-900'
+const SIDE_LINK = 'flex min-h-[40px] items-center justify-between gap-2 rounded border border-[#E6DCD0] bg-[#F4EEE6] px-3 py-2 font-work text-xs font-semibold text-obsidian-900 transition hover:border-wine-800/40 hover:text-wine-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-wine-700'
+
+/** Right sidebar (reference "author desk"): call for papers, indexing, notifications, track form, toolkits, DOI details, reviewer invite, open access. */
+export function RightRail({ related }: { related: StaticPageData[] }) {
+  const logos = visibleLogos()
+  const cfp: [string, string][] = [['Submission deadline', formatDate(journal.nextIssue.deadline.slice(0, 10))], ['Publication', `${journal.frequency} (online)`], ['Expected publication', formatDate(journal.nextIssue.expectedPublication)], ['Crossref DOI prefix', journal.doiPrefix]]
   return (
-    <aside aria-label="Journal information" className="hidden min-w-0 space-y-4 xl:sticky xl:top-4 xl:block xl:self-start">
-      <section className="rounded border border-[#E6DCD0] bg-white p-4 ">
-        <Kicker><Calendar className="h-4 w-4" aria-hidden="true" />Call for papers</Kicker>
-        <h2 className="mt-2 font-newsreader text-lg font-semibold leading-snug text-obsidian-900">{journal.nextIssue.label}</h2>
-        <p className="mt-1 text-sm tabular-nums text-obsidian-600">Submission deadline {formatDate(journal.nextIssue.deadline.slice(0, 10))}</p>
-        <AppLink to={paths.submit} className="mt-3 inline-flex min-h-[40px] items-center gap-2 rounded bg-wine-800 px-3.5 text-sm font-semibold text-white hover:bg-wine-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 focus-visible:ring-offset-2"><Publish className="h-4 w-4" aria-hidden="true" />Submit manuscript</AppLink>
+    <aside aria-label="Author desk" className="min-w-0 space-y-6">
+      <section className="rounded border-2 border-wine-800 bg-white p-5 shadow-sm">
+        <DoubleRule tone="light" className="mb-2.5" />
+        <p className="mb-2 flex items-center gap-2 font-work text-xs font-bold uppercase tracking-wider text-wine-800"><Calendar className="h-4 w-4" aria-hidden="true" />Call for papers</p>
+        <h2 className="mb-2 font-newsreader text-base font-semibold text-obsidian-900">{journal.nextIssue.label}</h2>
+        <p className="mb-4 font-work text-xs leading-relaxed text-obsidian-600">Submit manuscripts for the next monthly issue. Every submission goes through structured peer review.</p>
+        <dl className="mb-4 space-y-1.5 rounded border border-[#E6DCD0] bg-[#F4EEE6] p-3 font-work text-xs">
+          {cfp.map(([k, v], i) => <div key={k} className={cx('flex items-center justify-between gap-3', i > 0 && 'border-t border-[#E6DCD0] pt-1.5')}><dt className="text-obsidian-600">{k}:</dt><dd className="text-right font-semibold tabular-nums text-obsidian-900">{v}</dd></div>)}
+        </dl>
+        <AppLink to={paths.submit} className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded bg-wine-800 px-4 py-2.5 font-work text-xs font-semibold uppercase tracking-wider text-white hover:bg-bordeaux-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 focus-visible:ring-offset-2"><Publish className="h-4 w-4" aria-hidden="true" />Submit via portal</AppLink>
       </section>
-      <section className="rounded border border-[#E6DCD0] bg-white p-4 ">
-        <h2><Kicker>Journal at a glance</Kicker></h2>
-        <dl className="mt-3 divide-y divide-[#E6DCD0] text-sm">
-          {facts.map(([k, v]) => <div key={k} className="py-2"><dt className="text-xs text-obsidian-600">{k}</dt><dd className="break-words font-medium tabular-nums text-obsidian-900">{v}</dd></div>)}
+
+      <section className={SIDE}>
+        <div className={SIDE_H}><h2 className={SIDE_T}>Indexing &amp; archiving</h2><span className="inline-flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-100 px-2 py-0.5 font-work text-[10px] font-bold uppercase tracking-wider text-emerald-800"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />{logos.length} listed</span></div>
+        <p className="mb-3 font-work text-xs leading-relaxed text-obsidian-600">Only listings the journal can confirm are shown.</p>
+        <ul className="grid grid-cols-2 gap-2">
+          {logos.map((l) => <li key={l.id} className="flex h-12 items-center justify-center rounded border border-[#E6DCD0] bg-white p-2">{l.file ? <img src={logoSrc(l.file)} alt={l.name} loading="lazy" className="max-h-6 w-auto object-contain" /> : <span className="font-newsreader text-sm font-bold text-obsidian-800">{l.name}</span>}</li>)}
+        </ul>
+      </section>
+
+      <section className={SIDE}>
+        <div className={SIDE_H}><h2 className={SIDE_T}>Notifications &amp; alerts</h2><span className="rounded border border-amber-300 bg-amber-100 px-2 py-0.5 font-work text-[10px] font-bold uppercase tracking-wider text-amber-900">Updates</span></div>
+        <ul className="space-y-2">
+          {journal.announcements.map((a) => <li key={a.id}><AppLink to={a.to} className="block rounded border border-[#E6DCD0] bg-[#F4EEE6] p-3 font-work text-xs font-semibold leading-snug text-obsidian-900 hover:text-wine-800">{a.text}</AppLink></li>)}
+        </ul>
+      </section>
+
+      <section className={SIDE}>
+        <div className={SIDE_H}><h2 className={SIDE_T}>Track paper status</h2></div>
+        <TrackQuickFormJ5 />
+      </section>
+
+      <section className={SIDE}>
+        <div className={SIDE_H}><h2 className={SIDE_T}>Author toolkits &amp; downloads</h2></div>
+        <ul className="space-y-2">
+          <li><AppLink to={paths.policy('author-guidelines')} className={SIDE_LINK}>Author guidelines<Download className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>
+          <li><AppLink to={paths.policy('copyright-licensing')} className={SIDE_LINK}>Copyright and licensing<ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>
+          {related.filter((r) => r.slug !== 'author-guidelines' && r.slug !== 'copyright-licensing').map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className={SIDE_LINK}>{r.title}<ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>)}
+        </ul>
+      </section>
+
+      <section className={SIDE}>
+        <div className={SIDE_H}><h2 className={SIDE_T}>Crossref DOI details</h2></div>
+        <dl className="space-y-1.5 font-work text-xs">
+          {[['DOI prefix', journal.doiPrefix], ['ISSN (online)', journal.issnOnline], ['Publisher', journal.publisher]].map(([k, v]) => <div key={k} className="flex justify-between gap-3"><dt className="shrink-0 text-obsidian-600">{k}</dt><dd className="text-right font-semibold text-obsidian-900">{v}</dd></div>)}
         </dl>
       </section>
-      {related.length > 0 && (
-        <nav aria-label="Related policies" className="rounded border border-[#E6DCD0] bg-white p-4 ">
-          <h2><Kicker>Related in {groupLabel} and beyond</Kicker></h2>
-          <ul className="mt-2 space-y-1">{related.map((r) => <li key={r.slug}><AppLink to={staticPath(r.group, r.slug)} className="flex items-center justify-between gap-2 py-1.5 text-sm font-medium text-wine-700 hover:underline">{r.title}<ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" /></AppLink></li>)}</ul>
-        </nav>
-      )}
+
+      <section className={SIDE}>
+        <Kicker>Editorial board</Kicker>
+        <h2 className="mt-1 font-newsreader text-base font-semibold text-obsidian-900">Join as a reviewer</h2>
+        <p className="mt-1 font-work text-xs leading-relaxed text-obsidian-600">Specialists in our research areas are invited to apply.</p>
+        <AppLink to={paths.forAuthors('become-a-reviewer')} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 font-work text-xs font-semibold text-wine-700 underline-offset-4 hover:underline">Apply to review<ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
+      </section>
+
+      <section className="rounded border border-emerald-300 bg-emerald-50 p-5 shadow-sm">
+        <p className="mb-1 flex items-center gap-2 font-work text-xs font-bold uppercase tracking-wider text-emerald-800"><OpenAccess className="h-4 w-4" aria-hidden="true" />Open access · {journal.licence.name}</p>
+        <p className="font-work text-xs leading-relaxed text-obsidian-700">Every article is free to read, share and reuse under {journal.licence.name}. Authors keep their copyright.</p>
+      </section>
     </aside>
   )
 }
