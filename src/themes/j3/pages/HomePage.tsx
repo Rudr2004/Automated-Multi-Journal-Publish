@@ -1,32 +1,42 @@
-// Journal 3 home page, after the "Academic Prestige" reference: bulletin and archive search, the lead article with Editor's Choice, the current issue strip,
-// then the article lists beside the journal desk sidebar. Receives its data and callbacks as props; loading lives in core/containers.
+// Journal 3 home page, after the "Academic Editorial & Press" reference: hero with the journal profile and Call for Papers, the three article columns, the index strip,
+// then a left rail (announcements, awards, subjects, facts, author assets) beside the main column (aims, recent articles, timeline, principles, editorial board),
+// and the Author's desk, directories, appointment calls and closing call to action. Receives its data as props; loading lives in core/containers.
+import { journal } from '../../../config/journals'
 import { formatMonthYear } from '../../../core/lib/format'
-import type { ArticleSummary, HomeData } from '../../../core/types'
+import type { HomeData } from '../../../core/types'
 import { wrapCls } from './home/bits'
-import { IssueStrip } from './home/IssueStrip'
+import { ArticleColumns } from './home/ArticleColumns'
+import { Appointments, AuthorsDesk, Directories, SubmitBand } from './home/Desk'
+import { Hero } from './home/Hero'
+import { IndexStrip } from './home/IndexStrip'
 import { LatestList } from './home/LatestList'
-import { LeadSection } from './home/LeadArticle'
-import { SearchPanel } from './home/SearchPanel'
+import { Aims, Board, Principles, Timeline } from './home/MainSections'
 import { Sidebar } from './home/Sidebar'
 
 export function HomePage({ data }: { data: HomeData; onSubscribe: (email: string) => Promise<void> }) {
-  // The lead is the first editor's pick; the other picks fill the Editor's Choice cards beside it.
-  const story = data.editorsChoice[0] ?? data.latest[0]
-  const choices = data.editorsChoice.filter((a) => a.paperId !== story?.paperId).slice(0, 3)
-  const all = [...data.latest, ...data.mostRead, ...data.editorsChoice].filter((a, i, arr) => arr.findIndex((x) => x.paperId === a.paperId) === i)
-  const quote = data.testimonials[0]
-  const quoted: ArticleSummary | undefined = quote ? all.find((a) => a.title === quote.role) : undefined
   const issue = data.currentIssue
-  const previous = data.recentIssues.find((i) => !(i.volume === issue.volume && i.issue === issue.issue))
+  const pool = [...data.latest, ...data.mostRead, ...data.editorsChoice].filter((a, i, arr) => arr.findIndex((x) => x.paperId === a.paperId) === i)
   return (
-    <div className={`${wrapCls} pb-16`}>
-      <SearchPanel issue={issue} />
-      {story && <LeadSection story={story} choices={choices} volume={issue.volume} />}
-      <IssueStrip issue={issue} previous={previous} note={data.perspectives[0]} editor={data.leadership[0]} />
-      <div className="mt-12 grid gap-8 lg:grid-cols-12 lg:gap-10">
-        <LatestList latest={data.latest} mostRead={data.mostRead} issueLabel={`Volume ${issue.volume}, Issue ${issue.issue} (${formatMonthYear(issue.publishedAt)})`} />
-        <Sidebar cfp={data.callForPapers} quote={quote} quoted={quoted} />
+    <>
+      <div className={wrapCls}>
+        <Hero cfp={data.callForPapers} />
+        <ArticleColumns latest={data.latest} mostRead={data.mostRead} pool={pool} issueLabel={`Vol. ${issue.volume}, Issue ${issue.issue} \u2022 ${formatMonthYear(issue.publishedAt)}`} />
       </div>
-    </div>
+      <IndexStrip />
+      <div className={`${wrapCls} mt-12 grid gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-12`}>
+        <div className="order-2 lg:order-1"><Sidebar data={data} pool={pool} /></div>
+        <div className="order-1 flex min-w-0 flex-col gap-12 lg:order-2">
+          <Aims />
+          <LatestList latest={data.latest} mostRead={data.mostRead} pool={pool} choiceIds={data.editorsChoice.map((a) => a.paperId)} openAccess={journal.badges.openAccess} />
+          <Timeline />
+          <Principles />
+          <Board editors={data.leadership} />
+        </div>
+      </div>
+      <AuthorsDesk />
+      <Directories />
+      <Appointments />
+      <SubmitBand />
+    </>
   )
 }

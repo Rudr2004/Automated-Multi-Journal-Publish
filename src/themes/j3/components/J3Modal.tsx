@@ -43,10 +43,10 @@ export function J3Modal({ open, onClose, title, size = 'md', children }: { open:
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4">
       <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-night-900/60 motion-safe:animate-fade-in" />
       <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-        className={cx('relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-none border border-mauve-200 bg-white shadow-dock motion-safe:animate-slide-down', width)}>
-        <div className="flex items-center justify-between gap-3 border-b-2 border-iris-700 bg-j3paper-cool px-6 py-4">
+        className={cx('relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-tile border border-j3paper-rule bg-white motion-safe:animate-slide-down', width)}>
+        <div className="flex items-center justify-between gap-3 border-b border-j3paper-rule bg-j3paper-cool px-6 py-4">
           <h2 id={titleId} className="font-jakarta text-xl font-semibold text-iris-700">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-none p-2 text-mauve-700 hover:bg-iris-100"><Close className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-tile p-2 text-mauve-700 hover:bg-iris-100"><Close className="h-5 w-5" aria-hidden="true" /></button>
         </div>
         <div className="overflow-y-auto p-6">{children}</div>
       </div>

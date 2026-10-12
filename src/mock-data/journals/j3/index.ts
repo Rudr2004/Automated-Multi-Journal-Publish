@@ -30,7 +30,15 @@ const home: HomeData = {
   ],
   recentSubmissions: [],
   submissionPool: [],
-  awards: [],
+  awards: [
+    {
+      kind: 'Best Paper of the Month',
+      period: 'September 2026',
+      title: quoted.title,
+      recipient: quoted.authors.join(', '),
+      reason: 'Chosen by the editorial board for community-led documentation that returns the archive to the practitioners whose work it records.',
+    },
+  ],
   perspectives: [
     {
       tag: 'Editors’ note',

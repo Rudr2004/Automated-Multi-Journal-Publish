@@ -1,42 +1,25 @@
-// Journal 3 submission: a guided flow with one group of questions per screen, then review and a success screen.
+// Journal 3 submission: one page with five ruled sections and a right rail (reference: "Academic Manuscript Submission Form").
+// Validation, draft autosave and the success screen are unchanged; every section is validated together when Submit is pressed.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { clearDraft, isPristine, loadDraft, useAutosave, type Draft } from '../../../core/lib/draft'
+import { MdOutlineDescription, MdOutlineLockOpen, MdOutlinePaid, MdOutlineSend, MdOutlineVerified } from 'react-icons/md'
+import { journal } from '../../../config/journals'
+import { paths } from '../../../config/routes'
+import { clearDraft, isPristine, loadDraft, saveDraftNow, useAutosave, type Draft } from '../../../core/lib/draft'
 import { formatDate } from '../../../core/lib/format'
-import { initialForm, validateStep, type FormErrors, type SubmissionForm } from '../../../core/lib/submission'
+import { ACCEPTED_EXT, MAX_FILE_MB, initialForm, validateStep, type FormErrors, type SubmissionForm } from '../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../core/lib/useVisibleErrors'
+import { AppLink } from '../../../core/router'
 import { AcButton } from '../components/AcButton'
 import { J3Spinner } from '../components/J3Field'
 import { Container, cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
-import { ArrowRight, ChevronLeft, Enter, History } from '../icons'
-import { StepAbstract, StepAuthors, StepFiles, StepReview, StepTheme, StepTitle } from './submit/J3SubmitSteps'
+import { History } from '../icons'
+import { J3SubmitAside } from './submit/J3SubmitAside'
+import { ReadinessNote, ReferralCard, SectionAuthor, SectionClassification, SectionDeclarations, SectionFile, SectionPeople } from './submit/J3SubmitSteps'
 import { J3SubmitSuccess } from './submit/J3SubmitSuccess'
 
-const pick = (e: FormErrors, keys: string[]): FormErrors => Object.fromEntries(Object.entries(e).filter(([k]) => keys.includes(k)))
-
-/** Each guided screen owns a slice of the shared validation (which is defined per classic step). */
-const STEPS = [
-  { id: 'title', label: 'Title & type', title: 'What is your paper called?', text: 'Give the full title and pick the kind of article it is.', enter: true },
-  { id: 'abstract', label: 'Abstract', title: 'Tell us what it is about.', text: 'Paste your abstract and add a few keywords so readers can find it.', enter: false },
-  { id: 'theme', label: 'Theme', title: 'Where does it belong?', text: 'Choose the theme that fits best. Editors use it to route your paper.', enter: true },
-  { id: 'authors', label: 'Authors', title: 'Who wrote it?', text: 'Start with the corresponding author, then add co-authors if any.', enter: true },
-  { id: 'files', label: 'Files & declarations', title: 'Add your file and confirm.', text: 'Upload your Word file, add optional notes and confirm the declarations.', enter: false },
-  { id: 'review', label: 'Review', title: 'Check everything, then submit.', text: 'Free to submit. The processing charge is payable only after acceptance.', enter: false },
-] as const
-const LAST = STEPS.length - 1
-
-function stepErrors(i: number, f: SubmissionForm): FormErrors {
-  switch (i) {
-    case 0: return pick(validateStep(0, f), ['title', 'articleType'])
-    case 1: return pick(validateStep(0, f), ['abstract', 'keywords'])
-    case 2: return pick(validateStep(0, f), ['subject'])
-    case 3: return validateStep(1, f)
-    case 4: return { ...pick(validateStep(0, f), ['file']), ...validateStep(2, f) }
-    default: return {}
-  }
-}
-const firstBadStep = (f: SubmissionForm) => { for (let i = 0; i < LAST; i++) if (Object.keys(stepErrors(i, f)).length) return i; return -1 }
-const countAll = (f: SubmissionForm) => { let n = 0; for (let i = 0; i < LAST; i++) n += Object.keys(stepErrors(i, f)).length; return n }
+/** The shared validation is defined per classic step; the single-page form needs all of it at once. */
+const allErrors = (f: SubmissionForm): FormErrors => ({ ...validateStep(0, f), ...validateStep(1, f), ...validateStep(2, f) })
 const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
 export function SubmitPage({ onSubmit, initialPaperId = null }: {
@@ -45,21 +28,17 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
 }) {
   const toast = useToast()
   const [form, setForm] = useState<SubmissionForm>(initialForm)
-  const [step, setStep] = useState(0)
-  const [reached, setReached] = useState(0)
   const [pendingDraft, setPendingDraft] = useState<Draft | null>(() => (initialPaperId ? null : loadDraft()))
   const [paperId, setPaperId] = useState<string | null>(initialPaperId)
   const [busy, setBusy] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [announce, setAnnounce] = useState('')
+  const [manualSave, setManualSave] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
-  const headRef = useRef<HTMLHeadingElement>(null)
-  const topRef = useRef<HTMLDivElement>(null)
   const submittedEmail = useRef('')
-  const mounted = useRef(false)
-  const attemptOnArrival = useRef(false)
 
-  const savedAt = useAutosave(form, 0, !pendingDraft && !paperId)
+  const autoSaved = useAutosave(form, 0, !pendingDraft && !paperId)
+  const savedAt = manualSave && (!autoSaved || manualSave > autoSaved) ? manualSave : autoSaved
 
   useEffect(() => {
     if (paperId || isPristine(form)) return
@@ -68,39 +47,17 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
     return () => window.removeEventListener('beforeunload', warn)
   }, [form, paperId])
 
-  const current = useMemo(() => stepErrors(step, form), [step, form])
-  const { errors, onBlur, attempt, reset } = useVisibleErrors(current)
+  const current = useMemo(() => allErrors(form), [form])
+  const { errors, onBlur, attempt } = useVisibleErrors(current)
 
-  // On each new screen: clear touched state, move focus to the question and announce the step.
-  useEffect(() => {
-    reset()
-    if (!mounted.current) { mounted.current = true; return }
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    topRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-    headRef.current?.focus({ preventScroll: true })
-    setAnnounce(`Step ${step + 1} of ${STEPS.length}: ${STEPS[step].label}`)
-    if (attemptOnArrival.current) {
-      attemptOnArrival.current = false
-      attempt()
-      setTimeout(() => focusFirstError(formRef.current, stepErrors(step, form)), 60)
-    }
-  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const goTo = (i: number, withErrors = false) => { attemptOnArrival.current = withErrors; setReached((r) => Math.max(r, i)); setStep(i) }
-
-  const next = () => {
+  const submit = async () => {
     if (!attempt()) {
       const n = Object.keys(current).length
       setAnnounce(`${n} field${n === 1 ? ' needs' : 's need'} attention.`)
+      toast('Some answers need attention. Taking you to the first one.', 'error')
       focusFirstError(formRef.current, current)
       return
     }
-    goTo(Math.min(step + 1, LAST))
-  }
-
-  const submit = async () => {
-    const bad = firstBadStep(form)
-    if (bad >= 0) { toast('Some answers need attention. Taking you to the first one.', 'error'); goTo(bad, true); return }
     setSubmitError(''); setBusy(true)
     try {
       const res = await onSubmit(form)
@@ -112,97 +69,103 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
     } finally { setBusy(false) }
   }
 
-  const onFormSubmit = (e: FormEvent) => { e.preventDefault(); if (busy) return; if (step === LAST) void submit(); else next() }
+  const onFormSubmit = (e: FormEvent) => { e.preventDefault(); if (!busy) void submit() }
 
+  const saveNow = () => {
+    const at = saveDraftNow(form, 0)
+    if (at) { setManualSave(at); toast('Draft saved on this device.') } else toast('Saving is not available in this browser.', 'error')
+  }
   const resume = () => {
     if (!pendingDraft) return
-    const f = pendingDraft.form
-    const bad = firstBadStep(f)
-    setForm(f); setPendingDraft(null)
-    const target = bad >= 0 ? bad : LAST
-    setReached(target); setStep(target)
+    setForm(pendingDraft.form); setPendingDraft(null)
     toast('Draft restored. Please confirm the declarations again.')
   }
   const discard = () => { clearDraft(); setPendingDraft(null) }
 
   if (paperId) return <J3SubmitSuccess paperId={paperId} email={submittedEmail.current || form.author.email || 'your email address'} title={form.title} />
 
-  const meta = STEPS[step]
   const props = { form, errors, setForm }
-  const percent = ((step + 1) / STEPS.length) * 100
+  const missing = Object.keys(current).length
+  const tags: [string, string][] = [
+    ['bg-iris-700 text-white', 'Submission desk open'],
+    ['bg-j3valid-50 text-j3valid-800', 'Peer reviewed'],
+    ['bg-j3paper-deep text-iris-700', `Open access ${journal.licence.name}`],
+    ['bg-ember-50 text-ember-900', 'Free to submit'],
+  ]
+  const tiles = [
+    { icon: MdOutlineDescription, k: 'Accepted file formats', v: `Word (${ACCEPTED_EXT.join(', ')})`, tone: '' },
+    { icon: MdOutlineLockOpen, k: 'Document upload limit', v: `Up to ${MAX_FILE_MB} MB per submission`, tone: '' },
+    { icon: MdOutlinePaid, k: 'Author processing charges', v: 'Free to submit; charge applies only after acceptance', tone: 'text-j3valid-700' },
+  ]
 
   return (
-    <div className="bg-j3paper-cool pb-16 pt-6 sm:pb-24 sm:pt-10">
+    <div className="bg-white pb-16 pt-5 sm:pb-24">
       <Container>
-        <div ref={topRef} className="mx-auto max-w-3xl scroll-mt-24">
-          {pendingDraft && (
-            <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 border border-mauve-200 border-l-4 border-l-ember-700 bg-white p-4">
-              <p className="flex items-start gap-2 font-inter text-base text-night-900">
-                <History className="mt-0.5 h-5 w-5 shrink-0 text-ember-700" aria-hidden="true" />
-                <span>We found a draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong>
-                  {pendingDraft.form.title && <>: “{pendingDraft.form.title.slice(0, 60)}{pendingDraft.form.title.length > 60 ? '…' : ''}”</>}.</span>
-              </p>
-              <div className="flex gap-2"><AcButton onClick={resume}>Restore draft</AcButton><AcButton variant="outline" onClick={discard}>Start fresh</AcButton></div>
-            </div>
-          )}
+        <nav aria-label="Breadcrumb" className="font-inter text-[13px] text-mauve-600">
+          <ol className="flex flex-wrap items-center gap-x-2">
+            <li><AppLink to={paths.home} className="hover:text-iris-700 hover:underline">Home</AppLink></li><li aria-hidden="true">›</li>
+            <li><AppLink to={paths.policy('author-guidelines')} className="hover:text-iris-700 hover:underline">For Authors</AppLink></li><li aria-hidden="true">›</li>
+            <li aria-current="page" className="font-semibold text-night-900">Submit Manuscript</li>
+          </ol>
+        </nav>
 
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <p className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-ember-700">Step {step + 1} of {STEPS.length} <span className="text-mauve-600">· {meta.label}</span></p>
-            <p className="font-inter text-sm text-mauve-600" aria-live="polite">{savedAt ? `Saved at ${clock(savedAt)}` : 'Autosave is on'}</p>
+        <header className="mt-4 rounded-tile border border-j3paper-rule bg-j3paper-cool p-5 sm:p-6">
+          <ul className="flex flex-wrap gap-2" aria-label="Submission highlights">
+            {tags.map(([c, t]) => <li key={t} className={cx('inline-flex items-center gap-1 rounded-tile px-2 py-1 font-inter text-[11px] font-bold uppercase tracking-[0.06em]', c)}>{t}</li>)}
+          </ul>
+          <h1 className="mt-4 font-jakarta text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold leading-[1.1] tracking-tight text-night-900">Submit Manuscript for Peer Review</h1>
+          <p className="mt-3 max-w-3xl font-inter text-base leading-relaxed text-mauve-700">Welcome to the {journal.shortName} submission desk. Complete the details below, upload your Word file and confirm the declarations. You will get a Paper ID by email, SMS and WhatsApp, and you can follow your paper with it at any time.</p>
+          <ul className="mt-5 grid gap-3 md:grid-cols-3">
+            {tiles.map((t) => (
+              <li key={t.k} className="flex items-center gap-3 rounded-tile border border-j3paper-rule bg-white p-3.5">
+                <t.icon className="h-6 w-6 shrink-0 text-iris-700" aria-hidden="true" />
+                <div><p className="font-jakarta text-[13px] font-bold text-night-900">{t.k}</p><p className={cx('font-inter text-xs text-mauve-600', t.tone)}>{t.v}</p></div>
+              </li>
+            ))}
+          </ul>
+        </header>
+
+        {pendingDraft && (
+          <div role="region" aria-label="Saved draft" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-tile border border-j3paper-rule border-l-4 border-l-ember-500 bg-j3paper-deep p-4">
+            <p className="flex items-start gap-2 font-inter text-[15px] text-night-900">
+              <History className="mt-0.5 h-5 w-5 shrink-0 text-iris-700" aria-hidden="true" />
+              <span>We found a draft saved on <strong>{formatDate(pendingDraft.savedAt.slice(0, 10))}</strong>
+                {pendingDraft.form.title && <>: “{pendingDraft.form.title.slice(0, 60)}{pendingDraft.form.title.length > 60 ? '…' : ''}”</>}.</span>
+            </p>
+            <div className="flex gap-2"><AcButton onClick={resume}>Restore draft</AcButton><AcButton variant="outline" onClick={discard}>Start fresh</AcButton></div>
           </div>
-          <div role="progressbar" aria-label="Submission progress" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1} aria-valuetext={`Step ${step + 1} of ${STEPS.length}`}
-            className="mt-2 h-1 w-full overflow-hidden bg-iris-100">
-            <div className="h-full bg-iris-700 motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${percent}%` }} />
-          </div>
-          <nav aria-label="Submission steps" className="mt-3">
-            <ol className="flex flex-wrap gap-x-1 gap-y-1 border-b border-mauve-200">
-              {STEPS.map((s, i) => (
-                <li key={s.id}>
-                  <button type="button" disabled={i > reached} aria-current={i === step ? 'step' : undefined} onClick={() => goTo(i)}
-                    className={cx('-mb-px inline-flex items-center gap-1.5 border-b-2 px-2.5 py-2 font-inter text-sm font-semibold disabled:cursor-not-allowed', i === step ? 'border-iris-700 text-iris-700' : i <= reached ? 'border-transparent text-mauve-700 hover:text-iris-700' : 'border-transparent text-mauve-400')}>
-                    <span aria-hidden="true">{i + 1}</span><span className={i === step ? 'inline' : 'sr-only sm:not-sr-only'}>{s.label}</span>
+        )}
+
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-12">
+          <form ref={formRef} noValidate onSubmit={onFormSubmit} onBlur={onBlur} aria-label="Manuscript submission" className="space-y-6 lg:col-span-8">
+            <SectionClassification {...props} />
+            <SectionAuthor {...props} />
+            <SectionPeople {...props} />
+            <SectionFile {...props} />
+            <SectionDeclarations {...props} />
+            <ReferralCard {...props} />
+
+            <div className="space-y-3 rounded-tile border border-j3paper-rule bg-j3paper-deep p-5">
+              <ReadinessNote missing={missing} />
+              {submitError && <p role="alert" className="rounded-tile border border-red-700 border-l-4 bg-red-50 p-3 font-inter text-sm font-semibold text-red-700">{submitError}</p>}
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 font-jakarta text-sm font-bold text-iris-700"><MdOutlineVerified className="h-4 w-4 text-ember-700" aria-hidden="true" />Free to submit</p>
+                  <p className="font-inter text-xs text-mauve-700" aria-live="polite">{savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on. Your draft stays on this device.'}</p>
+                </div>
+                <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+                  <button type="button" onClick={saveNow} className="inline-flex flex-1 items-center justify-center rounded-tile border border-j3paper-rule bg-white px-5 py-2.5 font-inter text-sm font-semibold text-night-900 transition-colors hover:border-iris-700 hover:bg-j3paper-cool sm:flex-none">Save draft</button>
+                  <button type="submit" disabled={busy} aria-busy={busy}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-tile bg-iris-700 px-6 py-2.5 font-inter text-sm font-bold text-white transition-colors hover:bg-iris-800 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none">
+                    {busy ? <J3Spinner /> : <MdOutlineSend className="h-4 w-4" aria-hidden="true" />}{busy ? 'Submitting…' : 'Submit manuscript'}
                   </button>
-                </li>
-              ))}
-            </ol>
-          </nav>
-
-          <form ref={formRef} noValidate onSubmit={onFormSubmit} onBlur={onBlur} aria-label={`Manuscript submission: ${meta.label}`}
-            className="mt-6 border border-mauve-200 bg-white p-5 sm:p-10">
-            <div key={step} className="motion-safe:animate-fade-in">
-              <h1 ref={headRef} tabIndex={-1} className="focus-visible:!outline-none font-jakarta text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight text-iris-700 focus:outline-none">{meta.title}</h1>
-              <p className="mt-3 max-w-2xl font-jakarta text-lg leading-relaxed text-mauve-600">{meta.text}</p>
-              <div className="mt-8">
-                {step === 0 && <StepTitle {...props} />}
-                {step === 1 && <StepAbstract {...props} />}
-                {step === 2 && <StepTheme {...props} />}
-                {step === 3 && <StepAuthors {...props} />}
-                {step === 4 && <StepFiles {...props} />}
-                {step === 5 && <StepReview form={form} missing={countAll(form)} onEdit={(i) => goTo(i)} />}
-              </div>
-              {submitError && <p role="alert" className="mt-6 border border-red-700 border-l-4 bg-red-50 p-3 font-inter text-base font-semibold text-red-700">{submitError}</p>}
-            </div>
-
-            <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-mauve-200 pt-6">
-              {step > 0 ? (
-                <button type="button" onClick={() => goTo(step - 1)} className="inline-flex items-center gap-1 rounded-none px-4 py-2.5 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-700 hover:bg-iris-100">
-                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />Back
-                </button>
-              ) : <span />}
-              <div className="flex flex-wrap items-center justify-end gap-4">
-                {meta.enter && <p className="hidden items-center gap-1.5 font-inter text-sm text-mauve-600 sm:flex"><span>Press</span><Enter className="h-5 w-5" aria-hidden="true" /><span className="font-bold">Enter</span><span>to continue</span></p>}
-                {step < LAST ? (
-                  <AcButton type="submit" className="px-8 py-3">Continue<ArrowRight className="h-4 w-4" aria-hidden="true" /></AcButton>
-                ) : (
-                  <AcButton type="submit" variant="cta" className="w-full px-8 py-3 sm:w-auto" disabled={busy} aria-busy={busy}>
-                    {busy && <J3Spinner />}{busy ? 'Submitting…' : 'Submit manuscript'}
-                  </AcButton>
-                )}
+                </div>
               </div>
             </div>
           </form>
-          <p role="status" className="sr-only">{announce}</p>
+          <div className="lg:col-span-4 lg:sticky lg:top-4"><J3SubmitAside /></div>
         </div>
+        <p role="status" className="sr-only">{announce}</p>
       </Container>
     </div>
   )

@@ -1,26 +1,26 @@
-// Utility strip: dark navy band with the Open Access (CC BY 4.0) badge and identifiers on the left, Submit Manuscript and Author Guidelines on the right.
+// Utility strip after the reference: a Plum Ink band with ruled identifier chips on the left (Crossref DOI prefix, peer review, open access)
+// and the quick links on the right (Track paper status, Author guidelines, Submit Manuscript in the restricted orange).
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
-import { OpenAccess } from '../icons'
+import { OpenAccess, Verified } from '../icons'
+
+const chip = 'inline-flex items-center gap-1.5 rounded-tile border border-white/30 px-2.5 py-1 font-inter text-[11px] font-semibold tracking-wide text-white'
+const quick = 'font-inter text-xs font-medium text-iris-100 transition-colors hover:text-white hover:underline'
 
 export function UtilityBar() {
   return (
-    <div className="bg-night-900 text-[12px] text-night-200">
-      <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 py-1.5 sm:px-6 lg:px-10">
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          {journal.badges.openAccess && (
-            <span className="inline-flex items-center gap-1 bg-j3valid-800 px-2 py-0.5 font-inter text-[11px] font-semibold uppercase tracking-wider text-white"><OpenAccess className="h-3.5 w-3.5" aria-hidden="true" /> Open Access ({journal.licence.name})</span>
-          )}
-          <span aria-hidden="true" className="hidden h-3 w-px bg-white/25 sm:block" />
-          <span className="font-inter tracking-wide">E-ISSN: {journal.issnOnline}</span>
-          <span aria-hidden="true" className="hidden h-3 w-px bg-white/25 md:block" />
-          <span className="hidden font-inter tracking-wide md:inline">DOI prefix: {journal.doiPrefix}</span>
+    <div className="bg-night-900">
+      <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 py-2 sm:px-6 lg:px-10">
+        <p className="flex flex-wrap items-center gap-2">
+          <span className={`${chip} tabular-nums`}>Crossref DOI: {journal.doiPrefix}</span>
+          {journal.badges.peerReviewed && <span className={`${chip} hidden sm:inline-flex`}><Verified className="h-3.5 w-3.5" aria-hidden="true" /> Peer-reviewed</span>}
+          {journal.badges.openAccess && <span className={`${chip} hidden md:inline-flex`}><OpenAccess className="h-3.5 w-3.5 text-ember-400" aria-hidden="true" /> Open access ({journal.licence.name})</span>}
         </p>
         <p className="flex items-center gap-4">
-          <AppLink to={paths.submit} className="bg-ember-700 px-3 py-1 font-inter text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-ember-500 hover:text-night-900">Submit Manuscript</AppLink>
-          <AppLink to={paths.policy('author-guidelines')} className="font-inter text-[13px] text-iris-200 transition-colors hover:text-white hover:underline">Author Guidelines</AppLink>
-          <AppLink to={paths.track} className="hidden font-inter text-[13px] text-iris-200 transition-colors hover:text-white hover:underline sm:inline">Track My Paper</AppLink>
+          <AppLink to={paths.policy('author-guidelines')} className={`${quick} hidden sm:inline`}>Author Guidelines</AppLink>
+          <AppLink to={paths.track} className={quick}>Track Paper Status</AppLink>
+          <AppLink to={paths.submit} className="rounded-tile bg-ember-500 px-3 py-1.5 font-jakarta text-xs font-bold text-night-900 transition-colors hover:bg-ember-400">Submit Manuscript</AppLink>
         </p>
       </div>
     </div>

@@ -38,7 +38,7 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
 
   return (
     <div className="flex min-h-screen flex-col bg-j3paper">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-5 focus:py-2.5 focus:font-inter focus:text-sm focus:font-semibold focus:text-iris-700 focus:shadow-dock">Skip to content</a>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-5 focus:py-2.5 focus:font-inter focus:text-sm focus:font-semibold focus:text-iris-700">Skip to content</a>
       <JournalTabs />
       <UtilityBar />
       <SearchContext.Provider value={{ onSearch, onSuggest, openPalette }}>
