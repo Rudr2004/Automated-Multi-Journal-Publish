@@ -30,7 +30,7 @@ function Masthead() {
       <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 items-center gap-5">
         <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-tile bg-white p-1.5"><Logo className="h-full w-full" /></span>
         <span className="min-w-0">
-          <span className="block font-jakarta text-[2rem] font-bold leading-[1.1] tracking-[-0.01em] text-white 2xl:text-[2.25rem]">{journal.name}</span>
+          <span className="block whitespace-nowrap font-jakarta text-[1.375rem] font-bold leading-[1.15] tracking-[-0.01em] text-white xl:text-[1.6rem] 2xl:text-[1.75rem]">{journal.name}</span>
           <span className="mt-2 block font-jakarta text-xs font-semibold uppercase tracking-[0.08em] text-iris-100">{facts().join('  •  ')}</span>
         </span>
       </AppLink>
