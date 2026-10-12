@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink, useRouter } from '../../../core/router'
-import { cx } from '../components/primitives'
+import { cx, onDark } from '../components/primitives'
 import { themes } from '../components/themes'
 import { ChevronDown, Close, Menu, Search, Submit, Track } from '../icons'
 import { editorialLink, menus, primaryLinks, type NavLinkItem } from './nav'
@@ -96,7 +96,7 @@ export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
   /** "field" looks like the reference's keyword box (desktop nav bar); "compact" is a square icon button (small screens). */
   const searchButton = (variant: 'field' | 'compact') => variant === 'field' ? (
     <button type="button" onClick={onOpenSearch} aria-label={label} className="flex h-10 w-60 items-center gap-2 rounded-tile border border-j3paper-rule bg-white pl-3 pr-2 text-left transition-colors hover:border-iris-700 hover:bg-j3paper-cool 2xl:w-72">
-      <span className="min-w-0 flex-1 font-inter text-sm text-mauve-600">Keyword, author, DOI…</span>
+      <span className="min-w-0 flex-1 truncate whitespace-nowrap font-inter text-sm text-mauve-600">Keyword, author, DOI…</span>
       <kbd className="flex shrink-0 items-center gap-1 rounded-tile border border-j3paper-rule bg-j3paper-cool px-1.5 py-0.5 font-inter text-[10px] font-semibold leading-none text-mauve-600"><span>{isMac ? '⌘' : 'Ctrl'}</span><span>K</span></kbd>
       <Search className="h-[18px] w-[18px] shrink-0 text-mauve-600" aria-hidden="true" />
     </button>
@@ -109,7 +109,7 @@ export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
   return (
     <>
       {/* Masthead: desktop only, scrolls away. */}
-      <div className="hidden bg-iris-700 xl:block"><Masthead /></div>
+      <div className={`hidden bg-iris-700 xl:block ${onDark}`}><Masthead /></div>
 
       {/* Sticky bar. */}
       <div ref={root} data-j3-nav onMouseEnter={holdOpen} onMouseLeave={scheduleClose} className="sticky top-0 z-50">

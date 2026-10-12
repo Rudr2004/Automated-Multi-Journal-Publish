@@ -7,7 +7,7 @@ import { formatDate } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
 import type { ArticleSummary } from '../../../core/types'
 import { ARTICLE_TYPES } from '../../../core/types'
-import { AcButton, AcLabel, acInput } from '../components/AcademicUi'
+import { AcButton, AcMarker, AcSectionHead, AcTag, acBtn, acInput } from '../components/AcademicUi'
 import { Container, cx } from '../components/primitives'
 import { useSearchApi } from '../components/searchContext'
 import { themes } from '../components/themes'
@@ -27,22 +27,22 @@ const count = <T,>(list: T[], key: (x: T) => string) => { const m = new Map<stri
 function Facet({ legend, options, selected, onToggle }: { legend: string; options: { value: string; n: number }[]; selected: string[]; onToggle: (v: string) => void }) {
   if (options.length === 0) return null
   return (
-    <fieldset className="border-t border-mauve-100 pt-4 first:border-t-0 first:pt-0">
-      <legend className="mb-2 font-inter text-xs font-semibold uppercase tracking-[0.08em] text-iris-700">{legend}</legend>
+    <div className="border-t border-j3paper-rule pt-4 first:border-t-0 first:pt-0"><fieldset className="m-0 min-w-0 border-0 p-0">
+      <legend className="mb-2 flex items-center gap-2 font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-night-900"><AcMarker />{legend}</legend>
       <ul className="space-y-1.5">
         {options.map((o) => {
           const on = selected.includes(o.value)
           return (
             <li key={o.value}>
               <label className="flex cursor-pointer items-start gap-2.5 font-inter text-sm text-night-700 hover:text-iris-700">
-                <input type="checkbox" checked={on} onChange={() => onToggle(o.value)} className="mt-0.5 h-4 w-4 shrink-0 rounded-none border-mauve-300 text-iris-700 focus:ring-iris-700" />
-                <span className="min-w-0 flex-1">{o.value}</span><span className="text-mauve-600">{o.n}</span>
+                <input type="checkbox" checked={on} onChange={() => onToggle(o.value)} className="mt-0.5 h-4 w-4 shrink-0 rounded-[2px] border-mauve-300 text-iris-700 focus:ring-iris-700" />
+                <span className="min-w-0 flex-1">{o.value}</span><span className="tabular-nums text-mauve-600">{o.n}</span>
               </label>
             </li>
           )
         })}
       </ul>
-    </fieldset>
+    </fieldset></div>
   )
 }
 
@@ -51,7 +51,7 @@ function Hi({ text, words }: { text: string; words: string[] }) {
   if (words.length === 0) return <>{text}</>
   const esc = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const re = new RegExp(`(${words.map(esc).join('|')})`, 'gi')
-  return <>{text.split(re).map((p, i) => (i % 2 ? <mark key={i} className="bg-[#FEF3C7] px-0.5 text-inherit">{p}</mark> : <Fragment key={i}>{p}</Fragment>))}</>
+  return <>{text.split(re).map((p, i) => (i % 2 ? <mark key={i} className="rounded-[2px] bg-j3paper-deep px-0.5 font-semibold text-inherit">{p}</mark> : <Fragment key={i}>{p}</Fragment>))}</>
 }
 
 function pageList(page: number, pages: number): (number | '…')[] {
@@ -63,16 +63,15 @@ function pageList(page: number, pages: number): (number | '…')[] {
 
 function ThemeTiles() {
   return (
-    <section aria-labelledby="themes-h" className="py-12 sm:py-16">
-      <AcLabel className="!text-ember-700">Browse by theme</AcLabel>
-      <h2 id="themes-h" className="mb-6 mt-2 border-b-2 border-iris-700 pb-3 font-jakarta text-[1.5rem] font-semibold uppercase tracking-[0.02em] text-iris-700 sm:text-[1.75rem]">Themes</h2>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section aria-labelledby="themes-h" className="py-10 sm:py-14">
+      <AcSectionHead id="themes-h" title="Browse by theme" />
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {themes.map((t, i) => (
           <li key={t.id}>
-            <AppLink to={paths.search(t.name)} className="group flex min-h-[9rem] flex-col justify-between border border-t-2 border-mauve-100 border-t-iris-700 bg-white p-5 hover:border-iris-700">
-              <span aria-hidden="true" className="font-jakarta text-[1.75rem] font-semibold leading-none text-mauve-300">{String(i + 1).padStart(2, '0')}</span>
+            <AppLink to={paths.search(t.name)} className="group flex min-h-[8.5rem] flex-col justify-between rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-4 transition-colors hover:border-iris-700 hover:bg-white">
+              <span aria-hidden="true" className="font-jakarta text-sm font-bold tabular-nums text-iris-700">{String(i + 1).padStart(2, '0')}</span>
               <span className="mt-5 flex items-end justify-between gap-3">
-                <span className="font-jakarta text-[1.25rem] font-semibold leading-tight text-iris-700 group-hover:text-ember-700">{t.name}</span>
+                <span className="font-jakarta text-base font-bold leading-snug text-night-900 group-hover:text-iris-700">{t.name}</span>
                 <ArrowRight className="h-5 w-5 shrink-0 text-iris-700" aria-hidden="true" />
               </span>
             </AppLink>
@@ -83,7 +82,7 @@ function ThemeTiles() {
   )
 }
 
-const pageBtn = 'inline-flex h-10 min-w-10 items-center justify-center gap-1 border px-3 font-inter text-sm font-semibold'
+const pageBtn = 'inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-[2px] border px-3 font-jakarta text-sm font-bold tabular-nums'
 
 export function SearchPage({ query, results }: { query: string; results: ArticleSummary[] }) {
   const { onSearch } = useSearchApi()
@@ -128,45 +127,52 @@ export function SearchPage({ query, results }: { query: string; results: Article
   return (
     <>
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
-      <section className="border-b border-mauve-100 bg-[#F8FAFC]">
-        <Container className="py-10 sm:py-14">
-          <AcLabel className="!text-ember-700">{journal.shortName} · Search the archive</AcLabel>
-          <h1 className="mt-3 font-jakarta text-[clamp(2rem,3.4vw,2.75rem)] font-semibold leading-[1.1] text-iris-700">{term ? 'Search results' : 'Find an article'}</h1>
-          <form role="search" onSubmit={submit} className="mt-6 grid max-w-4xl gap-3 md:grid-cols-[1fr_14rem_auto]">
+      <Container className="pt-6 sm:pt-8">
+        <nav aria-label="Breadcrumb">
+          <ol className="flex items-center gap-1.5 font-inter text-[0.8125rem] text-mauve-600">
+            <li><AppLink to={paths.home} className="hover:text-iris-700 hover:underline">Home</AppLink></li>
+            <li aria-hidden="true"><ChevronRight className="h-3.5 w-3.5" /></li>
+            <li aria-current="page" className="font-bold text-night-900">Search</li>
+          </ol>
+        </nav>
+        <section className="mt-5 rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-5 sm:p-6">
+          <AcTag tone="purple">{journal.shortName} · Search the archive</AcTag>
+          <h1 className="mt-3 font-jakarta text-[clamp(1.625rem,3vw,2.125rem)] font-bold leading-[1.15] tracking-tight text-night-900">{term ? 'Search results' : 'Find an article'}</h1>
+          <form role="search" onSubmit={submit} className="mt-5 grid max-w-4xl gap-3 md:grid-cols-[1fr_14rem_auto]">
             <div>
               <label htmlFor={inputId} className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-mauve-600" aria-hidden="true" />
-                <input id={inputId} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Title, author, keyword or DOI…" autoComplete="off" className={cx(acInput, '!pl-10')} />
+                <input id={inputId} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Title, author, keyword or DOI…" autoComplete="off" className={cx(acInput, '!bg-white !pl-10')} />
               </div>
             </div>
             <div>
               <label htmlFor={scopeId} className="sr-only">Limit results to a theme</label>
-              <select id={scopeId} value={scope} disabled={subjectOpts.length < 2 && !scope} onChange={(e) => setSubjects(e.target.value ? [e.target.value] : [])} className={cx(acInput, 'pr-8 disabled:opacity-60')}>
+              <select id={scopeId} value={scope} disabled={subjectOpts.length < 2 && !scope} onChange={(e) => setSubjects(e.target.value ? [e.target.value] : [])} className={cx(acInput, '!bg-white pr-8 disabled:opacity-60')}>
                 <option value="">All themes</option>
                 {subjectOpts.map((o) => <option key={o.value} value={o.value}>{o.value}</option>)}
               </select>
             </div>
-            <button type="submit" className="inline-flex items-center justify-center gap-2 border border-iris-700 bg-iris-700 px-8 py-3 font-inter text-xs font-semibold uppercase tracking-[0.08em] text-white hover:bg-iris-600">Search</button>
+            <button type="submit" className={acBtn('primary', 'px-8 py-3')}>Search</button>
           </form>
           {!term && (
-            <p className="mt-4 font-inter text-sm text-mauve-700">Try: {SUGGESTIONS.slice(0, 4).map((s, i) => <Fragment key={s}>{i > 0 && ', '}<AppLink to={paths.search(s)} className="font-semibold text-iris-700 underline underline-offset-4 hover:text-ember-700">{s}</AppLink></Fragment>)}</p>
+            <p className="mt-4 font-inter text-sm text-mauve-700">Try: {SUGGESTIONS.slice(0, 4).map((s, i) => <Fragment key={s}>{i > 0 && ', '}<AppLink to={paths.search(s)} className="font-semibold text-iris-700 underline underline-offset-4 hover:text-iris-800">{s}</AppLink></Fragment>)}</p>
           )}
-        </Container>
-      </section>
+        </section>
+      </Container>
 
       <Container>
         {!term && results.length === 0 ? (
           <ThemeTiles />
         ) : (
-          <div ref={top} className="scroll-mt-32 py-10 sm:py-14">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-iris-700 pb-3">
+          <div ref={top} className="scroll-mt-32 pb-12 pt-8 sm:pb-16 sm:pt-10">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-j3paper-rule pb-3">
               <p role="status" className="font-inter text-base text-mauve-700">
-                <strong className="font-semibold text-night-700">{filtered.length}</strong> result{filtered.length === 1 ? '' : 's'}{term && <> for <strong className="font-semibold text-night-700">“{term}”</strong></>}
+                <strong className="font-bold tabular-nums text-night-900">{filtered.length}</strong> result{filtered.length === 1 ? '' : 's'}{term && <> for <strong className="font-bold text-night-900">“{term}”</strong></>}
               </p>
               <div className="flex items-center gap-2">
-                <label htmlFor={sortId} className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-mauve-600">Sort by</label>
-                <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 border border-mauve-300 bg-white py-0 pl-3 pr-8 font-inter text-sm font-semibold text-night-700">
+                <label htmlFor={sortId} className="font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-mauve-600">Sort by</label>
+                <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 rounded-[2px] border border-j3paper-rule bg-white py-0 pl-3 pr-8 font-inter text-sm font-semibold text-night-900 hover:border-iris-700">
                   {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
@@ -174,47 +180,47 @@ export function SearchPage({ query, results }: { query: string; results: Article
 
             <div className={cx('mt-6 grid gap-8', results.length > 0 && 'lg:grid-cols-[15rem_1fr]')}>
               {results.length > 0 && (
-                <aside aria-label="Refine results" className="space-y-4 self-start border border-mauve-100 bg-[#F8FAFC] p-4">
+                <aside aria-label="Refine results" className="space-y-4 self-start rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-4">
                   <Facet legend="Theme" options={subjectOpts} selected={subjects} onToggle={toggle(setSubjects)} />
                   <Facet legend="Article type" options={typeOpts} selected={types} onToggle={toggle(setTypes)} />
                   <Facet legend="Year" options={yearOpts} selected={years} onToggle={toggle(setYears)} />
-                  {active > 0 && <button type="button" onClick={clear} className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-iris-700 underline underline-offset-4 hover:text-ember-700">Clear all filters</button>}
+                  {active > 0 && <button type="button" onClick={clear} className="font-jakarta text-xs font-bold text-iris-700 underline underline-offset-4 hover:text-iris-800">Clear all filters</button>}
                 </aside>
               )}
 
               <div className="min-w-0">
                 {results.length === 0 ? (
                   <div>
-                    <div className="border border-mauve-100 bg-[#F8FAFC] p-8 text-center">
-                      <p className="font-jakarta text-xl font-semibold text-iris-700">No articles found for “{term}”</p>
+                    <div className="rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-8 text-center">
+                      <p className="font-jakarta text-xl font-bold text-night-900">No articles found for “{term}”</p>
                       <p className="mt-1 font-inter text-sm text-mauve-700">Check the spelling, try fewer words, or start from one of these ideas.</p>
                     </div>
                     <ul className="mt-6 flex flex-wrap justify-center gap-2">
-                      {SUGGESTIONS.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block border border-mauve-100 bg-[#F8FAFC] px-3 py-2 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{s}</AppLink></li>)}
+                      {SUGGESTIONS.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded-[2px] border border-j3paper-rule bg-j3paper-cool px-3 py-2 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{s}</AppLink></li>)}
                     </ul>
                     <p className="mt-8 text-center font-inter text-sm text-mauve-700">Or browse by theme:</p>
                     <ul className="mt-3 flex flex-wrap justify-center gap-2">
-                      {themes.map((t) => <li key={t.id}><AppLink to={paths.search(t.name)} className="inline-block border border-mauve-300 px-3 py-2 font-inter text-sm font-semibold text-night-700 hover:border-iris-700 hover:text-iris-700">{t.name}</AppLink></li>)}
+                      {themes.map((t) => <li key={t.id}><AppLink to={paths.search(t.name)} className="inline-block rounded-[2px] border border-j3paper-rule px-3 py-2 font-inter text-sm font-semibold text-night-900 hover:border-iris-700 hover:text-iris-700">{t.name}</AppLink></li>)}
                     </ul>
                   </div>
                 ) : filtered.length === 0 ? (
-                  <div className="border border-mauve-100 bg-[#F8FAFC] p-10 text-center">
-                    <p className="font-jakarta text-xl font-semibold text-iris-700">No results match these filters</p>
+                  <div className="rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-10 text-center">
+                    <p className="font-jakarta text-xl font-bold text-night-900">No results match these filters</p>
                     <p className="mt-1 font-inter text-sm text-mauve-700">Remove a filter to see more articles.</p>
                     <AcButton className="mt-4" onClick={clear}>Clear all filters</AcButton>
                   </div>
                 ) : (
                   <ol start={(current - 1) * PER_PAGE + 1}>
                     {slice.map((a, i) => (
-                      <li key={a.paperId} className="relative border-b border-mauve-100 py-6 first:pt-0">
-                        <p className="font-inter text-xs font-semibold uppercase tracking-[0.08em] text-ember-700">{a.type} · {a.subject}</p>
-                        <h2 className="mt-1.5 font-jakarta text-[1.375rem] font-semibold leading-snug text-iris-700 sm:text-[1.5rem]">
+                      <li key={a.paperId} className="relative border-b border-j3paper-rule py-5 first:pt-0">
+                        <p className="flex items-center gap-2 font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-iris-700"><AcMarker />{a.type} · {a.subject}</p>
+                        <h2 className="mt-2 font-jakarta text-[1.1875rem] font-bold leading-snug text-night-900 sm:text-[1.3125rem]">
                           <span className="sr-only">{(current - 1) * PER_PAGE + i + 1}. </span>
-                          <AppLink to={paths.article(a.paperId)} className="hover:text-ember-700 hover:underline after:absolute after:inset-0 after:content-['']"><Hi text={a.title} words={words} /></AppLink>
+                          <AppLink to={paths.article(a.paperId)} className="hover:text-iris-700 hover:underline after:absolute after:inset-0 after:content-['']"><Hi text={a.title} words={words} /></AppLink>
                         </h2>
-                        <p className="mt-1.5 font-inter text-sm font-semibold text-night-700"><Hi text={a.authors.join(', ')} words={words} /></p>
-                        <p className="mt-2 line-clamp-2 max-w-3xl font-jakarta text-base leading-relaxed text-mauve-700"><Hi text={a.abstract} words={words} /></p>
-                        <p className="mt-2 font-inter text-xs text-mauve-600">Vol. {a.volume}, No. {a.issue} · pp. {a.pages} · {formatDate(a.publishedAt)} · {a.paperId}</p>
+                        <p className="mt-1.5 font-inter text-sm font-semibold text-mauve-700"><Hi text={a.authors.join(', ')} words={words} /></p>
+                        <p className="mt-2 line-clamp-2 max-w-3xl font-inter text-base leading-[1.65] text-mauve-700"><Hi text={a.abstract} words={words} /></p>
+                        <p className="mt-2 font-inter text-xs tabular-nums text-mauve-600">Vol. {a.volume}, No. {a.issue} · pp. {a.pages} · {formatDate(a.publishedAt)} · {a.paperId}</p>
                       </li>
                     ))}
                   </ol>
@@ -222,14 +228,14 @@ export function SearchPage({ query, results }: { query: string; results: Article
 
                 {pages > 1 && filtered.length > 0 && (
                   <nav aria-label="Pagination" className="mt-8 flex flex-wrap items-center gap-2">
-                    <button type="button" disabled={current === 1} onClick={() => go(current - 1)} className={cx(pageBtn, 'border-iris-700 text-iris-700 hover:bg-iris-700 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-iris-700')}>
+                    <button type="button" disabled={current === 1} onClick={() => go(current - 1)} className={cx(pageBtn, 'border-j3paper-rule bg-white text-iris-700 hover:border-iris-700 hover:bg-j3paper-cool disabled:opacity-40 disabled:hover:border-j3paper-rule disabled:hover:bg-white')}>
                       <ChevronLeft className="h-5 w-5" aria-hidden="true" /> Previous
                     </button>
                     {pageList(current, pages).map((n, i) => n === '…' ? <span key={`g${i}`} aria-hidden="true" className="px-1 text-mauve-600">…</span> : (
                       <button key={n} type="button" onClick={() => go(n)} aria-label={`Page ${n}`} aria-current={n === current ? 'page' : undefined}
-                        className={cx(pageBtn, n === current ? 'border-iris-700 bg-iris-700 text-white' : 'border-mauve-100 text-night-700 hover:border-iris-700')}>{n}</button>
+                        className={cx(pageBtn, n === current ? 'border-iris-700 bg-iris-700 text-white' : 'border-j3paper-rule bg-white text-night-900 hover:border-iris-700 hover:bg-j3paper-cool')}>{n}</button>
                     ))}
-                    <button type="button" disabled={current === pages} onClick={() => go(current + 1)} className={cx(pageBtn, 'border-iris-700 text-iris-700 hover:bg-iris-700 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-iris-700')}>
+                    <button type="button" disabled={current === pages} onClick={() => go(current + 1)} className={cx(pageBtn, 'border-j3paper-rule bg-white text-iris-700 hover:border-iris-700 hover:bg-j3paper-cool disabled:opacity-40 disabled:hover:border-j3paper-rule disabled:hover:bg-white')}>
                       Next <ChevronRight className="h-5 w-5" aria-hidden="true" />
                     </button>
                   </nav>

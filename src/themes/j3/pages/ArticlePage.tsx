@@ -617,7 +617,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                   {railNotes.length === 0 ? (
                     <p className="text-mauve-600">References cited in the section you are reading appear here.</p>
                   ) : (
-                    <ul className="max-h-[22rem] space-y-2.5 overflow-auto">
+                    <ul className="max-h-[15rem] space-y-2.5 overflow-auto">
                       {railNotes.map((n) => (
                         <li key={n} onMouseEnter={() => setHot(n)} onMouseLeave={() => setHot(null)}
                           className={cx('border-l-2 py-0.5 pl-3 transition-colors motion-reduce:transition-none', hot === n ? 'border-ember-500 bg-j3paper-deep text-night-900' : 'border-j3paper-rule text-mauve-700')}>
@@ -649,13 +649,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 </div>
               </RailCard>
 
-              <RailCard title="Subject" aside={article.type}>
-                <p className={cx('border bg-j3paper-cool p-2.5 font-jakarta text-[13px] font-bold text-night-900', RULE)}>
-                  <span className="block font-jakarta text-[10px] uppercase tracking-[0.08em] text-mauve-600">Primary domain</span>
-                  <AppLink to={paths.search(article.subject)} className="hover:text-iris-700 hover:underline">{article.subject}</AppLink>
-                </p>
-              </RailCard>
-            </aside>
+           </aside>
           </div>
 
           {article.related.length > 0 && (

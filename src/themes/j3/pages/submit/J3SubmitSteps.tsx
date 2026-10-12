@@ -302,7 +302,7 @@ export function ReferralCard({ form, errors, setForm }: SectionProps) {
     <div className="rounded-tile border border-j3paper-rule bg-white p-5 sm:p-6">
       <div className="mb-3 flex items-center gap-2.5"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" /><h2 className="font-jakarta text-sm font-bold text-night-900">Referral code <span className="font-normal text-mauve-600">(optional)</span></h2></div>
       <J3Field label="Referral code" name="referralCode" error={errors.referralCode} hint="4 to 20 letters, numbers or hyphens. Earns credits for the colleague who referred you.">
-        <input className={cx(j3Input(errors.referralCode), 'font-mono uppercase sm:max-w-md')} value={form.referralCode} maxLength={20} autoComplete="off" placeholder="e.g. IJCSD-REF-2026"
+        <input className={cx(j3Input(errors.referralCode), 'font-mono sm:max-w-md')} value={form.referralCode} maxLength={20} autoComplete="off" placeholder="e.g. IJCSD-REF-2026"
           onChange={(e) => setForm((f) => ({ ...f, referralCode: formatReferral(e.target.value) }))} />
       </J3Field>
     </div>

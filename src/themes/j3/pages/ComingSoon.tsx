@@ -5,11 +5,11 @@ import { Container } from '../components/primitives'
 
 export function ComingSoon({ title }: { title: string }) {
   return (
-    <Container className="py-24">
-      <div className="mx-auto max-w-xl border border-mauve-100 bg-[#F8FAFC] p-8 text-center">
-        <h1 className="font-jakarta text-[2rem] font-semibold leading-tight text-iris-700">{title}</h1>
+    <Container className="py-16 sm:py-24">
+      <div className="mx-auto max-w-xl rounded-[2px] border border-j3paper-rule bg-j3paper-cool p-8 text-center">
+        <h1 className="font-jakarta text-[1.75rem] font-bold leading-tight tracking-tight text-night-900">{title}</h1>
         <p className="mx-auto mt-3 max-w-md font-inter text-base text-mauve-700">This page is not available in the prototype yet.</p>
-        <div className="mt-8"><AcLink to={paths.home}>Back to Home</AcLink></div>
+        <div className="mt-6"><AcLink to={paths.home}>Back to Home</AcLink></div>
       </div>
     </Container>
   )

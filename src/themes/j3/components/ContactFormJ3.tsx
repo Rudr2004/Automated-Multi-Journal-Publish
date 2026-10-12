@@ -50,9 +50,9 @@ export function ContactFormJ3({ onSubmit }: { onSubmit: (v: ContactTicketInput) 
 
   if (ticket) {
     return (
-      <div role="status" className="border border-mauve-200 bg-j3valid-50 p-8 text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-j3valid-700 text-white"><Check className="h-6 w-6" aria-hidden="true" /></span>
-        <h3 className="mt-4 font-jakarta text-[1.625rem] font-semibold tracking-tight text-iris-700">Your message has been received</h3>
+      <div role="status" className="rounded-[2px] border border-j3valid-700/30 bg-j3valid-50 p-8 text-center">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[2px] bg-j3valid-700 text-white"><Check className="h-6 w-6" aria-hidden="true" /></span>
+        <h3 className="mt-4 font-jakarta text-[1.375rem] font-bold tracking-tight text-night-900">Your message has been received</h3>
         <p className="mt-2 text-base text-mauve-700">Ticket <strong className="font-inter text-night-900">{ticket}</strong> was created. We reply to {f.email} within two working days.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button variant="outline" onClick={async () => toast((await copyText(ticket)) ? 'Ticket ID copied' : 'Could not copy')}><Copy className="h-4 w-4" aria-hidden="true" />Copy ticket ID</Button>
@@ -64,7 +64,7 @@ export function ContactFormJ3({ onSubmit }: { onSubmit: (v: ContactTicketInput) 
 
   return (
     <form ref={ref} noValidate onBlur={onBlur} onSubmit={(e) => { e.preventDefault(); void submit() }} aria-label="Contact form" aria-busy={busy}
-      className="space-y-5 border border-mauve-200 bg-white p-5 sm:p-8">
+      className="space-y-5 rounded-[2px] border border-j3paper-rule bg-white p-5 sm:p-6">
       <div className="grid gap-5 sm:grid-cols-2">
         <FormFieldJ3 label="Your name" name="name" required error={errors.name}>
           <input className={fieldClass(errors.name)} value={f.name} maxLength={80} autoComplete="name" onChange={(e) => set('name', e.target.value.replace(/[^\p{L}\s.'’-]/gu, ''))} />

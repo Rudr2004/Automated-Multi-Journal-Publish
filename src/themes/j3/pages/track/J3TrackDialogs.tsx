@@ -70,13 +70,13 @@ const validateProof = (f: J3PickedFile) =>
 
 function Choice({ checked, onChange, name, children }: { checked: boolean; onChange: () => void; name: string; children: string }) {
   return (
-    <label className={cx('flex cursor-pointer items-center gap-2 rounded-none border p-3 font-inter text-sm font-semibold focus-within:outline focus-within:outline-2 focus-within:outline-iris-700', checked ? 'border-iris-700 bg-iris-50 text-iris-700' : 'border-mauve-200 text-mauve-700')}>
+    <label className={cx('flex cursor-pointer items-center gap-2 rounded-tile border p-3 font-inter text-sm font-semibold focus-within:outline focus-within:outline-2 focus-within:outline-iris-700', checked ? 'border-iris-700 bg-iris-50 text-iris-700' : 'border-j3paper-rule text-mauve-700')}>
       <input type="radio" name={name} className="accent-iris-700" checked={checked} onChange={onChange} />{children}
     </label>
   )
 }
 
-const Dl = ({ children }: { children: ReactNode }) => <dl className="space-y-1.5 border border-mauve-200 bg-j3paper-cool p-4 font-inter text-sm">{children}</dl>
+const Dl = ({ children }: { children: ReactNode }) => <dl className="space-y-1.5 border border-j3paper-rule bg-j3paper-cool p-4 font-inter text-sm">{children}</dl>
 
 export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', onPay, onProof }: {
   open: boolean; onClose: () => void; paperId: string; initialMode?: PayMode
@@ -115,10 +115,10 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
     <J3Modal open={open} onClose={onClose} title="Pay article processing charge" size="lg">
       <p className="font-inter text-base text-mauve-600">Paper ID <strong className="text-night-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
 
-      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 border border-mauve-200 bg-j3paper-cool p-1">
+      <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 border border-j3paper-rule bg-j3paper-cool p-1">
         {([['online', 'Pay online'], ['proof', 'Upload proof']] as const).map(([m, label]) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}
-            className={cx('rounded-none px-3 py-2 font-inter text-xs font-bold uppercase tracking-[0.08em] transition-colors', mode === m ? 'bg-iris-700 text-white' : 'text-mauve-700 hover:text-iris-700')}>{label}</button>
+            className={cx('rounded-tile px-3 py-2 font-inter text-xs font-bold uppercase tracking-[0.08em] transition-colors', mode === m ? 'bg-iris-700 text-white' : 'text-mauve-700 hover:text-iris-700')}>{label}</button>
         ))}
       </div>
 
@@ -152,7 +152,7 @@ export function J3PayDialog({ open, onClose, paperId, initialMode = 'online', on
         </div>
       ) : (
         <div className="mt-4 space-y-4">
-          <div className="border border-mauve-200 bg-j3paper-cool p-4 font-inter text-sm">
+          <div className="border border-j3paper-rule bg-j3paper-cool p-4 font-inter text-sm">
             <p className="font-jakarta text-lg font-semibold text-iris-700">{india ? 'Pay by UPI or bank transfer' : 'Pay by bank (wire) transfer'}</p>
             <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-[7rem_1fr]">
               {india ? (<><dt className="text-mauve-700">UPI ID</dt><dd className="break-all font-semibold">pay@{journal.domain.split('.')[0]}</dd></>) : (<><dt className="text-mauve-700">Bank details</dt><dd className="font-semibold">Sent to your email on request</dd></>)}

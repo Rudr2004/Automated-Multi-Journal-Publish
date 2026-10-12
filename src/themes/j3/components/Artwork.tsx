@@ -1,10 +1,10 @@
-// Abstract geometric artwork in archival navy and amber, generated in code from a seed (e.g. a Paper ID), so each cover is unique and stable.
+// Abstract geometric artwork in violet and plum, generated in code from a seed (e.g. a Paper ID), so each cover is unique and stable.
 const hash = (s: string) => s.split('').reduce((n, c) => (n * 33 + c.charCodeAt(0)) >>> 0, 5381)
 const PALETTES: [string, string, string, string][] = [
-  ['#0F2B48', '#1E3A5F', '#B45309', '#C5D2E2'],
-  ['#0A1D33', '#3E5F86', '#FD8A42', '#E1E8F1'],
-  ['#1E3A5F', '#9DB2CB', '#B45309', '#F2F5F9'],
-  ['#3E5F86', '#0A1D33', '#FD9D58', '#C5D2E2'],
+  ['#1B1430', '#4B2E9B', '#F26B3A', '#DCD7EC'],
+  ['#3A3350', '#7B66B6', '#F9BFA9', '#ECE8F5'],
+  ['#4B2E9B', '#C4BADE', '#1B1430', '#F6F4FA'],
+  ['#634AA8', '#1B1430', '#F4875F', '#DCD7EC'],
 ]
 
 export function Artwork({ seed, className, palette }: { seed: string; className?: string; palette?: number }) {

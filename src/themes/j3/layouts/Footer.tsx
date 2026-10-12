@@ -5,6 +5,7 @@ import { journal, logoSrc, visibleLogos } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import { AppLink } from '../../../core/router'
+import { onDark } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { ArrowUp, Send } from '../icons'
 
@@ -63,7 +64,7 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
     </nav>
   )
   return (
-    <footer className="bg-night-900 text-white">
+    <footer className={`bg-night-900 text-white ${onDark}`}>
       {/* 1. Disciplines */}
       <div className="border-b border-white/10">
         <nav aria-label="Browse articles by discipline" className={`${wrap} py-8`}>

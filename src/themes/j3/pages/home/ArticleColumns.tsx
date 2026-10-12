@@ -39,11 +39,12 @@ function Column({ c }: { c: Col }) {
 
 export function ArticleColumns({ latest, mostRead, pool, issueLabel }: { latest: ArticleSummary[]; mostRead: ArticleSummary[]; pool: ArticleSummary[]; issueLabel: string }) {
   const cited = [...pool].sort((a, b) => b.citations - a.citations || b.views - a.views)
-  const cols: Col[] = [
+  const all: Col[] = [
     { id: 'latest', title: 'Latest articles', note: issueLabel, items: latest.filter((a) => a.type !== 'Editorial'), top: (a) => formatMonthYear(a.publishedAt), left: (a) => `DOI: ${doiFor(a.paperId)}`, right: (a) => `Views: ${n(a.views)}`, foot: ['View current issue', paths.currentIssue] },
-    { id: 'read', title: 'Most read articles', note: 'All issues', items: mostRead, top: (a) => `${n(a.views)} reads`, left: (a) => `Vol. ${a.volume}, Iss. ${a.issue}`, right: (a) => `Cited: ${n(a.citations)} times`, foot: ['Browse the archive', paths.pastIssues] },
-    { id: 'cited', title: 'Most cited articles', note: 'All issues', items: cited, top: (a) => `${n(a.citations)} citations`, left: (a) => `Vol. ${a.volume}, Iss. ${a.issue}`, right: (a) => `Views: ${n(a.views)}`, foot: ['Search the archive', paths.search('')] },
-  ].filter((c) => c.items.length)
+    { id: 'read', title: 'Most read articles', note: 'All issues', items: mostRead, top: (a) => `${n(a.views)} reads`, left: (a) => `Vol. ${a.volume}, Iss. ${a.issue}`, right: (a) => `Cited: ${n(a.citations)}`, foot: ['Browse the archive', paths.pastIssues] },
+    { id: 'cited', title: 'Most cited articles', note: 'All issues', items: cited, top: (a) => `${n(a.citations)} ${a.citations === 1 ? 'citation' : 'citations'}`, left: (a) => `Vol. ${a.volume}, Iss. ${a.issue}`, right: (a) => `Views: ${n(a.views)}`, foot: ['Search the archive', paths.search('')] },
+  ]
+  const cols = all.filter((c) => c.items.length)
   if (!cols.length) return null
   return (
     <section aria-labelledby="home-browse" className="mt-14">

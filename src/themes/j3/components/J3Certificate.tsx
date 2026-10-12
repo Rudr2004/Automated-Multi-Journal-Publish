@@ -18,15 +18,15 @@ export const j3CertificateUrl = (number: string) => `https://${journal.domain}${
 
 export function J3CertificatePaper({ data, number }: { data: J3CertificateData; number: string }) {
   return (
-    <div id="certificate-print" className="relative overflow-hidden rounded-none border-4 border-double border-iris-700 bg-white p-5 text-center sm:p-10">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-none border border-ember-700/50" />
+    <div id="certificate-print" className="relative overflow-hidden rounded-[2px] border-4 border-double border-iris-700 bg-white p-5 text-center sm:p-10">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-[2px] border border-j3paper-rule" />
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-2 bg-iris-700" />
       <div className="relative">
-        <span className="mx-auto flex h-14 min-w-14 items-center justify-center rounded-none bg-iris-700 px-3 font-inter text-sm font-bold tracking-wide text-white">{journal.shortName}</span>
-        <p className="mt-3 font-inter text-xs font-bold uppercase tracking-[0.08em] text-ember-700">{journal.name}</p>
-        <h3 className="mt-4 font-jakarta text-2xl font-semibold text-night-900 sm:text-[2rem]">Certificate of Publication</h3>
+        <span className="mx-auto flex h-14 w-fit min-w-14 items-center justify-center rounded-[2px] bg-iris-700 px-3 font-jakarta text-sm font-bold tracking-wide text-white">{journal.shortName}</span>
+        <p className="mt-3 font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-iris-700">{journal.name}</p>
+        <h3 className="mt-4 font-jakarta text-2xl font-bold text-night-900 sm:text-[2rem]">Certificate of Publication</h3>
         <p className="mt-4 text-sm text-mauve-700">This is to certify that</p>
-        <p className="mt-1 break-words font-jakarta text-2xl font-semibold text-iris-700 sm:text-[2rem]">{data.author}</p>
+        <p className="mt-1 break-words font-jakarta text-2xl font-bold text-iris-700 sm:text-[2rem]">{data.author}</p>
         <p className="mt-3 text-sm text-mauve-700">is an author of the open access article</p>
         <p className="mx-auto mt-2 max-w-2xl font-jakarta text-base font-medium italic leading-snug text-night-900 sm:text-lg">“{data.title}”</p>
         <p className="mt-3 text-sm text-mauve-700">{data.volume ? <>Volume {data.volume}, Issue {data.issue} · </> : null}Published {formatDate(data.publishedAt)}</p>
@@ -39,7 +39,7 @@ export function J3CertificatePaper({ data, number }: { data: J3CertificateData; 
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right text-xs text-mauve-700"><p className="font-inter font-bold text-night-900">Scan to verify</p><p>{journal.domain}</p></div>
-            <QRCodeSVG value={j3CertificateUrl(number)} size={84} level="M" fgColor="#0F2B48" role="img" aria-label={`QR code for certificate ${number}`} />
+            <QRCodeSVG value={j3CertificateUrl(number)} size={84} level="M" fgColor="#1B1430" role="img" aria-label={`QR code for certificate ${number}`} />
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@ export function J3CertificateDialog({ open, onClose, paper }: {
           <div className="flex flex-wrap gap-2">
             {paper.authors.map((a, k) => (
               <button key={a} type="button" aria-pressed={k === i} onClick={() => setI(k)}
-                className={cx('rounded-none border px-4 py-1.5 font-inter text-sm font-semibold', k === i ? 'border-iris-700 bg-iris-700 text-white' : 'border-mauve-200 text-iris-700 hover:border-iris-700')}>{a}</button>
+                className={cx('rounded-[2px] border px-4 py-1.5 font-inter text-sm font-semibold', k === i ? 'border-iris-700 bg-iris-700 text-white' : 'border-j3paper-rule text-iris-700 hover:border-iris-700 hover:bg-j3paper-cool')}>{a}</button>
             ))}
           </div>
         </div>

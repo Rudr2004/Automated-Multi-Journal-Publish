@@ -5,6 +5,7 @@ import { paths } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { CallForPapers } from '../../../../core/types'
+import { onDark } from '../../components/primitives'
 import { HeroSearch } from '../../components/HeroSearch'
 import { Book, Submit } from '../../icons'
 import { btnOrange, btnPrimary, btnSecondary, labelCls, linkCls, rail } from './bits'
@@ -52,7 +53,7 @@ function Profile() {
 function CallCard({ cfp }: { cfp: CallForPapers }) {
   const cells: [string, string][] = [['Issue closing date', formatDate(cfp.deadline.slice(0, 10))], ['First decision', `About ${cfp.avgReviewDays} days`], ['Target publication', formatDate(cfp.expectedPublication)]]
   return (
-    <section aria-labelledby="home-cfp" className="mt-5 rounded-tile bg-night-900 p-5 text-white">
+    <section aria-labelledby="home-cfp" className={`mt-8 rounded-tile bg-night-900 p-5 text-white ${onDark}`}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 id="home-cfp" className="flex items-center gap-2.5 font-jakarta text-[13px] font-bold uppercase tracking-[0.08em]"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" />Call for papers &mdash; {cfp.issueName}</h2>
         <span className={`${labelCls} rounded-tile bg-ember-500 px-2 py-0.5 text-night-900`}>Active call</span>
@@ -91,10 +92,10 @@ export function Hero({ cfp }: { cfp: CallForPapers }) {
           <AppLink to={paths.search('')} className={`${linkCls} text-xs`}>Advanced search</AppLink>
           <AppLink to={paths.pastIssues} className={`${linkCls} text-xs`}>Browse all issues</AppLink>
         </p>
+        <CallCard cfp={cfp} />
       </div>
       <div className="min-w-0">
         <Profile />
-        <CallCard cfp={cfp} />
       </div>
     </section>
   )

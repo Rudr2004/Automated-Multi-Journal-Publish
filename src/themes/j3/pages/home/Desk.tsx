@@ -5,6 +5,7 @@ import { journal, visibleLogos } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
+import { onDark } from '../../components/primitives'
 import { FactCheck, OpenInNew, Submit, Track } from '../../icons'
 import { btnOrange, linkCls, panel, SquareHead, wrapCls } from './bits'
 
@@ -50,7 +51,7 @@ function TrackForm() {
 
 export function AuthorsDesk() {
   return (
-    <section aria-labelledby="home-desk" className="mt-16 bg-night-900 text-white">
+    <section aria-labelledby="home-desk" className={`mt-16 bg-night-900 text-white ${onDark}`}>
       <div className={`${wrapCls} grid gap-10 py-12 lg:grid-cols-2 lg:gap-12`}>
         <div>
           <p className="flex items-center gap-2.5 font-jakarta text-[12px] font-bold uppercase tracking-[0.08em]"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" />Author&rsquo;s desk</p>
@@ -132,7 +133,7 @@ export function Appointments() {
 
 export function SubmitBand() {
   return (
-    <section aria-labelledby="home-ready" className="mt-14 bg-iris-700 text-white">
+    <section aria-labelledby="home-ready" className={`mt-14 bg-iris-700 text-white ${onDark}`}>
       <div className={`${wrapCls} flex flex-wrap items-center justify-between gap-x-8 gap-y-5 py-9`}>
         <div className="min-w-0">
           <h2 id="home-ready" className="font-jakarta text-[1.75rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2rem]">Ready to submit your research to {journal.shortName}?</h2>

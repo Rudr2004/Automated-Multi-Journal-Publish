@@ -109,7 +109,7 @@ function IndexingGrid() {
 /** Ruled table: Mist header, hairline row rules, tabular numbers (as the reference's complaints table). */
 function RuledTable({ caption, head, rows }: { caption: string; head: string[]; rows: ReactNode[][] }) {
   return (
-    <div className={cx('overflow-x-auto', card)}>
+    <div className={cx('relative overflow-x-auto', card)}>
       <table className="w-full border-collapse text-left font-inter text-[0.9375rem]">
         <caption className="sr-only">{caption}</caption>
         <thead>

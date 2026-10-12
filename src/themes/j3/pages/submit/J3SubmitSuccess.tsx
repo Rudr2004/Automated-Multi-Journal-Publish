@@ -31,8 +31,8 @@ export function J3SubmitSuccess({ paperId, email, title }: { paperId: string; em
     <div className="bg-j3paper-cool py-10 sm:py-16">
       <Container>
         <div className="mx-auto max-w-3xl">
-          <section aria-labelledby="done-h" className="border-t-4 border-j3valid-700 bg-iris-700 p-6 text-center text-white sm:p-10">
-            <span aria-hidden="true" className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-j3valid-700 text-white motion-safe:animate-fade-in"><Check className="h-8 w-8" /></span>
+          <section aria-labelledby="done-h" className="border-t-4 border-ember-500 bg-iris-700 p-6 text-center text-white sm:p-10">
+            <span aria-hidden="true" className="mx-auto flex h-14 w-14 items-center justify-center rounded-tile bg-j3valid-700 text-white motion-safe:animate-fade-in"><Check className="h-8 w-8" /></span>
             <AcKicker className="mt-5 text-ember-300">Manuscript submitted</AcKicker>
             <h1 id="done-h" ref={head} tabIndex={-1} className="focus-visible:!outline-none mt-2 font-jakarta text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight focus:outline-none">Thank you. Your paper is in the queue.</h1>
             <p className="mt-6 font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-200">Your Paper ID</p>
@@ -45,13 +45,13 @@ export function J3SubmitSuccess({ paperId, email, title }: { paperId: string; em
             <p className="mt-2 text-sm text-iris-100">Keep your Paper ID safe. With your email, it is all you need to track your paper.</p>
           </section>
 
-          <section aria-labelledby="next-h" className="mt-8 border border-mauve-200 bg-white p-6 sm:p-8">
-            <h2 id="next-h" className="border-b-2 border-iris-700 pb-2 font-jakarta text-[1.625rem] font-semibold text-iris-700">What happens next</h2>
+          <section aria-labelledby="next-h" className="mt-8 border border-j3paper-rule bg-white p-6 sm:p-8">
+            <h2 id="next-h" className="border-b border-j3paper-rule pb-3 font-jakarta text-sm font-bold uppercase tracking-[0.05em] text-night-900 before:mr-2.5 before:inline-block before:h-2 before:w-2 before:bg-ember-500 before:align-middle before:content-['']">What happens next</h2>
             <ol className="mt-6">
               {NEXT.map(([t, d], i) => (
                 <li key={t} className="relative flex gap-4 pb-5 last:pb-0">
-                  {i < NEXT.length - 1 && <span aria-hidden="true" className="absolute left-[15px] top-8 h-[calc(100%-2rem)] w-px bg-mauve-200" />}
-                  <span aria-hidden="true" className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-none font-inter text-xs font-bold ${i === 0 ? 'bg-j3valid-700 text-white' : 'bg-white text-iris-700 ring-1 ring-mauve-200'}`}>{i === 0 ? <Check className="h-4 w-4" /> : i + 1}</span>
+                  {i < NEXT.length - 1 && <span aria-hidden="true" className="absolute left-[15px] top-8 h-[calc(100%-2rem)] w-px bg-j3paper-rule" />}
+                  <span aria-hidden="true" className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-tile font-inter text-xs font-bold ${i === 0 ? 'bg-j3valid-700 text-white' : 'bg-white text-iris-700 ring-1 ring-j3paper-rule'}`}>{i === 0 ? <Check className="h-4 w-4" /> : i + 1}</span>
                   <div><p className="font-jakarta text-lg font-semibold text-iris-700">{t}{i === 0 && <span className="sr-only"> (done)</span>}</p><p className="font-inter text-base text-mauve-600">{d}</p></div>
                 </li>
               ))}

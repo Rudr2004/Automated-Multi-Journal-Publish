@@ -72,7 +72,7 @@ export function HeroSearch({ className, scoped = true }: { className?: string; s
           <Search className="h-5 w-5 shrink-0 text-mauve-600" aria-hidden="true" />
           <input value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
             role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
-            type="text" autoComplete="off" aria-label="Search articles, authors, keywords, DOI or Paper ID" placeholder="Search by article title, author name, keyword, DOI or Paper ID"
+            type="text" autoComplete="off" aria-label="Search articles, authors, keywords, DOI or Paper ID" placeholder="Search title, author, keyword, DOI or Paper ID"
             className="min-w-0 flex-1 bg-transparent py-3 font-inter text-[15px] text-night-700 placeholder:text-mauve-500 focus:outline-none focus-visible:!outline-none" />
         </div>
         <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap">

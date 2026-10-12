@@ -256,7 +256,7 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
                     <ul className="space-y-3">
                       {s.list.map((x, i) => (
                         <li key={x} className="flex gap-3 border-l-2 border-iris-700 pl-3.5">
-                          <span aria-hidden="true" className="w-5 shrink-0 font-jakarta text-sm font-bold text-iris-700">{String.fromCharCode(65 + (i % 26))}.</span>
+                          <span aria-hidden="true" className="w-5 shrink-0 font-jakarta text-base font-bold leading-[1.65] text-iris-700">{String.fromCharCode(65 + (i % 26))}.</span>
                           <span className="min-w-0 font-inter text-base leading-[1.65] text-mauve-700">{x}</span>
                         </li>
                       ))}
@@ -304,11 +304,11 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
                 <h2 id="j3-contact-h" className="flex items-center gap-2 font-jakarta text-base font-bold"><I.Email className="h-5 w-5 text-white" aria-hidden="true" />Questions about this page?</h2>
                 <p className="mt-1 font-inter text-[0.9375rem] leading-[1.6] text-white/80">The editorial office replies within two working days. Last updated {formatDate(page.updated)}.</p>
               </div>
-              <a href={`mailto:${journal.email}`} className={cx(acBtn('ember'), 'shrink-0')}>Email {journal.email}<I.ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
+              <a href={`mailto:${journal.email}`} className={cx(acBtn('outline'), 'shrink-0 !border-white !bg-white hover:!bg-j3paper-deep')}>Email {journal.email}<I.ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
             </section>
           </div>
 
-          <aside aria-label={`${g.label} navigation and actions`} className="min-w-0 space-y-5 lg:sticky lg:top-28">
+          <aside aria-label={`${g.label} navigation and actions`} className="min-w-0 space-y-5">
             <nav aria-label={`${g.label} pages`} className={cx(panel, 'hidden lg:block')}>
               <p className={cx(railHead, metaLabel, 'bg-j3paper-cool text-night-900')}><AcMarker />{g.label}</p>
               <ul className="max-h-[22rem] overflow-y-auto p-2">

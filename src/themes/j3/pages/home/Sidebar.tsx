@@ -5,7 +5,6 @@ import { paths } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleSummary, HomeData } from '../../../../core/types'
-import { CountUp } from '../../components/CountUp'
 import { Award, Download } from '../../icons'
 import { labelCls, linkCls, panel, rail } from './bits'
 
@@ -38,7 +37,7 @@ function Awards({ awards, pool }: { awards: HomeData['awards']; pool: ArticleSum
           <section key={a.kind + a.title} aria-label={a.kind} className={`${panel} overflow-hidden`}>
             <div className="flex items-center justify-between gap-3 bg-night-900 px-4 py-3 text-white">
               <h2 className="flex items-center gap-2.5 font-jakarta text-[13px] font-bold uppercase tracking-[0.06em]"><Sq />{a.kind}</h2>
-              <span className={`${labelCls} rounded-tile bg-ember-500 px-2 py-0.5 text-night-900`}>{a.period}</span>
+              <span className={`${labelCls} shrink-0 whitespace-nowrap rounded-tile bg-ember-500 px-2 py-0.5 text-night-900`}>{a.period}</span>
             </div>
             <div className="p-4">
               <p className="flex items-center gap-1.5 font-jakarta text-[11px] font-bold uppercase tracking-[0.06em] text-iris-700"><Award className="h-4 w-4" aria-hidden="true" />Laureate recognition</p>
@@ -80,7 +79,7 @@ function Metrics({ days }: { days: number }) {
     ['E-ISSN', <span className="tabular-nums">{journal.issnOnline}</span>],
     ['DOI prefix', <span className="tabular-nums text-iris-700">{journal.doiPrefix}</span>],
     ['Frequency', journal.frequency],
-    ['First decision (target)', <span className="tabular-nums"><CountUp value={`~${days} days`} /></span>],
+    ['First decision (target)', <span className="tabular-nums">About {days} days</span>],
     ['Licence', journal.licence.name],
     ...(journal.badges.peerReviewed ? [['Peer review', 'Expert-reviewed'] as [string, React.ReactNode]] : []),
   ]

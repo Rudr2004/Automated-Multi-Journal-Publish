@@ -102,7 +102,7 @@ function Card({ editor, open, onToggle }: { editor: EditorProfile; open: boolean
 
 function Directory({ people, openId, setOpenId, label }: { people: EditorProfile[]; openId: string | null; setOpenId: (id: string | null) => void; label: string }) {
   return (
-    <div className="overflow-x-auto rounded-[2px] border border-j3paper-rule bg-white">
+    <div className="relative overflow-x-auto rounded-[2px] border border-j3paper-rule bg-white">
       <table className="w-full min-w-[40rem] border-collapse text-left font-inter">
         <caption className="sr-only">{label}</caption>
         <thead>

@@ -5,9 +5,10 @@ import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import type { TrackPageProps } from '../../../core/theme'
 import type { PaperDocument, PaymentProof, TrackResult, TrackedPaper } from '../../../core/types'
-import { AcButton, AcButtonLink, AcKicker } from '../components/AcButton'
+import { AcButton, AcButtonLink } from '../components/AcButton'
 import { J3CertificateDialog } from '../components/J3Certificate'
 import { J3Field, J3Spinner, j3Input } from '../components/J3Field'
+import { AppLink } from '../../../core/router'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { Search } from '../icons'
@@ -97,15 +98,25 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
   const download = (d: PaperDocument) => { if (d.id === 'cert') request({ kind: 'cert' }); else toast(`${d.label} downloaded.`) }
 
   return (
-    <div className="bg-j3paper-cool pb-20 pt-10 sm:pb-28 sm:pt-14">
+    <div className="bg-white pb-16 pt-5 sm:pb-24">
       <Container>
-        <header className="max-w-3xl">
-          <AcKicker className="text-ember-700">Track my paper</AcKicker>
-          <h1 className="mt-3 font-jakarta text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight text-iris-700">Where is my paper right now?</h1>
-          <p className="mt-4 font-jakarta text-lg leading-relaxed text-mauve-600">No login needed. Enter your Paper ID and the email address you used when submitting.</p>
+        <nav aria-label="Breadcrumb" className="font-inter text-[13px] text-mauve-600">
+          <ol className="flex flex-wrap items-center gap-x-2">
+            <li><AppLink to={paths.home} className="hover:text-iris-700 hover:underline">Home</AppLink></li><li aria-hidden="true">›</li>
+            <li><AppLink to={paths.policy('author-guidelines')} className="hover:text-iris-700 hover:underline">For Authors</AppLink></li><li aria-hidden="true">›</li>
+            <li aria-current="page" className="font-semibold text-night-900">Track My Paper</li>
+          </ol>
+        </nav>
+        <header className="mt-4 rounded-tile border border-j3paper-rule bg-j3paper-cool p-5 sm:p-6">
+          <ul className="flex flex-wrap gap-2" aria-label="Tracking highlights">
+            <li className="rounded-tile bg-iris-700 px-2 py-1 font-inter text-[11px] font-bold uppercase tracking-[0.06em] text-white">Live manuscript status</li>
+            <li className="rounded-tile bg-j3paper-deep px-2 py-1 font-inter text-[11px] font-bold uppercase tracking-[0.06em] text-iris-700">No login needed</li>
+          </ul>
+          <h1 className="mt-4 font-jakarta text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold leading-[1.1] tracking-tight text-night-900">Where is my paper right now?</h1>
+          <p className="mt-3 max-w-3xl font-inter text-base leading-relaxed text-mauve-700">Enter your Paper ID and the email address you used when submitting to see the current stage, activity log, documents and payment status.</p>
         </header>
 
-        <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-8 grid gap-4 border border-mauve-200 border-t-2 border-t-iris-700 bg-white p-5 sm:p-7 md:grid-cols-[1fr_1fr_auto] md:items-start">
+        <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="mt-6 grid gap-4 border border-j3paper-rule bg-white p-5 sm:p-7 md:grid-cols-[1fr_1fr_auto] md:items-start">
           <J3Field label="Paper ID" name="paperId" required error={errors.paperId}>
             <input className={j3Input(errors.paperId, true)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
               onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
@@ -124,7 +135,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
           <summary className="cursor-pointer font-inter font-semibold text-iris-700">Try a demo paper</summary>
           <ul className="mt-2 flex flex-wrap gap-2">
             {DEMOS.map((d) => (
-              <li key={d.id}><button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}) }} className="rounded-none border border-mauve-200 bg-white px-3 py-1 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{d.id}</button></li>
+              <li key={d.id}><button type="button" onClick={() => { setPaperId(d.id); setEmail(d.email); setErrors({}) }} className="rounded-tile border border-j3paper-rule bg-white px-3 py-1 font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">{d.id}</button></li>
             ))}
           </ul>
         </details>
@@ -136,13 +147,13 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
               <J3PaperResult paper={paper} actions={{ onPay: (mode) => request({ kind: 'pay', mode }), onSign: () => request({ kind: 'sign' }), onEdit: () => request({ kind: 'edit' }), onDownload: download }} />
             )}
             {result?.kind === 'other-journal' && (
-              <div role="status" className="mx-auto max-w-xl border border-mauve-200 border-t-2 border-t-ember-700 bg-white p-8 text-center">
+              <div role="status" className="mx-auto max-w-xl border border-j3paper-rule  bg-white p-8 text-center">
                 <h2 className="font-jakarta text-[1.625rem] font-semibold text-iris-700">This Paper ID belongs to another journal</h2>
                 <p className="mt-3 font-inter text-base text-mauve-600">Paper IDs for {journal.shortName} start with <strong className="text-night-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-night-900">{result.code}</strong> are tracked on that journal’s own Track page. Please check the confirmation email you received.</p>
               </div>
             )}
             {result?.kind === 'not-found' && (
-              <div role="alert" className="mx-auto max-w-xl border border-mauve-200 border-t-2 border-t-ember-700 bg-white p-8 text-center">
+              <div role="alert" className="mx-auto max-w-xl border border-j3paper-rule  bg-white p-8 text-center">
                 <h2 className="font-jakarta text-[1.625rem] font-semibold text-iris-700">We couldn’t find that paper</h2>
                 <p className="mt-3 font-inter text-base text-mauve-600">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-bold text-iris-700 underline hover:text-ember-700" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
                 <div className="mt-5"><AcButtonLink to={paths.about('contact')} variant="outline">Contact the editorial office</AcButtonLink></div>

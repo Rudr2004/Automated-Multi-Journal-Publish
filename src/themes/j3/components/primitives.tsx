@@ -2,6 +2,9 @@
 import type { ReactNode } from 'react'
 import { ErrorIcon, Refresh } from '../icons'
 
+/** Focus ring for links, buttons and fields on dark or purple bands (the global purple ring is invisible there). */
+export const onDark = '[&_a:focus-visible]:!outline-white [&_button:focus-visible]:!outline-white [&_input:focus-visible]:!outline-white'
+
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
 /** Page width and side gutters (16px on phones). */

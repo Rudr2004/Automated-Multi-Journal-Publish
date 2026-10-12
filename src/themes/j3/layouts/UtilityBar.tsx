@@ -3,6 +3,7 @@
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
+import { onDark } from '../components/primitives'
 import { OpenAccess, Verified } from '../icons'
 
 const chip = 'inline-flex items-center gap-1.5 rounded-tile border border-white/30 px-2.5 py-1 font-inter text-[11px] font-semibold tracking-wide text-white'
@@ -10,7 +11,7 @@ const quick = 'font-inter text-xs font-medium text-iris-100 transition-colors ho
 
 export function UtilityBar() {
   return (
-    <div className="bg-night-900">
+    <div className={`bg-night-900 ${onDark}`}>
       <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 py-2 sm:px-6 lg:px-10">
         <p className="flex flex-wrap items-center gap-2">
           <span className={`${chip} tabular-nums`}>Crossref DOI: {journal.doiPrefix}</span>

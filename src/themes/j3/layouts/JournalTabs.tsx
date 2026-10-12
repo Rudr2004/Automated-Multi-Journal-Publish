@@ -1,11 +1,11 @@
 // Journal tabs at the very top, as on the other journals: the active journal is a light pill; unbuilt journals are shown as "Soon".
 import { journal } from '../../../config/journals'
 import { network, networkHref } from '../../../config/journals/network'
-import { cx } from '../components/primitives'
+import { cx, onDark } from '../components/primitives'
 
 export function JournalTabs() {
   return (
-    <nav aria-label="Our journals" className="bg-night-800">
+    <nav aria-label="Our journals" className={`bg-night-800 ${onDark}`}>
       <ul className="mx-auto grid max-w-[1280px] grid-cols-5 gap-1 px-2 py-1.5 sm:px-4">
         {network.map((j) => {
           const active = j.code === journal.shortName

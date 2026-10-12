@@ -163,7 +163,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
               </div>
             </div>
           </form>
-          <div className="lg:col-span-4 lg:sticky lg:top-4"><J3SubmitAside /></div>
+          <div className="lg:col-span-4"><J3SubmitAside /></div>
         </div>
         <p role="status" className="sr-only">{announce}</p>
       </Container>

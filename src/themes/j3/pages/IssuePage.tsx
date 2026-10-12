@@ -218,28 +218,28 @@ export function IssuePage({ data }: { data: IssueData }) {
         </section>
 
         {/* Issue navigation strip */}
-        <nav aria-label="Issue navigation" className="mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border border-j3paper-rule bg-j3paper-cool px-4 py-3 font-inter text-[13px]">
+        <nav aria-label="Issue navigation" className="mt-5 grid items-center gap-x-6 gap-y-3 border border-j3paper-rule bg-j3paper-cool px-4 py-3 font-inter text-[13px] lg:grid-cols-[1fr_auto_1fr]">
           {prev
             ? <AppLink to={paths.issue(prev.volume, prev.issue)} className="font-semibold text-iris-700 hover:underline"><span aria-hidden="true">← </span>Previous issue: Vol. {prev.volume}, Iss. {prev.issue} ({formatMonthYear(prev.month)})</AppLink>
             : <span className="text-mauve-600">First issue of the journal</span>}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 lg:justify-center">
             <label htmlFor={jumpId} className="text-mauve-600">Quick issue jump:</label>
             <select id={jumpId} value={`${issue.volume}/${issue.issue}`} onChange={(e) => { const [v, i] = e.target.value.split('/').map(Number); navigate(paths.issue(v, i)) }}
-              className="h-9 max-w-[16rem] rounded-tile border border-j3paper-rule bg-white px-2 font-semibold text-night-900 hover:border-iris-700">
+              className="h-9 max-w-[19rem] rounded-tile border border-j3paper-rule bg-white px-2 font-semibold text-night-900 hover:border-iris-700">
               {(allIssues.length ? allIssues : [issue]).map((i) => <option key={`${i.volume}/${i.issue}`} value={`${i.volume}/${i.issue}`}>Vol. {i.volume}, Iss. {i.issue} ({formatMonthYear(i.month)}){i.isCurrent ? ' · Current' : ''}</option>)}
             </select>
             <AppLink to={paths.pastIssues} className="inline-flex h-9 items-center rounded-tile border border-j3paper-rule bg-white px-3 font-semibold text-night-900 hover:border-iris-700">Archive directory</AppLink>
           </div>
           {next
-            ? <AppLink to={paths.issue(next.volume, next.issue)} className="font-semibold text-iris-700 hover:underline">Next issue: Vol. {next.volume}, Iss. {next.issue} ({formatMonthYear(next.month)})<span aria-hidden="true"> →</span></AppLink>
-            : <span className="text-mauve-600">Next issue: {journal.nextIssue.label} (in progress)</span>}
+            ? <AppLink to={paths.issue(next.volume, next.issue)} className="lg:text-right font-semibold text-iris-700 hover:underline">Next issue: Vol. {next.volume}, Iss. {next.issue} ({formatMonthYear(next.month)})<span aria-hidden="true"> →</span></AppLink>
+            : <span className="text-mauve-600 lg:text-right">Next issue: {journal.nextIssue.label} (in progress)</span>}
         </nav>
       </Container>
 
       <Container className="py-8 sm:py-10">
         <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
           {/* Left rail */}
-          <aside aria-label="Explore this volume" className="min-w-0 space-y-6">
+          <aside aria-label="Explore this volume" className="order-2 min-w-0 space-y-6 lg:order-1">
             <section className="border border-j3paper-rule bg-j3paper-cool p-4">
               <SectionHead className="pb-3">Explore this volume</SectionHead>
               <div className="border-t border-j3paper-rule pt-3">
@@ -296,14 +296,14 @@ export function IssuePage({ data }: { data: IssueData }) {
           </aside>
 
           {/* Main column */}
-          <div className="min-w-0">
+          <div className="order-1 min-w-0 lg:order-2">
             <section aria-labelledby={`${searchId}-h`} className="border border-j3paper-rule border-t-2 border-t-iris-700 bg-j3paper-cool p-4 sm:p-5">
               <SectionHead id={`${searchId}-h`}>Search within Volume {issue.volume}, Issue {issue.issue}</SectionHead>
               <form role="search" onSubmit={(e) => e.preventDefault()} className="mt-4 flex flex-col gap-3 sm:flex-row">
                 <label htmlFor={searchId} className="sr-only">Search within this issue by title, author, theme or paper ID</label>
                 <div className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-tile border border-j3paper-rule bg-white pl-3 pr-1 focus-within:border-iris-700 focus-within:ring-1 focus-within:ring-iris-700">
                   <Search className="h-5 w-5 shrink-0 text-mauve-500" aria-hidden="true" />
-                  <input id={searchId} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search within Volume ${issue.volume}, Issue ${issue.issue} (title, author, keyword or paper ID)`}
+                  <input id={searchId} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title, author, keyword or paper ID"
                     className="min-w-0 flex-1 bg-transparent font-inter text-sm text-night-900 placeholder:text-mauve-500 focus:outline-none focus-visible:!outline-none" />
                   {q && <button type="button" onClick={() => setQ('')} aria-label="Clear search" className="inline-flex h-9 w-9 items-center justify-center text-mauve-700 hover:bg-j3paper-deep"><Close className="h-5 w-5" aria-hidden="true" /></button>}
                 </div>
@@ -369,18 +369,6 @@ export function IssuePage({ data }: { data: IssueData }) {
               <AppLink to={paths.verify()} className="inline-flex h-10 items-center justify-center gap-2 rounded-tile border border-white/30 px-4 font-jakarta text-[13px] font-semibold text-white hover:bg-white/10"><FactCheck className="h-4 w-4" aria-hidden="true" />Verify a certificate</AppLink>
             </div>
           </div>
-        </Container>
-      </section>
-
-      {/* Browse by theme */}
-      <section aria-labelledby="themes-h" className="border-b border-j3paper-rule bg-j3paper-cool">
-        <Container className="py-8">
-          <SectionHead id="themes-h">Browse articles by theme</SectionHead>
-          <ul className="mt-4 grid gap-x-8 gap-y-2 font-inter text-sm sm:grid-cols-2 lg:grid-cols-4">
-            {journal.subjects.map((s) => (
-              <li key={s}><AppLink to={paths.search(s)} className="inline-flex items-center gap-2 py-1 text-night-900 hover:text-iris-700 hover:underline"><span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-iris-700" />{s}</AppLink></li>
-            ))}
-          </ul>
         </Container>
       </section>
     </div>
