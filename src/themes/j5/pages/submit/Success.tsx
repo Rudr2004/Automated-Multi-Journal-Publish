@@ -1,4 +1,4 @@
-// Success screen of the Journal 5 (IJFRD) submission: Paper ID receipt, what happens next and the Track link.
+// Success screen of the Journal 5 (IJFRD) submission: Manuscript ID receipt, what happens next and the Track link.
 import { useEffect, useRef } from 'react'
 import { doiFor, journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
@@ -10,7 +10,7 @@ import { Download } from '../../icons'
 import { CheckCircle } from './mi'
 
 const NEXT: [string, string][] = [
-  ['Submitted', 'Done. Your Paper ID was sent by email, SMS and WhatsApp.'],
+  ['Submitted', 'Done. Your Manuscript ID was sent by email, SMS and WhatsApp.'],
   ['Screening', 'The editor checks scope, completeness and similarity.'],
   ['Peer review', 'Reviewers assess the work against a published checklist.'],
   ['Decision', 'Accept, revise or reject, always with written reasons.'],
@@ -19,9 +19,9 @@ const NEXT: [string, string][] = [
 ]
 
 const receipt = (paperId: string, email: string, title: string) =>
-  [`${journal.name} - Submission receipt`, '', `Paper ID : ${paperId}`, `Title    : ${title || '-'}`, `Email    : ${email}`,
+  [`${journal.name} - Submission receipt`, '', `Manuscript ID : ${paperId}`, `Title    : ${title || '-'}`, `Email    : ${email}`,
     `DOI      : ${doiFor(paperId)}`, `Date     : ${new Date().toISOString().slice(0, 10)}`, '',
-    'Track your paper any time on the Track page with your Paper ID and email. No account is needed.'].join('\n')
+    'Track your paper any time on the Track page with your Manuscript ID and email. No account is needed.'].join('\n')
 
 export function Success({ paperId, email, title }: { paperId: string; email: string; title: string }) {
   const head = useRef<HTMLHeadingElement>(null)
@@ -34,10 +34,10 @@ export function Success({ paperId, email, title }: { paperId: string; email: str
           <span className="font-work text-[11px] font-bold uppercase tracking-widest text-ochre-700">Submission Confirmed</span>
           <h1 id="done-h" ref={head} tabIndex={-1} className="mt-1 font-newsreader text-2xl font-bold leading-8 text-wine-900 focus:outline-none sm:text-[1.75rem]">Manuscript Dispatched Successfully</h1>
           <p className="mt-2 font-serif4 text-[15px] leading-6 text-[#564241]">
-            Your paper has been assigned Paper ID: <strong className="break-all font-mono text-base text-[#141B2B]" data-testid="paper-id">{paperId}</strong>. Confirmation was sent to <strong className="break-all text-[#141B2B]">{email}</strong> by email, SMS and WhatsApp. Keep the Paper ID safe: with your email it is all you need to track the paper.
+            Your paper has been assigned Manuscript ID: <strong className="break-all font-mono text-base text-[#141B2B]" data-testid="paper-id">{paperId}</strong>. Confirmation was sent to <strong className="break-all text-[#141B2B]">{email}</strong> by email, SMS and WhatsApp. Keep the Manuscript ID safe: with your email it is all you need to track the paper.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <CopyButton text={paperId} label="Copy Paper ID" done="Paper ID copied" />
+            <CopyButton text={paperId} label="Copy Manuscript ID" done="Manuscript ID copied" />
             <span className="font-work text-xs text-[#564241]">Reserved DOI <strong className="break-all text-[#141B2B]">{doiFor(paperId)}</strong></span>
           </div>
 

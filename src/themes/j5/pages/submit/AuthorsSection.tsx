@@ -3,17 +3,24 @@ import { useState } from 'react'
 import { journal } from '../../../../config/journals'
 import { COUNTRIES, DIAL_CODES, LIMITS, type SubmissionForm } from '../../../../core/lib/submission'
 import { digitsOnly, formatOrcid, phoneMaxLength } from '../../../../core/lib/validators'
+import { useDetectedLocation } from '../../../../core/lib/geo'
+import { PhotoPick } from './PhotoPick'
 import { Fingerprint, PersonAdd, PersonI, School, Trash } from './mi'
 import { Fld, Section, cleanEmail, cleanName, inp, softBtn, type SectionProps } from './shared'
 
 export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   const a = form.author
   const [mentorOpen, setMentorOpen] = useState(false)
-  const showMentor = mentorOpen || !!form.mentor || !!errors.mentor
-  const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({ ...f, author: { ...f.author, ...patch } }))
+  const showMentor = mentorOpen || !!form.mentor || !!form.mentorEmail || !!errors.mentor
+  // Co-authors start with the corresponding author's affiliation and follow it while unchanged. Country, dialling code and town are detected from the network (editable).
+  const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({
+    ...f, author: { ...f.author, ...patch },
+    coAuthors: patch.institution === undefined ? f.coAuthors : f.coAuthors.map((c) => (c.institution === f.author.institution ? { ...c, institution: patch.institution! } : c)),
+  }))
+  const geoNote = useDetectedLocation(a, setAuthor)
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     setForm((f) => ({ ...f, coAuthors: f.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
-  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] }))
+  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: f.author.institution, orcid: '', photo: null }] }))
   const removeCo = (id: number) => setForm((f) => ({ ...f, coAuthors: f.coAuthors.filter((c) => c.id !== id) }))
   const maxPhone = phoneMaxLength(a.dialCode)
   const remove = 'inline-flex min-h-[44px] items-center gap-1 rounded px-2 font-work text-xs font-semibold text-red-700 hover:bg-[#E9EDFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-800'
@@ -21,11 +28,12 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
     <>
       <Section letter="B" id="authors" title="Corresponding Author Details" note="Primary Contact" tone="secondary">
         <div className="grid gap-5 sm:grid-cols-12">
-          <Fld className="sm:col-span-6" label="Full Legal Name" name="author.name" required error={errors['author.name']}>
+          <div className="sm:col-span-12"><PhotoPick name="author.photo" label="Profile Photo" value={a.photo} onChange={(photo) => setAuthor({ photo })} /></div>
+          <Fld className="sm:col-span-6" label="Full Name" name="author.name" required error={errors['author.name']}>
             <input className={inp(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name" placeholder="e.g. Ramesh V. Kulkarni"
               onChange={(e) => setAuthor({ name: cleanName(e.target.value) })} onBlur={() => setAuthor({ name: a.name.trim() })} />
           </Fld>
-          <Fld className="sm:col-span-6" label="Email" name="author.email" required error={errors['author.email']} hint="Used with your Paper ID to track the paper. No account is needed.">
+          <Fld className="sm:col-span-6" label="Email" name="author.email" required error={errors['author.email']} hint="Used with your Manuscript ID to track the paper. No account is needed.">
             <input type="email" className={inp(errors['author.email'])} value={a.email} maxLength={LIMITS.email} autoComplete="email" inputMode="email" placeholder="name@institution.edu"
               onChange={(e) => setAuthor({ email: cleanEmail(e.target.value) })} onBlur={() => setAuthor({ email: a.email.trim().toLowerCase() })} />
           </Fld>
@@ -33,10 +41,14 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
             <input className={inp(errors['author.institution'])} value={a.institution} maxLength={LIMITS.institution} autoComplete="organization" placeholder="e.g. Department of Civil Engineering, National Institute of Technology"
               onChange={(e) => setAuthor({ institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ institution: a.institution.trim() })} />
           </Fld>
-          <Fld className="sm:col-span-4" label="Country / Region" name="author.country" required error={errors['author.country']}>
+          <Fld className="sm:col-span-4" label="Country / Region" name="author.country" required error={errors['author.country']} hint={geoNote || undefined}>
             <select className={inp(errors['author.country'])} value={a.country} autoComplete="country-name" onChange={(e) => setAuthor({ country: e.target.value })}>
               {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
             </select>
+          </Fld>
+          <Fld className="sm:col-span-6" label="Town / City" name="author.city" hint="Detected from your network; edit it if it is not right.">
+            <input className={inp()} value={a.city ?? ''} maxLength={LIMITS.name} autoComplete="address-level2"
+              onChange={(e) => setAuthor({ city: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ city: (a.city ?? '').trim() })} />
           </Fld>
           <div className="grid gap-3 sm:col-span-6 sm:grid-cols-[8.5rem_1fr]">
             <Fld label="Country code" name="author.dialCode" required>
@@ -71,13 +83,14 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
                 <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className={remove}><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                <Fld label="Full Legal Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
+                <Fld label="Full Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                   <input className={inp(errors[`co.${c.id}.name`])} value={c.name} maxLength={LIMITS.name} placeholder="Full name" onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />
                 </Fld>
-                <Fld label="Email" name={`co.${c.id}.email`} required error={errors[`co.${c.id}.email`]}>
-                  <input type="email" className={inp(errors[`co.${c.id}.email`])} value={c.email} maxLength={LIMITS.email} placeholder="name@institution.edu" onChange={(e) => setCo(c.id, { email: cleanEmail(e.target.value) })} onBlur={() => setCo(c.id, { email: c.email.trim().toLowerCase() })} />
+                <Fld label="Author ORCID Identifier" name={`co.${c.id}.orcid`} optional error={errors[`co.${c.id}.orcid`]} hint="Format: 0000-0002-1825-0097">
+                  <input className={inp(errors[`co.${c.id}.orcid`])} value={c.orcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setCo(c.id, { orcid: formatOrcid(e.target.value) })} />
                 </Fld>
               </div>
+              <PhotoPick compact name={`co.${c.id}.photo`} label="Profile Photo" value={c.photo ?? null} onChange={(photo) => setCo(c.id, { photo })} />
               <Fld label="Affiliation & University" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]}>
                 <input className={inp(errors[`co.${c.id}.institution`])} value={c.institution} maxLength={LIMITS.institution} placeholder="e.g. Department of Mechanical Engineering, IIT Bombay" onChange={(e) => setCo(c.id, { institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setCo(c.id, { institution: c.institution.trim() })} />
               </Fld>
@@ -91,13 +104,20 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
                   <School className="h-5 w-5 text-ochre-700" aria-hidden="true" />Academic Supervisor / Mentor
                   <span className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-ochre-700">Advisory Role</span>
                 </span>
-                <button type="button" onClick={() => { setForm((f) => ({ ...f, mentor: '' })); setMentorOpen(false) }} aria-label="Remove mentor" className={remove}><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
+                <button type="button" onClick={() => { setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorOrcid: '', mentorPhoto: null })); setMentorOpen(false) }} aria-label="Remove mentor" className={remove}><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
               </div>
-              <div className="md:max-w-lg">
-                <Fld label="Mentor Full Name" name="mentor" optional error={errors.mentor}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Fld label="Mentor Full Name" name="mentor" error={errors.mentor}>
                   <input className={inp(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} placeholder="e.g. Prof. David Miller" onChange={(e) => setForm((f) => ({ ...f, mentor: cleanName(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentor: f.mentor.trim() }))} />
                 </Fld>
               </div>
+              <Fld label="Mentor Email" name="mentorEmail" optional error={errors.mentorEmail}>
+                <input type="email" className={inp(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} placeholder="name@institution.edu" onChange={(e) => setForm((f) => ({ ...f, mentorEmail: cleanEmail(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentorEmail: f.mentorEmail.trim().toLowerCase() }))} />
+              </Fld>
+              <Fld label="Mentor ORCID Identifier" name="mentorOrcid" optional error={errors.mentorOrcid} hint="Format: 0000-0002-1825-0097">
+                <input className={inp(errors.mentorOrcid)} value={form.mentorOrcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setForm((f) => ({ ...f, mentorOrcid: formatOrcid(e.target.value) }))} />
+              </Fld>
+              <PhotoPick compact name="mentor.photo" label="Profile Photo" value={form.mentorPhoto ?? null} onChange={(photo) => setForm((f) => ({ ...f, mentorPhoto: photo }))} />
             </div>
           )}
         </div>

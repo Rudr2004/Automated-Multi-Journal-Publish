@@ -2,10 +2,9 @@
 // and the Official Journal Details table. Text comes from the journal config; nothing here claims an index, rating or membership the journal does not hold.
 import type { ComponentType, ReactNode } from 'react'
 import { journal } from '../../../../config/journals'
-import { AREA_BLURB, AREA_ICONS, areas } from '../../components/areas'
-import { Eye as Visibility, Explore, HubIcon, LibraryBooks, Mail, PublicIcon } from '../../components/homeIconsJ5'
+import { Eye as Visibility, Explore, LibraryBooks, Mail, PublicIcon } from '../../components/homeIconsJ5'
 import { cx } from '../../components/primitives'
-import { Industrial, Track, type IconProps } from '../../icons'
+import { Computational, Development, Earth, Industrial, Maths, Physics, Track, type IconProps } from '../../icons'
 import { Description, Language } from '../../components/homeIconsJ5'
 
 const card = 'rounded border border-[#dcc0be] bg-white p-6 shadow-sm sm:p-8'
@@ -32,7 +31,16 @@ const frame: [ComponentType<IconProps>, string, string, string, string][] = [
   [Explore, 'Journal Mission', journal.mission, 'text-[#9b4500]', 'Rigorous and Open'],
   [Track, 'Core Aim', 'To publish original research articles, review articles and short communications across the nine research areas of the journal.', 'text-emerald-800', 'Nine Research Areas'],
 ]
-const FORMATS = ['Research Article', 'Review Article', 'Short Communication', 'Editorial']
+const FORMATS = ['Original Research Articles', 'Systematic Review Articles', 'Rapid Communications', 'Case Studies', 'Theoretical Notes']
+// The six faculties of the journal's scope, as in the design reference.
+const FACULTIES: [string, string, ComponentType<IconProps>][] = [
+  ['Engineering & Emerging Technologies', 'Micro- & Nano-Electro-Mechanical Systems (MEMS), Sustainable Energy Storage & Battery Kinetics, Autonomous Robotics, Cyber-Physical Systems, Advanced Metallurgy, and Structural Aerospace Composites.', Industrial],
+  ['Management & Leadership Studies', 'Technological Innovation Management, Organizational Leadership, Quantitative Economics, Supply Chain Systems, Digital Society Governance, and Public Technology Policy Frameworks.', Development],
+  ['Science (Pure & Applied Sciences)', 'Condensed Matter & Topological Materials, Quantum Optics, High Energy Physics, Inorganic & Organic Chemistry, Supramolecular Synthesis, Nanotechnology, and Non-Equilibrium Thermodynamics.', Physics],
+  ['Arts & Humanities', 'Epistemology & Philosophy of Science, Visual & Digital Culture, Aesthetics, Cultural Heritage Informatics, Historical Studies, and Creative Interdisciplinary Expression.', Earth],
+  ['Social Science', 'Epistemology & Sociology of Knowledge, Cognitive Science, Quantitative Economics, Behavioral Studies, Public Policy, and Global Sustainable Development.', Maths],
+  ['Multidisciplinary & Interdisciplinary Studies', 'Cross-disciplinary Methodologies, Complex Systems, Data Science Applications, AI Ethics & Society, Climate Informatics, and Emerging Frontier Studies.', Computational],
+]
 
 export function AimsScope() {
   return (
@@ -56,17 +64,14 @@ export function AimsScope() {
         ))}
       </div>
       <div className="mb-6">
-        <div className="mb-3 flex items-center gap-2"><Industrial className="h-[18px] w-[18px] text-wine-800" aria-hidden="true" /><h3 className="font-newsreader text-lg font-bold text-[#141b2b]">Research Areas &amp; Scope</h3></div>
+        <div className="mb-3 flex items-center gap-2"><Industrial className="h-[18px] w-[18px] text-wine-800" aria-hidden="true" /><h3 className="font-newsreader text-lg font-bold text-[#141b2b]">Comprehensive Multidisciplinary Disciplines &amp; Scope</h3></div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {areas.map((a) => {
-            const Icon = AREA_ICONS[a.id] ?? HubIcon
-            return (
-              <div key={a.id} className="rounded border border-[#dcc0be] bg-[#f4f5fc] p-4">
-                <h4 className="mb-1.5 flex items-center gap-1.5 font-newsreader text-sm font-bold text-wine-800"><Icon className="h-[17px] w-[17px]" aria-hidden="true" /><span>{a.name}</span></h4>
-                <p className="font-work text-xs leading-relaxed text-[#564241]">{AREA_BLURB[a.id]}</p>
-              </div>
-            )
-          })}
+          {FACULTIES.map(([name, text, Icon]) => (
+            <div key={name} className="rounded border border-[#dcc0be] bg-[#f4f5fc] p-4">
+              <h4 className="mb-1.5 flex items-center gap-1.5 font-newsreader text-sm font-bold text-wine-800"><Icon className="h-[17px] w-[17px]" aria-hidden="true" /><span>{name}</span></h4>
+              <p className="font-work text-xs leading-relaxed text-[#564241]">{text}</p>
+            </div>
+          ))}
         </div>
       </div>
       <div className="flex flex-col items-start justify-between gap-3 rounded border border-[#dcc0be] bg-[#f4f5fc]/50 p-4 font-work text-xs sm:flex-row sm:items-center">
@@ -83,12 +88,12 @@ const th = 'w-1/3 border-r border-[#dcc0be] px-4 py-3 text-left align-top font-s
 
 export function JournalDetails() {
   const rows: [string, ReactNode][] = [
-    ...journal.info.filter(([k]) => k !== 'Email' && k !== 'Website' && k !== 'Address' && k !== 'Licence' && k !== 'Publication Format').map(([k, v]) => [k, v] as [string, ReactNode]),
+    ...journal.info.filter(([k]) => k !== 'Email' && k !== 'Website' && k !== 'Address' && k !== 'Licence' && k !== 'Publication Format' && k !== 'Starting Year').map(([k, v]) => [k, k === 'Publisher' ? 'IJFRD Journal' : k === 'Subject' ? 'Multidisciplinary Subjects' : v] as [string, ReactNode]),
     ['Publication Format', <span key="pf" className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1 font-semibold text-emerald-800"><PublicIcon className="h-4 w-4" aria-hidden="true" /> Online</span><span className="text-[#564241]">(Open Access, {journal.licence.name})</span></span>],
     ['DOI Prefix', <span key="doi" className="font-mono font-bold text-[#9b4500]">{journal.doiPrefix} (Crossref)</span>],
     ['Email', <a key="m" className="inline-flex items-center gap-1 font-medium text-wine-800 hover:underline" href={`mailto:${journal.email}`}><Mail className="h-[15px] w-[15px]" aria-hidden="true" /> {journal.email}</a>],
     ['Website', <span key="w" className="inline-flex items-center gap-1 font-medium text-wine-800"><Language className="h-[15px] w-[15px]" aria-hidden="true" /> https://{journal.domain}</span>],
-    ['Official Address', <span key="a" className="leading-relaxed">{journal.address}</span>],
+    ['Official Address', <span key="a" className="leading-relaxed">{journal.address.replace(journal.publisher, journal.name)}</span>],
   ]
   rows.splice(1, 0, ['Short Title / Acronym', journal.shortName])
   return (

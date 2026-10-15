@@ -23,10 +23,10 @@ export function XploreBand() {
           <div className="mb-6 text-center">
             <div aria-hidden="true" className="j5-double-rule mb-3" />
             <h2 id="j5-xplore" className="mb-1 font-newsreader text-2xl font-semibold text-[#141b2b]">{journal.shortName} Xplore: Scholarly Archive Query</h2>
-            <p className="font-serif4 text-xs text-[#564241] sm:text-sm">Search published articles by keyword, author, title, DOI or Paper ID.</p>
+            <p className="font-serif4 text-xs text-[#564241] sm:text-sm">Search published articles by keyword, author, title, DOI or Manuscript ID.</p>
           </div>
           <div className="space-y-4">
-            <ArchiveSearch variant="band" placeholder={`Search by keyword, author name, DOI ${journal.doiPrefix}, Paper ID or subject...`} />
+            <ArchiveSearch variant="band" placeholder={`Search by keyword, author name, DOI ${journal.doiPrefix}, Manuscript ID or subject...`} />
             <div className="grid grid-cols-1 gap-3 font-work text-xs sm:grid-cols-3">
               <div>
                 <label htmlFor={`${id}-d`} className={lab}>Research Area</label>

@@ -1,4 +1,4 @@
-// IJFRD status console: Paper ID + email lookup, six-stage tracker, activity log, APC panel and OTP-gated actions.
+// IJFRD status console: Manuscript ID + email lookup, six-stage tracker, activity log, APC panel and OTP-gated actions.
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -18,6 +18,7 @@ import { CertDialog, EditDialog } from './track/EditDialogs'
 import { OtpDialog } from './track/OtpDialog'
 import { PayDialog, type PayMode } from './track/PayDialog'
 import { ActionsPanel, ApcPanel, DocsPanel, ReferralPanel } from './track/Side'
+import { idExample, idMaxLength, normalizeId } from '../../../core/lib/manuscriptId'
 
 type Gated = { kind: 'pay'; mode: PayMode } | { kind: 'sign' } | { kind: 'edit' } | { kind: 'cert' }
 type Dialog = null | 'otp' | 'pay' | 'edit' | 'cert'
@@ -25,7 +26,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 const PURPOSE: Record<Gated['kind'], string> = { pay: 'pay your article processing charge', sign: 'sign the copyright form', edit: 'edit your submission', cert: 'view your author certificate' }
 
 const DEMO = 'demo@example.com'
-const id = (n: string) => `${journal.paperIdPrefix}2026000${n}`
+const id = (n: string) => `${journal.paperIdPrefix.toLowerCase()}.v1i1.${String(Number(n) - 200).padStart(3, '0')}`
 const DEMOS: { id: string; email: string; note: string }[] = [
   { id: id('204'), email: DEMO, note: 'Just submitted' }, { id: id('201'), email: 'arnav.saxena@example.com', note: 'In review' },
   { id: id('205'), email: DEMO, note: 'Decision made' }, { id: id('206'), email: DEMO, note: 'Accepted, sign form' },
@@ -125,12 +126,12 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
                 <Track className="h-3.5 w-3.5" aria-hidden="true" />Status console
               </span>
               <h1 id="track-h" className="font-newsreader text-2xl font-bold leading-tight tracking-tight text-wine-900 sm:text-3xl">Where is my paper right now?</h1>
-              <p className="font-serif4 text-sm leading-relaxed text-[#564241]">No account needed. Enter the Paper ID from your confirmation message and the email address you submitted with.</p>
+              <p className="font-serif4 text-sm leading-relaxed text-[#564241]">No account needed. Enter the Manuscript ID from your confirmation message and the email address you submitted with.</p>
             </div>
             <form ref={formRef} onSubmit={submit} noValidate aria-label="Find your paper" className="grid gap-4 border-t border-[#DCC0BE]/30 pt-4 md:grid-cols-[1fr_1fr_auto] md:items-start">
-              <Field label="Paper ID" name="paperId" required error={errors.paperId}>
-                <input className={inp(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder={`e.g. ${journal.paperIdPrefix}2026000123`}
-                  onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+              <Field label="Manuscript ID" name="paperId" required error={errors.paperId}>
+                <input className={inp(errors.paperId)} value={paperId} maxLength={idMaxLength} autoComplete="off" spellCheck={false} placeholder={`e.g. ${idExample}`}
+                  onChange={(e) => { setPaperId(normalizeId(e.target.value)); setErrors((x) => ({ ...x, paperId: undefined })) }} />
               </Field>
               <Field label="Email" name="email" required error={errors.email}>
                 <input type="email" className={inp(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="name@institution.edu"
@@ -166,14 +167,14 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
               )}
               {result?.kind === 'other-journal' && (
                 <div role="status" className="max-w-xl rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm p-6 ">
-                  <h2 className="font-newsreader text-2xl font-bold text-wine-900">This Paper ID belongs to another journal</h2>
-                  <p className="mt-2 text-[15px] text-obsidian-700">Paper IDs for {journal.shortName} start with <strong className="text-obsidian-900">{journal.paperIdPrefix}</strong>. IDs starting with <strong className="text-obsidian-900">{result.code}</strong> are tracked on that journal’s own page. Please check your confirmation email.</p>
+                  <h2 className="font-newsreader text-2xl font-bold text-wine-900">This Manuscript ID belongs to another journal</h2>
+                  <p className="mt-2 text-[15px] text-obsidian-700">Manuscript IDs for {journal.shortName} look like <strong className="text-obsidian-900">{idExample}</strong>. IDs starting with <strong className="text-obsidian-900">{result.code}</strong> are tracked on that journal’s own page. Please check your confirmation email.</p>
                 </div>
               )}
               {result?.kind === 'not-found' && (
                 <div role="alert" className="max-w-xl rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm p-6 ">
                   <h2 className="font-newsreader text-2xl font-bold text-wine-900">We could not find that paper</h2>
-                  <p className="mt-2 text-[15px] text-obsidian-700">Check the Paper ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-wine-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
+                  <p className="mt-2 text-[15px] text-obsidian-700">Check the Manuscript ID and the email address you submitted with. Still stuck? Email <a className="font-semibold text-wine-700 underline" href={`mailto:${journal.email}`}>{journal.email}</a>.</p>
                   <div className="mt-4"><ButtonLink to={paths.about('contact')} variant="outline" className="min-h-[44px]">Contact the editorial office</ButtonLink></div>
                 </div>
               )}

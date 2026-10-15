@@ -55,7 +55,7 @@ export function CertDialog({ open, onClose, paperId, title, authors, publishedAt
         <dl className="mt-4 grid gap-x-4 gap-y-1.5 text-sm sm:grid-cols-[8rem_1fr]">
           <dt className="text-obsidian-600">Authors</dt><dd className="font-semibold">{authors.join(', ')}</dd>
           <dt className="text-obsidian-600">Journal</dt><dd className="font-semibold">{journal.name}</dd>
-          <dt className="text-obsidian-600">Paper ID</dt><dd className="font-semibold tabular-nums">{paperId}</dd>
+          <dt className="text-obsidian-600">Manuscript ID</dt><dd className="font-semibold tabular-nums">{paperId}</dd>
           <dt className="text-obsidian-600">DOI</dt><dd className="break-all font-semibold">{doiFor(paperId)}</dd>
           <dt className="text-obsidian-600">Published</dt><dd className="font-semibold">{formatDate(publishedAt)}</dd>
         </dl>

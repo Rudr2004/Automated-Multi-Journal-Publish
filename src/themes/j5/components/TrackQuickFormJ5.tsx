@@ -1,11 +1,11 @@
-// Compact "Track My Paper" form for sidebars: Paper ID + email, validated, then opens the tracking page with both filled in. No login.
+// Compact "Track My Paper" form for sidebars: Manuscript ID + email, validated, then opens the tracking page with both filled in. No login.
 import { useId, useState, type FormEvent } from 'react'
-import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import { useRouter } from '../../../core/router'
 import { Button } from './Button'
 import { Track } from '../icons'
+import { idExample } from '../../../core/lib/manuscriptId'
 
 const input = 'h-10 w-full rounded border border-obsidian-300 bg-white px-3 text-sm text-obsidian-900 placeholder:text-obsidian-500 focus:border-ochre-600 focus:outline-none focus:ring-4 focus:ring-ochre-600/15 focus-visible:!outline-none'
 
@@ -25,8 +25,8 @@ export function TrackQuickFormJ5() {
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
       <div>
-        <label htmlFor={`${id}-p`} className="text-xs font-semibold text-obsidian-800">Paper ID</label>
-        <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${input} mt-1 tabular-nums`} />
+        <label htmlFor={`${id}-p`} className="text-xs font-semibold text-obsidian-800">Manuscript ID</label>
+        <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${input} mt-1 tabular-nums`} />
         {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
       </div>
       <div>

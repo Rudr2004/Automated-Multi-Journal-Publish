@@ -1,4 +1,5 @@
 // Journal 5 (IJFRD) theme: "Academic Prestige" (burgundy). Registers its pages with the shared containers.
+import { j5Placeholders } from './layouts/nav'
 import '@fontsource-variable/newsreader'
 import '@fontsource-variable/source-serif-4'
 import '@fontsource-variable/work-sans'
@@ -32,5 +33,5 @@ const theme: Theme = {
 }
 
 export default function J5Site() {
-  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} />
+  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} placeholders={[...j5Placeholders]} />
 }

@@ -104,7 +104,7 @@ export function ArticleHeader({ article }: { article: ArticleFull }) {
             <div><dt className={DT}>Volume / issue</dt><dd className="font-medium text-white">Vol. {article.volume}, No. {article.issue}</dd></div>
             <div><dt className={DT}>Pages</dt><dd className="font-medium tabular-nums text-white">{article.pages || '—'}</dd></div>
             <div><dt className={DT}>Licence</dt><dd className="font-medium text-white"><a href={journal.licence.url} target="_blank" rel="noreferrer" className="underline decoration-white/30 underline-offset-2 hover:decoration-white">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a></dd></div>
-            <div className="min-w-0"><dt className={DT}>Paper ID</dt><dd className="break-all font-medium text-white">{article.paperId}</dd></div>
+            <div className="min-w-0"><dt className={DT}>Manuscript ID</dt><dd className="break-all font-medium text-white">{article.paperId}</dd></div>
           </dl>
           <ul aria-label="Article metrics" className="-mx-2.5 -mb-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-b bg-wine-800/40 px-3 py-1.5 font-work text-xs text-bordeaux-100">
             {([['Views', article.views, Eye], ['Downloads', article.downloads, Download], ['Citations', article.citations, Quote]] as const).map(([label, value, Icon]) => (

@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink, useRouter } from '../../../core/router'
-import { areas } from '../components/areas'
 import { ArchiveSearch } from '../components/ArchiveSearch'
 import { Badge, ExpandMore, PublicIcon } from '../components/homeIconsJ5'
 import { cx } from '../components/primitives'
 import { Book, Close, Menu, Submit, Track } from '../icons'
-import { apcLink, contactLink, editorialLink, menus, policiesMenu, reviewerMenu, type NavDropdown, type NavLinkItem } from './nav'
+import type { NavItem } from '../../../config/navigation'
+import { j5Nav } from './nav'
 
 /** The IJFRD logo, shown whole. It has a white background, so on the dark footer it sits on a white tile. */
 export function Logo({ size = 64, tile, className }: { size?: number; tile?: boolean; className?: string }) {
@@ -17,6 +17,7 @@ export function Logo({ size = 64, tile, className }: { size?: number; tile?: boo
 }
 
 const shell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'
+const navShell = 'mx-auto max-w-[88rem] px-4'
 const chip = 'rounded border px-2 py-0.5 font-work text-[11px] uppercase tracking-wider'
 const dot = <span aria-hidden="true" className="text-[#dcc0be]">•</span>
 
@@ -41,36 +42,35 @@ export function Header() {
   const holdOpen = () => window.clearTimeout(closeTimer.current)
   const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu(null), 140) }
 
-  const link = 'flex items-center gap-1 whitespace-nowrap px-3 py-3.5 font-work text-xs font-medium uppercase leading-4 tracking-wider transition-colors'
+  const link = 'flex items-center gap-1 whitespace-nowrap px-1.5 py-3.5 font-work text-[10.5px] font-medium uppercase leading-4 tracking-normal transition-colors'
   const idle = 'text-[#564241] hover:bg-[#f4f5fc] hover:text-wine-800'
   const on = 'border-b-2 border-[#9b4500] bg-[#9b4500]/10 font-bold text-[#9b4500]'
-  const plain = (l: NavLinkItem, active: boolean, marker?: string) => (
-    <div key={l.to} onMouseEnter={() => setMenu(null)}>
-      <AppLink to={l.to} aria-current={active ? 'page' : undefined} className={cx(link, active ? on : idle)}>{marker && <span aria-hidden="true" className={cx('h-1.5 w-1.5 rounded-full', marker)} />}{l.label}</AppLink>
-    </div>
-  )
-  const dropdown = (m: NavDropdown, wide?: boolean) => {
-    const open = menu === m.id
+  const itemActive = (it: NavItem) => (it.match ? it.match(pathname) : isActive(it.to))
+  const plain = (it: NavItem) => {
+    const active = itemActive(it)
     return (
-      <div key={m.id} className="relative" onMouseEnter={() => openMenu(m.id)}>
-        <button type="button" aria-expanded={open} aria-haspopup="true" onClick={() => (open ? setMenu(null) : openMenu(m.id))} className={cx(link, 'cursor-pointer', idle, open && 'text-wine-800')}>
-          {m.label}<ExpandMore className={cx('h-3.5 w-3.5 text-[#897270] transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
+      <div key={it.label} onMouseEnter={() => setMenu(null)}>
+        <AppLink to={it.to} aria-current={active ? 'page' : undefined} className={cx(link, active ? on : idle)}>{it.label}</AppLink>
+      </div>
+    )
+  }
+  const dropdown = (it: NavItem, i: number) => {
+    const open = menu === it.label
+    return (
+      <div key={it.label} className="relative" onMouseEnter={() => openMenu(it.label)}>
+        <button type="button" aria-expanded={open} aria-haspopup="true" onClick={() => (open ? setMenu(null) : openMenu(it.label))} className={cx(link, 'cursor-pointer', itemActive(it) ? on : idle, open && 'text-wine-800')}>
+          {it.label}<ExpandMore className={cx('h-3.5 w-3.5 text-[#897270] transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
         </button>
         {open && (
-          <ul className={cx('absolute left-0 top-full z-50 max-h-[460px] overflow-y-auto rounded border border-[#dcc0be] bg-white py-1.5 shadow-lg motion-safe:animate-fade-in', wide ? 'w-80' : 'w-64')}>
-            {m.links.map((l) => (
-              <li key={l.to + l.label}><AppLink to={l.to} className="block px-4 py-2 font-work text-xs text-[#141b2b] transition-colors hover:bg-[#f4f5fc] hover:text-wine-800">{l.label}</AppLink></li>
+          <ul className={cx('absolute top-full z-50 max-h-[460px] w-80 overflow-y-auto rounded border border-[#dcc0be] bg-white py-1.5 shadow-lg motion-safe:animate-fade-in', i > 6 ? 'right-0' : 'left-0')}>
+            {it.children!.map((l) => (
+              <li key={l.label}><AppLink to={l.to} className="block px-4 py-2 font-work text-xs leading-snug text-[#141b2b] transition-colors hover:bg-[#f4f5fc] hover:text-wine-800">{l.label}</AppLink></li>
             ))}
           </ul>
         )}
       </div>
     )
   }
-  const authors = menus.find((m) => m.id === 'authors')!
-  const about = menus.find((m) => m.id === 'about')!
-  const areaMenu: NavDropdown = { id: 'areas', label: 'Research Areas', links: areas.map((a) => ({ label: a.name, to: paths.search(a.name) })) }
-  const mobileGroups: NavDropdown[] = [areaMenu, authors, policiesMenu, reviewerMenu, about]
-  const flat: NavLinkItem[] = [{ label: 'Home', to: paths.home }, { label: 'Current Issue', to: paths.currentIssue }, { label: 'Archives', to: paths.pastIssues }, apcLink, editorialLink, contactLink]
   const mobileLink = 'block border-b border-obsidian-100 py-3.5 font-work text-sm font-semibold uppercase tracking-wider text-[#141b2b]'
 
   return (
@@ -117,20 +117,10 @@ export function Header() {
 
       {/* Navigation bar: sticky. */}
       <div ref={root} data-j5-header onMouseEnter={holdOpen} onMouseLeave={scheduleClose} className="sticky top-0 z-50 border-b border-obsidian-200 bg-white shadow-sm">
-        <div className={cx(shell, 'relative flex min-h-[48px] items-center justify-between')}>
+        <div className={cx(navShell, 'relative flex min-h-[48px] items-center justify-between')}>
           <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className="font-newsreader text-xl font-bold tracking-tight text-wine-800 xl:hidden">{journal.shortName}</AppLink>
-          <nav aria-label="Main" className="hidden items-center xl:flex">
-            {plain({ label: 'Home', to: paths.home }, pathname === paths.home)}
-            {plain({ label: 'Current Issue', to: paths.currentIssue }, isActive(paths.currentIssue), 'bg-[#9b4500]')}
-            {plain({ label: 'Archives', to: paths.pastIssues }, isActive(paths.pastIssues))}
-            {dropdown(areaMenu)}
-            {dropdown(authors)}
-            {dropdown(policiesMenu, true)}
-            {dropdown(reviewerMenu)}
-            {dropdown(about)}
-            {plain(apcLink, isActive(apcLink.to))}
-            {plain(editorialLink, isActive(editorialLink.to))}
-            {plain(contactLink, isActive(contactLink.to))}
+          <nav aria-label="Main" className="hidden min-w-0 flex-1 flex-wrap items-center justify-between xl:flex">
+            {j5Nav.map((it, i) => (it.children ? dropdown(it, i) : plain(it)))}
           </nav>
           <div className="ml-auto flex items-center gap-1 xl:hidden">
             <button type="button" onClick={() => setMobileOpen((v) => !v)} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} className="rounded p-2.5 text-[#141b2b] hover:bg-[#f4f5fc]">
@@ -140,14 +130,12 @@ export function Header() {
         </div>
         {mobileOpen && (
           <nav aria-label="Mobile" className="max-h-[calc(100vh-48px)] overflow-y-auto border-t border-obsidian-200 bg-white px-4 pb-6 pt-2 motion-safe:animate-slide-down sm:px-6 xl:hidden">
-            {flat.slice(0, 3).map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className={mobileLink}>{l.label}</AppLink>)}
-            {mobileGroups.map((m) => (
-              <details key={m.id} className="group border-b border-obsidian-100">
-                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-work text-sm font-semibold uppercase tracking-wider text-[#141b2b]">{m.label}<ExpandMore className="h-5 w-5 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-                <ul className="pb-3">{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block rounded px-2 py-2 text-sm text-[#564241] hover:bg-[#f4f5fc]">{l.label}</AppLink></li>)}</ul>
+            {j5Nav.map((it) => it.children ? (
+              <details key={it.label} className="group border-b border-obsidian-100">
+                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-work text-sm font-semibold uppercase tracking-wider text-[#141b2b]">{it.label}<ExpandMore className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+                <ul className="pb-3">{it.children.map((l) => <li key={l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block rounded px-2 py-2 text-sm text-[#564241] hover:bg-[#f4f5fc]">{l.label}</AppLink></li>)}</ul>
               </details>
-            ))}
-            {flat.slice(3).map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className={mobileLink}>{l.label}</AppLink>)}
+            ) : <AppLink key={it.label} to={it.to} onClick={() => setMobileOpen(false)} className={mobileLink}>{it.label}</AppLink>)}
           </nav>
         )}
       </div>

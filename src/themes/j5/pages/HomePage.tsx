@@ -4,7 +4,6 @@
 import type { HomeData } from '../../../core/types'
 import { Container } from '../components/primitives'
 import { AboutJournal, AimsScope, JournalDetails } from './home/AboutBlocks'
-import { Recognition, XploreBand } from './home/Bands'
 import { FeaturedArticles } from './home/FeaturedArticles'
 import { Hero } from './home/Hero'
 import { Sidebar } from './home/Sidebar'
@@ -24,8 +23,6 @@ export function HomePage({ data }: { data: HomeData; onSubscribe: (email: string
           <Sidebar cfp={data.callForPapers} notices={data.notices} />
         </div>
       </Container>
-      <XploreBand />
-      <Recognition />
     </>
   )
 }

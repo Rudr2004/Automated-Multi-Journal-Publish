@@ -15,7 +15,7 @@ export const policiesTwo: StaticPageData[] = [
     'Mistakes happen. When one is found after publication, we fix it in public.',
     [
       { heading: 'Types of correction', list: ['Erratum: an error made by the journal, such as a wrong figure or missing author.', 'Corrigendum: an error made by the authors that affects meaning or credit, such as a wrong equation or unit.', 'Minor typographical changes that do not affect understanding may be made with a note in the article history.'] },
-      { heading: 'How to ask for one', paragraphs: ['Write to editor@ijfrd.org with the DOI, what is wrong and what it should say. Corrections affecting authorship, permissions or conclusions need the agreement of every author.'] },
+      { heading: 'How to ask for one', paragraphs: ['Write to editor@ijfrd.com with the DOI, what is wrong and what it should say. Corrections affecting authorship, permissions or conclusions need the agreement of every author.'] },
       { heading: 'How corrections appear', paragraphs: ['The corrected article carries a visible notice linking to the correction, which is published with its own record. The original version stays available in the article history.'] },
     ], ['retraction', 'publication-ethics', 'author-guidelines']),
 
@@ -70,14 +70,14 @@ export const policiesTwo: StaticPageData[] = [
     [
       { heading: 'When we refund', list: ['You paid twice for the same paper.', 'The journal cannot publish your paper after you paid, for example because of an editorial or technical failure on our side.', 'A payment was made to the wrong paper and production has not started.'] },
       { heading: 'When we do not', paragraphs: ['Once an article is published, the charge is not refunded. A paper withdrawn by the author after production has begun is not refunded either, as the editorial and typesetting work is done. A paper retracted for misconduct is not refunded.'] },
-      { heading: 'How to ask', paragraphs: ['Write to editor@ijfrd.org within 30 days of payment with your Paper ID and payment reference. Approved refunds are returned to the original payment method within 14 working days; bank fees may be deducted for international transfers.'] },
+      { heading: 'How to ask', paragraphs: ['Write to editor@ijfrd.com within 30 days of payment with your Manuscript ID and payment reference. Approved refunds are returned to the original payment method within 14 working days; bank fees may be deducted for international transfers.'] },
     ], ['publication-charges', 'apc-payment', 'complaints']),
 
   P('complaints', 'Complaints and Appeals',
     'If you think we got something wrong, tell us. We take every complaint seriously and answer it in writing.',
     [
       { heading: 'What you can raise', list: ['An editorial decision that rests on a factual error or an unfair process.', 'The behaviour of a reviewer, editor or staff member.', 'Delays, billing errors or a failure to follow the policies published on this site.'] },
-      { heading: 'How we handle it', paragraphs: ['Write to editor@ijfrd.org with your Paper ID and the details. We acknowledge your message within two working days. Appeals against a decision are examined by the editor-in-chief or by an editor who was not involved, who may seek a new review. The outcome is sent to you with reasons, normally within 30 days.'] },
+      { heading: 'How we handle it', paragraphs: ['Write to editor@ijfrd.com with your Manuscript ID and the details. We acknowledge your message within two working days. Appeals against a decision are examined by the editor-in-chief or by an editor who was not involved, who may seek a new review. The outcome is sent to you with reasons, normally within 30 days.'] },
       { heading: 'If you are still unhappy', paragraphs: ['You may ask for the matter to be reviewed once more by the managing editor and the editor-in-chief together. Their decision is final for the purpose of this journal.'] },
     ], ['editorial-policy', 'publication-ethics', 'peer-review']),
 

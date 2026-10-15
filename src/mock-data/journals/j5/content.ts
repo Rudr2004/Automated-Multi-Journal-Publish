@@ -196,20 +196,20 @@ const editorialSections: ArticleSection[] = [
 ]
 
 const CUSTOM: Record<string, Custom> = {
-  IJFRD2026000110: { keywords: ['fundamental research', 'research development', 'open access', 'peer review', 'technology transfer'], affiliations: [IISC], authorAff: [[1]], sections: editorialSections, references: [] },
-  IJFRD2026000112: {
+  'ijfrd.v1i9.001': { keywords: ['fundamental research', 'research development', 'open access', 'peer review', 'technology transfer'], affiliations: [IISC], authorAff: [[1]], sections: editorialSections, references: [] },
+  'ijfrd.v1i9.003': {
     keywords: ['yttrium iron garnet', 'Gilbert damping', 'ferromagnetic resonance', 'spin waves', 'magnonics'],
     affiliations: [TIFR, MPI, KYOTO], authorAff: [[1], [2], [3], [1, 3]],
     sections: featuredSections, references: featuredRefs,
   },
-  IJFRD2026000113: { keywords: ['mechanochemistry', 'ball milling', 'solvent-free synthesis', 'in situ monitoring', 'scale-up'], affiliations: ['University of Bologna, Bologna, Italy', 'Indian Institute of Science Education and Research, Pune, India'], authorAff: [[1], [2], [1, 2]] },
-  IJFRD2026000114: { keywords: ['nanocrystalline metals', 'grain-boundary segregation', 'thin films', 'atom probe tomography', 'nanoindentation'], affiliations: ['University of Cape Town, Cape Town, South Africa', 'Nanyang Technological University, Singapore'], authorAff: [[1], [1], [2]] },
-  IJFRD2026000115: { keywords: ['antimicrobial peptides', 'membrane potential', 'fluorescent reporter', 'high-throughput screening'], affiliations: ['Indian Institute of Science, Bengaluru, India', 'Wageningen University & Research, Wageningen, Netherlands'], authorAff: [[1], [2]] },
-  IJFRD2026000116: { keywords: ['Godavari delta', 'sediment provenance', 'neodymium isotopes', 'chemical weathering', 'Holocene monsoon'], affiliations: ['Indian Institute of Technology Kharagpur, Kharagpur, India', 'University of Bologna, Bologna, Italy', 'University of Oslo, Oslo, Norway'], authorAff: [[1], [2], [3]] },
-  IJFRD2026000117: { keywords: ['fractional diffusion', 'spectral collocation', 'Caputo derivative', 'graded meshes', 'error analysis'], affiliations: ['ETH Zurich, Zurich, Switzerland', 'Uppsala University, Uppsala, Sweden'], authorAff: [[1], [2], [1]] },
-  IJFRD2026000118: { keywords: ['physics-informed neural networks', 'stiff systems', 'reaction–diffusion', 'surrogate modelling', 'error bounds'], affiliations: [KYOTO, 'ETH Zurich, Zurich, Switzerland'], authorAff: [[1], [2], [1, 2]] },
-  IJFRD2026000119: { keywords: ['entropy generation', 'microchannel heat sink', 'porous media', 'conjugate heat transfer', 'second-law analysis'], affiliations: ['University of Ibadan, Ibadan, Nigeria', 'University of Melbourne, Melbourne, Australia'], authorAff: [[1], [2], [2]] },
-  IJFRD2026000120: { keywords: ['technology transfer', 'research funding', 'public universities', 'patents and licensing', 'innovation policy'], affiliations: ['Indian Institute of Science, Bengaluru, India', 'University of Cape Town, Cape Town, South Africa'], authorAff: [[1], [2], [1]] },
+  'ijfrd.v1i9.004': { keywords: ['mechanochemistry', 'ball milling', 'solvent-free synthesis', 'in situ monitoring', 'scale-up'], affiliations: ['University of Bologna, Bologna, Italy', 'Indian Institute of Science Education and Research, Pune, India'], authorAff: [[1], [2], [1, 2]] },
+  'ijfrd.v1i9.005': { keywords: ['nanocrystalline metals', 'grain-boundary segregation', 'thin films', 'atom probe tomography', 'nanoindentation'], affiliations: ['University of Cape Town, Cape Town, South Africa', 'Nanyang Technological University, Singapore'], authorAff: [[1], [1], [2]] },
+  'ijfrd.v1i9.006': { keywords: ['antimicrobial peptides', 'membrane potential', 'fluorescent reporter', 'high-throughput screening'], affiliations: ['Indian Institute of Science, Bengaluru, India', 'Wageningen University & Research, Wageningen, Netherlands'], authorAff: [[1], [2]] },
+  'ijfrd.v1i9.007': { keywords: ['Godavari delta', 'sediment provenance', 'neodymium isotopes', 'chemical weathering', 'Holocene monsoon'], affiliations: ['Indian Institute of Technology Kharagpur, Kharagpur, India', 'University of Bologna, Bologna, Italy', 'University of Oslo, Oslo, Norway'], authorAff: [[1], [2], [3]] },
+  'ijfrd.v1i9.008': { keywords: ['fractional diffusion', 'spectral collocation', 'Caputo derivative', 'graded meshes', 'error analysis'], affiliations: ['ETH Zurich, Zurich, Switzerland', 'Uppsala University, Uppsala, Sweden'], authorAff: [[1], [2], [1]] },
+  'ijfrd.v1i9.009': { keywords: ['physics-informed neural networks', 'stiff systems', 'reaction–diffusion', 'surrogate modelling', 'error bounds'], affiliations: [KYOTO, 'ETH Zurich, Zurich, Switzerland'], authorAff: [[1], [2], [1, 2]] },
+  'ijfrd.v1i9.010': { keywords: ['entropy generation', 'microchannel heat sink', 'porous media', 'conjugate heat transfer', 'second-law analysis'], affiliations: ['University of Ibadan, Ibadan, Nigeria', 'University of Melbourne, Melbourne, Australia'], authorAff: [[1], [2], [2]] },
+  'ijfrd.v1i9.011': { keywords: ['technology transfer', 'research funding', 'public universities', 'patents and licensing', 'innovation policy'], affiliations: ['Indian Institute of Science, Bengaluru, India', 'University of Cape Town, Cape Town, South Africa'], authorAff: [[1], [2], [1]] },
 }
 
 export function buildFull(a: Parameters<typeof baseBuild>[0]): ArticleFull {

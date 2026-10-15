@@ -12,7 +12,7 @@ import { ArrowRight, Book, History, Search, Track } from '../icons'
 const NEXT = [
   { to: paths.currentIssue, label: 'Current issue', text: 'The latest articles, grouped by type.', Icon: Book },
   { to: paths.pastIssues, label: 'Past issues', text: 'Every volume and issue in the archive.', Icon: History },
-  { to: paths.track, label: 'Track my paper', text: 'Check a submission with its Paper ID.', Icon: Track },
+  { to: paths.track, label: 'Track my paper', text: 'Check a submission with its Manuscript ID.', Icon: Track },
 ]
 
 /** Atom drawing: three orbits, a nucleus, and one electron that has strayed far off its path. */
@@ -53,10 +53,10 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
               <OrnamentRule className="mt-4 max-w-xs" />
               <p className="mt-4 max-w-xl font-serif4 text-base leading-relaxed text-obsidian-700 sm:text-lg">The link may be outdated or mistyped, or the {what} may have moved. Search the journal, or pick one of the places below.</p>
               <form role="search" onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <label htmlFor="nf-q" className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
+                <label htmlFor="nf-q" className="sr-only">Search articles, authors, keywords, DOI or Manuscript ID</label>
                 <div className="relative min-w-0 flex-1">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ochre-700" aria-hidden="true" />
-                  <input id="nf-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Title, author, keyword, DOI or Paper ID" className={cx(FIELD, 'h-12 w-full pl-10')} />
+                  <input id="nf-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Title, author, keyword, DOI or Manuscript ID" className={cx(FIELD, 'h-12 w-full pl-10')} />
                 </div>
                 <button type="submit" className="inline-flex h-12 items-center justify-center rounded bg-wine-800 px-6 text-sm font-semibold text-white transition-colors duration-150 hover:bg-wine-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700 focus-visible:ring-offset-2">Search</button>
               </form>

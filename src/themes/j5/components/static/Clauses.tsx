@@ -90,7 +90,7 @@ const SIDE_LINK = 'flex min-h-[40px] items-center justify-between gap-2 rounded 
 /** Right sidebar (reference "author desk"): call for papers, indexing, notifications, track form, toolkits, DOI details, reviewer invite, open access. */
 export function RightRail({ related }: { related: StaticPageData[] }) {
   const logos = visibleLogos()
-  const cfp: [string, string][] = [['Submission deadline', formatDate(journal.nextIssue.deadline.slice(0, 10))], ['Publication', `${journal.frequency} (online)`], ['Expected publication', formatDate(journal.nextIssue.expectedPublication)], ['Crossref DOI prefix', journal.doiPrefix]]
+  const cfp: [string, string][] = [['Submission deadline', formatDate(journal.nextIssue.deadline.slice(0, 10))], ['Publication', `${journal.frequency} (online)`], ['Expected publication', '2 Days'], ['Crossref DOI prefix', journal.doiPrefix]]
   return (
     <aside aria-label="Author desk" className="min-w-0 space-y-6">
       <section className="rounded border-2 border-wine-800 bg-white p-5 shadow-sm">
@@ -107,9 +107,16 @@ export function RightRail({ related }: { related: StaticPageData[] }) {
       <section className={SIDE}>
         <div className={SIDE_H}><h2 className={SIDE_T}>Indexing &amp; archiving</h2><span className="inline-flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-100 px-2 py-0.5 font-work text-[10px] font-bold uppercase tracking-wider text-emerald-800"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />{logos.length} listed</span></div>
         <p className="mb-3 font-work text-xs leading-relaxed text-obsidian-600">Only listings the journal can confirm are shown.</p>
-        <ul className="grid grid-cols-2 gap-2">
-          {logos.map((l) => <li key={l.id} className="flex h-12 items-center justify-center rounded border border-[#E6DCD0] bg-white p-2">{l.file ? <img src={logoSrc(l.file)} alt={l.name} loading="lazy" className="max-h-6 w-auto object-contain" /> : <span className="font-newsreader text-sm font-bold text-obsidian-800">{l.name}</span>}</li>)}
-        </ul>
+        {/* Scrolls upwards; hover or keyboard focus pauses it, and reduced-motion visitors can scroll by hand. */}
+        <div className="j1-pausable h-60 overflow-hidden rounded bg-[#F4EEE6] p-2 motion-reduce:overflow-y-auto">
+          <div className="j1-scroll-up" style={{ ['--j1-scroll-duration' as string]: `${Math.max(24, logos.length * 5)}s` }}>
+            {[0, 1].map((copy) => (
+              <ul key={copy} aria-hidden={copy > 0 || undefined} className="flex flex-col gap-2 pb-2">
+                {logos.map((l) => <li key={l.id} className="flex h-12 items-center justify-center rounded border border-[#E6DCD0] bg-white p-2">{l.file ? <img src={logoSrc(l.file)} alt={copy > 0 ? '' : l.name} loading="lazy" className="max-h-6 w-auto object-contain" /> : <span className="font-newsreader text-sm font-bold text-obsidian-800">{l.name}</span>}</li>)}
+              </ul>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className={SIDE}>

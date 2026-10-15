@@ -1,6 +1,5 @@
 // Section F: read-only summary (spec sheet), then the final verification bar with Save Draft and Submit.
 import type { ReactNode } from 'react'
-import { journal } from '../../../../config/journals'
 import type { SubmissionForm } from '../../../../core/lib/submission'
 import { Spinner } from '../../components/form/Field'
 import { cx } from '../../components/primitives'
@@ -71,7 +70,7 @@ export function ReviewSection({ form, missing, busy, submitError, onJump, onSave
           <span className="font-work text-[11px] font-bold uppercase tracking-wider text-[#FFB68E]">Final Verification</span>
           <h3 id="final-h" className="font-newsreader text-xl font-bold leading-7">Ready to Disseminate Your Research?</h3>
           <p className="font-serif4 text-[15px] leading-6 text-[#E1E8FD]">
-            Upon dispatch you receive your <strong className="text-white">Paper ID</strong> by email, SMS and WhatsApp, and the editor starts screening. No fee is charged now: if accepted, the processing charge is {'₹'}{journal.apc.inr.toLocaleString('en-IN')} (plus {journal.apc.gstPercent}% GST for Indian authors) or US${journal.apc.usd}.
+            Upon dispatch you receive your <strong className="text-white">Manuscript ID</strong> by email, SMS and WhatsApp, and the editor starts screening. 
           </p>
           {submitError && <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 font-work text-sm font-semibold text-red-700">{submitError}</p>}
         </div>
