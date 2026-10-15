@@ -6,6 +6,7 @@ import { SiteShell } from '../../core/site/SiteShell'
 import { AsyncView } from './components/AsyncView'
 import { ToastProvider } from './components/Toast'
 import { SiteLayout } from './layouts/SiteLayout'
+import { j3Placeholders } from './layouts/nav'
 import { ArticlePage } from './pages/ArticlePage'
 import { ComingSoon } from './pages/ComingSoon'
 import { EditorialBoardPage } from './pages/EditorialBoardPage'
@@ -28,5 +29,5 @@ const theme: Theme = {
 }
 
 export default function J3Site() {
-  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} />
+  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} placeholders={[...j3Placeholders]} />
 }

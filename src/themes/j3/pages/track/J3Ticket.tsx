@@ -4,7 +4,7 @@ import { journal } from '../../../../config/journals'
 import { formatDate } from '../../../../core/lib/format'
 import { stageInfo } from '../../../../core/lib/stageInfo'
 import { STAGES, type PaperDocument, type PaymentStatus, type TrackedPaper } from '../../../../core/types'
-import { AcButton, AcKicker, AcTag } from '../../components/AcButton'
+import { AcButton, AcTag } from '../../components/AcButton'
 import { J3Copy } from '../../components/J3Field'
 import { cx } from '../../components/primitives'
 import { Award, Check, Download, Verified } from '../../icons'
@@ -46,33 +46,35 @@ export function TicketCard({ paper }: { paper: TrackedPaper }) {
   const info = stageInfo(paper)
   const done = info.tone === 'done' && paper.stageIndex === STAGES.length - 1
   return (
-    <article aria-labelledby="paper-h" className="relative grid border border-j3paper-rule  bg-white lg:grid-cols-[minmax(0,1fr)_21rem]">
-      <div className="min-w-0 p-6 sm:p-8 lg:p-10">
-        <AcKicker className="text-ember-700">{paper.journalName}</AcKicker>
-        <p className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-mauve-600">Paper ID</span>
-          <strong className="break-all font-inter text-2xl font-bold tracking-wide text-night-900">{paper.paperId}</strong>
-          <J3Copy text={paper.paperId} done="Paper ID copied" />
-        </p>
-        <h2 id="paper-h" className="mt-4 font-jakarta text-[1.625rem] font-semibold leading-snug text-iris-700 sm:text-[1.75rem]">{paper.title}</h2>
-        <p className="mt-3 font-inter text-base text-mauve-600"><span className="sr-only">Authors: </span>{paper.authors.join(', ')}</p>
-
-        <div className={cx('mt-6 border-l-4 p-5', info.tone === 'action' ? 'border-ember-700 bg-ember-50 text-night-900' : info.tone === 'done' ? 'border-j3valid-700 bg-j3valid-50 text-night-900' : 'border-iris-700 bg-iris-50 text-night-900')}>
-          {info.tone === 'action'
-            ? <AcTag tone="amber">{TONE_LABEL[info.tone]}</AcTag>
-            : <AcTag tone={info.tone === 'done' ? 'green' : 'navy'}>{TONE_LABEL[info.tone]}</AcTag>}
-          <h3 className="mt-2 font-jakarta text-xl font-semibold text-iris-700">{info.title}</h3>
-          <p className="mt-1 font-inter text-base text-mauve-700">{info.text}</p>
+    <article aria-labelledby="paper-h" className="overflow-hidden border-b-4 border-ember-500 bg-gradient-to-br from-night-900 via-[#2A1A5E] to-iris-700 text-white">
+      <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:p-10">
+        <div className="min-w-0">
+          <p className="font-inter text-[11px] font-bold uppercase tracking-[0.1em] text-iris-100">{paper.journalName}</p>
+          <p className="mt-3 flex flex-wrap items-center gap-3">
+            <span className="font-inter text-xs font-bold uppercase tracking-[0.08em] text-iris-100">Paper ID</span>
+            <strong className="break-all rounded-tile bg-white/10 px-3 py-1 font-mono text-xl font-bold tracking-wide">{paper.paperId}</strong>
+            <J3Copy tone="dark" text={paper.paperId} done="Paper ID copied" />
+          </p>
+          <h2 id="paper-h" className="mt-4 font-jakarta text-[1.5rem] font-bold leading-snug sm:text-[1.875rem]">{paper.title}</h2>
+          <p className="mt-2 font-inter text-sm text-iris-100"><span className="sr-only">Authors: </span>{paper.authors.join(', ')}</p>
+        </div>
+        <div className="border border-white/20 bg-white/10 p-5">
+          <p className="font-inter text-[11px] font-bold uppercase tracking-[0.1em] text-iris-100">Current stage</p>
+          <p className="mt-1.5 font-jakarta text-2xl font-bold leading-none text-ember-400">{STAGES[paper.stageIndex].label}</p>
+          <p className="mt-2 font-inter text-xs font-semibold text-iris-100">Stage {paper.stageIndex + 1} of {STAGES.length}</p>
+          <p className="mt-3 inline-block bg-white px-2 py-0.5 font-inter text-[11px] font-bold uppercase tracking-[0.06em] text-night-900">{TONE_LABEL[info.tone]}</p>
         </div>
       </div>
-
-      <div className="relative min-w-0 border-t border-j3paper-rule bg-j3paper-cool p-6 sm:p-8 lg:border-l lg:border-t-0">
-        <AcKicker className="text-iris-700">Current stage</AcKicker>
-        <p className="mt-2 font-jakarta text-[1.75rem] font-semibold leading-none text-iris-700">{STAGES[paper.stageIndex].label}</p>
-        <p className="mt-2 font-inter text-sm font-semibold text-mauve-600">Stage {paper.stageIndex + 1} of {STAGES.length}</p>
-        <div className="mt-5"><SegmentBar stageIndex={paper.stageIndex} done={done} /></div>
-        <p className="mt-5 font-inter text-sm text-mauve-600">{journal.shortName} · {journal.paperIdPrefix} series</p>
-              </div>
+      <div className="border-t border-white/15 bg-black/20 px-6 py-5 sm:px-8 lg:px-10">
+        <SegmentBar stageIndex={paper.stageIndex} done={done} />
+        <ol className="mt-2 hidden grid-cols-8 gap-1.5 font-inter text-[10px] font-semibold uppercase tracking-[0.04em] text-iris-100 md:grid">
+          {STAGES.map((st, i) => <li key={st.id} className={i === paper.stageIndex ? 'text-white' : undefined}>{st.label}</li>)}
+        </ol>
+      </div>
+      <div className={cx('border-l-4 px-6 py-5 text-night-900 sm:px-8 lg:px-10', info.tone === 'action' ? 'border-ember-500 bg-ember-50' : info.tone === 'done' ? 'border-j3valid-700 bg-j3valid-50' : 'border-iris-700 bg-white')}>
+        <h3 className="font-jakarta text-lg font-bold text-iris-700">{info.title}</h3>
+        <p className="mt-1 font-inter text-[15px] text-mauve-700">{info.text}</p>
+      </div>
     </article>
   )
 }

@@ -6,7 +6,7 @@ import { formatMonthYear } from '../../../core/lib/format'
 import type { HomeData } from '../../../core/types'
 import { wrapCls } from './home/bits'
 import { ArticleColumns } from './home/ArticleColumns'
-import { Appointments, AuthorsDesk, Directories, SubmitBand } from './home/Desk'
+import { Appointments, Directories, SubmitBand } from './home/Desk'
 import { Hero } from './home/Hero'
 import { IndexStrip } from './home/IndexStrip'
 import { LatestList } from './home/LatestList'
@@ -33,7 +33,6 @@ export function HomePage({ data }: { data: HomeData; onSubscribe: (email: string
           <Board editors={data.leadership} />
         </div>
       </div>
-      <AuthorsDesk />
       <Directories />
       <Appointments />
       <SubmitBand />

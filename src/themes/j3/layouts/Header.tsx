@@ -1,18 +1,19 @@
 // Header after the Academic Editorial & Press reference: a purple masthead (logo, title, identifiers, Submit) that scrolls away, a sticky white navigation bar with a purple underline
 // on the active item, and a Mist 'Latest dispatch' line fed by the journal announcements. Phones and tablets get one compact sticky bar. Menus open on hover, click or Enter.
 import { useEffect, useRef, useState } from 'react'
+import { MdOutlineMenuBook } from 'react-icons/md'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { AppLink, useRouter } from '../../../core/router'
 import { cx, onDark } from '../components/primitives'
-import { themes } from '../components/themes'
 import { ChevronDown, Close, Menu, Search, Submit, Track } from '../icons'
-import { editorialLink, menus, primaryLinks, type NavLinkItem } from './nav'
+import type { NavItem } from '../../../config/navigation'
+import { j3Nav } from './nav'
 
-type MenuId = 'collections' | 'authors' | 'about' | null
+type MenuId = string | null
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
-const linkCls = (active: boolean) => cx('inline-flex items-center gap-1 whitespace-nowrap border-b-2 px-4 py-4 font-jakarta text-[15px] transition-colors', active ? 'border-iris-700 bg-j3paper-cool font-semibold text-iris-700' : 'border-transparent font-medium text-night-700 hover:bg-j3paper-cool hover:text-iris-700')
+const linkCls = (active: boolean) => cx('inline-flex items-center gap-1 whitespace-nowrap border-b-2 px-1.5 py-3.5 font-jakarta text-[12.5px] transition-colors', active ? 'border-iris-700 bg-j3paper-cool font-semibold text-iris-700' : 'border-transparent font-medium text-night-700 hover:bg-j3paper-cool hover:text-iris-700')
 const actionBtn = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-tile px-4 py-2 font-jakarta text-xs font-bold uppercase tracking-[0.06em] transition-colors'
 
 /** Journal facts under the title. Each one only appears when the journal config says it is true. */
@@ -27,13 +28,19 @@ function Logo({ className }: { className?: string }) {
 function Masthead() {
   return (
     <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-8 px-10 py-6">
-      <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 items-center gap-5">
-        <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-tile bg-white p-1.5"><Logo className="h-full w-full" /></span>
-        <span className="min-w-0">
-          <span className="block font-jakarta text-[1.375rem] font-bold leading-[1.15] tracking-[-0.01em] text-white xl:text-[1.5rem]">{journal.name}</span>
-          <span className="mt-2 block font-jakarta text-xs font-semibold uppercase tracking-[0.08em] text-iris-100">{facts().join('  •  ')}</span>
-        </span>
-      </AppLink>
+      <div className="flex min-w-0 items-center gap-5">
+        <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-tile border-2 border-ember-500 bg-white p-1.5"><Logo className="h-full w-full" /></AppLink>
+        <div className="min-w-0">
+          <p className="mb-1.5 flex flex-wrap items-center gap-2">
+            <span className="bg-ember-500 px-2 py-0.5 font-inter text-[10px] font-bold uppercase tracking-wider text-night-900">Official Academic Portal</span>
+            <AppLink to={paths.pastIssues} className="inline-flex items-center gap-1 font-inter text-[11px] text-iris-50 underline hover:text-white"><MdOutlineMenuBook className="h-3.5 w-3.5" aria-hidden="true" />Journal Xplore Digital Repository</AppLink>
+          </p>
+          <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="block">
+            <span className="block font-jakarta text-[1.375rem] font-bold leading-[1.15] tracking-[-0.01em] text-white xl:text-[1.5rem]">{journal.name}</span>
+            <span className="mt-2 block font-jakarta text-xs font-semibold uppercase tracking-[0.08em] text-iris-100">{facts().join('  •  ')}</span>
+          </AppLink>
+        </div>
+      </div>
       <div className="flex shrink-0 flex-col items-end gap-3">
         <div className="flex items-center gap-3">
           <div className="flex flex-col gap-1.5 font-inter text-xs font-semibold tabular-nums text-white">
@@ -73,10 +80,6 @@ function Dispatch() {
   )
 }
 
-function Dropdown({ children }: { children: React.ReactNode }) {
-  return <div className="absolute left-0 top-full z-50 w-72 border border-j3paper-rule border-t-2 border-t-iris-700 bg-white p-2 motion-safe:animate-fade-in">{children}</div>
-}
-
 export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
   const { pathname } = useRouter()
   const [menu, setMenu] = useState<MenuId>(null)
@@ -97,10 +100,11 @@ export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
     return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onDown); window.removeEventListener('scroll', onScroll) }
   }, [])
   // Menus open when the pointer enters a button (or on click / Enter) and close shortly after it leaves the bar, on Esc, or on a click elsewhere.
-  const openMenu = (id: Exclude<MenuId, null>) => { window.clearTimeout(closeTimer.current); setMenu(id) }
+  const openMenu = (id: string) => { window.clearTimeout(closeTimer.current); setMenu(id) }
   const holdOpen = () => window.clearTimeout(closeTimer.current)
   const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu(null), 140) }
-  const plain = (l: NavLinkItem) => <div key={l.to} onMouseEnter={() => setMenu(null)}><AppLink to={l.to} aria-current={isActive(l.to) ? 'page' : undefined} className={linkCls(isActive(l.to))}>{l.label}</AppLink></div>
+  const itemActive = (it: NavItem) => (it.match ? it.match(pathname) : isActive(it.to))
+  const plain = (it: NavItem) => <div key={it.label} onMouseEnter={() => setMenu(null)}><AppLink to={it.to} aria-current={itemActive(it) ? 'page' : undefined} className={linkCls(itemActive(it))}>{it.label}</AppLink></div>
   const label = `Search (${isMac ? 'Command' : 'Control'} K)`
   /** "field" looks like the reference's keyword box (desktop nav bar); "compact" is a square icon button (small screens). */
   const searchButton = (variant: 'field' | 'compact') => variant === 'field' ? (
@@ -118,7 +122,7 @@ export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
   return (
     <>
       {/* Masthead: desktop only, scrolls away. */}
-      <div className={`hidden bg-iris-700 xl:block ${onDark}`}><Masthead /></div>
+      <div className={`hidden border-b-2 border-ember-500 bg-gradient-to-r from-night-900 via-[#340E84] to-iris-700 xl:block ${onDark}`}><Masthead /></div>
 
       {/* Sticky bar. */}
       <div ref={root} data-j3-nav onMouseEnter={holdOpen} onMouseLeave={scheduleClose} className="sticky top-0 z-50">
@@ -136,49 +140,40 @@ export function Header({ onOpenSearch }: { onOpenSearch: () => void }) {
 
         {/* Desktop navigation */}
         <div className="hidden border-b border-j3paper-rule bg-white xl:block">
-          <div className="mx-auto flex max-w-[1360px] items-center gap-2 px-10">
-            <nav aria-label="Main" className="flex items-center">
-              {primaryLinks.map(plain)}
-              <div className="relative" onMouseEnter={() => openMenu('collections')}>
-                <button type="button" aria-expanded={menu === 'collections'} aria-haspopup="true" onClick={() => openMenu('collections')} className={linkCls(menu === 'collections')}>Collections <ChevronDown className={cx('h-4 w-4 transition-transform', menu === 'collections' && 'rotate-180')} aria-hidden="true" /></button>
-                {menu === 'collections' && (
-                  <Dropdown>
-                    <ul>{themes.map((t) => <li key={t.id}><AppLink to={paths.search(t.name)} className="flex items-center gap-3 px-3 py-2 hover:bg-j3paper-cool"><span aria-hidden="true" className="h-3 w-3 shrink-0" style={{ backgroundColor: t.color }} /><span className="font-inter text-sm font-semibold text-iris-700">{t.name}</span></AppLink></li>)}</ul>
-                  </Dropdown>
-                )}
-              </div>
-              {plain(editorialLink)}
-              {menus.map((m) => (
-                <div key={m.id} className="relative" onMouseEnter={() => openMenu(m.id)}>
-                  <button type="button" aria-expanded={menu === m.id} aria-haspopup="true" onClick={() => openMenu(m.id)} className={linkCls(menu === m.id)}>{m.label} <ChevronDown className={cx('h-4 w-4 transition-transform', menu === m.id && 'rotate-180')} aria-hidden="true" /></button>
-                  {menu === m.id && (
-                    <Dropdown>
-                      <ul>{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} className="block px-3 py-2 hover:bg-j3paper-cool"><span className="block font-inter text-sm font-semibold text-iris-700">{l.label}</span>{l.note && <span className="block font-inter text-xs text-mauve-600">{l.note}</span>}</AppLink></li>)}</ul>
-                    </Dropdown>
+          <div className="mx-auto flex max-w-[1360px] items-center gap-2 px-4 2xl:px-6">
+            <nav aria-label="Main" className="flex min-w-0 flex-1 flex-wrap items-center justify-between">
+              {j3Nav.map((it, i) => it.children ? (
+                <div key={it.label} className="relative" onMouseEnter={() => openMenu(it.label)}>
+                  <button type="button" aria-expanded={menu === it.label} aria-haspopup="true" onClick={() => openMenu(it.label)} className={linkCls(menu === it.label || itemActive(it))}>{it.label} <ChevronDown className={cx('h-3.5 w-3.5 transition-transform', menu === it.label && 'rotate-180')} aria-hidden="true" /></button>
+                  {menu === it.label && (
+                    <div className={cx('absolute top-full z-50 w-80 border border-j3paper-rule border-t-2 border-t-iris-700 bg-white p-2 motion-safe:animate-fade-in', i > 6 ? 'right-0' : 'left-0')}>
+                      <ul>{it.children.map((l) => <li key={l.label}><AppLink to={l.to} className="block px-3 py-2 font-inter text-sm font-semibold leading-snug text-iris-700 hover:bg-j3paper-cool">{l.label}</AppLink></li>)}</ul>
+                    </div>
                   )}
                 </div>
-              ))}
+              ) : plain(it))}
             </nav>
-            <div className="ml-auto flex items-center gap-2" onMouseEnter={() => setMenu(null)}>
+            <div className="ml-auto hidden items-center gap-2 2xl:flex" onMouseEnter={() => setMenu(null)}>
               {scrolled && (
                 <>
                   <AppLink to={paths.track} className={cx(actionBtn, 'text-iris-700 hover:bg-j3paper-cool')}><Track className="h-4 w-4" aria-hidden="true" /> Track</AppLink>
                   <AppLink to={paths.submit} className={cx(actionBtn, 'bg-ember-500 text-night-900 hover:bg-ember-400')}>Submit <Submit className="h-4 w-4" aria-hidden="true" /></AppLink>
                 </>
               )}
-              {searchButton('field')}
+              
             </div>
           </div>
         </div>
 
         {mobileOpen && (
           <nav aria-label="Mobile" className="max-h-[calc(100vh-68px)] overflow-y-auto border-b border-j3paper-rule bg-white px-4 pb-6 pt-2 motion-safe:animate-slide-down sm:px-6 xl:hidden">
-            {[...primaryLinks, editorialLink].map((l) => <AppLink key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className="block border-b border-j3paper-rule py-3.5 font-jakarta text-lg font-semibold text-night-900">{l.label}</AppLink>)}
-            {[{ id: 'collections', label: 'Collections', links: themes.map((t) => ({ label: t.name, to: paths.search(t.name) })) }, ...menus].map((m) => (
-              <details key={m.id} className="group border-b border-j3paper-rule">
-                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-jakarta text-lg font-semibold text-iris-700">{m.label}<ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-                <ul className="pb-3">{m.links.map((l) => <li key={l.to + l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block px-2 py-2 font-inter text-sm text-mauve-700 hover:bg-j3paper-cool">{l.label}</AppLink></li>)}</ul>
+            {j3Nav.map((it) => it.children ? (
+              <details key={it.label} className="group border-b border-j3paper-rule">
+                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 font-jakarta text-lg font-semibold text-iris-700">{it.label}<ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+                <ul className="pb-3">{it.children.map((l) => <li key={l.label}><AppLink to={l.to} onClick={() => setMobileOpen(false)} className="block px-2 py-2 font-inter text-sm text-mauve-700 hover:bg-j3paper-cool">{l.label}</AppLink></li>)}</ul>
               </details>
+            ) : (
+              <AppLink key={it.label} to={it.to} onClick={() => setMobileOpen(false)} className="block border-b border-j3paper-rule py-3.5 font-jakarta text-lg font-semibold text-iris-700">{it.label}</AppLink>
             ))}
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <AppLink to={paths.track} onClick={() => setMobileOpen(false)} className={cx(actionBtn, 'border border-j3paper-rule py-3 text-iris-700 hover:border-iris-700 hover:bg-j3paper-cool')}><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</AppLink>

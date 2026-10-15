@@ -1,4 +1,5 @@
 // Journal 4 (IJECM) theme: "Scholarly Precision". Registers its pages with the shared containers.
+import { j4Placeholders } from './layouts/nav'
 import '@fontsource-variable/source-serif-4'
 import '@fontsource-variable/inter'
 import type { Theme } from '../../core/theme'
@@ -31,5 +32,5 @@ const theme: Theme = {
 }
 
 export default function J4Site() {
-  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} />
+  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} placeholders={[...j4Placeholders]} />
 }

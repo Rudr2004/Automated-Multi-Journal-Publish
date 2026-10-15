@@ -6,6 +6,7 @@ import type { SuggestFn } from '../../../core/types'
 import { CommandPalette } from '../components/CommandPalette'
 import { SearchContext } from '../components/searchContext'
 import { Submit, Track } from '../icons'
+import { AuthorsDesk } from '../pages/home/Desk'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { JournalTabs } from './JournalTabs'
@@ -45,6 +46,8 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
         <Header onOpenSearch={openPalette} />
         <main id="main" className="flex-1">{children}</main>
       </SearchContext.Provider>
+      {/* The "Author's desk" band is part of the common footer, so every page ends the same way as the home page. */}
+      <AuthorsDesk />
       <Footer onSubscribe={onSubscribe} />
       <CommandPalette open={paletteOpen} onClose={closePalette} onSearch={onSearch} onSuggest={onSuggest} />
       {showBar && (

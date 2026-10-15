@@ -3,7 +3,10 @@
 // One compact sticky bar while reading (it swaps with the site header, never stacks with it), figures and tables, a bottom action dock and an end-of-article section.
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { MdOutlineShare as ShareIcon } from 'react-icons/md'
+import { MdOutlineMenuBook, MdOutlineShare as ShareIcon, MdOutlineThumbUp } from 'react-icons/md'
+import { RecommendDialogJ3 } from '../components/RecommendDialogJ3'
+import { J3CertificateDialog } from '../components/J3Certificate'
+import { DoubleBlindBox } from '../components/DoubleBlindBox'
 import { doiFor, journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { CITATION_STYLES_WITH_IEEE, citationFilename, formatCitation, type CitationStyle } from '../../../core/lib/cite'
@@ -19,7 +22,7 @@ import { CiteMenu } from '../components/CiteMenu'
 import { LightboxDialog } from '../components/LightboxDialog'
 import { cx } from '../components/primitives'
 import { useToast } from '../components/Toast'
-import { ArrowRight, ChevronDown, Copy, Download, Email, Eye, OpenAccess, OpenInNew, Quote, Verified } from '../icons'
+import { ArrowRight, ChevronDown, Copy, Download, Eye, OpenAccess, OpenInNew, Quote, Verified } from '../icons'
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const BODY_TEXT = 'font-inter text-[17px] leading-[28px] text-mauve-700'
@@ -219,7 +222,7 @@ function initials(name: string) {
   return name.replace(/^(Prof|Dr)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 }
 
-function AuthorCard({ article, index, num }: { article: ArticleFull; index: number; num: (n: number) => number }) {
+function AuthorCard({ article, index, num, onCert }: { article: ArticleFull; index: number; num: (n: number) => number; onCert: (i: number) => void }) {
   const a = article.authorDetails[index]
   const photo = a.photo ?? portraitFor(a.name)
   const affs = [...new Set(a.affiliations)].sort((x, y) => num(x) - num(y))
@@ -236,12 +239,12 @@ function AuthorCard({ article, index, num }: { article: ArticleFull; index: numb
             {a.orcid && <OrcidMark orcid={a.orcid} name={a.name} />}
           </p>
           {affs.map((n) => <p key={n} className="font-inter text-[12px] leading-snug text-mauve-600"><sup className="mr-0.5 font-bold">{num(n)}</sup>{article.affiliations[n - 1]}</p>)}
-          {a.corresponding && a.email && <p className="flex items-center gap-1 break-all pt-0.5 font-inter text-[12px] text-iris-700"><Email className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /><a href={`mailto:${a.email}`} className="underline underline-offset-2 hover:text-iris-800">{a.email}</a></p>}
         </div>
       </div>
-      <div className={cx('mt-3 flex items-center justify-between border-t pt-2.5', RULE)}>
+      <div className={cx('mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5', RULE)}>
         <span className={cx('px-1.5 py-0.5 font-jakarta text-[10px] font-bold uppercase tracking-[0.06em]', a.corresponding ? 'bg-j3paper-deep text-iris-700' : 'bg-j3paper-cool text-mauve-600')}>{a.corresponding ? 'Corresponding author' : index === 0 ? 'First author' : 'Author'}</span>
         {a.orcid && <a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noreferrer" className="font-inter text-[11px] font-semibold text-iris-700 underline underline-offset-2 hover:text-iris-800">ORCID profile<span className="sr-only"> for {a.name} (opens in a new tab)</span></a>}
+        <button type="button" onClick={() => onCert(index)} className="inline-flex items-center gap-1 border border-j3paper-rule bg-white px-2 py-1 font-jakarta text-[10px] font-bold uppercase tracking-[0.06em] text-iris-700 hover:border-iris-700"><Download className="h-3.5 w-3.5" aria-hidden="true" />Download certificate</button>
       </div>
     </li>
   )
@@ -270,6 +273,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
     { id: 'references', label: `References (${article.references.length})` },
     { id: 'how-to-cite', label: 'How to cite' },
   ], [article.sections, article.references.length])
+  const [certIdx, setCertIdx] = useState<number | null>(null)
+  const [recommendOpen, setRecommendOpen] = useState(false)
   const [current, setCurrent] = useState(toc[0].id)
   const [jumpOpen, setJumpOpen] = useState(false)
   const [hot, setHot] = useState<number | null>(null)
@@ -469,7 +474,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 </div>
               </div>
               <dl className="flex flex-wrap items-center gap-x-6 gap-y-1.5 font-inter text-xs text-mauve-600">
-                {[['Received', formatDate(article.received)], ['Accepted', formatDate(article.accepted)], ['Published online', formatDate(article.publishedOnline)], ['Pagination', article.pages || `Vol. ${article.volume}, Issue ${article.issue}`]].map(([k, v]) => (
+                {[['Pagination', article.pages || `Vol. ${article.volume}, Issue ${article.issue}`]].map(([k, v]) => (
                   <div key={k} className="flex items-baseline gap-1.5"><dt className="font-bold text-night-900">{k}:</dt><dd className="tabular-nums">{v}</dd></div>
                 ))}
                 <div className="flex items-baseline gap-1.5"><dt className="font-bold text-night-900">Licence:</dt><dd><a href={journal.licence.url} target="_blank" rel="noreferrer" className="text-iris-700 underline underline-offset-2 hover:text-iris-800">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a></dd></div>
@@ -482,7 +487,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
             <section aria-labelledby="authors-h" className={cx('space-y-3 border bg-white p-4', RULE)}>
               <h2 id="authors-h" className={cx(LABEL, 'border-b pb-2', RULE)}>Authors &amp; institutional affiliations</h2>
               <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {article.authorDetails.map((_, i) => <AuthorCard key={i} article={article} index={i} num={affNum} />)}
+                {article.authorDetails.map((_, i) => <AuthorCard key={i} article={article} index={i} num={affNum} onCert={setCertIdx} />)}
               </ul>
               {correspondingAuthors.length > 0 && (
                 <p className={cx('border-t pt-2 font-inter text-[12px] text-mauve-600', RULE)}>* Corresponding author: {correspondingAuthors.map((a) => a.name).join(', ')}.</p>
@@ -494,6 +499,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               <div className="flex flex-wrap items-center gap-2">
                 <button type="button" onClick={download} className="inline-flex h-10 items-center justify-center gap-2 rounded-tile bg-ember-500 px-4 font-jakarta text-xs font-bold uppercase tracking-[0.06em] text-night-900 hover:bg-ember-400"><Download className="h-[18px] w-[18px]" aria-hidden="true" />Download PDF</button>
                 <CiteMenu article={article} className={darkBtn}><Quote className="h-[18px] w-[18px]" aria-hidden="true" />Cite this article<ChevronDown className="h-4 w-4" aria-hidden="true" /></CiteMenu>
+                <a href="#abstract" onClick={(e) => { e.preventDefault(); document.getElementById('abstract')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }} className={darkBtn}><MdOutlineMenuBook className="h-[18px] w-[18px]" aria-hidden="true" />Read online</a>
+                <button type="button" onClick={() => setRecommendOpen(true)} className={darkBtn}><MdOutlineThumbUp className="h-[18px] w-[18px]" aria-hidden="true" />Recommend this paper</button>
                 <button type="button" onClick={share} className={darkBtn}><ShareIcon className="h-[18px] w-[18px]" aria-hidden="true" />Share</button>
               </div>
               <dl className="flex flex-wrap items-center gap-x-5 gap-y-1 border border-white/15 px-3 py-2 font-inter text-xs text-j3paper-rule">
@@ -531,10 +538,30 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                   ))}
                 </dl>
               </RailCard>
+              <RailCard title="Subject classification">
+                <dl className="space-y-2.5 font-inter text-[13px]">
+                  {[['Article type', article.type], ['Subject', article.subject]].map(([k, v]) => (
+                    <div key={k}><dt className="font-jakarta text-[10px] font-bold uppercase tracking-[0.08em] text-mauve-600">{k}</dt><dd className="mt-0.5 font-semibold text-night-900">{v}</dd></div>
+                  ))}
+                </dl>
+              </RailCard>
+              <RailCard title="Ethics & compliance">
+                <ul className="space-y-2 font-inter text-[13px] leading-snug text-night-700">
+                  {['Double-blind peer reviewed', 'Follows COPE-style publication ethics', 'Similarity screening before publication', `Open access under ${journal.licence.name}`].map((t) => (
+                    <li key={t} className="flex items-start gap-2"><Verified className="mt-0.5 h-4 w-4 shrink-0 text-j3valid-700" aria-hidden="true" />{t}</li>
+                  ))}
+                </ul>
+                <AppLink to={paths.policy('publication-ethics')} className="mt-3 inline-block font-inter text-xs font-semibold text-iris-700 underline underline-offset-2 hover:text-iris-800">Read the publication ethics policy</AppLink>
+              </RailCard>
+              <RailCard title="Digital preservation">
+                <p className="font-inter text-[13px] leading-relaxed text-night-700">This article has a permanent Crossref DOI, so its link never breaks, and it is kept in the journal&apos;s digital archive.</p>
+                <AppLink to={paths.policy('archiving')} className="mt-3 inline-block font-inter text-xs font-semibold text-iris-700 underline underline-offset-2 hover:text-iris-800">Read the digital archiving policy</AppLink>
+              </RailCard>
             </aside>
 
             {/* MANUSCRIPT COLUMN */}
             <div className="min-w-0 max-w-[740px] min-[1320px]:justify-self-center">
+              <DoubleBlindBox className="mb-5" />
               <section id="abstract" tabIndex={-1} aria-labelledby="abstract-h" className="scroll-mt-24 focus:outline-none">
                 <div className={cx('space-y-4 border bg-white p-5 sm:p-6', RULE)}>
                   <div className={cx('flex items-center justify-between border-b pb-3', RULE)}>
@@ -677,6 +704,9 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
           <button type="button" aria-label="Copy DOI" onClick={copyDoi} tabIndex={dockVisible ? 0 : -1} className={dockBtn}><Copy className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sm:hidden">DOI</span><span className="hidden sm:inline">Copy DOI</span></button>
         </div>
       </div>
+      {certIdx !== null && <J3CertificateDialog key={certIdx} open onClose={() => setCertIdx(null)} initialIndex={certIdx}
+        paper={{ paperId: article.paperId, title: article.title, publishedAt: article.publishedAt, authors: article.authorDetails.map((x) => x.name), volume: article.volume, issue: article.issue }} />}
+      <RecommendDialogJ3 article={article} open={recommendOpen} onClose={() => setRecommendOpen(false)} />
     </div>
   )
 }

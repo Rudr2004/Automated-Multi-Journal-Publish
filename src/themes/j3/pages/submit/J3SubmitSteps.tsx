@@ -1,7 +1,7 @@
 // The sections of the Journal 3 manuscript submission form (reference: "Academic Manuscript Submission Form").
 // Each section is a white ruled card with an orange square marker, an uppercase title and a "Step n of 5" note; all five sit on one page.
 import { useId, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
-import { MdOutlineDeleteOutline, MdOutlinePersonAddAlt, MdOutlineSchool } from 'react-icons/md'
+import { MdOutlineDeleteOutline, MdOutlinePersonAddAlt, MdOutlineSchool, MdOutlineVerified } from 'react-icons/md'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { PHOTO_ACCEPT, PHOTO_MAX_MB, readPhoto, validatePhoto } from '../../../../core/lib/photo'
@@ -11,7 +11,9 @@ import {
 } from '../../../../core/lib/submission'
 import { digitsOnly, formatOrcid, formatReferral, parseKeywords, phoneMaxLength } from '../../../../core/lib/validators'
 import { AppLink } from '../../../../core/router'
-import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
+import { useDetectedLocation } from '../../../../core/lib/geo'
+import { branchesFor } from '../../../../core/lib/branches'
+import { J3_SUBJECTS } from '../../../../config/journals/specializations'
 import { J3Check, J3Field, j3Input } from '../../components/J3Field'
 import { J3FileDrop } from '../../components/J3FileDrop'
 import { cx } from '../../components/primitives'
@@ -45,6 +47,9 @@ export function Section({ n, total = 5, title, action, children, id }: { n: numb
 }
 
 // ---- 1. Article classification & metadata ----
+/** Article types an author can choose when submitting. */
+const J3_ARTICLE_TYPES = ['Research Article', 'Review Article', 'Case Study', 'Conference Proceedings', 'Systematic Review', 'Short Communication', 'Letter to the Editor'] as const
+
 export function SectionClassification({ form, errors, setForm }: SectionProps) {
   const words = wordCount(form.abstract)
   const kw = parseKeywords(form.keywords)
@@ -53,22 +58,36 @@ export function SectionClassification({ form, errors, setForm }: SectionProps) {
     <Section id="sec-1" n={1} title="Article Classification & Metadata">
       <div className="grid gap-4 sm:grid-cols-2">
         <J3Field label="Article type" name="articleType" required error={errors.articleType}>
-          <select className={j3Input(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value as ArticleType | '' }))}>
+          <select className={j3Input(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value }))}>
             <option value="">Select article type</option>
-            {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t}>{t}</option>)}
+            {J3_ARTICLE_TYPES.map((t) => <option key={t}>{t}</option>)}
           </select>
         </J3Field>
-        <J3Field label="Theme (collection)" name="subject" required error={errors.subject}>
-          <select className={j3Input(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}>
-            <option value="">Select a theme</option>
-            {journal.subjects.map((s) => <option key={s}>{s}</option>)}
+        <J3Field label="Subject" name="subject" required error={errors.subject}>
+          <select className={j3Input(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
+            <option value="">Select a subject</option>
+            {J3_SUBJECTS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </J3Field>
       </div>
+      {form.subject && (journal.freeTextSpecialization === form.subject ? (
+        <J3Field label="Specialization" name="branch" required error={errors.branch} hint="Type the subject of your paper.">
+          <input className={j3Input(errors.branch)} value={form.branch} maxLength={LIMITS.name} placeholder="e.g. Computational Linguistics"
+            onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value.replace(/\s{2,}/g, ' ') }))} />
+        </J3Field>
+      ) : branchesFor(form.subject).length > 0 && (
+        <J3Field label="Specialization" name="branch" required error={errors.branch} hint={`A specialization within ${form.subject}.`}>
+          <select className={j3Input(errors.branch)} value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))}>
+            <option value="">Select a specialization</option>
+            {branchesFor(form.subject).map((b) => <option key={b}>{b}</option>)}
+          </select>
+        </J3Field>
+      ))}
       <J3Field label="Full manuscript title" name="title" required error={errors.title} counter={`${form.title.length} / ${LIMITS.title}`} hint="Use the full title, as it should appear in print. Avoid non-standard abbreviations.">
         <input className={cx(j3Input(errors.title), 'font-semibold')} value={form.title} maxLength={LIMITS.title} placeholder="Enter the full title of your paper" autoComplete="off"
           onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.replace(/\s{2,}/g, ' ') }))} onBlur={() => setForm((f) => ({ ...f, title: f.title.trim() }))} />
       </J3Field>
+      {journal.collectAbstract !== false && <>
       <div>
         <J3Field label="Abstract" name="abstract" required error={errors.abstract} hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. Cover the aim, method, findings and conclusion.`}>
           <textarea rows={8} className={cx(j3Input(errors.abstract), 'leading-relaxed')} value={form.abstract}
@@ -87,12 +106,13 @@ export function SectionClassification({ form, errors, setForm }: SectionProps) {
           </ul>
         )}
       </div>
+      </>}
     </Section>
   )
 }
 
 // ---- 2. Corresponding author ----
-function Headshot({ value, onChange }: { value: AuthorPhoto | null; onChange: (p: AuthorPhoto | null) => void }) {
+function Headshot({ value, onChange, name = 'author.photo', compact = false }: { value: AuthorPhoto | null; onChange: (p: AuthorPhoto | null) => void; name?: string; compact?: boolean }) {
   const id = useId()
   const input = useRef<HTMLInputElement>(null)
   const [problem, setProblem] = useState('')
@@ -107,15 +127,15 @@ function Headshot({ value, onChange }: { value: AuthorPhoto | null; onChange: (p
   return (
     <div className="flex flex-wrap items-start gap-4 rounded-tile border border-j3paper-rule bg-j3paper-cool p-4">
       <div className="flex shrink-0 flex-col items-center gap-2">
-        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-tile border border-j3paper-rule bg-white p-1">
+        <div className={cx('flex items-center justify-center overflow-hidden rounded-tile border border-j3paper-rule bg-white p-1', compact ? 'h-16 w-16' : 'h-24 w-24')}>
           {value ? <img src={value.dataUrl} alt="Your profile picture" className="h-full w-full object-cover" /> : <Person className="h-10 w-10 text-mauve-500" aria-hidden="true" />}
         </div>
-        <input ref={input} id={id} name="author.photo" type="file" accept={PHOTO_ACCEPT} className="sr-only" onChange={(e) => void pick(e.target.files?.[0])} />
+        <input ref={input} id={id} name={name} type="file" accept={PHOTO_ACCEPT} className="sr-only" onChange={(e) => void pick(e.target.files?.[0])} />
         <button type="button" onClick={() => input.current?.click()} disabled={busy} className={cx(ruled, 'px-2.5 py-1 text-xs')}>{busy ? 'Reading…' : value ? '+ Change photo' : '+ Add photo'}</button>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-inter text-[13px] font-bold text-night-900">Author headshot <span className="font-normal text-mauve-600">(optional)</span></p>
-        <p className="mt-1 font-inter text-xs leading-relaxed text-mauve-600">Used for your author profile if the article is published. A formal head-and-shoulders portrait. JPG, PNG or WebP, up to {PHOTO_MAX_MB} MB.</p>
+        <p className="font-inter text-[13px] font-bold text-night-900">{compact ? 'Profile photo' : 'Author headshot'} <span className="font-normal text-mauve-600">(optional)</span></p>
+        {!compact && <p className="mt-1 font-inter text-xs leading-relaxed text-mauve-600">Used for your author profile if the article is published. A formal head-and-shoulders portrait. JPG, PNG or WebP, up to {PHOTO_MAX_MB} MB.</p>}
         {value && (
           <p className="mt-2 flex flex-wrap items-center gap-2 font-inter text-xs font-semibold text-j3valid-700"><Check className="h-4 w-4" aria-hidden="true" /><span className="break-all">{value.name} ({(value.size / 1024).toFixed(0)} KB)</span>
             <button type="button" onClick={() => { setProblem(''); onChange(null) }} className="font-semibold text-iris-700 underline hover:text-iris-800">Remove</button></p>
@@ -130,9 +150,16 @@ export function SectionAuthor({ form, errors, setForm }: SectionProps) {
   const a = form.author
   const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({ ...f, author: { ...f.author, ...patch } }))
   const maxPhone = phoneMaxLength(a.dialCode)
+  // Country, dialling code and town are filled in from the visitor's network (once); each stays editable.
+  const geoNote = useDetectedLocation(a, setAuthor)
   return (
     <Section id="sec-2" n={2} title="Corresponding Author Details">
       <Headshot value={a.photo} onChange={(photo) => setAuthor({ photo })} />
+      <J3Field label="Title / honorific" name="author.honorific" optional>
+        <select className={j3Input()} value={a.honorific ?? ''} onChange={(e) => setAuthor({ honorific: e.target.value })}>
+          {['', 'Dr.', 'Prof.', 'Prof. Emeritus', 'Mr.', 'Ms.', 'Mx.'].map((h) => <option key={h} value={h}>{h || 'Select (optional)'}</option>)}
+        </select>
+      </J3Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <J3Field label="Full name" name="author.name" required error={errors['author.name']}>
           <input className={j3Input(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name" placeholder="Given name followed by family name"
@@ -154,6 +181,10 @@ export function SectionAuthor({ form, errors, setForm }: SectionProps) {
           </select>
         </J3Field>
       </div>
+      <J3Field label="Town / City" name="author.city" hint={geoNote || 'Detected from your network; edit it if it is not right.'}>
+        <input className={j3Input()} value={a.city ?? ''} maxLength={LIMITS.name} autoComplete="address-level2"
+          onChange={(e) => setAuthor({ city: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ city: (a.city ?? '').trim() })} />
+      </J3Field>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,13rem)_1fr]">
         <J3Field label="Country code" name="author.dialCode" required>
           <select className={j3Input()} value={a.dialCode} onChange={(e) => setAuthor({ dialCode: e.target.value, whatsapp: a.whatsapp.slice(0, phoneMaxLength(e.target.value)) })}>
@@ -198,7 +229,7 @@ export function SectionPeople({ form, errors, setForm }: SectionProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => setForm((f) => ({ ...f, [k]: v }))
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     setForm((f) => ({ ...f, coAuthors: f.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
-  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] }))
+  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: f.author.institution, orcid: '', photo: null }] }))
   const removeCo = (id: number) => setForm((f) => ({ ...f, coAuthors: f.coAuthors.filter((c) => c.id !== id) }))
   return (
     <Section id="sec-3" n={3} title="Co-Authors & Mentor" action={
@@ -217,9 +248,10 @@ export function SectionPeople({ form, errors, setForm }: SectionProps) {
               <J3Field label="Full name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                 <input className={j3Input(errors[`co.${c.id}.name`])} value={c.name} maxLength={LIMITS.name} onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />
               </J3Field>
-              <J3Field label="Email" name={`co.${c.id}.email`} required error={errors[`co.${c.id}.email`]}>
-                <input type="email" className={j3Input(errors[`co.${c.id}.email`])} value={c.email} maxLength={LIMITS.email} onChange={(e) => setCo(c.id, { email: cleanEmail(e.target.value) })} onBlur={() => setCo(c.id, { email: c.email.trim().toLowerCase() })} />
+              <J3Field label="ORCID iD" name={`co.${c.id}.orcid`} optional error={errors[`co.${c.id}.orcid`]} hint="Format: 0000-0002-1825-0097">
+                <input className={j3Input(errors[`co.${c.id}.orcid`])} value={c.orcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setCo(c.id, { orcid: formatOrcid(e.target.value) })} />
               </J3Field>
+              <div className="sm:col-span-2"><Headshot compact name={`co.${c.id}.photo`} value={c.photo ?? null} onChange={(photo) => setCo(c.id, { photo })} /></div>
               <div className="sm:col-span-2">
                 <J3Field label="Affiliation (department and university)" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]}>
                   <input className={j3Input(errors[`co.${c.id}.institution`])} value={c.institution} maxLength={LIMITS.institution} onChange={(e) => setCo(c.id, { institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setCo(c.id, { institution: c.institution.trim() })} />
@@ -237,6 +269,10 @@ export function SectionPeople({ form, errors, setForm }: SectionProps) {
               <J3Field label="Mentor email" name="mentorEmail" optional error={errors.mentorEmail}>
                 <input type="email" className={j3Input(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => set('mentorEmail', cleanEmail(e.target.value))} onBlur={() => set('mentorEmail', form.mentorEmail.trim().toLowerCase())} />
               </J3Field>
+              <J3Field label="ORCID iD" name="mentorOrcid" optional error={errors.mentorOrcid} hint="Format: 0000-0002-1825-0097">
+                <input className={j3Input(errors.mentorOrcid)} value={form.mentorOrcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => set('mentorOrcid', formatOrcid(e.target.value))} />
+              </J3Field>
+              <div className="sm:col-span-2"><Headshot compact name="mentor.photo" value={form.mentorPhoto ?? null} onChange={(photo) => set('mentorPhoto', photo)} /></div>
               <div className="sm:col-span-2">
                 <J3Field label="Department and university" name="mentorInstitution" optional error={errors.mentorInstitution}>
                   <input className={j3Input(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} onChange={(e) => set('mentorInstitution', e.target.value.replace(/\s{2,}/g, ' '))} onBlur={() => set('mentorInstitution', form.mentorInstitution.trim())} />
@@ -259,10 +295,6 @@ export function SectionFile({ form, errors, setForm }: SectionProps) {
         <J3FileDrop name="file" value={form.file} onChange={(f) => setForm((s) => ({ ...s, file: f }))} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Supported formats: Microsoft Word (${ACCEPTED_EXT.join(', ')}). Max ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
-      <J3Field label="Cover letter / suggested reviewers" name="coverLetter" optional error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
-        <textarea rows={4} className={j3Input(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => setForm((f) => ({ ...f, coverLetter: e.target.value }))}
-          placeholder={`Briefly explain why this work suits ${journal.shortName}, and name any reviewers you suggest.`} />
-      </J3Field>
     </Section>
   )
 }
@@ -298,13 +330,20 @@ export function SectionDeclarations({ form, errors, setForm }: SectionProps) {
 
 // ---- Referral ----
 export function ReferralCard({ form, errors, setForm }: SectionProps) {
+  const [checked, setChecked] = useState('')
   return (
     <div className="rounded-tile border border-j3paper-rule bg-white p-5 sm:p-6">
       <div className="mb-3 flex items-center gap-2.5"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" /><h2 className="font-jakarta text-sm font-bold text-night-900">Referral code <span className="font-normal text-mauve-600">(optional)</span></h2></div>
       <J3Field label="Referral code" name="referralCode" error={errors.referralCode} hint="4 to 20 letters, numbers or hyphens. Earns credits for the colleague who referred you.">
         <input className={cx(j3Input(errors.referralCode), 'font-mono sm:max-w-md')} value={form.referralCode} maxLength={20} autoComplete="off" placeholder="e.g. IJCSD-REF-2026"
-          onChange={(e) => setForm((f) => ({ ...f, referralCode: formatReferral(e.target.value) }))} />
+          onChange={(e) => { setChecked(''); setForm((f) => ({ ...f, referralCode: formatReferral(e.target.value) })) }} />
       </J3Field>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button type="button" disabled={!form.referralCode || Boolean(errors.referralCode)} onClick={() => setChecked(`Code ${form.referralCode} accepted (simulated). It is applied for priority triage and fee-waiver verification.`)}
+          className="inline-flex items-center gap-1.5 rounded-tile border border-j3paper-rule bg-white px-3.5 py-2 font-inter text-[13px] font-semibold text-iris-700 hover:border-iris-700 disabled:cursor-not-allowed disabled:opacity-50"><MdOutlineVerified className="h-4 w-4" aria-hidden="true" />Validate code</button>
+        {checked && <p role="status" className="font-inter text-xs font-semibold text-j3valid-700">{checked}</p>}
+      </div>
+      <p className="mt-3 font-inter text-xs leading-relaxed text-mauve-600">Have an invitation code from a guest editor, affiliated conference, institutional partner or mentor? Enter it here for priority triage and fee-waiver verification.</p>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 // Main-column sections of the home page after the reference: 02 Aims & editorial scope (with the subject disciplines), 04 Submission-to-publication timeline,
 // 05 Ethical compliance & scholarly principles (journal.trustLedger) and 06 Editorial board (HomeData.leadership).
+import { J3_SUBJECTS } from '../../../../config/journals/specializations'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { AppLink } from '../../../../core/router'
@@ -14,7 +15,7 @@ export function Aims() {
       <p className="font-inter text-[17px] leading-[1.65] text-night-700">The <em>{journal.name}</em> ({journal.shortName}) is a {journal.frequency.toLowerCase()} open access journal. {journal.mission.replace(/^IJCSD is a monthly open access journal /, 'It is a journal ')}</p>
       <p className="mt-5 font-jakarta text-[11px] font-bold uppercase tracking-[0.06em] text-night-900">Designated subject disciplines:</p>
       <ul className="mt-3 flex flex-wrap gap-2">
-        {journal.subjects.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded-tile border border-j3paper-rule bg-j3paper-cool px-3 py-1.5 font-inter text-[13px] font-medium text-iris-800 transition-colors hover:border-iris-700 hover:bg-j3paper-deep">{s}</AppLink></li>)}
+        {J3_SUBJECTS.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded-tile border border-j3paper-rule bg-j3paper-cool px-3 py-1.5 font-inter text-[13px] font-medium text-iris-800 transition-colors hover:border-iris-700 hover:bg-j3paper-deep">{s}</AppLink></li>)}
       </ul>
       <p className="mt-4"><AppLink to={paths.about('aims-scope')} className={linkCls}>Read the full aims and scope &rarr;</AppLink></p>
     </section>

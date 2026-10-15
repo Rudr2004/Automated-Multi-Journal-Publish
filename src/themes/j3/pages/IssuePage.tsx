@@ -14,6 +14,7 @@ import { ARTICLE_TYPES, type ArticleSummary, type ArticleType, type IssueData, t
 import { AuthorProfiles, OaTag, Pager, StreamTag, TypeTag, useFullArticles } from '../components/IssueParts'
 import { IssueCover } from '../components/IssueCover'
 import { Container, cx } from '../components/primitives'
+import { DoubleBlindBox } from '../components/DoubleBlindBox'
 import { useToast } from '../components/Toast'
 import { ArrowRight, Calendar, ChevronDown, Close, Download, Eye, FactCheck, OpenInNew, Quote, Search, Submit, Track } from '../icons'
 
@@ -55,8 +56,10 @@ function Entry({ article, full }: { article: ArticleSummary; full: Parameters<ty
 
       <div className="mt-4"><AuthorProfiles article={article} full={full} /></div>
 
+      <DoubleBlindBox className="mt-5" />
+
       <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)}
-        className="mt-5 flex w-full items-center justify-between gap-3 border border-j3paper-rule bg-j3paper-cool px-4 py-3 text-left font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">
+        className="mt-3 flex w-full items-center justify-between gap-3 border border-j3paper-rule bg-j3paper-cool px-4 py-3 text-left font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">
         <span>Abstract <span className="font-normal text-mauve-600">(click to {open ? 'collapse' : 'expand'})</span></span>
         <ChevronDown className={cx('h-5 w-5 shrink-0 transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
       </button>
@@ -211,6 +214,8 @@ export function IssuePage({ data }: { data: IssueData }) {
             </dl>
             <div className="mt-auto flex flex-wrap gap-3 pt-6">
               <button type="button" onClick={downloadIndex} className={btnPrimary}><Download className="h-4 w-4" aria-hidden="true" />Download issue index</button>
+              <button type="button" onClick={() => toast('Complete issue PDF download started (simulated).')} className={btnPrimary}><Download className="h-4 w-4" aria-hidden="true" />Download full issue</button>
+              <button type="button" onClick={() => toast('Issue cover page download started (simulated).')} className={btnSecondary}><Download className="h-4 w-4" aria-hidden="true" />Download cover page</button>
               <button type="button" onClick={citeIssue} className={btnSecondary}><Quote className="h-4 w-4" aria-hidden="true" />Cite entire issue</button>
               <AppLink to={paths.pastIssues} className={btnSecondary}><Calendar className="h-4 w-4" aria-hidden="true" />Browse past issues</AppLink>
             </div>
@@ -319,7 +324,7 @@ export function IssuePage({ data }: { data: IssueData }) {
             </section>
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-j3paper-rule bg-white px-4 py-3">
-              <p role="status" className="font-inter text-sm text-mauve-700">{filtering ? `${visible.length} of ${articles.length} articles shown` : `${articles.length} articles in this issue`}</p>
+              {filtering ? <p role="status" className="font-inter text-sm text-mauve-700">{visible.length} of {articles.length} articles shown</p> : <span />}
               <div className="flex items-center gap-2 font-inter text-sm">
                 <label htmlFor={sortId} className="text-mauve-600">Sort by:</label>
                 <select id={sortId} value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-9 rounded-tile border border-j3paper-rule bg-white px-2 font-semibold text-night-900 hover:border-iris-700">

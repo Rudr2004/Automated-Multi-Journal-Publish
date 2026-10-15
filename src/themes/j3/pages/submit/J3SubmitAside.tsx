@@ -1,13 +1,16 @@
 // Right rail of the Journal 3 submission page: checklist, recent submissions (only when the journal has any), review stages, charges and help.
 import { useEffect, useState } from 'react'
-import { MdOutlineCheckCircle, MdOutlineSouth } from 'react-icons/md'
+import { MdOutlineCheckCircle, MdOutlineDownload, MdOutlineSouth } from 'react-icons/md'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { api } from '../../../../core/api'
-import { ABSTRACT_MAX_WORDS, ABSTRACT_MIN_WORDS, ACCEPTED_EXT, MAX_FILE_MB } from '../../../../core/lib/submission'
+import { ACCEPTED_EXT, MAX_FILE_MB } from '../../../../core/lib/submission'
 import { AppLink } from '../../../../core/router'
 import { STAGES, type HomeData } from '../../../../core/types'
 import { cx } from '../../components/primitives'
+import { useToast } from '../../components/Toast'
+
+const DOWNLOADS = [['Manuscript Template', 'DOCX'], ['Sample Acceptance Certificate', 'PDF'], ['Sample Certificate', 'PDF']] as const
 
 function Card({ title, id, tone = 'white', children }: { title: string; id: string; tone?: 'white' | 'mist'; children: React.ReactNode }) {
   return (
@@ -23,13 +26,12 @@ function Card({ title, id, tone = 'white', children }: { title: string; id: stri
 
 const CHECKLIST: [string, string][] = [
   ['Manuscript file', `A Word file (${ACCEPTED_EXT.join(', ')}) of up to ${MAX_FILE_MB} MB, with figures and tables included.`],
-  ['Abstract', `${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words, with 3 to 8 keywords.`],
-  ['Authors', 'Every author listed with a valid email and affiliation. Co-authors each receive a certificate.'],
+  ['Manuscript', 'Include the title, abstract and keywords inside the file.'],
+  ['Authors', 'Every author listed with a name and affiliation. Co-authors each receive a certificate.'],
   ['Declarations', 'Original work, not under review elsewhere, and consent to process your data.'],
 ]
 
 type Recent = HomeData['recentSubmissions']
-const ago = (m: number) => (m < 60 ? `${Math.max(1, Math.round(m))} min ago` : m < 1440 ? `${Math.floor(m / 60)} h ago` : `${Math.floor(m / 1440)} d ago`)
 
 function RecentCard() {
   const [items, setItems] = useState<Recent>([])
@@ -41,19 +43,27 @@ function RecentCard() {
   if (!items.length) return null
   return (
     <Card id="recent-h" title="Recently submitted papers">
-      <ul className="divide-y divide-j3paper-rule">
-        {items.slice(0, 5).map((s) => (
-          <li key={`${s.title ?? s.subject}-${s.minutes}`} className="py-2.5 first:pt-0 last:pb-0">
-            <p className="flex items-baseline justify-between gap-2 font-inter text-[13px] font-semibold text-night-900"><span>{s.institution}</span><span className="shrink-0 text-[11px] font-normal tabular-nums text-mauve-600">{ago(s.minutes)}</span></p>
-            <p className="font-inter text-xs text-mauve-600">{s.title ?? s.subject}</p>
-          </li>
-        ))}
-      </ul>
+      {/* Scrolls upwards; hover or focus pauses it, and reduced-motion visitors can scroll by hand. */}
+      <div className="j1-pausable h-52 overflow-hidden motion-reduce:overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,#000_10px,#000_calc(100%-14px),transparent)]">
+        <div className="j1-scroll-up" style={{ ['--j1-scroll-duration' as string]: `${Math.max(18, items.length * 6)}s` }}>
+          {[0, 1].map((copy) => (
+            <ul key={copy} aria-hidden={copy > 0 || undefined} className="divide-y divide-j3paper-rule border-b border-j3paper-rule">
+              {items.slice(0, 5).map((s) => (
+                <li key={`${copy}-${s.title ?? s.subject}-${s.minutes}`} className="py-2.5">
+                  <p className="font-inter text-[13px] font-semibold text-night-900">{s.institution}</p>
+                  <p className="font-inter text-xs text-mauve-600">{s.title ?? s.subject}</p>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
     </Card>
   )
 }
 
 export function J3SubmitAside() {
+  const toast = useToast()
   return (
     <aside aria-label="Submission help" className="space-y-5">
       <Card id="check-h" title="Submission checklist">
@@ -77,9 +87,17 @@ export function J3SubmitAside() {
         </ol>
         <p className="mt-3 font-inter text-xs leading-relaxed text-mauve-600">Follow your paper at any time on the <AppLink to={paths.track} className="font-semibold text-iris-700 underline">Track My Paper</AppLink> page with your Paper ID and email.</p>
       </Card>
-      <Card id="charge-h" title="Charges">
-        <p className="font-inter text-[13px] font-semibold text-night-900">Free to submit</p>
-        <p className="mt-1 font-inter text-xs leading-relaxed text-mauve-600">Nothing is payable now. If your paper is accepted, the article processing charge is INR {journal.apc.inr.toLocaleString('en-IN')} + {journal.apc.gstPercent}% GST for Indian authors, or US${journal.apc.usd}.</p>
+      <Card id="downloads-h" title="Author downloads">
+        <ul className="space-y-2">
+          {DOWNLOADS.map(([name, kind]) => (
+            <li key={name}>
+              <button type="button" onClick={() => toast(`${name} downloaded (simulated).`)} className="flex w-full items-center gap-2 border border-j3paper-rule bg-white px-3 py-2 text-left font-inter text-[13px] font-semibold text-iris-700 hover:border-iris-700">
+                <MdOutlineDownload className="h-4 w-4 shrink-0" aria-hidden="true" /><span className="min-w-0 flex-1">{name}</span>
+                <span className="shrink-0 bg-j3paper-deep px-1.5 py-0.5 text-[10px] font-bold uppercase text-mauve-700">{kind}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </Card>
       <Card id="help-h" title="Need editorial assistance?">
         <p className="font-inter text-[13px] text-mauve-700">Trouble with formatting, files or author details? Write to us.</p>

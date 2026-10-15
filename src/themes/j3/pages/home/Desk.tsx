@@ -1,7 +1,7 @@
 // Full-width bands of the home page after the reference: the dark Author's desk (submit calls to action plus a Track form that opens the track page),
 // the indexing directories and academic resources, the editorial and reviewer appointment calls, and the purple closing call to action.
 import { useState, type FormEvent } from 'react'
-import { journal, visibleLogos } from '../../../../config/journals'
+import { journal, logoSrc, visibleLogos } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
@@ -78,17 +78,20 @@ export function Directories() {
   return (
     <section aria-label="Indexing and academic resources" className={`${wrapCls} mt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12`}>
       <div>
-        <SquareHead title="Indexing directories & archival depositories" />
-        <p className="font-inter text-sm leading-relaxed text-night-700">Every {journal.shortName} article has a Crossref DOI and Scholar-compatible metadata so it can be found and cited. Listings appear here once confirmed.</p>
-        <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+        <SquareHead title="Verified indexing directories & archival depositories" />
+        <p className="font-inter text-sm leading-relaxed text-night-700">The articles published in {journal.shortName} are systematically indexed, deposited and persistently discoverable across major global bibliographic services:</p>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {logos.map((l) => (
-            <li key={l.id} className="rounded-tile border border-j3paper-rule bg-j3paper-cool p-4">
+            <li key={l.id} className="flex flex-col rounded-tile border border-j3paper-rule bg-j3paper-cool p-3">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-jakarta text-sm font-bold text-night-900">{l.name}</p>
-                <span className="rounded-tile bg-j3valid-100 px-1.5 py-0.5 font-jakarta text-[10px] font-bold uppercase text-j3valid-800">{l.status}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  {l.file && <img src={logoSrc(l.file)} alt="" loading="lazy" className="h-5 w-auto max-w-[3.25rem] shrink-0 object-contain" />}
+                  <span className="truncate font-jakarta text-[13px] font-bold text-night-900">{l.name}</span>
+                </span>
+                <span className="shrink-0 rounded-tile bg-j3valid-100 px-1.5 py-0.5 font-jakarta text-[9px] font-bold uppercase text-j3valid-800">{l.status}</span>
               </div>
-              <p className="mt-1.5 font-inter text-xs leading-relaxed text-mauve-600">{l.description}</p>
-              <a href={l.verifyUrl} target="_blank" rel="noreferrer" className={`${linkCls} mt-3 inline-flex items-center gap-1 text-xs`}>Verify link <OpenInNew className="h-3.5 w-3.5" aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+              <p className="mt-1.5 flex-1 font-inter text-[11px] leading-snug text-mauve-600">{l.description}</p>
+              <a href={l.verifyUrl} target="_blank" rel="noreferrer" className={`${linkCls} mt-2 inline-flex items-center gap-1 text-[11px] font-semibold`}>Verify Link <OpenInNew className="h-3 w-3" aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </li>
           ))}
         </ul>

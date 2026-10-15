@@ -53,6 +53,8 @@ export interface SubmissionForm {
   branch: string
   file: { name: string; size: number } | null
   author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string; photo: AuthorPhoto | null
+    /** Optional title (Dr., Prof. ...). Asked by J3 only. */
+    honorific?: string
     /** Town or city (detected from the visitor's network, editable). Shown by J2 only; never validated in core. */
     city?: string
     /** Optional academic designation (e.g. Assistant Professor, Ph.D. Scholar). Shown by J1 only; never validated in core. */
@@ -107,6 +109,7 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     }
     if (!f.articleType) e.articleType = 'Select an article type.'
     if (!f.subject) e.subject = 'Select a subject area.'
+    else if (journal.freeTextSpecialization === f.subject) { if (!f.branch.trim()) e.branch = 'Enter the subject of your paper.' }
     else if (branchesFor(f.subject).length && !branchesFor(f.subject).includes(f.branch)) e.branch = journal.specializations ? 'Select a specialization.' : 'Select the branch of your subject area.'
     if (!f.file) e.file = 'Upload your manuscript as a Word file.'
     return e

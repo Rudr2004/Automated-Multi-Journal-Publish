@@ -48,11 +48,11 @@ export function J3CertificatePaper({ data, number }: { data: J3CertificateData; 
 }
 
 /** One certificate per author. "Print / Save as PDF" prints only the certificate (print rules live in index.css). */
-export function J3CertificateDialog({ open, onClose, paper }: {
-  open: boolean; onClose: () => void
+export function J3CertificateDialog({ open, onClose, paper, initialIndex = 0 }: {
+  open: boolean; onClose: () => void; initialIndex?: number
   paper: { paperId: string; title: string; publishedAt: string; authors: string[]; volume?: number; issue?: number }
 }) {
-  const [i, setI] = useState(0)
+  const [i, setI] = useState(initialIndex)
   const tabs = useId()
   const author = paper.authors[i] ?? paper.authors[0] ?? 'Author'
   const number = j3CertificateNumber(paper.paperId, i)

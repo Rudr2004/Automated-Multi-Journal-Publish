@@ -10,6 +10,12 @@ import { HeroSearch } from '../../components/HeroSearch'
 import { Book, Submit } from '../../icons'
 import { btnOrange, btnPrimary, btnSecondary, labelCls, linkCls, rail } from './bits'
 
+// Home-page presentation of the table: no "Starting Year" row, the publisher reads "IJCSD Journal", the subject is multidisciplinary and the address names the journal.
+const ROWS = journal.info.filter(([k]) => k !== 'Starting Year').map(([k, v]) => [
+  k,
+  k === 'Publisher' ? 'IJCSD Journal' : k === 'Subject' ? 'Multi-Disciplinary Subjects' : k === 'Address' ? v.replace(journal.publisher, journal.name) : v,
+] as const)
+
 const info = (key: string) => journal.info.find(([k]) => k === key)?.[1]
 
 function Facts() {
@@ -38,7 +44,7 @@ function Profile() {
       <table className="w-full border-collapse overflow-hidden rounded-tile border border-j3paper-rule bg-white text-left font-inter text-[13px]">
         <caption className="sr-only">Journal profile and publication metadata</caption>
         <tbody>
-          {journal.info.map(([k, v]) => (
+          {ROWS.map(([k, v]) => (
             <tr key={k} className="border-b border-j3paper-rule last:border-b-0">
               <th scope="row" className="w-[34%] bg-j3paper-cool px-3 py-2 align-top font-semibold text-night-900">{k}</th>
               <td className="px-3 py-2 align-top text-night-700">{k === 'Email' || k === 'Website' ? asLink(v) : v}</td>
@@ -92,10 +98,10 @@ export function Hero({ cfp }: { cfp: CallForPapers }) {
           <AppLink to={paths.search('')} className={`${linkCls} text-xs`}>Advanced search</AppLink>
           <AppLink to={paths.pastIssues} className={`${linkCls} text-xs`}>Browse all issues</AppLink>
         </p>
-        <CallCard cfp={cfp} />
       </div>
       <div className="min-w-0">
         <Profile />
+        <CallCard cfp={cfp} />
       </div>
     </section>
   )

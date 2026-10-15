@@ -49,6 +49,8 @@ export interface JournalConfig {
   /** Set by journals whose submissions get a dotted "Manuscript ID" (journal code, volume, issue, number) instead of a "Paper ID". */
   /** Specializations offered under each subject area on the submission form (when set, ONLY these are offered; see core/lib/branches.ts). */
   specializations?: Record<string, string[]>
+  /** Subject area whose specialization is typed in freely instead of picked from a list (J3). */
+  freeTextSpecialization?: string
   /** Largest manuscript file accepted on the submission form, in MB (default 10). */
   maxFileMb?: number
   /** true: a co-author's email is optional on the submission form (default: required). */

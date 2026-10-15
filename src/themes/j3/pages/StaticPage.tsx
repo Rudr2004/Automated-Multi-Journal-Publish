@@ -11,6 +11,7 @@ import type { BlockActions } from '../../../core/theme'
 import type { StaticPageData } from '../../../core/types'
 import { acBtn, AcMarker } from '../components/AcademicUi'
 import { AcButton } from '../components/AcButton'
+import { ApcPaymentJ3, APC_TOC } from './ApcPaymentJ3'
 import { anchorId, BlockBody, blockTitle } from '../components/StaticBlocksJ3'
 import { Container, cx } from '../components/primitives'
 import * as I from '../icons'
@@ -146,11 +147,12 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
   const [closed, setClosed] = useState<Set<string>>(new Set()) // every section starts open
   const chips = useRef<HTMLUListElement>(null)
 
+  const isApc = page.slug === 'apc-payment' && page.group === 'for-authors'
   const toc = useMemo(() => [
     ...(page.principles ? [{ id: PRINCIPLES_ID, label: 'Our ethical principles' }] : []),
-    ...page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading })),
+    ...(isApc ? APC_TOC : page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading }))),
     ...(page.blocks ?? []).map((b) => { const t = blockTitle(b); return { id: anchorId(t), label: t } }),
-  ], [page])
+  ], [page, isApc])
   const active = useActiveId(toc.map((t) => t.id))
   const numOf = (id: string) => toc.findIndex((t) => t.id === id) + 1
 
@@ -247,7 +249,9 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
               </SectionCard>
             )}
 
-            {page.sections.map((s) => {
+            {isApc && <ApcPaymentJ3 />}
+
+            {!isApc && page.sections.map((s) => {
               const id = anchorId(s.heading)
               return (
                 <SectionCard key={id} id={id} n={numOf(id)} title={s.heading} open={!closed.has(id)} onToggle={() => toggle(id)}>

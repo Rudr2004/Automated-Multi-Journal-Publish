@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from 'react'
 import { journal, logoSrc, visibleLogos } from '../../../config/journals'
 import { paths } from '../../../config/routes'
+import { J3_SUBJECTS } from '../../../config/journals/specializations'
+import { branchesFor } from '../../../core/lib/branches'
 import * as validate from '../../../core/lib/validators'
 import { AppLink } from '../../../core/router'
 import { onDark } from '../components/primitives'
@@ -69,8 +71,15 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
       <div className="border-b border-white/10">
         <nav aria-label="Browse articles by discipline" className={`${wrap} py-8`}>
           <h2 className={`${head} flex items-center gap-2`}><span aria-hidden="true" className="h-2 w-2 bg-ember-500" />Browse articles by discipline</h2>
-          <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-            {journal.subjects.map((s) => <li key={s}><AppLink to={paths.search(s)} className="font-inter text-[13px] text-night-100 hover:text-white hover:underline">{s}</AppLink></li>)}
+          <ul className="mt-5 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            {J3_SUBJECTS.map((s) => (
+              <li key={s}>
+                <AppLink to={paths.search(s)} className="font-jakarta text-sm font-bold text-white hover:underline">{s}</AppLink>
+                <ul className="mt-2 space-y-1.5">
+                  {branchesFor(s).filter((b) => b !== 'Others').slice(0, 7).map((b) => <li key={b}><AppLink to={paths.search(b)} className="font-inter text-[13px] text-night-100 hover:text-white hover:underline">{b}</AppLink></li>)}
+                </ul>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
