@@ -8,7 +8,7 @@ import type { ArticleFull } from '../../../core/types'
 import { ArticleHeader } from './article/ArticleHeader'
 import { AuthorCards } from './article/AuthorCards'
 import { OutlineRail } from './article/OutlineRail'
-import { AbstractPanel, FullTextPanel, HistoryPanel, ReferencesPanel } from './article/ReadingPanels'
+import { AbstractPanel, FullTextPanel, ReferencesPanel } from './article/ReadingPanels'
 import { reducedMotion, tabsFor } from './article/shared'
 import { SidePanel } from './article/SidePanel'
 import { TabBar } from './article/TabBar'
@@ -121,7 +121,6 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
             <div ref={content} className="min-w-0 space-y-6 lg:col-span-6">
               <AbstractPanel article={article} />
               <AuthorCards article={article} />
-              <HistoryPanel article={article} />
               {article.sections?.length > 0 && <FullTextPanel article={article} onRef={onRef} />}
               {article.references?.length > 0 && <ReferencesPanel article={article} />}
               <RelatedPanel article={article} />

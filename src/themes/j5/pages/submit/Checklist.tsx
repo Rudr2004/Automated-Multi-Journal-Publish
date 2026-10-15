@@ -29,20 +29,27 @@ export function SubmitAside() {
     <aside aria-label="Submission quick reference" className="flex flex-col gap-6 lg:sticky lg:top-28">
       <Card icon={<Feed className="h-5 w-5" aria-hidden="true" />} title="Recent Submissions"
         pill={<span className="flex items-center gap-1 rounded-full bg-[#E9EDFF] px-2 py-0.5 font-work text-xs font-semibold text-wine-900"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-700" />Confidential</span>}>
-        <p className="font-serif4 text-[15px] leading-6 text-[#564241]">Submissions are not listed publicly until an article is published. After you submit, follow your own paper with its Paper ID and email.</p>
+        <p className="font-serif4 text-[15px] leading-6 text-[#564241]">Submissions are not listed publicly until an article is published. After you submit, follow your own paper with its Manuscript ID and email.</p>
         <AppLink to={paths.track} className="font-work text-xs font-bold text-wine-800 underline">Already submitted? Track your paper</AppLink>
         <p className="flex items-center justify-center gap-1 pt-1 font-work text-xs text-[#564241]"><Lock className="h-4 w-4 text-wine-900" aria-hidden="true" />Confidential submission queue</p>
       </Card>
 
       <Card icon={<VerifiedI className="h-5 w-5" aria-hidden="true" />} title="Indexing & Archiving"
         pill={<span className="flex items-center gap-1 rounded-full bg-[#E9EDFF] px-2.5 py-0.5 font-work text-xs font-semibold text-ochre-700"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ochre-700" />{logos.length} Listed</span>}>
-        <ul className="flex flex-col gap-2.5 rounded-lg bg-[#F1F3FF] p-2">
-          {logos.map((l) => (
-            <li key={l.id} className="flex h-11 items-center justify-center rounded-lg border border-[#DCC0BE]/30 bg-white p-2.5 shadow-sm">
-              {l.file ? <img src={`/shared/indexing/${l.file}`} alt={l.name} className="max-h-6 max-w-[140px] object-contain" /> : <span className="font-work text-sm font-bold text-wine-900">{l.name}</span>}
-            </li>
-          ))}
-        </ul>
+        {/* The logos scroll upwards; hover or keyboard focus pauses them, and reduced-motion visitors can scroll by hand. */}
+        <div className="j1-pausable h-60 overflow-hidden rounded-lg bg-[#F1F3FF] p-2 motion-reduce:overflow-y-auto">
+          <div className="j1-scroll-up" style={{ ['--j1-scroll-duration' as string]: `${Math.max(24, logos.length * 5)}s` }}>
+            {[0, 1].map((copy) => (
+              <ul key={copy} aria-hidden={copy > 0 || undefined} className="flex flex-col gap-2.5 pb-2.5">
+                {logos.map((l) => (
+                  <li key={l.id} className="flex h-11 items-center justify-center rounded-lg border border-[#DCC0BE]/30 bg-white p-2.5 shadow-sm">
+                    {l.file ? <img src={`/shared/indexing/${l.file}`} alt={copy > 0 ? '' : l.name} className="max-h-6 max-w-[140px] object-contain" /> : <span className="font-work text-sm font-bold text-wine-900">{l.name}</span>}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
         <div className="flex items-center justify-between gap-2 font-work text-[11px] text-[#564241]">
           <span>Permanent DOI under 10.55041</span>
           <AppLink to={paths.about('indexing')} className="font-semibold text-ochre-700 underline">Indexing details</AppLink>

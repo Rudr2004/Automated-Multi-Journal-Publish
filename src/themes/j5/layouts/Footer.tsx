@@ -1,8 +1,10 @@
 // Footer, as in the reference: a deep-wine academic footer with a table-of-contents alert band (email form, validated), a six-column grid
 // (contact, indexing, policies, identifiers, quick navigation) and a legal bar. There is no login link.
 import { useState, type FormEvent } from 'react'
-import { journal, visibleLogos } from '../../../config/journals'
+import { journal, logoSrc, visibleLogos } from '../../../config/journals'
 import { paths } from '../../../config/routes'
+import { J5_SUBJECTS } from '../../../config/journals/specializations'
+import { branchesFor } from '../../../core/lib/branches'
 import * as validate from '../../../core/lib/validators'
 import { AppLink } from '../../../core/router'
 import { ForwardToInbox } from '../components/homeIconsJ5'
@@ -41,18 +43,17 @@ function Newsletter({ onSubscribe }: { onSubscribe: (email: string) => Promise<v
 
 export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promise<void> }) {
   const logos = visibleLogos()
-  const started = journal.info.find(([k]) => k === 'Starting Year')?.[1]
   const policies: [string, string][] = [
     ['Peer Review Process', paths.policy('peer-review')], ['Publication Ethics', paths.policy('publication-ethics')], ['Plagiarism Policy', paths.policy('plagiarism')],
     ['Copyright & CC BY 4.0', paths.policy('copyright-licensing')], ['Refund & Cancellation', paths.policy('refund')], ['Data Policy', paths.policy('data')], ['Privacy Policy', paths.policy('privacy')],
   ]
   const nav: [string, string][] = [
     ['Home Overview', paths.home], ['Current Issue', paths.currentIssue], ['Past Issues', paths.pastIssues], ['Manuscript Submission', paths.submit],
-    ['Track Paper Status', paths.track], ['Editorial Board', paths.editorialBoard], ['Verify a Certificate', paths.verify()],
+    ['Track Paper Status', paths.track], ['Editorial Board', paths.editorialBoard], ['Verify a Certificate', paths.verify()], ['Reviewer Login', paths.reviewerLogin],
   ]
   const ids: [string, string][] = [
     ['ISSN', journal.issnOnline], ['Crossref DOI', journal.doiPrefix], ['Frequency', journal.frequency], ['Format', 'Online'],
-    ...(started ? [['Year Est.', started] as [string, string]] : []), ['License', journal.licence.name],
+    ['SJIF Impact Factor', journal.sjifImpactFactor ?? ''], ['License', journal.licence.name],
   ]
   return (
     <footer id="contact-us" className="w-full border-t-4 border-wine-800 bg-[#51020b] pb-10 pt-14 text-white">
@@ -67,24 +68,44 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
           <Newsletter onSubscribe={onSubscribe} />
         </div>
 
-        <div className="mb-12 grid grid-cols-1 gap-8 font-work text-xs md:grid-cols-2 lg:grid-cols-6">
+        {/* Browse by subject: each subject area with its first specializations (from the submission sheet) */}
+        <nav aria-label="Browse articles by discipline" className="mb-12 border-b border-wine-800/80 pb-10">
+          <h3 className={head}>Browse articles by discipline</h3>
+          <ul className="mt-3 grid gap-x-8 gap-y-8 font-work text-xs sm:grid-cols-2 lg:grid-cols-4">
+            {J5_SUBJECTS.map((sub) => (
+              <li key={sub}>
+                <AppLink to={paths.search(sub)} className="text-sm font-bold text-white hover:underline">{sub}</AppLink>
+                <ul className="mt-2 space-y-1.5 text-[#e1e8fd]">
+                  {branchesFor(sub).filter((b) => !b.startsWith('Other')).slice(0, 7).map((b) => <li key={b}><AppLink to={paths.search(b)} className={link}>{b}</AppLink></li>)}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="mb-12 grid grid-cols-1 gap-8 font-work text-xs md:grid-cols-2 lg:grid-cols-7">
           <div className="space-y-3 lg:col-span-2">
             <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex items-center gap-2">
               <Logo size={32} tile className="h-8 w-8" />
               <span className="font-work text-sm font-bold uppercase tracking-wider text-amber-200">{journal.shortName} Journal</span>
             </AppLink>
-            <p className="leading-relaxed text-[#e1e8fd]"><strong>{journal.name}</strong><br />{journal.address}</p>
+            <p className="leading-relaxed text-[#e1e8fd]"><strong>{journal.name}</strong><br />{journal.address.replace(`${journal.publisher}, `, '')}</p>
             <div className="space-y-1 text-[#f4f5fc]">
               <p><strong>Official Email:</strong> <a className="text-amber-200 hover:underline" href={`mailto:${journal.email}`}>{journal.email}</a></p>
               <p><strong>Official Portal:</strong> <span className="text-amber-200">https://{journal.domain}</span></p>
             </div>
           </div>
-          <nav aria-label="Indexing and databases" className="space-y-2">
+          <nav aria-label="Indexing and databases" className="space-y-2 lg:col-span-2">
             <h3 className={head}>Indexing &amp; Databases</h3>
-            <ul className="space-y-1.5 text-[#e1e8fd]">
-              {logos.map((l) => <li key={l.id}><a href={l.verifyUrl} target="_blank" rel="noreferrer" className={link}>{l.id === 'crossref' ? `Crossref (${journal.doiPrefix})` : l.name}<span className="sr-only"> (opens in a new tab)</span></a></li>)}
-              <li><AppLink to={paths.about('indexing')} className={link}>All indexing details</AppLink></li>
+            <ul className="grid grid-cols-3 gap-1.5">
+              {logos.map((l) => (
+                <li key={l.id}><a href={l.verifyUrl} target="_blank" rel="noreferrer" title={`${l.status}. Verify on ${l.name}`} className="flex h-8 items-center justify-center rounded bg-white px-1.5 hover:ring-2 hover:ring-amber-300">
+                  {l.file ? <img src={logoSrc(l.file)} alt={l.name} loading="lazy" className="max-h-5 w-auto max-w-full object-contain" /> : <span className="text-[11px] font-bold text-obsidian-800">{l.name}</span>}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a></li>
+              ))}
             </ul>
+            <p className="pt-1"><AppLink to={paths.about('indexing')} className={link}>All indexing details</AppLink></p>
           </nav>
           <nav aria-label="Journal policies" className="space-y-2">
             <h3 className={head}>Journal Policies</h3>
@@ -102,7 +123,7 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-wine-800/80 pt-8 text-center font-work text-xs text-[#e1e8fd] md:flex-row md:text-left">
           <p>{journal.shortName} is a peer-reviewed, open access journal. Articles are published under the <strong>Creative Commons Attribution 4.0 International License ({journal.licence.name})</strong>.</p>
-          <p className="font-medium text-[#e1e8fd]">© {new Date().getFullYear()} {journal.name} ({journal.shortName}). {journal.publisherCity}.</p>
+          <p className="font-medium text-[#e1e8fd]">© {new Date().getFullYear()} {journal.name} ({journal.shortName}).</p>
         </div>
       </Container>
     </footer>

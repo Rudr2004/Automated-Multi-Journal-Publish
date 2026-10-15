@@ -12,6 +12,7 @@ import { CountUpJ5 } from '../../components/CountUpJ5'
 import { Article, DownloadForOffline, FindInPage, Fingerprint, Autorenew, Megaphone, NotificationImportant, School, VerifiedUser, Description, Groups, Rights } from '../../components/homeIconsJ5'
 import { cx } from '../../components/primitives'
 import { ArrowRight, Award, OpenAccess, Send, Verified } from '../../icons'
+import { idExample } from '../../../../core/lib/manuscriptId'
 
 const card = 'rounded border border-[#dcc0be] bg-white p-5 shadow-sm'
 const head = 'mb-3 flex items-center justify-between gap-2 border-b border-obsidian-200 pb-2'
@@ -23,8 +24,8 @@ function CallBanner({ cfp }: { cfp: CallForPapers }) {
   const [issueName, issueMonth] = cfp.issueName.split(' — ')
   const rows: [string, string, string][] = [
     ['Submission Deadline:', formatDate(cfp.deadline.slice(0, 10)), 'font-bold text-wine-800'],
-    ['First Decision Target:', `About ${cfp.avgReviewDays} days`, 'font-medium text-[#141b2b]'],
-    ['Expected Publication:', formatDate(cfp.expectedPublication), 'font-medium text-[#141b2b]'],
+    ['First Decision Target:', '24 Hours', 'font-medium text-[#141b2b]'],
+    ['Expected Publication:', '2 Days', 'font-medium text-[#141b2b]'],
     ['Publication:', `${journal.frequency} (Online)`, 'font-medium text-[#9b4500]'],
     ['Crossref DOI Prefix:', journal.doiPrefix, 'font-mono font-bold text-wine-800'],
   ]
@@ -154,11 +155,11 @@ function TrackForm() {
   return (
     <section id="track-section" aria-labelledby="j5-track" className={card}>
       <div className="mb-3 flex items-center gap-2 border-b border-obsidian-200 pb-2"><FindInPage className="h-[18px] w-[18px] text-wine-800" aria-hidden="true" /><h2 id="j5-track" className={h4}>Track Paper Status</h2></div>
-      <p className="mb-3 font-work text-xs text-[#564241]">Check the status of an active submission with its Paper ID and the email used to submit. No login needed:</p>
+      <p className="mb-3 font-work text-xs text-[#564241]">Check the status of an active submission with its Manuscript ID and the email used to submit. No login needed:</p>
       <form onSubmit={submit} noValidate className="space-y-2.5">
         <div>
-          <label htmlFor={`${id}-p`} className="sr-only">Paper ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`Paper ID (e.g. ${journal.paperIdPrefix}2026000112)`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={input} />
+          <label htmlFor={`${id}-p`} className="sr-only">Manuscript ID</label>
+          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`Manuscript ID (e.g. ${idExample})`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={input} />
           {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
         </div>
         <div>
@@ -181,12 +182,15 @@ function Shortcut({ to, Icon, tone, children }: { to: string; Icon: typeof Right
   )
 }
 
+import { useToast } from '../../components/Toast'
+
 export function Sidebar({ cfp, notices }: { cfp: CallForPapers; notices: { date: string; text: string }[] }) {
+  const toast = useToast()
   const crossref = journal.logos.find((l) => l.id === 'crossref')
   const downloads: [string, string, string, typeof Article, string][] = [
     ['Manuscript Template (Word & LaTeX)', 'Manuscript, cover letter and response templates', paths.forAuthors('templates'), Article, 'text-blue-700'],
-    ['Author Guidelines', 'Article types, format and declarations', paths.policy('author-guidelines'), Award, 'text-amber-700'],
-    ['APC & Payment', 'Charges, GST and how to pay', paths.forAuthors('apc-payment'), Description, 'text-emerald-700'],
+    ['Sample Acceptance', 'Acceptance letter (PDF)', '', Award, 'text-amber-700'],
+    ['Sample Certificate', 'Certificate of publication (PDF)', '', Description, 'text-emerald-700'],
   ]
   return (
     <aside aria-label="Author desk and journal hub" className="space-y-6 lg:col-span-4">
@@ -204,10 +208,17 @@ export function Sidebar({ cfp, notices }: { cfp: CallForPapers; notices: { date:
         <ul className="space-y-2 font-work text-xs">
           {downloads.map(([t, note, to, Icon, tone], i) => (
             <li key={t}>
-              <AppLink to={to} className={cx('flex items-center justify-between gap-3 py-1.5 text-[#564241] transition hover:text-wine-800', i < downloads.length - 1 && 'border-b border-obsidian-200')}>
+              {to ? (
+                <AppLink to={to} className={cx('flex items-center justify-between gap-3 py-1.5 text-[#564241] transition hover:text-wine-800', i < downloads.length - 1 && 'border-b border-obsidian-200')}>
                 <span className="flex items-center gap-1.5"><Icon className={cx('h-[15px] w-[15px] shrink-0', tone)} aria-hidden="true" /><span><span className="block font-medium text-[#141b2b]">{t}</span><span className="block text-[11px]">{note}</span></span></span>
                 <ArrowRight className="h-4 w-4 shrink-0 text-[#897270]" aria-hidden="true" />
-              </AppLink>
+                </AppLink>
+              ) : (
+                <button type="button" onClick={() => toast(`${t} downloaded (simulated).`)} className={cx('flex w-full items-center justify-between gap-3 py-1.5 text-left text-[#564241] transition hover:text-wine-800', i < downloads.length - 1 && 'border-b border-obsidian-200')}>
+                <span className="flex items-center gap-1.5"><Icon className={cx('h-[15px] w-[15px] shrink-0', tone)} aria-hidden="true" /><span><span className="block font-medium text-[#141b2b]">{t}</span><span className="block text-[11px]">{note}</span></span></span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-[#897270]" aria-hidden="true" />
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -232,7 +243,7 @@ export function Sidebar({ cfp, notices }: { cfp: CallForPapers; notices: { date:
       <section aria-labelledby="j5-editors" className="rounded border border-[#dcc0be] bg-gradient-to-br from-[#dce2f7] to-[#e1e8fd] p-5">
         <div className="mb-1 flex items-center gap-1.5 font-work text-xs font-bold uppercase text-wine-800"><School className="h-[18px] w-[18px]" aria-hidden="true" /><h2 id="j5-editors">Call for Reviewers</h2></div>
         <p className="mb-3 font-work text-xs leading-relaxed text-[#564241]">Researchers with a record of peer-reviewed publications are invited to join the {journal.shortName} reviewer pool.</p>
-        <div className="my-3 overflow-hidden rounded border border-[#dcc0be]/50 shadow-sm"><img src="/journals/j5/images/card-review.svg" alt="" loading="lazy" className="h-32 w-full object-cover" /></div>
+        <div className="my-3 overflow-hidden rounded border border-[#dcc0be]/50 shadow-sm"><img src="/journals/j5/images/card-reviewers.svg" alt="" loading="lazy" className="h-32 w-full object-cover" /></div>
         <AppLink to={paths.forAuthors('become-a-reviewer')} className="inline-flex items-center gap-1 font-work text-xs font-bold uppercase tracking-wider text-wine-800 hover:underline"><span>Apply to Review</span><ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></AppLink>
       </section>
       <div className="flex items-start gap-2.5 rounded border border-[#dcc0be] bg-white p-4 font-work text-[11px] text-[#564241]">

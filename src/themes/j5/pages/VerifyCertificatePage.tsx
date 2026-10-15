@@ -13,8 +13,9 @@ import { CertificatePaper, Seal } from '../components/static/Certificate'
 import { Field, inputClass } from '../components/static/fields'
 import { MdOutlinePrint as Print } from 'react-icons/md'
 import { Check, ErrorIcon, Search } from '../icons'
+import { idExample } from '../../../core/lib/manuscriptId'
 
-const EXAMPLE = `${journal.paperIdPrefix}-CERT-${journal.paperIdPrefix}2026000112`
+const EXAMPLE = `${journal.paperIdPrefix}-CERT-${idExample}`
 
 export function VerifyCertificatePage({ initialId = '', initialResult = null, onVerify }: {
   initialId?: string

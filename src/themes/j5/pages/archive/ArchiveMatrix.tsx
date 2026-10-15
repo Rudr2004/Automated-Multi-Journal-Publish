@@ -1,63 +1,41 @@
-// Archive matrix as "volume plates": one engraved-looking plate per volume (double frame, large volume numeral, ornament rule)
-// with issues 1 to 12 as cells. Published issues link to their contents; the rest are greyed out.
+// Archive: one block per volume (newest first) with a card for every PUBLISHED issue (month, article count, link). Unpublished slots are not shown.
 import { paths } from '../../../../config/routes'
 import { formatMonthYear } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { IssueSummary } from '../../../../core/types'
 import { cx } from '../../components/primitives'
-import { Kicker } from '../../components/signature'
-
-const SLOTS = Array.from({ length: 12 }, (_, i) => i + 1)
+import { ArrowRight } from '../../icons'
 
 export interface VolumeRow { volume: number; year: string; issues: IssueSummary[]; articles: number }
 
 export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
   return (
-    <div className="space-y-8">
-      {rows.map((r) => {
-        const byNo = new Map(r.issues.map((i) => [i.issue, i]))
-        return (
-          <section key={r.volume} aria-labelledby={`vol-${r.volume}`} className="scroll-mt-32 rounded border border-[#DCC0BE]/30 bg-white p-1.5 shadow-sm">
-            <div className="rounded p-4 sm:p-5">
-              <header className="grid items-center gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)]">
-                <div className="flex items-baseline gap-3">
-                  <span aria-hidden="true" className="font-newsreader text-[3.5rem] font-semibold leading-none text-wine-900 sm:text-[4.25rem]">{r.volume}</span>
-                  <div>
-                    <Kicker>Volume</Kicker>
-                    <h3 id={`vol-${r.volume}`} className="mt-1 scroll-mt-32 font-newsreader text-2xl font-semibold text-obsidian-900"><span className="sr-only">Volume {r.volume}, </span>{r.year}</h3>
-                  </div>
-                </div>
-                <p className="font-work text-sm tabular-nums text-obsidian-600 sm:text-right">{r.issues.length} of 12 issues published<span aria-hidden="true"> · </span><br className="sm:hidden" />{r.articles} articles</p>
-              </header>
-              <div aria-hidden="true" className="my-5 border-t border-[#E1E8FD]" />
-              <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-                {SLOTS.map((n) => {
-                  const i = byNo.get(n)
-                  const inner = (
-                    <>
-                      <span className="flex items-center justify-between gap-1 font-work text-[11px] font-semibold uppercase tracking-[0.08em]"><span>Issue {n}</span>{i?.isCurrent && <span className="rounded-sm bg-ochre-700 px-1 py-px text-[9px] tracking-[0.06em] text-white">Current</span>}</span>
-                      <span className="mt-1 block font-newsreader text-2xl font-semibold tabular-nums">{i ? i.articleCount : '–'}</span>
-                      <span className="block font-work text-xs">{i ? new Date(`${i.month}-01T00:00:00`).toLocaleString('en-US', { month: 'short' }) : 'Not published'}</span>
-                    </>
-                  )
-                  return (
-                    <li key={n}>
-                      {i ? (
-                        <AppLink to={paths.issue(i.volume, i.issue)} aria-label={`Volume ${i.volume}, Issue ${i.issue}, ${formatMonthYear(i.month)}, ${i.articleCount} articles${i.isCurrent ? ', current issue' : ''}`}
-                          className={cx('block min-h-[92px] rounded-sm border p-3 text-obsidian-900 transition-[border-color,transform,background-color] duration-150 motion-safe:hover:-translate-y-px motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-700',
-                            i.isCurrent ? 'border-ochre-700 bg-ochre-50 hover:bg-ochre-100' : 'border-[#DCC0BE]/60 bg-[#F4F5FC] hover:border-wine-800 hover:text-wine-800')}>{inner}</AppLink>
-                      ) : (
-                        <div aria-label={`Issue ${n}, not yet published`} role="group" className="min-h-[92px] rounded-sm border border-dashed border-[#DCC0BE] bg-[#F9F9FF] p-3 text-[#6F5A58]">{inner}</div>
-                      )}
-                    </li>
-                  )
-                })}
-              </ol>
-              <p className="mt-4 font-work text-xs text-obsidian-600">Cell figures are the number of articles in each issue.</p>
-            </div>
-          </section>
-        )
-      })}
+    <div className="space-y-10">
+      {rows.map((r) => (
+        <section key={r.volume} aria-labelledby={`vol-${r.volume}`} className="scroll-mt-32">
+          <div aria-hidden="true" className="j5-double-rule mb-3" />
+          <h3 id={`vol-${r.volume}`} className="mb-5 flex items-baseline gap-3 font-newsreader text-2xl font-semibold text-obsidian-900">Volume {r.volume} <span className="font-work text-sm font-normal text-obsidian-600">{r.year}</span></h3>
+          <ol className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {[...r.issues].sort((a, b) => b.issue - a.issue).map((i) => (
+              <li key={i.issue}>
+                <AppLink to={paths.issue(i.volume, i.issue)} aria-label={`Volume ${i.volume}, Issue ${i.issue}, ${formatMonthYear(i.month)}${i.isCurrent ? ', current issue' : ''}`}
+                  className={cx('group flex h-full flex-col justify-between gap-4 rounded border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-wine-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-800',
+                    i.isCurrent ? 'border-[#9b4500]' : 'border-[#DCC0BE]')}>
+                  <span>
+                    {i.isCurrent && <span className="mb-2 inline-block rounded bg-[#9b4500] px-2 py-0.5 font-work text-[10px] font-bold uppercase tracking-wider text-white">Current issue</span>}
+                    <span className="block font-work text-xs font-bold uppercase tracking-wider text-wine-800">Issue {i.issue}</span>
+                    <span className="mt-1 block font-newsreader text-xl font-semibold text-obsidian-900">{formatMonthYear(i.month)}</span>
+                  </span>
+                  <span className="flex items-center justify-between border-t border-[#DCC0BE]/60 pt-3 font-work text-xs text-obsidian-600">
+                    <span>{i.articleCount} {i.articleCount === 1 ? 'article' : 'articles'}</span>
+                    <span className="inline-flex items-center gap-1 font-semibold text-wine-800 group-hover:underline">Open issue <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span>
+                  </span>
+                </AppLink>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
     </div>
   )
 }

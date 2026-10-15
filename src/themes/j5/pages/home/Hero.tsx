@@ -62,8 +62,8 @@ export function Hero({ cfp }: { cfp: CallForPapers }) {
               <dl className="mb-6 space-y-2.5 rounded border border-white/20 bg-black/25 p-4 font-work text-xs text-white backdrop-blur-sm">
                 {[
                   [Event, 'Submission Deadline:', formatDate(cfp.deadline.slice(0, 10))],
-                  [Speed, 'First Decision Target:', `About ${cfp.avgReviewDays} days`],
-                  [Publish, 'Expected Publication:', formatDate(cfp.expectedPublication)],
+                  [Speed, 'First Decision Target:', '24 Hours'],
+                  [Publish, 'Expected Publication:', '2 Days'],
                   [Fingerprint, 'Crossref DOI Prefix:', journal.doiPrefix],
                 ].map(([Icon, k, v], i) => {
                   const I = Icon as typeof Event

@@ -6,6 +6,7 @@ import type { SuggestFn } from '../../../core/types'
 import { ButtonLink, buttonClass } from '../components/Button'
 import { SearchContext } from '../components/searchContext'
 import { Submit, Track } from '../icons'
+import { Recognition, XploreBand } from '../pages/home/Bands'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { j5Css } from './globalCss'
@@ -31,6 +32,9 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
         <Header />
         <main id="main" className="flex-1">{children}</main>
       </SearchContext.Provider>
+      {/* The Journal Xplore search band and the recognition (awards) row end every page, just above the footer. */}
+      <XploreBand />
+      <Recognition />
       <Footer onSubscribe={onSubscribe} />
       {showBar && (
         <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-obsidian-200 bg-[#fdfbf7]/95 p-3 backdrop-blur sm:hidden">

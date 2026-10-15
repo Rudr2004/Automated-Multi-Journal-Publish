@@ -57,8 +57,8 @@ export function PaperHeader({ paper }: { paper: TrackedPaper }) {
   return (
     <div className="rounded-xl border border-[#DCC0BE]/40 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DCC0BE]/40 bg-wine-800 px-5 py-3 text-white">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1"><Label className="text-ochre-300">Paper ID</Label><strong className="break-all font-newsreader text-xl font-semibold tabular-nums tracking-wide">{paper.paperId}</strong></div>
-        <CopyButton tone="dark" text={paper.paperId} label="Copy" done="Paper ID copied" />
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1"><Label className="text-ochre-300">Manuscript ID</Label><strong className="break-all font-newsreader text-xl font-semibold tabular-nums tracking-wide">{paper.paperId}</strong></div>
+        <CopyButton tone="dark" text={paper.paperId} label="Copy" done="Manuscript ID copied" />
       </div>
       <div className="p-5 sm:p-6">
         <h2 id="paper-h" className="font-newsreader text-[1.375rem] font-bold leading-snug text-wine-900 sm:text-[1.625rem]">{paper.title}</h2>

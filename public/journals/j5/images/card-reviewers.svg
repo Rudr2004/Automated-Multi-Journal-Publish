@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130" role="img" aria-label="Reviewers evaluating a manuscript">
+  <rect width="400" height="130" fill="#F7EFE6"/>
+  <rect y="118" width="400" height="12" fill="#E8D9C6"/>
+  <g fill="#7A1620">
+    <circle cx="90" cy="48" r="16"/><path d="M62 98c0-18 12-30 28-30s28 12 28 30z"/>
+    <circle cx="200" cy="40" r="19" fill="#9B4500"/><path d="M165 98c0-22 15-36 35-36s35 14 35 36z" fill="#9B4500"/>
+    <circle cx="310" cy="48" r="16"/><path d="M282 98c0-18 12-30 28-30s28 12 28 30z"/>
+  </g>
+  <g fill="none" stroke="#7A1620" stroke-width="3" stroke-linecap="round">
+    <circle cx="255" cy="62" r="14" fill="#fff"/><path d="M265 72l12 12"/>
+    <path d="M150 28h22M150 36h14" stroke="#9B4500"/>
+  </g>
+  <circle cx="200" cy="108" r="0"/>
+  <g transform="translate(176 100)"><circle cx="24" cy="0" r="9" fill="#2E7D32"/><path d="M19 0l4 4 7-8" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

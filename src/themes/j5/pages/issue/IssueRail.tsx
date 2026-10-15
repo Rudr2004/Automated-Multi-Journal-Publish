@@ -28,11 +28,6 @@ export function IssueRail({ value, onChange, articles }: { value: IssueFilters; 
   return (
     <aside aria-label="Filter this issue" className="min-w-0 space-y-6 lg:col-span-3">
       <div role="search" className="space-y-6 rounded bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between gap-2 pb-3">
-          <h2 className="font-newsreader text-base text-[#141B2B]">In this issue</h2>
-          <span role="status" aria-live="polite" className="rounded bg-[#E1E8FD] px-2 py-0.5 font-work text-base text-[#564241]">{articles.length} articles</span>
-        </div>
-
         <div className="space-y-1.5">
           <label htmlFor={`${id}-q`} className={LABEL}>Title or Author</label>
           <div className="relative flex items-center">

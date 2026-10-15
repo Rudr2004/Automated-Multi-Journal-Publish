@@ -1,7 +1,7 @@
 // Sections D and E: manuscript file with optional cover letter, and the declarations with the optional referral code.
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { ACCEPTED_EXT, LIMITS, MAX_FILE_MB, validateFile, type SubmissionForm } from '../../../../core/lib/submission'
+import { ACCEPTED_EXT, MAX_FILE_MB, validateFile, type SubmissionForm } from '../../../../core/lib/submission'
 import { formatReferral } from '../../../../core/lib/validators'
 import { AppLink } from '../../../../core/router'
 import { useToast } from '../../components/Toast'
@@ -21,10 +21,6 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
         <Dropzone name="file" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Word files only (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
-      <Fld label="Cover letter or suggested reviewers" name="coverLetter" optional error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
-        <textarea rows={5} className={inp(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}
-          placeholder={`Briefly explain why this work suits ${journal.shortName}, and name any reviewers you suggest.`} />
-      </Fld>
     </Section>
   )
 }
@@ -46,7 +42,7 @@ export function DeclarationsSection({ form, errors, setForm }: SectionProps) {
           <AppLink to={paths.policy('privacy')} className="font-semibold text-wine-800 underline">Privacy Policy</AppLink>. Author names and affiliations appear publicly if the article is published.
         </Decl>
         <Decl name="consentMessages" checked={form.declarations.consentMessages} error={errors.consentMessages} onChange={(v) => decl('consentMessages', v)}>
-          <strong>Status Messages:</strong> I consent to receive my Paper ID and status updates by WhatsApp, SMS and email.
+          <strong>Status Messages:</strong> I consent to receive my Manuscript ID and status updates by WhatsApp, SMS and email.
         </Decl>
         {/* Placeholder for the real reCAPTCHA widget. */}
         <Decl name="captcha" checked={form.captcha} error={errors.captcha} onChange={(v) => setForm((f) => ({ ...f, captcha: v }))}>

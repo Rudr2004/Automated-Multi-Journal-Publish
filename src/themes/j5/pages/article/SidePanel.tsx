@@ -24,11 +24,9 @@ export function SidePanel({ article }: { article: ArticleFull }) {
     ['Research area', article.subject],
     ['Volume / issue', `${article.volume} / ${article.issue}`],
     ['Pages', article.pages],
-    ['Received', article.received ? formatDate(article.received) : undefined],
-    ['Accepted', article.accepted ? formatDate(article.accepted) : undefined],
     ['Published', published ? formatDate(published) : undefined],
     ['Licence', journal.licence.name],
-    ['Paper ID', article.paperId, 'font-mono'],
+    ['Manuscript ID', article.paperId, 'font-mono'],
     ['DOI', doi, 'font-mono text-wine-800'],
   ]
   return (

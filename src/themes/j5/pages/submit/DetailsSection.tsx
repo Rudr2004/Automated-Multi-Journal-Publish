@@ -1,20 +1,15 @@
-// Section A: manuscript classification and abstract (title, type, research area, abstract, keywords).
-import { useId } from 'react'
 import { journal } from '../../../../config/journals'
+// Section A: manuscript classification and abstract (title, type, research area, abstract, keywords).
 import { ABSTRACT_MAX_WORDS, ABSTRACT_MIN_WORDS, LIMITS, wordCount } from '../../../../core/lib/submission'
 import { parseKeywords } from '../../../../core/lib/validators'
-import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
+import { J5_SUBJECTS } from '../../../../config/journals/specializations'
+import { branchesFor } from '../../../../core/lib/branches'
 import { cx } from '../../components/primitives'
 import { Fld, Section, inp, type SectionProps } from './shared'
 
-const TYPE_NOTES: Record<string, string> = {
-  'Research Article': 'Original study with method, results and discussion.',
-  'Review Article': 'Critical synthesis of existing work on one topic.',
-  'Short Communication': 'Brief report of a focused, timely result.',
-}
+const J5_ARTICLE_TYPES = ['Research Article', 'Review Article', 'Systematic Review', 'Case Study', 'Survey Paper', 'Conference Paper'] as const
 
 export function DetailsSection({ form, errors, setForm }: SectionProps) {
-  const errId = useId()
   const words = wordCount(form.abstract)
   const kw = parseKeywords(form.keywords)
   const bad = words > 0 && (words < ABSTRACT_MIN_WORDS || words > ABSTRACT_MAX_WORDS)
@@ -26,32 +21,30 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
       </Fld>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <fieldset aria-describedby={errors.articleType ? errId : undefined}>
-          <legend className="mb-1.5 font-work text-[13px] font-semibold tracking-[0.02em] text-[#141B2B]">Article Classification <span className="text-red-700" aria-hidden="true">*</span></legend>
-          <div className="space-y-2">
-            {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => {
-              const checked = form.articleType === t
-              return (
-                <label key={t} className={cx('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg border p-3 shadow-sm focus-within:ring-2 focus-within:ring-wine-800/30',
-                  checked ? 'border-wine-800 bg-[#F1F3FF]' : errors.articleType ? 'border-red-700 bg-red-50' : 'border-[#DCC0BE]/60 bg-white hover:border-[#897270]')}>
-                  <input type="radio" name="articleType" value={t} checked={checked} aria-invalid={errors.articleType ? true : undefined}
-                    onChange={() => setForm((f) => ({ ...f, articleType: t as ArticleType }))} className="mt-1 h-4 w-4 shrink-0 accent-wine-800" />
-                  <span><span className="block font-serif4 text-[15px] font-semibold text-[#141B2B]">{t}</span><span className="block font-work text-xs leading-[18px] text-[#564241]">{TYPE_NOTES[t]}</span></span>
-                </label>
-              )
-            })}
-          </div>
-          {errors.articleType && <p id={errId} role="alert" className="mt-1.5 font-work text-[13px] font-semibold text-red-700">{errors.articleType}</p>}
-        </fieldset>
-
-        <Fld label="Primary Academic Track / Field" name="subject" required error={errors.subject} hint="Editors use this to route your paper to the right section.">
-          <select className={inp(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}>
-            <option value="">Select an area</option>
-            {journal.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+        <Fld label="Article Type" name="articleType" required error={errors.articleType}>
+          <select className={inp(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value }))}>
+            <option value="">Select an article type</option>
+            {J5_ARTICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </Fld>
+
+        <Fld label="Subject" name="subject" required error={errors.subject} hint="Editors use this to route your paper to the right section.">
+          <select className={inp(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
+            <option value="">Select a subject</option>
+            {J5_SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </Fld>
+        {branchesFor(form.subject).length > 0 && (
+          <Fld label="Specialization" name="branch" required error={errors.branch} hint={`A specialization within ${form.subject}.`}>
+            <select className={inp(errors.branch)} value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))}>
+              <option value="">Select a specialization</option>
+              {branchesFor(form.subject).map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </Fld>
+        )}
       </div>
 
+      {journal.collectAbstract !== false && <>
       <div>
         <Fld label="Abstract" name="abstract" required error={errors.abstract} hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. State the objective, method, main results and conclusion.`}>
           <textarea rows={9} className={inp(errors.abstract, 'leading-relaxed')} value={form.abstract}
@@ -71,6 +64,7 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
           </ul>
         )}
       </div>
+      </>}
     </Section>
   )
 }
