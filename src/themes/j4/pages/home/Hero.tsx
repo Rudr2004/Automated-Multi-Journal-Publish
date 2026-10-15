@@ -19,8 +19,8 @@ function CallCard({ cfp }: { cfp: CallForPapers }) {
   const [issueName, month] = splitIssueName(cfp.issueName)
   const rows: { icon: typeof Event; label: string; value: string; chip?: string }[] = [
     { icon: Event, label: 'Submission Deadline:', value: longDate(cfp.deadline) },
-    { icon: Hourglass, label: 'First Decision:', value: `~${cfp.avgReviewDays} Days`, chip: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
-    { icon: Bolt, label: 'Expected Publication:', value: longDate(cfp.expectedPublication), chip: 'border-sky-200 bg-sky-50 text-sky-800' },
+    { icon: Hourglass, label: 'First Decision:', value: '24 Hours', chip: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+    { icon: Bolt, label: 'Expected Publication:', value: '24-48 Hours', chip: 'border-sky-200 bg-sky-50 text-sky-800' },
   ]
   const links: [string, string, typeof Description][] = [
     ['Author Guidelines', paths.policy('author-guidelines'), Description], ['Manuscript Template', paths.forAuthors('templates'), Assignment],

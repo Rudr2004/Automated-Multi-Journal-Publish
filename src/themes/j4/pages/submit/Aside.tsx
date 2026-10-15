@@ -1,3 +1,4 @@
+import { AnnouncementsFeed } from '../../components/AnnouncementsFeedJ4'
 // Right-hand helper cards shared by the Journal 4 submit and track pages (reference order): recent submissions, call for papers,
 // announcements, track manuscript, copyright, Crossref DOI lookup, journal facts, templates and licence notice.
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
@@ -9,7 +10,8 @@ import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { HomeData } from '../../../../core/types'
 import { cx } from '../../components/primitives'
-import { ArrowForward, Campaign, ChevronLeft, ChevronRight, Copyright, Description, DownloadOffline, Draw, EditDocument, FingerprintIcon, FolderZip, ManageSearch, PendingActions, RateReview, Rule, SearchIcon, SendIcon, Stream, TrackIcon } from './mi'
+import { Campaign, Copyright, Description, DownloadOffline, Draw, EditDocument, FingerprintIcon, FolderZip, ManageSearch, PendingActions, RateReview, Rule, SearchIcon, SendIcon, Stream, TrackIcon } from './mi'
+import { idExample } from '../../../../core/lib/manuscriptId'
 
 const card = 'rounded-xl border border-slate-200 bg-white p-5 shadow-sm'
 const inputCls = 'block w-full min-h-[44px] rounded border border-slate-300 bg-slate-50 px-3 py-2 text-base placeholder:text-slate-500 focus:border-sky-600 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-600/30 sm:min-h-0 sm:py-1.5 sm:text-xs'
@@ -24,7 +26,6 @@ function HeadSimple({ icon, title, id }: { icon: ReactNode; title: string; id: s
   )
 }
 
-const ago = (m: number) => (m < 60 ? `${Math.max(1, Math.round(m))} min ago` : m < 1440 ? `${Math.floor(m / 60)} h ago` : `${Math.floor(m / 1440)} d ago`)
 
 function RecentCard({ home }: { home: HomeData | null }) {
   const items = home?.recentSubmissions ?? []
@@ -46,7 +47,6 @@ function RecentCard({ home }: { home: HomeData | null }) {
               <li key={`${s.title ?? s.subject}-${s.minutes}`} className={cx('space-y-1', i < arr.length - 1 && 'border-b border-slate-100 pb-2.5')}>
                 <span className="font-mono text-[11px] font-semibold text-sky-700">{s.institution}</span>
                 <p className="text-[11px] font-medium leading-snug text-slate-800">{s.title ?? s.subject}</p>
-                <span className="inline-flex items-center gap-1.5 rounded border border-sky-100 bg-sky-50 px-1.5 text-[10px] text-sky-800">{ago(s.minutes)}</span>
               </li>
             ))
           : stages.map((s, i) => (
@@ -90,45 +90,6 @@ function CfpCard({ home }: { home: HomeData | null }) {
   )
 }
 
-function AnnouncementsCard({ home }: { home: HomeData | null }) {
-  const list = journal.announcements
-  const [i, setI] = useState(0)
-  if (!list.length) return null
-  const a = list[i % list.length]
-  const cfp = a.id === 'cfp'
-  const step = (d: number) => setI((n) => (n + d + list.length) % list.length)
-  return (
-    <section aria-labelledby="j4-ann-h" className={cx(card, 'space-y-3')}>
-      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h2 id="j4-ann-h" className="flex items-center gap-1.5 font-serif4 text-xs font-bold uppercase tracking-wider text-amber-800"><Campaign className="h-5 w-5 text-amber-600" aria-hidden="true" />Announcements</h2>
-        {a.live && <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-amber-900 shadow-sm"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500 motion-safe:animate-pulse" />Live Updates</span>}
-      </div>
-      <div className="space-y-2" aria-live="polite">
-        <span className="inline-block rounded border border-sky-100 bg-sky-50 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-sky-700">{cfp ? 'Call for Papers' : 'Notice'}</span>
-        <h3 className="font-serif4 text-xs font-bold leading-snug text-[#0b2545]"><AppLink to={a.to} className="hover:text-sky-700 hover:underline">{a.text}</AppLink></h3>
-        {cfp && (
-          <div className="flex items-center justify-between rounded border border-slate-200 bg-slate-50 p-2 text-[11px]">
-            <span className="text-slate-600">Submission Deadline:</span>
-            <span className="font-mono font-bold text-amber-950">{formatDate((home?.callForPapers.deadline ?? journal.nextIssue.deadline).slice(0, 10))}</span>
-          </div>
-        )}
-        <div className="flex items-center justify-between pt-1">
-          <AppLink to={a.to} className="flex min-h-[44px] items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-800 hover:underline sm:min-h-0">{cfp ? 'Learn More & Submit' : 'Read More'}<ArrowForward className="h-3.5 w-3.5" aria-hidden="true" /></AppLink>
-          {list.length > 1 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1" aria-hidden="true">{list.map((x, n) => <span key={x.id} className={cx('rounded-full', n === i ? 'h-2 w-2 bg-sky-600' : 'h-1.5 w-1.5 bg-slate-300')} />)}</div>
-              <div className="ml-1 flex items-center gap-1 text-slate-500">
-                <button type="button" onClick={() => step(-1)} aria-label="Previous announcement" className="flex h-8 w-8 items-center justify-center rounded hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"><ChevronLeft className="h-4 w-4" /></button>
-                <button type="button" onClick={() => step(1)} aria-label="Next announcement" className="flex h-8 w-8 items-center justify-center rounded hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"><ChevronRight className="h-4 w-4" /></button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function TrackCard() {
   const { navigate } = useRouter()
   const id = useId()
@@ -145,11 +106,11 @@ function TrackCard() {
   return (
     <section aria-labelledby="j4-trk-h" id="track-manuscript-sidebar" className={card}>
       <HeadSimple icon={<TrackIcon className="h-5 w-5" />} title="Track Manuscript Status" id="j4-trk-h" />
-      <p className="mb-3 text-xs text-slate-600">Enter your Paper ID and the corresponding author email to see real-time review progress.</p>
+      <p className="mb-3 text-xs text-slate-600">Enter your Manuscript ID and the corresponding author email to see real-time review progress.</p>
       <form onSubmit={submit} noValidate className="space-y-2.5">
         <div>
           <label htmlFor={`${id}-p`} className="mb-1 block text-[11px] font-medium text-slate-700">Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={cx(inputCls, 'font-mono')} />
+          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={cx(inputCls, 'font-mono')} />
           {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
         </div>
         <div>
@@ -268,7 +229,7 @@ export function SubmitAside({ hideTrack = false, children }: { hideTrack?: boole
       {children}
       <RecentCard home={home} />
       <CfpCard home={home} />
-      <AnnouncementsCard home={home} />
+      <AnnouncementsFeed />
       {!hideTrack && <TrackCard />}
       <CopyrightCard />
       <DoiCard />

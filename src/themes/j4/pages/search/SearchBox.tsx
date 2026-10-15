@@ -1,7 +1,6 @@
 // Search field for the results page, starting from the current query. Shows instant suggestions (articles, authors, keywords)
-// and recognises a pasted DOI or Paper ID, offering "Open article" and "Track this paper".
+// and recognises a pasted DOI or Manuscript ID, offering "Open article" and "Track this paper".
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { useRouter } from '../../../../core/router'
 import type { SearchSuggestions } from '../../../../core/types'
@@ -42,7 +41,7 @@ export function SearchBox({ query }: { query: string }) {
     const out: Row[] = []
     if (data.direct) {
       const d = data.direct
-      const g = d.via === 'doi' ? 'DOI match' : 'Paper ID match'
+      const g = d.via === 'doi' ? 'DOI match' : 'Manuscript ID match'
       out.push({ key: 'open', group: g, label: d.article ? `Open article: ${d.article.title}` : `${d.paperId} is not a published article`, sub: d.paperId, run: () => go(d.article ? paths.article(d.paperId) : paths.search(d.paperId)) })
       out.push({ key: 'track', group: g, label: 'Track this paper', sub: `Check the review status of ${d.paperId}`, run: () => go(`${paths.track}?id=${d.paperId}`) })
     }
@@ -68,12 +67,12 @@ export function SearchBox({ query }: { query: string }) {
   return (
     <div ref={box} className="relative mt-6 max-w-3xl">
       <form role="search" onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
-        <label htmlFor={`${id}-q`} className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
+        <label htmlFor={`${id}-q`} className="sr-only">Search articles, authors, keywords, DOI or Manuscript ID</label>
         <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-steel-500" aria-hidden="true" />
           <input id={`${id}-q`} type="text" value={q} autoComplete="off" role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
             onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
-            placeholder={`Title, author, keyword, DOI or ${journal.paperIdPrefix} Paper ID`} className={cx(FIELD, 'h-12 w-full pl-11 text-base')} />
+            placeholder={`Title, author, keyword, DOI or Manuscript ID`} className={cx(FIELD, 'h-12 w-full pl-11 text-base')} />
         </div>
         <Button type="submit" variant="cta" className="h-12 px-8 text-base">Search</Button>
       </form>

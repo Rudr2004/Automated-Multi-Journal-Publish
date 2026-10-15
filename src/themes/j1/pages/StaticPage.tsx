@@ -14,6 +14,7 @@ import { journal } from '../../../config/journals/j1'
 import { formatDate } from '../../../core/lib/format'
 import { BlockView, Callout, StaticBlocks, SectionTitle, blockTitle, type BlockActions } from './static/StaticBlocks'
 import { StaticIcon } from './static/staticIcons'
+import { ApcPaymentJ1, APC_OUTLINE_J1 } from './static/ApcPaymentJ1'
 import { PolicyDirectory, PolicyRightRail } from './static/StaticRails'
 import { downloadPolicyPdf } from './static/policyPdf'
 
@@ -62,13 +63,14 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
   const meta = page.meta ?? {}
   const isPolicy = page.group === 'policies'
 
-  const blocks = page.blocks ?? []
+  const isApc = page.slug === 'apc-payment' && page.group === 'for-authors'
+  const blocks = isApc ? [] : page.blocks ?? []
   const brief = blocks.find((b) => b.type === 'in-brief')
   const faq = blocks.find((b) => b.type === 'faq-accordion')
   const rest = blocks.filter((b) => b !== brief && b !== faq)
 
   // Numbered outline: written sections first, then titled content blocks (matches StaticBlocks numbering).
-  const outline: { id: string; label: string; num?: string }[] = page.sections.map((s, i) => ({ id: `sec-${i + 1}`, label: s.heading, num: `${i + 1}.0` }))
+  const outline: { id: string; label: string; num?: string }[] = (isApc ? [] : page.sections).map((s, i) => ({ id: `sec-${i + 1}`, label: s.heading, num: `${i + 1}.0` }))
   rest.filter((b) => blockTitle(b)).forEach((b, i) => {
     const n = page.sections.length + i + 1
     outline.push({ id: `sec-${n}`, label: blockTitle(b) as string, num: `${n}.0` })
@@ -76,6 +78,7 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
   if (page.principles) outline.unshift({ id: 'in-brief', label: 'Our ethical principles' })
   if (brief && 'title' in brief) outline.unshift({ id: 'in-brief', label: 'In Brief', num: '' })
   if (faq && 'title' in faq) outline.push({ id: 'faq-section', label: 'Frequently Asked Questions' })
+  if (isApc) outline.push(...APC_OUTLINE_J1)
   const active = useActiveSection(outline.map((o) => o.id))
 
   const policyRef = meta.ref ?? `${journal.shortName}-${isPolicy ? 'POL' : page.group === 'about' ? 'ABT' : 'AUT'}-${page.slug.toUpperCase()}`
@@ -178,7 +181,8 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
               </section>
             )}
 
-            {page.sections.map((s, i) => (
+            {isApc && <ApcPaymentJ1 />}
+            {!isApc && page.sections.map((s, i) => (
               <section key={s.heading} id={`sec-${i + 1}`} className="scroll-mt-24 space-y-4 border-t border-line pt-6 first:border-t-0 first:pt-0">
                 <SectionTitle n={i + 1} badge={s.badge}>{s.heading}</SectionTitle>
                 {s.paragraphs?.map((p, k) => <p key={k} className="text-base leading-[1.75] text-ink">{p}</p>)}

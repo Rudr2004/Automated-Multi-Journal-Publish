@@ -1,6 +1,7 @@
 // Single source of truth for Journal 4 (IJECM): identity, charges, trust items, index logos, research areas and badge switches.
 // Routes live in ../routes. Comments marked "client to confirm" are placeholders the client must verify before launch.
 import { paths } from '../routes'
+import { J4_SPECIALIZATIONS } from './specializations'
 import type { Discipline, IndexLogo, JournalConfig } from './types'
 
 const DAY = 86400000
@@ -28,19 +29,23 @@ export const journal: JournalConfig = {
   shortName: 'IJECM',
   tagline: 'Engineering research, precisely reported',
   sjifImpactFactor: '7.08',
+  specializations: J4_SPECIALIZATIONS, // from the client's specialization sheet
+  collectAbstract: false, // the manuscript file carries the abstract and keywords
+  coAuthorEmailOptional: true, // co-authors are not asked for an email
   descriptor: 'Peer-reviewed · Open access · Engineering and management',
   mission:
     'IJECM is a monthly open access journal for engineering research and engineering management, with structured peer review, permanent DOIs and verifiable author certificates.',
   publisher: 'EdTech Publishers (OPC) Private Limited',
   publisherCity: 'Bengaluru, India',
+  manuscriptId: { example: 'ijecm.v1i1.001' }, // ID format: journal code . volume . issue . running number
   paperIdPrefix: 'IJECM', // e.g. IJECM2026000112
   issnOnline: '1234-5678', // client to confirm
   doiPrefix: '10.55041',
-  domain: 'ijecm.org', // client to confirm
+  domain: 'ijecm.com', // client to confirm
   frequency: 'Monthly',
   licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
-  apc: { inr: 6000, usd: 110, gstPercent: 18 }, // [INR] / [USD] — client to confirm; GST for Indian authors only
-  email: 'editor@ijecm.org', // client to confirm
+  apc: { inr: 1000, usd: 110, gstPercent: 18 }, // [INR] / [USD] — client to confirm; GST for Indian authors only
+  email: 'editor@ijecm.com', // client to confirm
   whatsapp: '+91 90000 00003', // client to confirm
   address: 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
   location: { lat: 13.0306, lng: 77.6593 },
@@ -61,8 +66,8 @@ export const journal: JournalConfig = {
     ['Language', 'English'],
     ['Publication Format', 'Online'],
     ['Licence', 'Open Access, CC BY 4.0'],
-    ['Email', 'editor@ijecm.org'],
-    ['Website', 'ijecm.org'],
+    ['Email', 'editor@ijecm.com'],
+    ['Website', 'ijecm.com'],
     ['Address', 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016'],
   ],
 

@@ -1,7 +1,6 @@
 // The search bar that overlaps the bottom edge of the home hero. Suggestions come from `onSuggest` (core API): articles, authors, keywords,
-// and a direct match when a DOI or Paper ID is pasted ("Open article" / "Track this paper").
+// and a direct match when a DOI or Manuscript ID is pasted ("Open article" / "Track this paper").
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
-import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { useRouter } from '../../../core/router'
 import type { SearchSuggestions } from '../../../core/types'
@@ -44,7 +43,7 @@ export function ArchiveSearch({ className, autoFocus, variant = 'bar', placehold
     const out: Row[] = []
     if (data.direct) {
       const d = data.direct
-      const grp = d.via === 'doi' ? 'DOI match' : 'Paper ID match'
+      const grp = d.via === 'doi' ? 'DOI match' : 'Manuscript ID match'
       out.push({ key: 'open', group: grp, icon: <FactCheck className={ICON} aria-hidden="true" />, label: d.article ? `Open article: ${d.article.title}` : `${d.paperId} is not a published article`, sub: d.paperId, run: () => go(d.article ? paths.article(d.paperId) : paths.search(d.paperId)) })
       out.push({ key: 'track', group: grp, icon: <Track className={ICON} aria-hidden="true" />, label: 'Track this paper', sub: `Check the review status of ${d.paperId}`, run: () => go(`${paths.track}?id=${d.paperId}`) })
     }
@@ -76,7 +75,7 @@ export function ArchiveSearch({ className, autoFocus, variant = 'bar', placehold
           <Search className="h-5 w-5 shrink-0 text-steel-500" aria-hidden="true" />
           <input id={`${id}-q`} value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
             role="combobox" aria-expanded={show} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
-            type="text" autoComplete="off" autoFocus={autoFocus} placeholder={placeholder ?? `Title, author, keyword, DOI or ${journal.paperIdPrefix} Paper ID`}
+            type="text" autoComplete="off" autoFocus={autoFocus} placeholder={placeholder ?? `Title, author, keyword, DOI or Manuscript ID`}
             className={cx('min-w-0 flex-1 bg-transparent text-abyss-900 placeholder:text-steel-500 focus:outline-none focus-visible:!outline-none', compact ? 'text-sm' : 'text-base')} />
         </div>
         <Button type="submit" variant={compact ? 'primary' : 'cta'} className={compact ? 'h-10 px-4' : 'h-12 px-8 text-base'}>Search</Button>

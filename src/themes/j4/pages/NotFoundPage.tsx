@@ -11,7 +11,7 @@ import { ArrowRight, Book, History, Search, Track } from '../icons'
 const NEXT = [
   { to: paths.currentIssue, label: 'Current issue', text: 'The latest articles, grouped by type.', Icon: Book },
   { to: paths.pastIssues, label: 'Past issues', text: 'Every volume and issue in the archive.', Icon: History },
-  { to: paths.track, label: 'Track my paper', text: 'Check a submission with its Paper ID.', Icon: Track },
+  { to: paths.track, label: 'Track my paper', text: 'Check a submission with its Manuscript ID.', Icon: Track },
 ]
 
 export function NotFoundPage({ what = 'page' }: { what?: string }) {
@@ -26,10 +26,10 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
           <h1 className="mt-3 font-serif4 text-[clamp(1.75rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-tight text-[#0b2545]">We couldn’t find that {what}</h1>
           <p className="mt-3 max-w-xl text-base text-steel-700">The link may be outdated or mistyped, or the {what} may have moved. Search the journal, or pick one of the places below.</p>
           <form role="search" onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <label htmlFor="nf-q" className="sr-only">Search articles, authors, keywords, DOI or Paper ID</label>
+            <label htmlFor="nf-q" className="sr-only">Search articles, authors, keywords, DOI or Manuscript ID</label>
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-steel-500" aria-hidden="true" />
-              <input id="nf-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Title, author, keyword, DOI or Paper ID" className={cx(FIELD, 'h-12 w-full pl-10')} />
+              <input id="nf-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Title, author, keyword, DOI or Manuscript ID" className={cx(FIELD, 'h-12 w-full pl-10')} />
             </div>
             <button type="submit" className="inline-flex h-12 items-center justify-center rounded-ctl bg-cobalt-700 px-6 text-sm font-semibold text-white hover:bg-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">Search</button>
           </form>

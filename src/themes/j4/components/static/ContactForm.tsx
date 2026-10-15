@@ -1,6 +1,5 @@
 // Contact form. Submission goes through actions.onContact and returns a ticket id.
 import { useMemo, useRef, useState } from 'react'
-import { journal } from '../../../../config/journals'
 import { copyText } from '../../../../core/lib/clipboard'
 import type { FormErrors } from '../../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../../core/lib/useVisibleErrors'
@@ -10,6 +9,7 @@ import { Copy, Send } from '../../icons'
 import { Button } from '../Button'
 import { useToast } from '../Toast'
 import { Field, inputClass, SentPanel } from './fields'
+import { idExample, idMaxLength, normalizeId } from '../../../../core/lib/manuscriptId'
 
 const TOPICS = ['Submission help', 'Payment or invoice', 'Certificate query', 'Editorial decision', 'Technical issue', 'Other']
 const MAX = 1500
@@ -71,8 +71,8 @@ export function ContactForm({ onSubmit }: { onSubmit: (v: ContactTicketInput) =>
         <Field label="Topic" name="topic" required error={errors.topic}>
           <select className={inputClass(errors.topic)} value={f.topic} onChange={(e) => set('topic', e.target.value)}><option value="">Select a topic</option>{TOPICS.map((t) => <option key={t}>{t}</option>)}</select>
         </Field>
-        <Field label="Paper ID (optional)" name="paperId" error={errors.paperId} hint="Include it if you are asking about a submission.">
-          <input className={inputClass(errors.paperId)} value={f.paperId} maxLength={15} spellCheck={false} placeholder={`${journal.paperIdPrefix}2026000112`} onChange={(e) => set('paperId', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} />
+        <Field label="Manuscript ID (optional)" name="paperId" error={errors.paperId} hint="Include it if you are asking about a submission.">
+          <input className={inputClass(errors.paperId)} value={f.paperId} maxLength={idMaxLength} spellCheck={false} placeholder={`${idExample}`} onChange={(e) => set('paperId', normalizeId(e.target.value))} />
         </Field>
       </div>
       <Field label="Message" name="message" required error={errors.message} counter={`${f.message.length} / ${MAX}`}>

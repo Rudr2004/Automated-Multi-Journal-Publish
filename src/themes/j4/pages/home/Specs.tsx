@@ -16,6 +16,9 @@ function Value({ k, v }: { k: string; v: string }) {
   return <>{v}</>
 }
 
+// Home-page presentation: no "Starting Year" row, the publisher reads "IJECM Journal" and the subject is multidisciplinary.
+const ROWS = journal.info.filter(([k]) => k !== 'Starting Year').map(([k, v]) => [k, k === 'Publisher' ? 'IJECM Journal' : k === 'Subject' ? 'Multidisciplinary Journal' : v] as const)
+
 export function Specs() {
   const year = journal.info.find(([k]) => k === 'Starting Year')?.[1]
   return (
@@ -25,8 +28,8 @@ export function Specs() {
       <div className="overflow-hidden rounded-[8px] border border-slate-300">
         <table className="w-full border-collapse text-left text-xs">
           <tbody>
-            {journal.info.map(([k, v], i) => (
-              <tr key={k} className={`${i < journal.info.length - 1 ? 'border-b border-slate-200' : ''} ${i % 2 === 0 ? 'bg-slate-50/70' : 'bg-white'} transition-colors hover:bg-sky-50/40`}>
+            {ROWS.map(([k, v], i) => (
+              <tr key={k} className={`${i < ROWS.length - 1 ? 'border-b border-slate-200' : ''} ${i % 2 === 0 ? 'bg-slate-50/70' : 'bg-white'} transition-colors hover:bg-sky-50/40`}>
                 <th scope="row" className={`w-[34%] border-r border-slate-200 px-4 font-serif4 font-bold text-[#0b2545] sm:w-1/3 ${k === 'Address' ? 'py-3 align-top' : 'py-2.5'}`}>{k}</th>
                 <td className={`min-w-0 break-words px-4 text-slate-700 ${k === 'Address' ? 'py-3 leading-relaxed' : 'py-2.5'}`}><Value k={k} v={v} /></td>
               </tr>

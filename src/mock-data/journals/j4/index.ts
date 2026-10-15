@@ -42,7 +42,7 @@ const home: HomeData = {
   leadership: editors.filter((e) => ['Editor-in-Chief', 'Managing Editor', 'Associate Editor'].includes(e.role)).slice(0, 6),
   latest: body,
   mostRead: [...allArticles].sort((a, b) => b.views - a.views).slice(0, 8),
-  editorsChoice: ['IJECM2026000112', 'IJECM2026000113', 'IJECM2026000118', 'IJECM2026000114'].map((id) => byId(id)!),
+  editorsChoice: ['ijecm.v1i9.003', 'ijecm.v1i9.004', 'ijecm.v1i9.009', 'ijecm.v1i9.005'].map((id) => byId(id)!),
   callForPapers: {
     issueName: journal.nextIssue.label,
     deadline: journal.nextIssue.deadline,
@@ -71,6 +71,6 @@ export const j4Api = createMockApi({
 
 export const j4Demo: PrototypeDemo = {
   trackedPapers,
-  articleIds: ['IJECM2026000112', 'IJECM2026000113', 'IJECM2026000110'],
+  articleIds: ['ijecm.v1i9.003', 'ijecm.v1i9.004', 'ijecm.v1i9.001'],
   pastIssue: [1, 5],
 }

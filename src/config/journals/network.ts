@@ -10,7 +10,7 @@ export const network: NetworkJournal[] = [
   { code: 'IJMAT', domain: 'ijmat.org', urlKey: 'VITE_URL_J1', built: true },
   { code: 'JIMRT', domain: 'jimrt.org', urlKey: 'VITE_URL_J2', built: true },
   { code: 'IJCSD', domain: 'ijcsd.com', urlKey: 'VITE_URL_J3', built: true },
-  { code: 'IJECM', domain: 'ijecm.org', urlKey: 'VITE_URL_J4', built: true },
+  { code: 'IJECM', domain: 'ijecm.com', urlKey: 'VITE_URL_J4', built: true },
   { code: 'IJFRD', domain: 'ijfrd.org', urlKey: 'VITE_URL_J5', built: true },
 ]
 

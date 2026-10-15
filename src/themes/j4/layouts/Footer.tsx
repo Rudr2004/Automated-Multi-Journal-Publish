@@ -1,10 +1,10 @@
 // Deep-navy academic footer: About (lockup, mission, ISSN and licence), Quick Links, Policies & Ethics and the Editorial Office, then a legal strip.
-// The email-alert form sits above the columns on every page except home (home carries it in its pre-footer banner). "Editorial login" is a small link at the bottom.
+// The email-alert form sits above the columns on every page, home included. "Editorial login" is a small link at the bottom.
 import { useState, type FormEvent } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
-import { AppLink, useRouter } from '../../../core/router'
+import { AppLink } from '../../../core/router'
 import { Button } from '../components/Button'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
@@ -43,15 +43,13 @@ function Newsletter({ onSubscribe }: { onSubscribe: (email: string) => Promise<v
 }
 
 export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promise<void> }) {
-  const { pathname } = useRouter()
-  const onHome = pathname === paths.home || pathname === `${paths.home}/`
   const quick: [string, string][] = [['Journal Details', paths.about('journal-information')], ['Current Issue', paths.currentIssue], ['Past Issues', paths.pastIssues], ['Aims and Scope', paths.about('aims-scope')], ['Editorial Board', paths.editorialBoard],
     ['Author Guidelines', paths.policy('author-guidelines')], ['Manuscript Template', paths.forAuthors('templates')], ['Article Processing Charges', paths.forAuthors('apc-payment')], ['Track My Paper', paths.track], ['Verify a Certificate', paths.verify()]]
   const policies: [string, string][] = [['Peer Review Policy', paths.policy('peer-review')], ['Publication Ethics', paths.policy('publication-ethics')], ['Plagiarism Policy', paths.policy('plagiarism')], ['Open Access Policy', paths.policy('open-access')],
     ['Copyright & Licensing', paths.policy('copyright-licensing')], ['Archiving & Preservation', paths.policy('archiving')], ['Indexing', paths.about('indexing')]]
   return (
     <footer className="mt-12 w-full border-t border-slate-800 bg-[#0b2545] text-slate-300">
-      {!onHome && (
+      {(
         <div className="border-b border-slate-700/60 bg-[#071527]/60">
           <Container className="grid gap-8 py-8 lg:grid-cols-[1fr_24rem] lg:items-start">
             <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-pane border border-white/10 bg-white/10 sm:grid-cols-4">
@@ -103,6 +101,8 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
             <AppLink to={paths.policy('privacy')} className="hover:text-white">Privacy Policy</AppLink>
             <span aria-hidden="true">•</span>
             <AppLink to={paths.about('contact')} className="hover:text-white">Contact</AppLink>
+            <span aria-hidden="true">•</span>
+            <AppLink to={paths.reviewerLogin} className="hover:text-white">Reviewer login</AppLink>
             <span aria-hidden="true">•</span>
             <AppLink to={paths.editorialLogin} className="hover:text-white">Editorial login</AppLink>
           </p>

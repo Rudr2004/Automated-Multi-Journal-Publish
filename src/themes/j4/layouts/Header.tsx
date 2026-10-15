@@ -1,6 +1,6 @@
 // Header, as in the reference: a white masthead (logo, IJECM, ISSN and tags, full journal name, descriptor; Submit Manuscript Online with Search Archive and Track My Paper below it)
 // that scrolls away, then a white sticky navigation bar (2px sky active underline, For Authors and Policies dropdowns that open on hover, focus or click) with a working search field
-// (instant suggestions, DOI / Paper ID detection) at its right edge, then the "Indexed in" strip.
+// (instant suggestions, DOI / Manuscript ID detection) at its right edge, then the "Indexed in" strip.
 import { useEffect, useRef, useState } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -47,7 +47,7 @@ export function Header() {
   const holdOpen = () => window.clearTimeout(closeTimer.current)
   const scheduleClose = () => { closeTimer.current = window.setTimeout(() => setMenu((m) => (m === 'search' ? m : null)), 140) }
 
-  const linkCls = (active: boolean) => cx('relative inline-flex items-center gap-1 whitespace-nowrap border-b-2 px-2 py-3 text-[13px] font-medium transition-colors',
+  const linkCls = (active: boolean) => cx('relative inline-flex items-center gap-1 whitespace-nowrap border-b-2 px-1.5 py-3 text-[12.5px] font-medium transition-colors',
     active ? 'border-azure-600 font-semibold text-cobalt-700' : 'border-transparent text-slate-700 hover:text-cobalt-700')
   const itemActive = (it: NavItem) => (it.match ? it.match(pathname) : isActive(it.to))
   const plain = (it: NavItem) => <div key={it.label} onMouseEnter={() => setMenu((m) => (m === 'search' ? m : null))}><AppLink to={it.to} aria-current={itemActive(it) ? 'page' : undefined} className={linkCls(itemActive(it))}>{it.label}</AppLink></div>
@@ -70,7 +70,7 @@ export function Header() {
                 )}
               </span>
               <span className="mt-0.5 block font-serif4 text-base font-bold leading-tight tracking-tight text-slate-900 sm:text-lg md:text-xl min-[1360px]:whitespace-nowrap lg:text-2xl">{journal.name}</span>
-              <span className="mt-0.5 hidden text-[11px] tracking-wide text-slate-500 sm:block">{journal.descriptor.replace(/ · /g, ' • ')} • {journal.publisherCity}</span>
+              <span className="mt-0.5 hidden text-[11px] tracking-wide text-slate-500 sm:block">{journal.descriptor.replace(/ · /g, ' • ')}</span>
             </span>
           </AppLink>
           <div className="hidden shrink-0 flex-col items-end gap-2 sm:flex">
@@ -88,7 +88,7 @@ export function Header() {
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4">
           <AppLink to={paths.home} aria-label={`${journal.shortName} home`} className="py-3 font-serif4 text-xl font-bold tracking-tight text-[#0b2545] min-[1360px]:hidden">{journal.shortName}</AppLink>
 
-          <nav aria-label="Main" className="hidden min-w-0 flex-1 flex-wrap items-center justify-between min-[1360px]:flex">
+          <nav aria-label="Main" className="hidden min-w-0 flex-1 flex-nowrap items-center justify-between min-[1360px]:flex">
             {j4Nav.map((it, i) => it.children ? (
               <div key={it.label} className="relative" onMouseEnter={() => openMenu(it.label)}>
                 <button type="button" aria-expanded={menu === it.label} aria-haspopup="true" onClick={() => openMenu(it.label)} className={linkCls(menu === it.label || itemActive(it))}>{it.label} {chev(menu === it.label)}</button>
@@ -103,7 +103,7 @@ export function Header() {
 
           <div className="ml-auto flex items-center gap-1.5">
             <button type="button" aria-label="Search the archive" aria-expanded={menu === 'search'} aria-controls="j4-header-search" onClick={() => setMenu((m) => (m === 'search' ? null : 'search'))}
-              className={cx('rounded p-2.5 2min-[1360px]:hidden', menu === 'search' ? 'bg-sky-50 text-cobalt-700' : 'text-slate-700 hover:bg-slate-100')}>
+              className={cx('rounded p-2.5 min-[1360px]:hidden', menu === 'search' ? 'bg-sky-50 text-cobalt-700' : 'text-slate-700 hover:bg-slate-100')}>
               {menu === 'search' ? <Close className="h-5 w-5" aria-hidden="true" /> : <Search className="h-5 w-5" aria-hidden="true" />}
             </button>
             {scrolled && <ButtonLink to={paths.submit} variant="cta" className="hidden !py-1.5 sm:inline-flex min-[1360px]:!hidden" aria-label="Submit Manuscript"><Submit className="h-4 w-4" aria-hidden="true" /><span aria-hidden="true">Submit</span></ButtonLink>}
@@ -115,7 +115,7 @@ export function Header() {
 
         {/* Search panel: the magnifier (or Search Archive in the masthead) opens the archive search. It stays open until Esc, a click elsewhere or a page change. */}
         {menu === 'search' && (
-          <div id="j4-header-search" className="absolute inset-x-0 top-full border-b border-slate-200 bg-slate-50 py-4 text-slate-900 shadow-float motion-safe:animate-fade-in 2min-[1360px]:hidden">
+          <div id="j4-header-search" className="absolute inset-x-0 top-full border-b border-slate-200 bg-slate-50 py-4 text-slate-900 shadow-float motion-safe:animate-fade-in">
             <div className="mx-auto max-w-7xl px-4"><ArchiveSearch autoFocus /></div>
           </div>
         )}

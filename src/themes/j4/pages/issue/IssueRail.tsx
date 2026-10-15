@@ -1,9 +1,10 @@
+import { AnnouncementsFeed } from '../../components/AnnouncementsFeedJ4'
 // Right sidebar of the issue page. Strict replica of the reference (current issue, cover showcase), card for card and in the same order:
 // Call for Papers, Announcements (pager), Track Manuscript Status, Copyright Agreement, Crossref DOI Lookup, Journal Metrics, Recent Submissions,
 // Manuscript Templates, Become an Editorial Member, Creative Commons Licensing. All copy and values come from the journal config and mock data.
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import {
-  MdOutlineBadge as Badge, MdOutlineCampaign as Campaign, MdOutlineChevronLeft as Prev, MdOutlineChevronRight as Next, MdOutlineCopyright as Copyright,
+  MdOutlineBadge as Badge, MdOutlineCampaign as Campaign, MdOutlineCopyright as Copyright,
   MdOutlineDescription as Doc, MdOutlineDownloadForOffline as Offline, MdOutlineDraw as Draw, MdOutlineEditNote as EditDoc, MdOutlineFingerprint as Finger,
   MdOutlineFolderZip as Zip, MdOutlineHowToReg as HowTo, MdOutlineManageSearch as ManageSearch, MdOutlinePriceCheck as PriceCheck, MdOutlineRateReview as Rate,
   MdOutlineSearch as SearchIcon, MdOutlineStream as Stream, MdOutlineTaskAlt as Done, MdOutlineVerified as Ver, MdOutlineSavedSearch as SavedSearch,
@@ -15,6 +16,7 @@ import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { ArticleSummary } from '../../../../core/types'
 import { ArrowRight as Arrow, Send } from '../../icons'
+import { idExample } from '../../../../core/lib/manuscriptId'
 
 const CARD = 'rounded-[12px] border bg-white p-5 shadow-hair'
 const KICK = 'flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700'
@@ -59,32 +61,6 @@ function CallForPapers() {
   )
 }
 
-function Announcements() {
-  const list = journal.announcements
-  const [i, setI] = useState(0)
-  if (!list.length) return null
-  const cur = list[i % list.length]
-  const go = (d: number) => setI((i + d + list.length) % list.length)
-  return (
-    <section aria-label="Announcements" id="announcements-card" className={`${CARD} border-slate-200`}>
-      <Head icon={<Campaign />} title="Announcements" chip={list.some((x) => x.live) ? <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-amber-950"><span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none" />Live Updates</span> : undefined} />
-      <div className="space-y-2.5" aria-live="polite">
-        <AppLink to={cur.to} className="block font-serif4 text-sm font-bold leading-snug text-[#0b2545] transition-colors hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">{cur.text}</AppLink>
-        <div><AppLink to={cur.to} className="inline-flex items-center gap-1 text-xs font-bold text-cobalt-700 hover:text-cobalt-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600">Learn More<Arrow className="h-3.5 w-3.5" aria-hidden="true" /></AppLink></div>
-      </div>
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-        <div className="flex items-center gap-1.5" aria-hidden="true">
-          {list.map((x, k) => <span key={x.id} className={k === i % list.length ? 'h-2 w-2 rounded-full bg-azure-600' : 'h-1.5 w-1.5 rounded-full bg-slate-300'} />)}
-        </div>
-        <div className="flex items-center gap-1 text-slate-500">
-          <button type="button" onClick={() => go(-1)} disabled={list.length < 2} title="Previous announcement" aria-label="Previous announcement" className="flex min-h-8 min-w-8 items-center justify-center rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 disabled:opacity-40"><Prev className="h-4 w-4" aria-hidden="true" /></button>
-          <button type="button" onClick={() => go(1)} disabled={list.length < 2} title="Next announcement" aria-label="Next announcement" className="flex min-h-8 min-w-8 items-center justify-center rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 disabled:opacity-40"><Next className="h-4 w-4" aria-hidden="true" /></button>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function TrackCard() {
   const { navigate } = useRouter()
   const id = useId()
@@ -101,11 +77,11 @@ function TrackCard() {
   return (
     <section aria-label="Track manuscript status" id="track-manuscript-sidebar" className={`${CARD} border-slate-200`}>
       <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><span aria-hidden="true" className="text-lg text-cobalt-700"><SavedSearch /></span><h2 className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
-      <p className="mb-3 text-xs text-slate-500">Enter your Paper ID and the email you submitted with to see where your manuscript is in review.</p>
+      <p className="mb-3 text-xs text-slate-500">Enter your Manuscript ID and the email you submitted with to see where your manuscript is in review.</p>
       <form onSubmit={submit} noValidate className="space-y-2.5">
         <div>
           <label htmlFor={`${id}-p`} className="mb-1 block text-[11px] font-medium text-slate-600">Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${INPUT} font-mono`} />
+          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${INPUT} font-mono`} />
           {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
         </div>
         <div>
@@ -140,7 +116,7 @@ function DoiLookup() {
       <p className="mb-3 text-xs text-slate-500">Find an article by its DOI and open its metadata and citation record.</p>
       <form onSubmit={go} className="space-y-2">
         <label htmlFor={id} className="sr-only">DOI</label>
-        <input id={id} value={v} onChange={(e) => setV(e.target.value)} placeholder={`${journal.doiPrefix}/${journal.paperIdPrefix}2026000112`} autoComplete="off" className={`${INPUT} font-mono`} />
+        <input id={id} value={v} onChange={(e) => setV(e.target.value)} placeholder={`${journal.doiPrefix}/${idExample}`} autoComplete="off" className={`${INPUT} font-mono`} />
         <button type="submit" className={BTN}><SearchIcon className="h-4 w-4" aria-hidden="true" />Verify DOI Record</button>
       </form>
     </section>
@@ -233,7 +209,7 @@ export function IssueRail({ articles = [] }: { articles?: ArticleSummary[] }) {
   return (
     <aside aria-label="Issue sidebar" className="min-w-0 space-y-6 lg:col-span-4">
       <CallForPapers />
-      <Announcements />
+      <AnnouncementsFeed />
       <TrackCard />
       <CopyrightCard />
       <DoiLookup />

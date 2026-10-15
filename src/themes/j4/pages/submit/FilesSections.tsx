@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { ACCEPTED_EXT, LIMITS, MAX_FILE_MB, validateFile, type SubmissionForm } from '../../../../core/lib/submission'
+import { ACCEPTED_EXT, MAX_FILE_MB, validateFile, type SubmissionForm } from '../../../../core/lib/submission'
 import { formatReferral, referralCode } from '../../../../core/lib/validators'
 import { AppLink } from '../../../../core/router'
 import { Spinner } from '../../components/form/Field'
@@ -20,10 +20,6 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
         <FileDrop look="ref" name="file" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Supported formats: Microsoft Word (${ACCEPTED_EXT.join(', ')}). Maximum file size: ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
-      <RField label="Cover Letter or Suggested Reviewers" optional name="coverLetter" error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
-        <textarea rows={4} className={cx(refInput(errors.coverLetter), 'resize-y')} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}
-          placeholder={`Briefly explain why this work suits ${journal.shortName}, and name any reviewers you suggest.`} />
-      </RField>
     </Section>
   )
 }
@@ -58,7 +54,7 @@ export function DeclarationsSection({ form, errors, setForm }: SectionProps) {
           <AppLink to={paths.policy('privacy')} className="font-semibold text-sky-700 underline">Privacy Policy</AppLink>. Author names and affiliations appear publicly if the article is published.
         </Decl>
         <Decl name="consentMessages" title="Status Updates:" checked={form.declarations.consentMessages} error={errors.consentMessages} onChange={(v) => decl('consentMessages', v)}>
-          I consent to receive my Paper ID and status updates by WhatsApp, SMS and email. You can withdraw consent at any time: reply STOP to any message, or email {journal.email}.
+          I consent to receive my Manuscript ID and status updates by WhatsApp, SMS and email. You can withdraw consent at any time: reply STOP to any message, or email {journal.email}.
         </Decl>
         {/* Placeholder for the real reCAPTCHA widget. */}
         <Decl name="captcha" title="I am not a robot" checked={form.captcha} error={errors.captcha} onChange={(v) => setForm((f) => ({ ...f, captcha: v }))}>reCAPTCHA placeholder</Decl>

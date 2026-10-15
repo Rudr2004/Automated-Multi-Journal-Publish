@@ -1,20 +1,22 @@
+import { AnnouncementsFeed } from '../../components/AnnouncementsFeedJ4'
 // Home right sidebar, as in the reference, in the reference's order: Call for Papers, Announcements (carousel), Track Manuscript Status, Copyright Agreement,
 // DOI lookup, Journal Metrics, a recent-activity stream, Manuscript Templates, Become a Reviewer and the Creative Commons note.
 // Everything is data-driven from the journal config and mock data; where the reference shows a figure the journal does not have, the card keeps its layout and shows a supported fact instead.
-import { useEffect, useId, useState, type ComponentType, type FormEvent } from 'react'
+import { useId, useState, type ComponentType, type FormEvent } from 'react'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate, formatNumber } from '../../../../core/lib/format'
+import { formatNumber } from '../../../../core/lib/format'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { ArticleSummary, CallForPapers, IssueSummary } from '../../../../core/types'
 import { ButtonLink } from '../../components/Button'
 import { cx } from '../../components/primitives'
-import { Assignment, Badge, Campaign, ChevronLeft, ChevronRight, Copyright, Description, DownloadOffline, Draw, Fingerprint, FolderZip, Group, Loyalty, ManageSearch, Pending, PersonAdd, RateReview, Search, Send, Stream, Verified } from '../../components/refIconsJ4'
+import { Assignment, Badge, Campaign, Copyright, Description, DownloadOffline, Draw, Fingerprint, FolderZip, Group, Loyalty, ManageSearch, Pending, PersonAdd, RateReview, Search, Send, Stream, Verified } from '../../components/refIconsJ4'
 import { useSearchApi } from '../../components/searchContext'
 import { TrackQuickFormJ4 } from '../../components/TrackQuickFormJ4'
 import type { IconProps } from '../../icons'
 import { splitIssueName } from './Hero'
 import { Box } from './parts'
+import { idExample } from '../../../../core/lib/manuscriptId'
 
 const card = 'p-5'
 
@@ -28,8 +30,8 @@ function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
   const short = issueName.replace('Volume ', 'Vol ').replace('Issue ', 'Iss ')
   const rows: [string, string, string?][] = [
     ['Submission Deadline:', longDate(cfp.deadline)],
-    ['First Decision:', `~${cfp.avgReviewDays} Days`, 'text-emerald-700'],
-    ['Expected Publication:', longDate(cfp.expectedPublication), 'text-sky-800'],
+    ['First Decision:', '24 Hours', 'text-emerald-700'],
+    ['Expected Publication:', '24-48 Hours', 'text-sky-800'],
   ]
   return (
     <Box aria-labelledby="j4-side-cfp" className={cx(card, '!border-[#bfdbfe]')}>
@@ -55,65 +57,8 @@ function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
   )
 }
 
-const TILES = ['border-sky-200 bg-[#e0effe] text-cobalt-700', 'border-amber-200 bg-amber-50 text-amber-700', 'border-emerald-200 bg-emerald-50 text-emerald-700']
-const KINDS = ['text-cobalt-700', 'text-amber-700', 'text-emerald-700']
 
-function Announcements({ notices }: { notices: { date: string; text: string }[] }) {
-  const list = notices.slice(0, 3)
-  const [i, setI] = useState(0)
-  const [hold, setHold] = useState(false)
-  const id = useId()
-  const n = list.length
-  useEffect(() => {
-    if (n < 2 || hold || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    const t = window.setInterval(() => setI((x) => (x + 1) % n), 6000)
-    return () => window.clearInterval(t)
-  }, [n, hold])
-  if (!n) return null
-  const go = (d: number) => setI((x) => (x + d + n) % n)
-  return (
-    <Box aria-labelledby={`${id}-h`} className={cx(card, 'relative overflow-hidden')} onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)}>
-      <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
-        <h2 id={`${id}-h`} className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700"><Campaign className="h-5 w-5 text-amber-600" aria-hidden="true" />Announcements</h2>
-        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">Latest Updates</span>
-      </div>
-      <div className="overflow-hidden rounded-[8px]">
-        <ul className="flex transition-transform duration-500 ease-in-out motion-reduce:transition-none" style={{ transform: `translateX(-${i * 100}%)` }} aria-live={hold ? 'polite' : 'off'}>
-          {list.map((a, k) => {
-            const d = new Date(`${a.date}T12:00:00`)
-            return (
-              <li key={a.date + a.text} aria-hidden={k !== i} className="w-full shrink-0 px-0.5">
-                <div className="space-y-2 rounded-[8px] border border-slate-100 bg-slate-50/70 p-3">
-                  <div className="flex items-start gap-2.5">
-                    <div aria-hidden="true" className={cx('flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-md border', TILES[k % 3])}>
-                      <span className="font-serif4 text-2xl font-bold leading-none">{d.getDate()}</span>
-                      <span className="mt-0.5 font-mono text-[9px] font-bold uppercase">{d.toLocaleDateString('en-GB', { month: 'short' })}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-0.5 flex items-center justify-between text-[10px] text-slate-500"><span className={cx('font-mono font-semibold', KINDS[k % 3])}>Editorial Notice</span><span>{formatDate(a.date)}</span></div>
-                      <p className="font-serif4 text-xs font-bold leading-snug text-[#0b2545]">{a.text}</p>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-[11px] text-slate-500">
-        <div className="flex items-center gap-1.5" role="group" aria-label="Choose announcement">
-          {list.map((a, k) => <button key={a.date + k} type="button" onClick={() => setI(k)} aria-label={`Announcement ${k + 1} of ${n}`} aria-current={k === i} className={cx('rounded-full', k === i ? 'h-2 w-2 bg-azure-600' : 'h-1.5 w-1.5 bg-slate-300 hover:bg-slate-400')} />)}
-        </div>
-        <div className="flex items-center gap-1">
-          <button type="button" onClick={() => go(-1)} aria-label="Previous announcement" title="Previous Announcement" className="flex h-5 w-5 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100"><ChevronLeft className="h-4 w-4" aria-hidden="true" /></button>
-          <button type="button" onClick={() => go(1)} aria-label="Next announcement" title="Next Announcement" className="flex h-5 w-5 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100"><ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
-        </div>
-      </div>
-    </Box>
-  )
-}
-
-/** DOI / Paper ID lookup: a DOI or Paper ID opens the article directly; anything else runs an archive search. */
+/** DOI / Manuscript ID lookup: a DOI or Manuscript ID opens the article directly; anything else runs an archive search. */
 function DoiLookup() {
   const { onSuggest } = useSearchApi()
   const { navigate } = useRouter()
@@ -124,7 +69,7 @@ function DoiLookup() {
   const run = async (e: FormEvent) => {
     e.preventDefault()
     const t = q.trim()
-    if (!t) { setErr('Enter a DOI or Paper ID.'); return }
+    if (!t) { setErr('Enter a DOI or Manuscript ID.'); return }
     setErr(''); setBusy(true)
     try {
       const d = await onSuggest(t)
@@ -138,8 +83,8 @@ function DoiLookup() {
       <div className="mb-2 flex items-center gap-2"><Fingerprint className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id={`${id}-h`} className="font-serif4 text-sm font-bold text-[#0b2545]">Crossref DOI Lookup</h2></div>
       <p className="mb-3 text-xs text-slate-500">Validate direct metadata and the indexed citation record for any {journal.shortName} article.</p>
       <form onSubmit={run} noValidate className="space-y-2">
-        <label htmlFor={`${id}-q`} className="sr-only">DOI or Paper ID</label>
-        <input id={`${id}-q`} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`${journal.doiPrefix}/${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err} aria-describedby={err ? `${id}-e` : undefined} className={field} />
+        <label htmlFor={`${id}-q`} className="sr-only">DOI or Manuscript ID</label>
+        <input id={`${id}-q`} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`${journal.doiPrefix}/${idExample}`} autoComplete="off" aria-invalid={!!err} aria-describedby={err ? `${id}-e` : undefined} className={field} />
         {err && <p id={`${id}-e`} role="alert" className="text-xs font-medium text-red-700">{err}</p>}
         <button type="submit" disabled={busy} className={cx(solid, 'disabled:opacity-60')}><Search className="h-4 w-4" aria-hidden="true" />{busy ? 'Checking…' : 'Verify DOI Record'}</button>
       </form>
@@ -154,27 +99,30 @@ const STREAM = [
 
 const TEMPLATES: [string, string, string, ComponentType<IconProps>, string][] = [
   ['Manuscript Template', 'Word and LaTeX', paths.forAuthors('templates'), Description, 'text-blue-600'],
-  ['Author Guidelines', 'Format and ethics', paths.policy('author-guidelines'), Assignment, 'text-emerald-600'],
-  ['APC & Payment', 'Charges and receipts', paths.forAuthors('apc-payment'), FolderZip, 'text-amber-600'],
+  ['Sample Certificate', 'PDF', '', Assignment, 'text-emerald-600'],
+  ['Sample Acceptance', 'PDF', '', FolderZip, 'text-amber-600'],
 ]
 
+import { useToast } from '../../components/Toast'
+
 export function RightRail({ notices, cfp, issue, articles }: { notices: { date: string; text: string }[]; cfp: CallForPapers; issue: IssueSummary; articles: ArticleSummary[] }) {
+  const toast = useToast()
   const sum = (k: 'views' | 'downloads' | 'citations') => articles.reduce((t, a) => t + a[k], 0)
   const metrics: { k: string; v: string; cls: string }[] = [
-    { k: 'Articles in Current Issue', v: String(issue.articleCount), cls: 'rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-bold text-cobalt-700' },
+    { k: 'ISSN', v: journal.issnOnline, cls: 'rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-bold text-cobalt-700' },
     { k: 'Views, Current Issue', v: formatNumber(sum('views')), cls: 'rounded border border-sky-100 bg-sky-50 px-2 py-0.5 font-bold text-cobalt-700' },
     { k: 'Downloads, Current Issue', v: formatNumber(sum('downloads')), cls: 'font-semibold text-emerald-700' },
     { k: 'Citations, Current Issue', v: formatNumber(sum('citations')), cls: 'rounded bg-sky-50 px-1.5 py-0.5 font-bold text-sky-800' },
-    { k: 'First Editorial Decision', v: `~${cfp.avgReviewDays} Days`, cls: 'font-medium text-slate-800' },
+    { k: 'First Editorial Decision', v: '24 Hours', cls: 'font-medium text-slate-800' },
   ]
   return (
     <aside aria-label="Author tools and journal information" className="min-w-0 space-y-6">
       <CallForPapersCard cfp={cfp} />
-      <Announcements notices={notices} />
+      <AnnouncementsFeed notices={notices} />
 
       <Box id="track-manuscript-sidebar" aria-labelledby="j4-track" className={card}>
         <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><ManageSearch className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id="j4-track" className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
-        <p className="mb-3 text-xs text-slate-500">Enter your Paper ID and the corresponding author email to see real-time peer-review progress. No login needed.</p>
+        <p className="mb-3 text-xs text-slate-500">Enter your Manuscript ID and the corresponding author email to see real-time peer-review progress. No login needed.</p>
         <TrackQuickFormJ4 variant="ref" />
       </Box>
 
@@ -225,10 +173,17 @@ export function RightRail({ notices, cfp, issue, articles }: { notices: { date: 
         <ul className="space-y-2">
           {TEMPLATES.map(([t, note, to, Icon, tone]) => (
             <li key={t}>
-              <AppLink to={to} className="group flex items-center justify-between gap-3 rounded border border-slate-200 bg-slate-50/60 p-2.5 text-xs transition-colors hover:border-sky-300 hover:bg-white">
-                <span className="flex items-center gap-2 font-medium text-slate-700"><Icon className={cx('h-4 w-4', tone)} aria-hidden="true" />{t}</span>
-                <span className="font-mono text-[11px] text-slate-500">{note}</span>
-              </AppLink>
+              {to ? (
+                <AppLink to={to} className="group flex items-center justify-between gap-3 rounded border border-slate-200 bg-slate-50/60 p-2.5 text-xs transition-colors hover:border-sky-300 hover:bg-white">
+                  <span className="flex items-center gap-2 font-medium text-slate-700"><Icon className={cx('h-4 w-4', tone)} aria-hidden="true" />{t}</span>
+                  <span className="font-mono text-[11px] text-slate-500">{note}</span>
+                </AppLink>
+              ) : (
+                <button type="button" onClick={() => toast(`${t} downloaded (simulated).`)} className="group flex w-full items-center justify-between gap-3 rounded border border-slate-200 bg-slate-50/60 p-2.5 text-left text-xs transition-colors hover:border-sky-300 hover:bg-white">
+                  <span className="flex items-center gap-2 font-medium text-slate-700"><Icon className={cx('h-4 w-4', tone)} aria-hidden="true" />{t}</span>
+                  <span className="font-mono text-[11px] text-slate-500">{note}</span>
+                </button>
+              )}
             </li>
           ))}
         </ul>

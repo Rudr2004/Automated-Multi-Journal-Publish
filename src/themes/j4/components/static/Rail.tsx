@@ -1,8 +1,9 @@
+import { AnnouncementsFeed } from '../AnnouncementsFeedJ4'
 // Journal 4 right sidebar for static pages, replicating the reference's card stack: Call for Papers, Announcements, Track Manuscript Status,
 // Copyright Agreement, DOI lookup, Journal Metrics, Recent Submissions, Manuscript Templates, Become an Editorial Member, Creative Commons licensing.
 // All values come from the journal config and mock data; nothing is invented (no impact factor, acceptance rate or index claims).
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
-import { MdOutlineCampaign as Megaphone, MdOutlineChevronLeft as Prev, MdOutlineChevronRight as Next, MdOutlineEdit as Pen, MdOutlineBolt as Bolt, MdOutlineSearch as Lens, MdOutlineDescription as Doc, MdOutlineGroupAdd as GroupAdd, MdOutlineVerified as Shield, MdOutlineArrowForward as Arrow, MdOutlineInfo as Info, MdOutlineHistory as Hist } from 'react-icons/md'
+import { MdOutlineCampaign as Megaphone, MdOutlineEdit as Pen, MdOutlineBolt as Bolt, MdOutlineSearch as Lens, MdOutlineDescription as Doc, MdOutlineGroupAdd as GroupAdd, MdOutlineVerified as Shield, MdOutlineArrowForward as Arrow, MdOutlineInfo as Info, MdOutlineHistory as Hist } from 'react-icons/md'
 import { api } from '../../../../core/api'
 import { journal } from '../../../../config/journals'
 import { paths, staticPath } from '../../../../config/routes'
@@ -11,6 +12,7 @@ import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { HomeData, StaticPageData } from '../../../../core/types'
 import { cx } from '../primitives'
+import { idExample } from '../../../../core/lib/manuscriptId'
 
 const CARD = 'space-y-3.5 rounded-[12px] border border-slate-200/80 bg-white p-5 shadow-hair'
 const HEAD = 'flex items-center justify-between gap-2 border-b border-slate-100 pb-2'
@@ -21,12 +23,6 @@ const BTN = 'inline-flex w-full items-center justify-center gap-1.5 rounded bg-c
 const when = (iso: string) => {
   const d = new Date(iso)
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-const ago = (minutes: number) => {
-  if (minutes < 60) { const m = Math.max(1, Math.round(minutes)); return `${m} minute${m === 1 ? '' : 's'} ago` }
-  if (minutes < 1440) { const h = Math.floor(minutes / 60); return `${h} hour${h === 1 ? '' : 's'} ago` }
-  const d = Math.floor(minutes / 1440)
-  return `${d} day${d === 1 ? '' : 's'} ago`
 }
 
 function Card({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
@@ -59,36 +55,6 @@ function CallForPapers() {
   )
 }
 
-function Announcements() {
-  const list = journal.announcements
-  const [i, setI] = useState(0)
-  if (!list.length) return null
-  const a = list[i % list.length]
-  const go = (d: number) => setI((n) => (n + d + list.length) % list.length)
-  return (
-    <Card label="Announcements">
-      <div className={HEAD}>
-        <h2 className={cx(KICK, 'flex items-center gap-1.5 text-slate-800')}><Megaphone className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Announcements</h2>
-        {list.some((x) => x.live) && <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-800"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />Live updates</span>}
-      </div>
-      <div className="space-y-2" aria-live="polite">
-        <span className="inline-flex items-center rounded border border-sky-200 bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cobalt-700">{a.id === 'cfp' ? 'Call for papers' : 'Journal update'}</span>
-        <h3 className="font-serif4 text-sm font-bold leading-snug text-[#0b2545]">{a.text}</h3>
-        <div className="pt-1"><AppLink to={a.to} className="inline-flex items-center gap-1 text-xs font-semibold text-cobalt-700 hover:underline">Learn More <Arrow className="h-3.5 w-3.5" aria-hidden="true" /></AppLink></div>
-      </div>
-      <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
-        <div className="flex items-center gap-1.5" aria-hidden="true">{list.map((x, n) => <span key={x.id} className={cx('rounded-full', n === i % list.length ? 'h-2 w-2 bg-cobalt-700' : 'h-1.5 w-1.5 bg-slate-300')} />)}</div>
-        {list.length > 1 && (
-          <div className="flex items-center gap-1">
-            <button type="button" onClick={() => go(-1)} aria-label="Previous announcement" className="rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600"><Prev className="h-4 w-4" aria-hidden="true" /></button>
-            <button type="button" onClick={() => go(1)} aria-label="Next announcement" className="rounded p-1 text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600"><Next className="h-4 w-4" aria-hidden="true" /></button>
-          </div>
-        )}
-      </div>
-    </Card>
-  )
-}
-
 function Track() {
   const { navigate } = useRouter()
   const id = useId()
@@ -113,7 +79,7 @@ function Track() {
       <form onSubmit={submit} noValidate className="space-y-2.5">
         <div>
           <label htmlFor={`${id}-p`} className={label}>Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={INPUT} />
+          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={INPUT} />
           {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
         </div>
         <div>
@@ -153,7 +119,7 @@ function DoiLookup() {
       </div>
       <p className="text-[11px] leading-relaxed text-slate-600">Validate direct metadata and indexed citation record.</p>
       <form onSubmit={submit} className="space-y-2.5">
-        <label htmlFor={id} className="sr-only">DOI or Paper ID</label>
+        <label htmlFor={id} className="sr-only">DOI or Manuscript ID</label>
         <input id={id} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`${journal.doiPrefix}/${journal.shortName.toLowerCase()}.2026.xxxxx`} autoComplete="off" className={cx(INPUT, 'font-mono')} />
         <button type="submit" className={BTN}><Lens className="h-4 w-4" aria-hidden="true" />Verify DOI Record</button>
       </form>
@@ -167,7 +133,7 @@ function Metrics() {
     ['Frequency', journal.frequency, 'border-slate-200 bg-slate-100 font-bold text-slate-700 font-mono'],
     ['Licence', journal.licence.name, 'border-emerald-200 bg-emerald-50 font-bold text-emerald-800 font-mono'],
     ['First Editorial Decision', '14 days target', 'border-slate-200 bg-slate-50 font-semibold text-slate-800'],
-    ['Peer Review Model', 'Single-anonymised', 'border-slate-200 bg-slate-50 font-semibold text-slate-800'],
+    ['Peer Review Model', 'Double-blind', 'border-slate-200 bg-slate-50 font-semibold text-slate-800'],
   ]
   return (
     <Card label="Journal metrics" className="space-y-3">
@@ -208,7 +174,6 @@ function Recent() {
           <li key={`${s.title ?? s.subject}-${s.minutes}`} className={cx(n < shown.length - 1 && 'border-b border-slate-100 pb-2.5')}>
             <div className="mb-0.5 flex items-center justify-between gap-2 text-[11px]">
               <span className="min-w-0 font-semibold text-cobalt-700">{s.institution}</span>
-              <span className="shrink-0 text-[11px] text-slate-500">{ago(s.minutes)}</span>
             </div>
             <p className="text-xs font-medium text-slate-800">{s.title ?? s.subject}</p>
             <div className="mt-1.5"><span className={cx('inline-flex items-center rounded border px-1.5 py-0.5 text-[11px]', CHIPS[n % CHIPS.length])}>{s.subject}</span></div>
@@ -307,7 +272,7 @@ export function RightRail(props: { page: StaticPageData; sidebar: StaticPageData
   return (
     <aside aria-label="Journal information" className="min-w-0 space-y-6 print:hidden">
       <CallForPapers />
-      <Announcements />
+      <AnnouncementsFeed />
       <Track />
       <Copyright />
       <DoiLookup />

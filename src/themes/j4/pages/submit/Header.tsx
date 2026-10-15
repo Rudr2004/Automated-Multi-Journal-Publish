@@ -27,7 +27,7 @@ export function SubmitHeader({ counts, onJump }: { counts: Record<SectionId, num
         <h1 id="submit-h" className="flex items-center gap-2.5 font-serif4 text-2xl font-bold tracking-tight text-[#0b2545] sm:text-3xl">
           <UploadFile className="h-8 w-8 shrink-0 text-sky-600" aria-hidden="true" />Submit Your Manuscript
         </h1>
-        <p className="max-w-2xl text-xs leading-relaxed text-slate-600 sm:text-sm">Fast-track peer-reviewed scholarly publishing with zero friction. Fill in essential metadata, add research team members with profile photos, upload your manuscript, and track progress online with your Paper ID.</p>
+        <p className="max-w-2xl text-xs leading-relaxed text-slate-600 sm:text-sm">Fast-track peer-reviewed scholarly publishing with zero friction. Fill in essential metadata, add research team members with profile photos, upload your manuscript, and track progress online with your Manuscript ID.</p>
       </div>
       <div className="border-t border-sky-100 pt-3"><StepTracker counts={counts} onJump={onJump} /></div>
     </div>

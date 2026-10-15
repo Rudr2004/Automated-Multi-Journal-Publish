@@ -182,7 +182,7 @@ export function EthicsPolicy() {
           <div className="space-y-1">
             <span className="inline-block rounded bg-amber-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-900">Raise a Concern</span>
             <h3 className="font-serif4 text-lg font-bold">Editorial Ethics &amp; Integrity</h3>
-            <p className="max-w-xl text-xs text-slate-200">Concerns about plagiarism, copyright, authorship disputes or other malpractice? Write to the editorial office with the Paper ID or DOI and the reason for your concern.</p>
+            <p className="max-w-xl text-xs text-slate-200">Concerns about plagiarism, copyright, authorship disputes or other malpractice? Write to the editorial office with the Manuscript ID or DOI and the reason for your concern.</p>
           </div>
           <div className="shrink-0">
             <a href={`mailto:${journal.email}`} className="inline-flex min-h-[44px] items-center gap-2 rounded bg-cobalt-700 px-4 py-2.5 text-xs font-semibold text-white shadow transition-all hover:bg-cobalt-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:min-h-0"><Mail className="h-4 w-4" aria-hidden="true" />{journal.email}</a>

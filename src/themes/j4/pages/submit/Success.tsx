@@ -1,4 +1,4 @@
-// Success screen of the Journal 4 submission: Paper ID receipt, what happens next and the Track link.
+// Success screen of the Journal 4 submission: Manuscript ID receipt, what happens next and the Track link.
 import { useEffect, useRef } from 'react'
 import { doiFor, journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
@@ -9,7 +9,7 @@ import { Container, Label } from '../../components/primitives'
 import { Check, Download } from '../../icons'
 
 const NEXT: [string, string][] = [
-  ['Submitted', 'Done. Your Paper ID was sent by email, SMS and WhatsApp.'],
+  ['Submitted', 'Done. Your Manuscript ID was sent by email, SMS and WhatsApp.'],
   ['Screening', 'The editor checks scope, completeness and similarity.'],
   ['Peer review', 'Reviewers assess the work against a published checklist.'],
   ['Decision', 'Accept, revise or reject, always with written reasons.'],
@@ -18,9 +18,9 @@ const NEXT: [string, string][] = [
 ]
 
 const receipt = (paperId: string, email: string, title: string) =>
-  [`${journal.name} - Submission receipt`, '', `Paper ID : ${paperId}`, `Title    : ${title || '-'}`, `Email    : ${email}`,
+  [`${journal.name} - Submission receipt`, '', `Manuscript ID : ${paperId}`, `Title    : ${title || '-'}`, `Email    : ${email}`,
     `DOI      : ${doiFor(paperId)}`, `Date     : ${new Date().toISOString().slice(0, 10)}`, '',
-    'Track your paper any time on the Track page with your Paper ID and email. No account is needed.'].join('\n')
+    'Track your paper any time on the Track page with your Manuscript ID and email. No account is needed.'].join('\n')
 
 export function Success({ paperId, email, title }: { paperId: string; email: string; title: string }) {
   const head = useRef<HTMLHeadingElement>(null)
@@ -36,16 +36,16 @@ export function Success({ paperId, email, title }: { paperId: string; email: str
           <div className="mt-8 max-w-2xl rounded-pane border border-white/15 bg-abyss-800/80 p-5">
             <dl className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-azure-300">Your Paper ID</dt>
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-azure-300">Your Manuscript ID</dt>
                 <dd className="mt-1 break-all font-serif4 text-[1.75rem] font-semibold tabular-nums tracking-wide sm:text-[2.25rem]" data-testid="paper-id">{paperId}</dd>
               </div>
-              <div><CopyButton tone="dark" text={paperId} label="Copy Paper ID" done="Paper ID copied" /></div>
+              <div><CopyButton tone="dark" text={paperId} label="Copy Manuscript ID" done="Manuscript ID copied" /></div>
               <div className="sm:col-span-2 border-t border-white/15 pt-3 text-sm text-abyss-200">
                 <span className="text-abyss-300">Reserved DOI </span><span className="break-all font-semibold text-white">{doiFor(paperId)}</span>
               </div>
             </dl>
           </div>
-          <p className="mt-4 max-w-2xl text-sm text-abyss-200">Confirmation sent to <strong className="break-all text-white">{email}</strong> by email, SMS and WhatsApp. Keep the Paper ID safe: with your email it is all you need to track the paper.</p>
+          <p className="mt-4 max-w-2xl text-sm text-abyss-200">Confirmation sent to <strong className="break-all text-white">{email}</strong> by email, SMS and WhatsApp. Keep the Manuscript ID safe: with your email it is all you need to track the paper.</p>
         </Container>
       </section>
 

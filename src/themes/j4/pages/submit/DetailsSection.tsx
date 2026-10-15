@@ -1,9 +1,8 @@
-// Section A: article track and metadata (research area, branch, type, title, abstract, keywords).
 import { journal } from '../../../../config/journals'
+// Section A: article track and metadata (research area, branch, type, title, abstract, keywords).
 import { branchesFor } from '../../../../core/lib/branches'
 import { ABSTRACT_MAX_WORDS, ABSTRACT_MIN_WORDS, LIMITS, wordCount } from '../../../../core/lib/submission'
 import { parseKeywords } from '../../../../core/lib/validators'
-import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
 import { cx } from '../../components/primitives'
 import { AccountTree, ArticleIcon, Category, Info, TitleIcon } from './mi'
 import { RField, Section, refInput, type SectionProps } from './shared'
@@ -13,6 +12,9 @@ const TYPE_NOTES: Record<string, string> = {
   'Review Article': 'Critical synthesis of existing work on one topic.',
   'Short Communication': 'Brief report of a focused, timely result.',
 }
+/** Subject areas and article types an author can choose when submitting. */
+const SUBMISSION_SUBJECTS = ['Engineering & Technology', 'Computer Science & Information Technology', 'Management Studies', 'Applied & Natural Sciences', 'Economics & Commerce', 'Arts & Humanities', 'Social Sciences & Education', 'Multidisciplinary Studies'] as const
+const SUBMISSION_ARTICLE_TYPES = ['Original Research Article', 'Review Article', 'Case Study', 'Survey Paper', 'Short Communication', 'Technical Paper', 'Theoretical / Conceptual Paper', 'Thesis-Based Research Article'] as const
 const ic = 'h-3.5 w-3.5 text-sky-600'
 
 export function DetailsSection({ form, errors, setForm }: SectionProps) {
@@ -27,21 +29,21 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
         <RField label="Primary Subject Area" name="subject" required error={errors.subject} icon={<AccountTree className={ic} aria-hidden="true" />}>
           <select className={selectCls(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
             <option value="">Select a research area</option>
-            {journal.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+            {SUBMISSION_SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </RField>
         {branches.length > 0 ? (
-          <RField label="Academic Stream / Discipline" name="branch" required error={errors.branch} icon={<Category className={ic} aria-hidden="true" />}>
+          <RField label="Specialization" name="branch" required error={errors.branch} icon={<Category className={ic} aria-hidden="true" />}>
             <select className={selectCls(errors.branch)} value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))}>
-              <option value="">Select a branch</option>
+              <option value="">Select a specialization</option>
               {branches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
           </RField>
         ) : (
           <RField label="Manuscript Type" name="articleType" required error={errors.articleType} icon={<ArticleIcon className={ic} aria-hidden="true" />}>
-            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value as ArticleType | '' }))}>
+            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value }))}>
               <option value="">Select a manuscript type</option>
-              {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t} value={t}>{t}</option>)}
+              {SUBMISSION_ARTICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </RField>
         )}
@@ -50,9 +52,9 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
       {branches.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <RField label="Manuscript Type" name="articleType" required error={errors.articleType} icon={<ArticleIcon className={ic} aria-hidden="true" />}>
-            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value as ArticleType | '' }))}>
+            <select className={selectCls(errors.articleType)} value={form.articleType} onChange={(e) => setForm((f) => ({ ...f, articleType: e.target.value }))}>
               <option value="">Select a manuscript type</option>
-              {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t} value={t}>{t}</option>)}
+              {SUBMISSION_ARTICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </RField>
         </div>
@@ -69,6 +71,7 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
           onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.replace(/\s+/g, ' ').replace(/^\s/, '') }))} onBlur={() => setForm((f) => ({ ...f, title: f.title.trim() }))} />
       </RField>
 
+      {journal.collectAbstract !== false && <>
       <RField label="Abstract" name="abstract" required error={errors.abstract} counter={`${words} / ${ABSTRACT_MAX_WORDS} words`}
         hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. State the objective, method, main results and conclusion.`}>
         <textarea rows={8} className={cx(refInput(errors.abstract), 'resize-y leading-relaxed', bad && 'border-red-700')} value={form.abstract}
@@ -86,6 +89,7 @@ export function DetailsSection({ form, errors, setForm }: SectionProps) {
           </ul>
         )}
       </div>
+      </>}
     </Section>
   )
 }

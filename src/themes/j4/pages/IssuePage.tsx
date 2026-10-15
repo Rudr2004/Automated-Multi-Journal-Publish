@@ -58,7 +58,7 @@ export function IssuePage({ data }: { data: IssueData }) {
 
             {visible.length > 0 && (
               <div className="flex flex-col items-center justify-between gap-4 rounded-[12px] border border-slate-200 bg-white p-4 text-xs shadow-hair sm:flex-row">
-                <p className="text-center font-medium text-slate-600 sm:text-left" aria-live="polite">Showing <span className="font-bold text-slate-900">{(cur - 1) * PAGE + 1}–{Math.min(cur * PAGE, visible.length)}</span> of <span className="font-bold text-slate-900">{visible.length}</span> peer-reviewed articles</p>
+                <span aria-hidden="true" />
                 {pages > 1 && (
                   <nav aria-label="Article pages" className="flex items-center gap-1">
                     <button type="button" disabled={cur === 1} onClick={() => go(cur - 1)} aria-label="Previous page" className={cx(pg(false), 'disabled:cursor-not-allowed disabled:text-slate-400')}><ArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" /></button>

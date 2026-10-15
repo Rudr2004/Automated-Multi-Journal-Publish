@@ -27,6 +27,7 @@ export const journal: JournalConfig = {
   name: 'International Journal of Fundamental Research and Development',
   shortName: 'IJFRD',
   tagline: 'Foundations first: research that others build on',
+  sjifImpactFactor: '6.31',
   descriptor: 'Peer-reviewed · Open access · Fundamental research and development',
   mission:
     'IJFRD is a monthly open access journal for fundamental research and the development that follows from it, with structured peer review, permanent DOIs and verifiable author certificates.',

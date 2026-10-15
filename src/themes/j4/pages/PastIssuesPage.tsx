@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
-import { formatMonthYear, formatNumber } from '../../../core/lib/format'
+import { formatMonthYear } from '../../../core/lib/format'
 import { AppLink } from '../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../core/types'
 import { buttonClass } from '../components/Button'
@@ -23,7 +23,6 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
       return { volume, year: sorted[0].month.slice(0, 4), issues: sorted, articles: sorted.reduce((s, i) => s + i.articleCount, 0) }
     })
   }, [issues])
-  const stats: [string, string][] = [['Volumes', String(rows.length)], ['Issues', String(issues.length)], ['Articles', formatNumber(articles.length)]]
   const latest = issues.find((i) => i.isCurrent) ?? [...issues].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0]
 
   return (
@@ -42,10 +41,7 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
             <div className="min-w-0 space-y-4">
               <p className="text-xs font-bold uppercase tracking-wider text-cobalt-700">Archive</p>
               <h1 id="archive-title" className="font-serif4 text-2xl font-bold leading-tight tracking-tight text-[#0b2545] md:text-[2rem]">Past issues</h1>
-              <p className="max-w-2xl text-sm leading-relaxed text-abyss-700">Every issue of {journal.name}. Choose a published issue in the matrix to open its table of contents, or search all articles below.</p>
-              <dl className="grid max-w-md grid-cols-3 gap-3 rounded-pane border border-abyss-200 bg-abyss-50 px-3.5 py-3 text-xs tabular-nums">
-                {stats.map(([k, v]) => <div key={k}><dt className="text-[11px] text-steel-600">{k}</dt><dd className="mt-0.5 font-serif4 text-xl font-bold text-abyss-900">{v}</dd></div>)}
-              </dl>
+              <p className="max-w-2xl text-sm leading-relaxed text-abyss-700">Every issue of {journal.name}. Open any issue to read its table of contents, or search all articles below.</p>
               {latest && (
                 <div className="flex flex-wrap gap-2">
                   <AppLink to={paths.issue(latest.volume, latest.issue)} className={buttonClass('cta', 'min-h-11 px-3.5 py-2 text-xs lg:min-h-9')}>Open latest issue<ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
@@ -66,30 +62,10 @@ export function PastIssuesPage({ issues, articles }: { issues: IssueSummary[]; a
           <div className="mb-4">
             <p className="text-xs font-bold uppercase tracking-wider text-cobalt-700">Issue matrix</p>
             <h2 id="archive-matrix" className="mt-1 font-serif4 text-xl font-bold text-[#0b2545] md:text-2xl">Volumes and issues</h2>
-            <p className="mt-1 text-sm text-abyss-700">Each volume holds up to twelve monthly issues. Greyed cells have not been published yet.</p>
+            <p className="mt-1 text-sm text-abyss-700">Published issues, newest first.</p>
           </div>
           {rows.length === 0 ? <EmptyState title="No issues published yet" text="Issues will appear here as soon as they are released." /> : (
-            <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-              <aside aria-label="Archive overview" className="lg:sticky lg:top-16 lg:self-start">
-                <div className="rounded-pane border border-abyss-200 bg-white shadow-hair">
-                  <h3 className="border-b border-abyss-200 bg-abyss-50 px-4 py-3 font-serif4 text-base font-bold text-[#0b2545]">Jump to volume</h3>
-                  <ul className="divide-y divide-abyss-100 text-sm">
-                    {rows.map((r) => (
-                      <li key={r.volume}>
-                        <a href={`#vol-${r.volume}`} className="flex min-h-11 items-center justify-between gap-3 border-l-[3px] border-transparent px-4 py-2 text-abyss-900 hover:border-azure-600 hover:bg-azure-50 hover:text-cobalt-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-azure-600 lg:min-h-10">
-                          <span className="font-medium">Volume {r.volume} <span className="font-normal text-steel-600">· {r.year}</span></span>
-                          <span className="tabular-nums text-steel-600">{r.articles}<span className="sr-only"> articles</span></span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="space-y-2 border-t border-abyss-200 p-4 text-[13px] text-steel-700">
-                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-azure-600 bg-azure-50" />Current issue</p>
-                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-abyss-300 bg-white" />Published issue</p>
-                    <p className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-5 rounded-sm border border-dashed border-abyss-300 bg-abyss-50" />Not yet published</p>
-                  </div>
-                </div>
-              </aside>
+            <div>
               <ArchiveMatrix rows={rows} />
             </div>
           )}

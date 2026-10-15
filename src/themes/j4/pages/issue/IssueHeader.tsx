@@ -5,6 +5,7 @@ import { downloadText } from '../../../../core/lib/clipboard'
 import { formatDate, formatMonthYear } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../../core/types'
+import { useToast } from '../../components/Toast'
 import { IssueCover } from '../../components/IssueCover'
 import { MdOutlineHome as Home, MdOutlineMenuBook as Book } from 'react-icons/md'
 import { Download, OpenAccess, Send } from '../../icons'
@@ -19,9 +20,10 @@ function downloadIndex(issue: IssueSummary, articles: ArticleSummary[]) {
 }
 
 export function IssueHeader({ issue, articles }: { issue: IssueSummary; articles: ArticleSummary[] }) {
+  const toast = useToast()
   const areaCount = new Set(articles.map((a) => a.subject)).size
   const facts: [string, string, boolean?, boolean?][] = [
-    ['DOI Prefix', journal.doiPrefix, false, true], ['Access Model', 'Open Access', true], ['Peer Review', 'Single-anonymised'], ['License', journal.licence.name, false, false],
+    ['DOI Prefix', journal.doiPrefix, false, true], ['Access Model', 'Open Access', true], ['Peer Review', 'Double-blind'], ['License', journal.licence.name, false, false],
   ]
   return (
     <>
@@ -39,7 +41,6 @@ export function IssueHeader({ issue, articles }: { issue: IssueSummary; articles
               <span aria-hidden="true" className={`h-2 w-2 rounded-full ${issue.isCurrent ? 'bg-emerald-500' : 'bg-slate-500'}`} />{issue.isCurrent ? 'Current Issue' : 'Past Issue'}
             </span>
             <span className="rounded border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-xs font-semibold text-slate-700">Volume {issue.volume} • Issue {issue.issue}</span>
-            <span className="rounded bg-slate-50 px-2 py-1 font-mono text-xs text-slate-500">Published: {formatDate(issue.publishedAt)}</span>
           </div>
           <p className="break-all font-mono text-xs font-semibold text-cobalt-700">DOI: {issue.doi}</p>
         </div>
@@ -64,6 +65,8 @@ export function IssueHeader({ issue, articles }: { issue: IssueSummary; articles
             </dl>
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <button type="button" onClick={() => downloadIndex(issue, articles)} className="inline-flex min-h-11 items-center gap-1.5 rounded bg-cobalt-700 px-3.5 py-2 text-xs font-semibold text-white shadow-hair transition-colors hover:bg-cobalt-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 focus-visible:ring-offset-1 lg:min-h-9"><Download className="h-4 w-4" aria-hidden="true" />Download Index (CSV)</button>
+              <button type="button" onClick={() => toast('Complete issue PDF download started (simulated).')} className="inline-flex min-h-11 items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600"><Download className="h-4 w-4" aria-hidden="true" /> Download Full Issue</button>
+              <button type="button" onClick={() => toast('Issue cover page download started (simulated).')} className="inline-flex min-h-11 items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600"><Download className="h-4 w-4" aria-hidden="true" /> Download Cover Page</button>
               <AppLink to={paths.pastIssues} className="inline-flex min-h-11 items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 lg:min-h-9"><Book className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Browse Archive</AppLink>
               <AppLink to={paths.submit} className="inline-flex min-h-11 items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-600 lg:min-h-9"><Send className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Submit Manuscript</AppLink>
             </div>

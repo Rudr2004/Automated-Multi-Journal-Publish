@@ -14,7 +14,7 @@ import type { IconProps } from '../../icons'
 
 const GUIDES: { tag: string; title: string; text: string; to: string; icon: ComponentType<IconProps>; badge: string; tile: string }[] = [
   { tag: 'Guidelines', title: 'Author Guidelines', text: 'Manuscript format, structure and the ethics checklist.', to: paths.policy('author-guidelines'), icon: Description, badge: 'bg-cobalt-700', tile: 'from-sky-100 to-sky-50 text-cobalt-700' },
-  { tag: 'Process', title: 'Submission Process', text: 'From upload and Paper ID to review, payment and publication.', to: paths.forAuthors('submission-process'), icon: Assignment, badge: 'bg-emerald-700', tile: 'from-emerald-100 to-emerald-50 text-emerald-700' },
+  { tag: 'Process', title: 'Submission Process', text: 'From upload and Manuscript ID to review, payment and publication.', to: paths.forAuthors('submission-process'), icon: Assignment, badge: 'bg-emerald-700', tile: 'from-emerald-100 to-emerald-50 text-emerald-700' },
   { tag: 'Peer Review', title: 'Peer Review Policy', text: 'How papers are screened, reviewed and decided.', to: paths.policy('peer-review'), icon: RateReview, badge: 'bg-amber-700', tile: 'from-amber-100 to-amber-50 text-amber-700' },
   { tag: 'Integrity', title: 'Publication Ethics', text: 'Standards on authorship, plagiarism and conflicts of interest.', to: paths.policy('publication-ethics'), icon: VerifiedUser, badge: 'bg-purple-700', tile: 'from-purple-100 to-purple-50 text-purple-700' },
   { tag: 'Payment', title: 'APC & Payment', text: 'Charges, GST and receipts for accepted papers.', to: paths.forAuthors('apc-payment'), icon: FolderZip, badge: 'bg-slate-700', tile: 'from-slate-200 to-slate-50 text-slate-700' },
@@ -108,18 +108,21 @@ export function Honors({ top, lead }: { top?: ArticleSummary; lead?: EditorProfi
             </div>
             <span className="shrink-0 rounded border border-sky-200 bg-sky-50 px-2 py-0.5 font-mono text-[10px] font-semibold text-cobalt-700">Open Access</span>
           </div>
-          <div tabIndex={0} role="region" aria-label="Author guides, scroll horizontally" className="relative overflow-x-auto scroll-smooth pb-1">
-            <ul className="flex min-w-[540px] items-stretch gap-2.5">
+          {/* The guides scroll continuously from right to left; hover or keyboard focus pauses them, and reduced-motion visitors scroll by hand. */}
+          <div role="region" aria-label="Author guides" className="j1-pausable relative overflow-hidden pb-1 motion-reduce:overflow-x-auto [mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%-16px),transparent)]">
+            <div className="j1-scroll-left flex w-max" style={{ ['--j1-scroll-duration' as string]: `${GUIDES.length * 8}s` }}>
+            {[0, 1].map((copy) => (
+            <ul key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0 items-stretch gap-3 pr-3">
               {GUIDES.map(({ tag, title, text, to, icon: Icon, badge, tile }) => (
-                <li key={title} className="flex w-48 shrink-0">
+                <li key={title} className="flex w-72 shrink-0">
                   <div className="flex w-full flex-col justify-between rounded-[8px] border border-slate-200 bg-slate-50/70 p-2.5 transition-all hover:border-sky-300 hover:shadow-[0_1px_3px_rgba(15,23,42,0.1)]">
                     <div className="space-y-1.5">
-                      <div aria-hidden="true" className={cx('relative flex h-20 items-center justify-center rounded border border-slate-200 bg-gradient-to-br', tile)}>
-                        <Icon className="h-9 w-9" />
+                      <div aria-hidden="true" className={cx('relative flex h-40 items-center justify-center rounded border border-slate-200 bg-gradient-to-br', tile)}>
+                        <Icon className="h-16 w-16" />
                         <span className={cx('absolute left-1 top-1 rounded px-1.5 text-[9px] font-semibold text-white', badge)}>{tag}</span>
                       </div>
-                      <h4 className="line-clamp-2 font-serif4 text-[11px] font-bold leading-tight text-[#0b2545]"><AppLink to={to} className="hover:text-cobalt-700">{title}</AppLink></h4>
-                      <p className="line-clamp-2 text-[10px] leading-relaxed text-slate-600">{text}</p>
+                      <h4 className="line-clamp-2 font-serif4 text-sm font-bold leading-tight text-[#0b2545]"><AppLink to={to} className="hover:text-cobalt-700">{title}</AppLink></h4>
+                      <p className="line-clamp-2 text-xs leading-relaxed text-slate-600">{text}</p>
                     </div>
                     <div className="mt-1 flex items-center justify-between border-t border-slate-200/80 pt-1.5 text-[10px]">
                       <span className="truncate font-medium text-slate-500">{journal.shortName}</span>
@@ -129,9 +132,11 @@ export function Honors({ top, lead }: { top?: ArticleSummary; lead?: EditorProfi
                 </li>
               ))}
             </ul>
+            ))}
+            </div>
           </div>
           <div className="mt-1 flex items-center justify-between border-t border-slate-100 pt-1.5 text-[10px]">
-            <span className="flex items-center gap-1 text-slate-500"><Swipe className="h-3.5 w-3.5 text-azure-600" aria-hidden="true" />Scroll guides</span>
+            <span className="flex items-center gap-1 text-slate-500"><Swipe className="h-3.5 w-3.5 text-azure-600" aria-hidden="true" />Hover to pause</span>
             <AppLink to={paths.forAuthors('submission-process')} className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-cobalt-700 hover:text-cobalt-800">View All Guides <Arrow className="h-3.5 w-3.5" aria-hidden="true" /></AppLink>
           </div>
         </section>

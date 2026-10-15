@@ -4,13 +4,13 @@ import { A, B, NAME } from './staticHelpers'
 
 export const authorsAbout: StaticPageData[] = [
   A('submission-process', 'Submission Process',
-    'Eight stages take a paper from your first upload to a published, citable article. You can follow each stage online with your Paper ID.',
+    'Eight stages take a paper from your first upload to a published, citable article. You can follow each stage online with your Manuscript ID.',
     [
       { heading: 'Before you start', list: ['Prepare the manuscript with the official template and gather permissions for third-party figures.', 'Have the names, affiliations and email addresses of all authors ready.', 'Keep your abstract, keywords and declarations to hand; the form asks for them.'] },
-      { heading: 'After you submit', paragraphs: ['You receive a Paper ID such as IJECM2026000112 and a confirmation email. Use that ID with your email address on the Track My Paper page at any time to see where your paper is, read the editor’s reasons and complete any step that needs you.'] },
+      { heading: 'After you submit', paragraphs: ['You receive a Manuscript ID such as ijecm.v1i9.003 and a confirmation email. Use that ID with your email address on the Track My Paper page at any time to see where your paper is, read the editor’s reasons and complete any step that needs you.'] },
     ], ['author-guidelines', 'templates', 'apc-payment'],
     [{ type: 'steps', title: 'The eight stages', items: [
-      { title: 'Submission', text: 'Upload the manuscript and declarations. You receive your Paper ID.' },
+      { title: 'Submission', text: 'Upload the manuscript and declarations. You receive your Manuscript ID.' },
       { title: 'Review', text: 'An editor checks the paper, then expert reviewers assess it.' },
       { title: 'Decision', text: 'You receive accept, revise or reject, with written reasons.' },
       { title: 'Acceptance', text: 'You receive an acceptance letter and a short publishing agreement.' },
@@ -37,7 +37,7 @@ export const authorsAbout: StaticPageData[] = [
     'One article processing charge, payable only after acceptance.',
     [
       { heading: 'Amounts', list: ['India: ₹6,000 + 18% GST (₹1,080) = ₹7,080.', 'Outside India: US$110 (no GST).'] },
-      { heading: 'How to pay', paragraphs: ['Open Track My Paper, enter your Paper ID and email, and choose Pay APC. If you pay by bank transfer or UPI, upload the proof; the editorial office confirms it, usually within two working days. A receipt, or a GST invoice for Indian authors, is issued on confirmation.'] },
+      { heading: 'How to pay', paragraphs: ['Open Track My Paper, enter your Manuscript ID and email, and choose Pay APC. If you pay by bank transfer or UPI, upload the proof; the editorial office confirms it, usually within two working days. A receipt, or a GST invoice for Indian authors, is issued on confirmation.'] },
       { heading: 'Good to know', paragraphs: ['Nothing is charged at submission or during review. If you need a waiver, request it with your submission rather than after acceptance.'] },
     ], ['publication-charges', 'refund'],
     [{ type: 'faq', title: 'Payment FAQ', items: [
@@ -90,7 +90,7 @@ export const authorsAbout: StaticPageData[] = [
 
   B('contact', 'Contact',
     'The editorial office replies within two working days.',
-    [{ heading: 'Before you write', paragraphs: ['For anything about a submission, include your Paper ID. For payment questions, include the payment reference. For a concern about ethics, use the form or write to the editor-in-chief through the editorial office.'] }],
+    [{ heading: 'Before you write', paragraphs: ['For anything about a submission, include your Manuscript ID. For payment questions, include the payment reference. For a concern about ethics, use the form or write to the editor-in-chief through the editorial office.'] }],
     ['aims-scope', 'complaints', 'publication-ethics'],
     [{ type: 'contact-details' }, { type: 'contact-form', title: 'Send us a message' }]),
 ]

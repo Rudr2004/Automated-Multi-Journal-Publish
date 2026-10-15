@@ -70,7 +70,7 @@ export function PayDialog({ open, onClose, paperId, initialMode = 'online', onPa
 
   return (
     <Modal open={open} onClose={onClose} title="Pay article processing charge" size="lg">
-      <p className="text-[15px] text-steel-700">Paper ID <strong className="tabular-nums text-abyss-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
+      <p className="text-[15px] text-steel-700">Manuscript ID <strong className="tabular-nums text-abyss-900">{paperId}</strong>. This is a simulated payment: no money is charged.</p>
 
       <div role="group" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 rounded-ctl border border-abyss-200 bg-abyss-100 p-1">
         {([['online', 'Pay online'], ['proof', 'Upload proof']] as const).map(([m, label]) => (

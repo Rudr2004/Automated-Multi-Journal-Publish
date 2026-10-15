@@ -15,6 +15,7 @@ import { Facets, type FacetGroup } from './search/Facets'
 import { Close } from '../icons'
 import { ResultRow } from './search/ResultRow'
 import { SearchBox } from './search/SearchBox'
+import { idExample } from '../../../core/lib/manuscriptId'
 
 type Sort = 'relevance' | 'newest' | 'views' | 'downloads'
 const SORTS: { value: Sort; label: string }[] = [{ value: 'relevance', label: 'Relevance' }, { value: 'newest', label: 'Newest first' }, { value: 'views', label: 'Most viewed' }, { value: 'downloads', label: 'Most downloaded' }]
@@ -71,7 +72,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
       <Helmet><title>{`${term ? `Search: ${term}` : 'Search'} | ${journal.shortName}`}</title><meta name="robots" content="noindex" /></Helmet>
       <PageHead crumbs={[{ label: 'Search' }]} eyebrow="Search the archive" title={term ? (isArea ? term : 'Search results') : 'Find an article'}>
         <SearchBox query={query} />
-        <p className="mt-3 max-w-3xl text-sm text-steel-700">Paste a DOI or a Paper ID such as <span className="font-semibold tabular-nums text-abyss-900">{journal.paperIdPrefix}2026000112</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
+        <p className="mt-3 max-w-3xl text-sm text-steel-700">Paste a DOI or a Manuscript ID such as <span className="font-semibold tabular-nums text-abyss-900">{idExample}</span> to jump straight to the article or track it. Words are matched in titles, authors and abstracts.</p>
       </PageHead>
 
       <div className="bg-abyss-50"><Container className="py-6 sm:py-8">

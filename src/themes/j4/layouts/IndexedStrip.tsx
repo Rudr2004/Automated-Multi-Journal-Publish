@@ -1,9 +1,7 @@
 // "Indexed in" strip under the navigation, as in the reference: a pale-sky band with an "Indexed In:" label and one white chip per index.
 // Lists only the indexes switched on in the journal config (visibleLogos), each linking to its verification page.
-import { visibleLogos } from '../../../config/journals'
+import { logoSrc, visibleLogos } from '../../../config/journals'
 import { Verified } from '../components/refIconsJ4'
-
-const DOTS = ['bg-azure-600', 'bg-blue-500', 'bg-red-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-sky-600', 'bg-amber-500', 'bg-purple-500', 'bg-teal-500']
 
 export function IndexedStrip() {
   const logos = visibleLogos()
@@ -17,10 +15,10 @@ export function IndexedStrip() {
           <div className="j1-scroll-left flex w-max" style={{ ['--j1-scroll-duration' as string]: `${Math.max(24, logos.length * 4)}s` }}>
             {[0, 1].map((copy) => (
               <ul key={copy} className="flex shrink-0 items-center gap-x-4 pr-4" aria-hidden={copy > 0 || undefined} aria-label={copy === 0 ? 'Indexing platforms' : undefined}>
-                {logos.map((l, i) => (
+                {logos.map((l) => (
                   <li key={l.id}>
-                    <a href={l.verifyUrl} target="_blank" rel="noreferrer" tabIndex={copy > 0 ? -1 : undefined} className="inline-flex items-center gap-1.5 whitespace-nowrap rounded border border-sky-200 bg-white px-3 py-1 font-medium text-slate-700 transition-colors hover:border-azure-600 hover:text-cobalt-700">
-                      <span aria-hidden="true" className={`h-2 w-2 rounded-full ${DOTS[i % DOTS.length]}`} />{l.name}{l.id === 'crossref' ? ' (DOI Indexed)' : ''}{copy === 0 && <span className="sr-only"> (opens in a new tab)</span>}
+                    <a href={l.verifyUrl} target="_blank" rel="noreferrer" tabIndex={copy > 0 ? -1 : undefined} className="inline-flex h-10 items-center whitespace-nowrap rounded border border-sky-200 bg-white px-4 font-medium text-slate-700 transition-colors hover:border-azure-600 hover:text-cobalt-700">
+                      {l.file ? <img src={logoSrc(l.file)} alt={copy > 0 ? '' : l.name} loading="lazy" className="max-h-6 w-auto max-w-[7rem] object-contain" /> : <span>{l.name}</span>}{copy === 0 && <span className="sr-only"> (opens in a new tab)</span>}
                     </a>
                   </li>
                 ))}

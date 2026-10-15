@@ -64,8 +64,6 @@ export function SidePanel({ article, active, onGo }: { article: ArticleFull; act
     ['Status', <span key="s" className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">Published Online</span>],
     ['Volume & Issue', `Vol. ${String(article.volume).padStart(2, '0')}, Iss. ${String(article.issue).padStart(2, '0')}`],
     ['Published Date', published ? formatDate(published) : undefined],
-    ['Received', article.received ? formatDate(article.received) : undefined],
-    ['Accepted', article.accepted ? formatDate(article.accepted) : undefined],
     ['Page Extent', article.pages ? <span key="p" className={MONO}>pp. {article.pages}</span> : undefined],
   ]
   const shown = rows.filter(([, v]) => v)

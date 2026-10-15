@@ -54,13 +54,13 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({ ...f, author: { ...f.author, ...patch } }))
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     setForm((f) => ({ ...f, coAuthors: f.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
-  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] }))
+  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: f.author.institution, orcid: '', photo: null }] }))
   const removeCo = (id: number) => setForm((f) => ({ ...f, coAuthors: f.coAuthors.filter((c) => c.id !== id) }))
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => setForm((f) => ({ ...f, [k]: v }))
   const maxPhone = phoneMaxLength(a.dialCode)
   const showMentor = mentorOpen || !!(form.mentor || form.mentorEmail || form.mentorInstitution || errors.mentor || errors.mentorEmail || errors.mentorInstitution)
   return (
-    <Section letter="B" id="authors" title="Author & Research Team" text="The corresponding author receives the Paper ID and every status update." chip="Step 2 of 4">
+    <Section letter="B" id="authors" title="Author & Research Team" text="The corresponding author receives the Manuscript ID and every status update." chip="Step 2 of 4">
       <div className="space-y-4">
         {/* Corresponding author */}
         <fieldset className="relative min-w-0 rounded-xl border-2 border-sky-200 bg-gradient-to-br from-sky-50/50 via-white to-sky-50/30 p-4 shadow-sm md:p-5">
@@ -78,7 +78,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
               <RField label="Full Name (with Honorific)" name="author.name" required error={errors['author.name']}>
                 <input className={refInput(errors['author.name'])} value={a.name} maxLength={LIMITS.name} autoComplete="name" onChange={(e) => setAuthor({ name: cleanName(e.target.value) })} onBlur={() => setAuthor({ name: a.name.trim() })} />
               </RField>
-              <RField label="Email" name="author.email" required error={errors['author.email']} hint="Used with your Paper ID to track the paper. No account is needed.">
+              <RField label="Email" name="author.email" required error={errors['author.email']} hint="Used with your Manuscript ID to track the paper. No account is needed.">
                 <input type="email" className={refInput(errors['author.email'])} value={a.email} maxLength={LIMITS.email} autoComplete="email" inputMode="email" placeholder="name@institution.edu"
                   onChange={(e) => setAuthor({ email: cleanEmail(e.target.value) })} onBlur={() => setAuthor({ email: a.email.trim().toLowerCase() })} />
               </RField>
@@ -124,16 +124,17 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
               <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="inline-flex min-h-[44px] items-center gap-0.5 text-[11px] font-medium text-red-700 hover:text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 sm:min-h-0"><Delete className="h-3.5 w-3.5" aria-hidden="true" />Remove</button>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-              <div className="space-y-3 md:col-span-12 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
+              <div className="space-y-3 md:col-span-12 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
                 <RField label="Full Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                   <input className={cx(refInput(errors[`co.${c.id}.name`]), 'bg-white font-medium')} value={c.name} maxLength={LIMITS.name} onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />
-                </RField>
-                <RField label="Email" name={`co.${c.id}.email`} required error={errors[`co.${c.id}.email`]}>
-                  <input type="email" className={cx(refInput(errors[`co.${c.id}.email`]), 'bg-white')} value={c.email} maxLength={LIMITS.email} onChange={(e) => setCo(c.id, { email: cleanEmail(e.target.value) })} onBlur={() => setCo(c.id, { email: c.email.trim().toLowerCase() })} />
                 </RField>
                 <RField label="Department, Affiliation / University" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]}>
                   <input className={cx(refInput(errors[`co.${c.id}.institution`]), 'bg-white')} value={c.institution} maxLength={LIMITS.institution} onChange={(e) => setCo(c.id, { institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setCo(c.id, { institution: c.institution.trim() })} />
                 </RField>
+                <RField label="ORCID Identifier" optional name={`co.${c.id}.orcid`} error={errors[`co.${c.id}.orcid`]} hint="Format: 0000-0002-1825-0097">
+                  <input className={cx(refInput(errors[`co.${c.id}.orcid`]), 'bg-white font-mono')} value={c.orcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setCo(c.id, { orcid: formatOrcid(e.target.value) })} />
+                </RField>
+                <div className="md:col-span-3"><PhotoBox value={c.photo ?? null} onChange={(photo) => setCo(c.id, { photo })} /></div>
               </div>
             </div>
           </fieldset>
@@ -145,12 +146,16 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
             <legend className="sr-only">Research mentor or faculty advisor</legend>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-amber-100 pb-2">
               <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-900"><School className="h-3.5 w-3.5" aria-hidden="true" />Research Mentor / Faculty Advisor</span>
-              <button type="button" onClick={() => { set('mentor', ''); set('mentorEmail', ''); set('mentorInstitution', ''); setMentorOpen(false) }} className="inline-flex min-h-[44px] items-center gap-0.5 text-[11px] font-medium text-red-700 hover:text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 sm:min-h-0"><Delete className="h-3.5 w-3.5" aria-hidden="true" />Remove</button>
+              <button type="button" onClick={() => { set('mentor', ''); set('mentorEmail', ''); set('mentorInstitution', ''); set('mentorOrcid', ''); set('mentorPhoto', null); setMentorOpen(false) }} className="inline-flex min-h-[44px] items-center gap-0.5 text-[11px] font-medium text-red-700 hover:text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 sm:min-h-0"><Delete className="h-3.5 w-3.5" aria-hidden="true" />Remove</button>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <RField label="Mentor Name" name="mentor" error={errors.mentor}>
                 <input className={cx(refInput(errors.mentor), 'bg-white font-medium')} value={form.mentor} maxLength={LIMITS.mentor} onChange={(e) => set('mentor', cleanName(e.target.value))} onBlur={() => set('mentor', form.mentor.trim())} />
               </RField>
+              <RField label="ORCID Identifier" optional name="mentorOrcid" error={errors.mentorOrcid} hint="Format: 0000-0002-1825-0097">
+                <input className={cx(refInput(errors.mentorOrcid), 'bg-white font-mono')} value={form.mentorOrcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => set('mentorOrcid', formatOrcid(e.target.value))} />
+              </RField>
+              <div className="md:col-span-3"><PhotoBox value={form.mentorPhoto ?? null} onChange={(photo) => set('mentorPhoto', photo)} /></div>
               <RField label="Mentor Email" optional name="mentorEmail" error={errors.mentorEmail}>
                 <input type="email" className={cx(refInput(errors.mentorEmail), 'bg-white')} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => set('mentorEmail', cleanEmail(e.target.value))} />
               </RField>

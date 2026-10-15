@@ -87,14 +87,14 @@ export function QuickNav({ toc }: { toc: TocItem[] }) {
   if (toc.length < 2) return null
   return (
     <nav aria-label="Quick section navigation" className="sticky top-14 z-20 rounded-pane border border-slate-200 bg-white p-2.5 shadow-hair print:hidden">
-      <p className="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Quick Policy Navigation</p>
-      <ol className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+      <p className="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Quick Navigation</p>
+      <ol className="flex flex-wrap items-center gap-1.5 text-xs">
         {toc.map((t) => {
           const on = t.id === active
           return (
             <li key={t.id} className="shrink-0">
               <a href={`#${t.id}`} aria-current={on ? 'location' : undefined}
-                className={cx('inline-flex min-h-[44px] items-center whitespace-nowrap rounded px-2.5 py-1.5 font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600 sm:min-h-0', on ? 'bg-[#0b2545] text-white' : 'text-slate-700 hover:bg-[#0b2545] hover:text-white')}>
+                className={cx('inline-flex min-h-[36px] items-center whitespace-nowrap rounded px-2.5 py-1.5 font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure-600 sm:min-h-0', on ? 'bg-[#0b2545] text-white' : 'text-slate-700 hover:bg-[#0b2545] hover:text-white')}>
                 {t.num}. {t.label}
               </a>
             </li>

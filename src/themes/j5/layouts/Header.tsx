@@ -85,7 +85,7 @@ export function Header() {
               </AppLink>
               <div className="flex min-w-0 max-w-3xl flex-col space-y-1.5 lg:max-w-none">
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-                  <span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-wine-800')}>ISSN: {journal.issnOnline}</span>{dot}
+                  <span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-wine-800')}>ISSN: {journal.issnOnline}</span>{dot}{journal.sjifImpactFactor && <><span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-wine-800')}>SJIF Impact Factor: {journal.sjifImpactFactor}</span>{dot}</>}
                   <span className={cx(chip, 'border-[#dcc0be] bg-white font-medium text-[#9b4500]')}>Crossref DOI: {journal.doiPrefix}</span>{dot}
                   <span className={cx(chip, 'border-[#dcc0be] bg-white text-[#564241]')}>{journal.frequency}</span>
                   {journal.badges.peerReviewed && <>{dot}<span className={cx(chip, 'border-wine-800/20 bg-wine-800/10 font-medium text-wine-800')}>Peer reviewed</span></>}

@@ -1,5 +1,6 @@
 // Journal 4 static pages in the reference layout: title card, sticky quick-jump bar, numbered section cards, rich blocks and the right sidebar card stack.
 // /policies/publication-ethics uses the dedicated EthicsPolicy body; every other page shares the same shell and section style.
+import { ApcPaymentJ4, APC_TOC_J4 } from './ApcPaymentJ4'
 import { useMemo } from 'react'
 import { journal } from '../../../config/journals'
 import { staticGroups } from '../../../config/routes'
@@ -33,12 +34,14 @@ function groupBlocks(blocks: StaticBlock[]): Item[] {
 
 export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticPageData; sidebar: StaticPageData[]; allPages: StaticPageData[]; actions: BlockActions }) {
   const related = page.related.map((s) => allPages.find((p) => p.slug === s)).filter(Boolean) as StaticPageData[]
-  const items = useMemo(() => groupBlocks(page.blocks ?? []), [page])
+  const isApc = page.slug === 'apc-payment' && page.group === 'for-authors'
+  // The APC page carries its own FAQ, so the page's generic blocks are not repeated under it.
+  const items = useMemo(() => groupBlocks(isApc ? [] : page.blocks ?? []), [page, isApc])
   const ethics = page.slug === 'publication-ethics' && page.group === 'policies'
   const toc = useMemo<TocItem[]>(() => ethics ? ethicsToc : [
-    ...page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading })),
+    ...(isApc ? APC_TOC_J4 : page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading }))),
     ...items.map((i) => ({ id: i.id, label: i.title })),
-  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items, ethics])
+  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items, ethics, isApc])
 
   const chip = 'inline-flex items-center gap-1 rounded-ctl border px-2.5 py-1 font-medium'
   return (
@@ -55,9 +58,10 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
           <QuickNav toc={toc} />
           <article className="min-w-0 space-y-5">
             {ethics && <EthicsPolicy />}
-            {!ethics && page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={n + 1} id={anchorId(s.heading)} />)}
+            {isApc && <ApcPaymentJ4 />}
+            {!ethics && !isApc && page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={n + 1} id={anchorId(s.heading)} />)}
             {!ethics && items.map((it, i) => {
-              const num = page.sections.length + i + 1
+              const num = (isApc ? APC_TOC_J4.length : page.sections.length) + i + 1
               return (
                 <section key={it.id} aria-labelledby={it.id} className="scroll-mt-28 rounded-pane border border-abyss-200 bg-white p-5 shadow-hair sm:p-7">
                   <SectionHead num={num} id={it.id} title={it.title} />

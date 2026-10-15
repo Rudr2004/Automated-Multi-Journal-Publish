@@ -1,12 +1,12 @@
-// Compact "Track My Paper" form for sidebars: Paper ID + email, validated, then opens the tracking page with both filled in. No login.
+// Compact "Track My Paper" form for sidebars: Manuscript ID + email, validated, then opens the tracking page with both filled in. No login.
 import { useId, useState, type FormEvent } from 'react'
-import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import { useRouter } from '../../../core/router'
 import { Button } from './Button'
 import { Track } from '../icons'
 import { ManageSearch } from './refIconsJ4'
+import { idExample } from '../../../core/lib/manuscriptId'
 
 const input = 'h-10 w-full rounded-ctl border border-abyss-300 bg-white px-3 text-sm text-abyss-900 placeholder:text-steel-500 focus:border-azure-600 focus:outline-none focus:ring-4 focus:ring-azure-600/15 focus-visible:!outline-none'
 
@@ -30,8 +30,8 @@ export function TrackQuickFormJ4({ variant = 'default' }: { variant?: 'default' 
   return (
     <form onSubmit={submit} noValidate className={ref ? 'space-y-2.5' : 'space-y-3'}>
       <div>
-        <label htmlFor={`${id}-p`} className={ref ? 'mb-1 block text-[11px] font-medium text-slate-600' : 'text-xs font-semibold text-abyss-800'}>{ref ? 'Manuscript ID' : 'Paper ID'}</label>
-        <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`${ref ? 'e.g. ' : ''}${journal.paperIdPrefix}2026000112`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={ref ? `${refInput} font-mono` : `${input} mt-1 tabular-nums`} />
+        <label htmlFor={`${id}-p`} className={ref ? 'mb-1 block text-[11px] font-medium text-slate-600' : 'text-xs font-semibold text-abyss-800'}>{ref ? 'Manuscript ID' : 'Manuscript ID'}</label>
+        <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`${ref ? 'e.g. ' : ''}${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={ref ? `${refInput} font-mono` : `${input} mt-1 tabular-nums`} />
         {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
       </div>
       <div>

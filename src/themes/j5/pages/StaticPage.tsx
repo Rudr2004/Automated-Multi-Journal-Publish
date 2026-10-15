@@ -1,4 +1,5 @@
 // IJFRD static pages: numbered clauses with a sticky table of contents (left), related pages, rich blocks, and a two-column contact layout.
+import { ApcPaymentJ5, APC_TOC_J5 } from './ApcPaymentJ5'
 import { useMemo } from 'react'
 import { journal } from '../../../config/journals'
 import { staticGroups } from '../../../config/routes'
@@ -40,12 +41,14 @@ function groupBlocks(blocks: StaticBlock[]): Item[] {
 
 export function StaticPage({ page, allPages, actions }: { page: StaticPageData; allPages: StaticPageData[]; actions: BlockActions }) {
   const related = page.related.map((s) => allPages.find((p) => p.slug === s)).filter(Boolean) as StaticPageData[]
-  const items = useMemo(() => groupBlocks(page.blocks ?? []), [page])
+  const isApc = page.slug === 'apc-payment' && page.group === 'for-authors'
+  // The APC page carries its own FAQ, so the page's generic blocks are not repeated under it.
+  const items = useMemo(() => groupBlocks(isApc ? [] : page.blocks ?? []), [page, isApc])
   const toc = useMemo<TocItem[]>(() => [
     ...(page.principles ? [{ id: 's-principles', label: 'Our ethical principles' }] : []),
-    ...page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading })),
+    ...(isApc ? APC_TOC_J5 : page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading }))),
     ...items.map((i) => ({ id: i.id, label: i.title })),
-  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items])
+  ].map((t, n) => ({ ...t, num: n + 1 })), [page, items, isApc])
   const offset = page.principles ? 1 : 0
 
   const label = (n: number) => `${staticGroups[page.group].label} · Section ${n}`
@@ -73,9 +76,10 @@ export function StaticPage({ page, allPages, actions }: { page: StaticPageData; 
                 </ul>
               </section>
             )}
-            {page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={offset + n + 1} id={anchorId(s.heading)} label={label(offset + n + 1)} />)}
+            {isApc && <ApcPaymentJ5 />}
+            {!isApc && page.sections.map((s, n) => <SectionClauses key={s.heading} section={s} num={offset + n + 1} id={anchorId(s.heading)} label={label(offset + n + 1)} />)}
             {items.map((it, i) => {
-              const num = offset + page.sections.length + i + 1
+              const num = offset + (isApc ? APC_TOC_J5.length : page.sections.length) + i + 1
               return (
                 <section key={it.id} aria-labelledby={it.id} className={card}>
                   {eyebrow(num)}
