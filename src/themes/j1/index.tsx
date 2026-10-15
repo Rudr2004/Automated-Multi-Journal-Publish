@@ -7,6 +7,7 @@ import { AsyncView } from './components/AsyncView'
 import { ExitIntent } from './components/ExitIntent'
 import { ToastProvider } from './components/Toast'
 import { SiteLayout } from './layouts/SiteLayout'
+import { j1Placeholders } from './layouts/navItems'
 import { ArticlePage } from './pages/ArticlePage'
 import { ComingSoon } from './pages/ComingSoon'
 import { EditorialBoardPage } from './pages/EditorialBoardPage'
@@ -30,5 +31,5 @@ const theme: Theme = {
 }
 
 export default function J1Site() {
-  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} />
+  return <SiteShell theme={theme} Providers={ToastProvider} Layout={SiteLayout} ComingSoon={ComingSoon} placeholders={[...j1Placeholders]} />
 }

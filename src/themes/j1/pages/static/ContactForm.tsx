@@ -7,6 +7,7 @@ import { useToast } from '../../components/Toast'
 import type { FormErrors } from '../../../../core/lib/submission'
 import { focusFirstError, useVisibleErrors } from '../../../../core/lib/useVisibleErrors'
 import * as v from '../../../../core/lib/validators'
+import { idExample, idMaxLength, normalizeId } from '../../../../core/lib/manuscriptId'
 
 const TOPICS = ['Submission help', 'Payment or invoice', 'Certificate query', 'Editorial decision', 'Technical issue', 'Other']
 const MAX = 1500
@@ -67,8 +68,8 @@ export function ContactForm({ onSubmit }: { onSubmit: (v: Values) => Promise<{ t
         <Field label="Topic" name="topic" required error={errors.topic}>
           <select className={inputClass(errors.topic)} value={f.topic} onChange={(e) => set('topic', e.target.value)}><option value="">Select…</option>{TOPICS.map((t) => <option key={t}>{t}</option>)}</select>
         </Field>
-        <Field label="Paper ID (optional)" name="paperId" error={errors.paperId} hint="Include it if your question is about a submission.">
-          <input className={inputClass(errors.paperId)} value={f.paperId} maxLength={15} spellCheck={false} placeholder="IJMAT2026000123" onChange={(e) => set('paperId', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} />
+        <Field label="Manuscript ID (optional)" name="paperId" error={errors.paperId} hint="Include it if your question is about a submission.">
+          <input className={inputClass(errors.paperId)} value={f.paperId} maxLength={idMaxLength} spellCheck={false} placeholder={idExample} onChange={(e) => set('paperId', normalizeId(e.target.value))} />
         </Field>
       </div>
       <Field label="Message" name="message" required error={errors.message} counter={`${f.message.length} / ${MAX}`}>

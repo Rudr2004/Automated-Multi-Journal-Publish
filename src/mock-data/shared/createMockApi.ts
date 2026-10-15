@@ -5,6 +5,7 @@ import type {
   ArticleFull, ArticleSummary, ContactTicketInput, EditorProfile, HomeData, IssueData, IssueSummary, ReviewerApplicationInput,
   SearchSuggestions, StaticGroup, StaticPageData, SubmissionInput, TrackResult, TrackedPaper,
 } from '../../core/types'
+import { caseId, certificatePattern, isOwnId } from '../../core/lib/manuscriptId'
 import type { JournalConfig } from '../../config/journals/types'
 import { respond } from './latency'
 
@@ -58,8 +59,8 @@ export function createMockApi(d: MockDataset): JournalApi {
     const out: SearchSuggestions = { articles: rankArticles(term).slice(0, 4), authors: [], keywords: [] }
 
     // Exact DOI (10.55041/JIMRT2026000045) or Paper ID (JIMRT2026000045).
-    const id = term.toUpperCase().replace(new RegExp(`^${escapeRe(journal.doiPrefix)}/`), '')
-    if (new RegExp(`^${escapeRe(journal.paperIdPrefix)}\\d{10}$`).test(id)) {
+    const id = caseId(term).replace(new RegExp(`^${escapeRe(journal.doiPrefix)}/`, 'i'), '')
+    if (isOwnId(id)) {
       out.direct = { paperId: id, via: term.includes('/') ? 'doi' : 'paper-id', article: d.byId(id) }
     }
 
@@ -70,15 +71,21 @@ export function createMockApi(d: MockDataset): JournalApi {
     return out
   }
 
-  const certRe = new RegExp(`^${escapeRe(journal.paperIdPrefix)}-CERT-(${escapeRe(journal.paperIdPrefix)}\\d{10})(?:-A(\\d))?$`)
+  /** Adds the affiliations an issue list shows under each article (taken from the full article record). */
+  const withAffiliations = (a: ArticleSummary): ArticleSummary => {
+    const full = d.buildFull(a)
+    return { ...a, affiliations: full.affiliations, authorAffiliations: full.authorDetails.map((x) => x.affiliations) }
+  }
+
+  const certRe = certificatePattern()
 
   return {
     getHome: () => respond(() => d.home),
-    getCurrentIssue: () => respond<IssueData>(() => ({ issue: d.currentIssue, articles: d.issueArticles(d.currentIssue.volume, d.currentIssue.issue) })),
+    getCurrentIssue: () => respond<IssueData>(() => ({ issue: d.currentIssue, articles: d.issueArticles(d.currentIssue.volume, d.currentIssue.issue).map(withAffiliations) })),
     getIssue: (volume, issue) =>
       respond<IssueData | null>(() => {
         const meta = d.issues.find((i) => i.volume === volume && i.issue === issue)
-        return meta ? { issue: meta, articles: d.issueArticles(volume, issue) } : null
+        return meta ? { issue: meta, articles: d.issueArticles(volume, issue).map(withAffiliations) } : null
       }),
     listArticles: () => respond(() => d.articles),
     listIssues: () => respond(() => [...d.issues].reverse()),
@@ -105,8 +112,8 @@ export function createMockApi(d: MockDataset): JournalApi {
     submitPaymentProof: (_paperId, _proof) => respond(() => ({ status: 'verifying' as const })),
     verifyCertificate: (id) =>
       respond(() => {
-        const m = id.trim().toUpperCase().match(certRe)
-        const a = m && d.byId(m[1])
+        const m = id.trim().match(certRe)
+        const a = m && d.byId(caseId(m[1]))
         return a ? { valid: true as const, article: a, author: a.authors[Math.max(0, Number(m![2] ?? 1) - 1)] ?? a.authors[0] } : { valid: false as const }
       }),
   }

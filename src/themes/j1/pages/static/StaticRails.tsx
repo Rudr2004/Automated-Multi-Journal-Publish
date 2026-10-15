@@ -1,12 +1,13 @@
 // Side rails of the static-page template: policy directory (left) and the action cards (right).
 import { useRef, useState, type FormEvent } from 'react'
 import {
-  MdOutlineDownload, MdOutlineFactCheck, MdOutlineFolderOpen, MdOutlineFolderZip, MdOutlineGavel, MdOutlineLockOpen, MdOutlineSearch,
+  MdOutlineDownload, MdOutlineFolderOpen, MdOutlineGavel, MdOutlineLockOpen, MdOutlineSearch,
   MdOutlineTrackChanges, MdOutlineUploadFile, MdOutlineVerified, MdOutlineVerifiedUser, MdOutlineWorkspacePremium, MdOutlineArticle,
 } from 'react-icons/md'
+import { idExample, idMaxLength, normalizeId } from '../../../../core/lib/manuscriptId'
 import type { IconType } from 'react-icons'
 import type { StaticGroup, StaticPageData } from '../../../../mock-data/journals/j1'
-import { journal, visibleLogos } from '../../../../config/journals/j1'
+import { journal, logoSrc, visibleLogos } from '../../../../config/journals/j1'
 import { paths, staticPath } from '../../../../config/routes'
 import * as validate from '../../../../core/lib/validators'
 import { formatDate } from '../../../../core/lib/format'
@@ -17,7 +18,7 @@ import { Countdown } from '../../components/Countdown'
 import { inputClass } from '../../components/form'
 import { Card } from '../../components/PortalParts'
 import { useToast } from '../../components/Toast'
-import { OpenInNew } from '../../components/uiIcons'
+import { logoAlt } from '../../components/IndexLogos'
 import { StaticIcon } from './staticIcons'
 
 /** How the policy pages are grouped in the directory card. Pages that are not listed fall into the last group. */
@@ -103,7 +104,7 @@ function CfpCard() {
   )
 }
 
-/** Track form in the reference order: author email first, then the Paper ID. */
+/** Track form in the reference order: author email first, then the Manuscript ID. */
 function TrackCard() {
   const { navigate } = useRouter()
   const [email, setEmail] = useState('')
@@ -116,7 +117,7 @@ function TrackCard() {
     setErrors(next)
     if (next.email) return void first.current?.focus()
     if (next.paperId) return
-    navigate(`${paths.track}?id=${paperId.trim().toUpperCase()}&email=${encodeURIComponent(email.trim().toLowerCase())}`)
+    navigate(`${paths.track}?id=${normalizeId(paperId.trim())}&email=${encodeURIComponent(email.trim().toLowerCase())}`)
   }
   const label = 'mb-1 block text-[11px] font-bold uppercase tracking-wider text-ink-muted'
   return (
@@ -130,10 +131,10 @@ function TrackCard() {
           {errors.email && <p id="static-trk-email-err" role="alert" className="mt-1 text-xs font-medium text-danger">{errors.email}</p>}
         </div>
         <div>
-          <label htmlFor="static-trk-paper" className={label}>Paper ID</label>
-          <input id="static-trk-paper" className={inputClass(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder="IJMAT2026000123"
+          <label htmlFor="static-trk-paper" className={label}>Manuscript ID</label>
+          <input id="static-trk-paper" className={inputClass(errors.paperId)} value={paperId} maxLength={idMaxLength} autoComplete="off" spellCheck={false} placeholder={idExample}
             aria-invalid={errors.paperId ? true : undefined} aria-describedby={errors.paperId ? 'static-trk-paper-err' : undefined}
-            onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+            onChange={(e) => { setPaperId(normalizeId(e.target.value)); setErrors((x) => ({ ...x, paperId: undefined })) }} />
           {errors.paperId && <p id="static-trk-paper-err" role="alert" className="mt-1 text-xs font-medium text-danger">{errors.paperId}</p>}
         </div>
         <Button type="submit" className="w-full"><MdOutlineSearch className="h-5 w-5" aria-hidden />Check Review Status</Button>
@@ -143,8 +144,8 @@ function TrackCard() {
 }
 
 const DOWNLOADS = [
-  ['Manuscript Template', 'DOCX', MdOutlineArticle], ['LaTeX Journal Template', 'ZIP', MdOutlineFolderZip],
-  ['Peer Review Scorecard', 'PDF', MdOutlineFactCheck], ['Sample Publication Certificate', 'PDF', MdOutlineWorkspacePremium],
+  ['Manuscript Template', 'DOCX', MdOutlineArticle], ['Sample Acceptance Certificate', 'PDF', MdOutlineVerified],
+  ['Sample Publication Certificate', 'PDF', MdOutlineWorkspacePremium],
 ] as const
 
 /** Right column: call for papers, track, awards, indexing verifier, downloads, author rights. */
@@ -162,8 +163,8 @@ export function PolicyRightRail() {
             {logos.map((l) => (
               <li key={l.id}>
                 <a href={l.verifyUrl} target="_blank" rel="noopener noreferrer" title={`${l.status}. Verify on ${l.name}`}
-                  className="flex h-9 items-center justify-between gap-1 rounded border border-line bg-white px-2 text-xs font-medium text-ink hover:border-scholar hover:text-scholar">
-                  <span className="truncate">{l.name}</span><OpenInNew className="h-3.5 w-3.5 shrink-0 text-ink-muted" aria-hidden /><span className="sr-only"> (opens in a new tab)</span>
+                  className="flex h-12 items-center justify-center rounded border border-line bg-white px-2 hover:border-scholar">
+                  <img src={logoSrc(l.file)} alt={logoAlt(l)} loading="lazy" className="max-h-7 w-auto max-w-full object-contain" /><span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             ))}

@@ -9,7 +9,6 @@ import {
 import { digitsOnly, formatOrcid, formatReferral, parseKeywords, phoneMaxLength } from '../../../../core/lib/validators'
 import { branchesFor } from '../../../../core/lib/branches'
 import { useDetectedLocation } from '../../../../core/lib/geo'
-import { ARTICLE_TYPES, type ArticleType } from '../../../../core/types'
 import { AppLink } from '../../../../core/router'
 import { Button } from '../../components/Button'
 import { CheckField, Field, inputCls } from '../../components/FieldKit'
@@ -46,6 +45,11 @@ export function SectionCard({ id, n, title, text, done, children }: { id: string
   )
 }
 
+/** Article types an author can choose when submitting. */
+const SUBMISSION_ARTICLE_TYPES = ['Original Research Article', 'Review Article', 'Case Study', 'Survey Paper', 'Short Communication', 'Technical Paper', 'Conceptual Paper'] as const
+/** Subject areas an author can choose (the specialization list depends on the one picked). */
+const SUBMISSION_SUBJECTS = ['Engineering & Technology', 'Computer Science', 'Applied & Natural Sciences', 'Pharmaceutical Sciences', 'Management, Business & Commerce', 'Social Sciences & Education', 'Arts & Humanities', 'Multidisciplinary Studies'] as const
+
 export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => setForm((f) => ({ ...f, [k]: v }))
   const branches = branchesFor(form.subject)
@@ -58,6 +62,7 @@ export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
         <input className={inputCls(errors.title)} value={form.title} maxLength={LIMITS.title} placeholder="Full title of your manuscript"
           onChange={(e) => set('title', e.target.value.replace(/\s{2,}/g, ' '))} onBlur={() => set('title', form.title.trim())} />
       </Field>
+      {journal.collectAbstract !== false && <>
       <div>
         <Field label="Abstract" name="abstract" required error={errors.abstract} hint={`${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words. Summarise the aim, method, findings and conclusion.`}>
           <textarea rows={8} className={inputCls(errors.abstract)} value={form.abstract} onChange={(e) => set('abstract', e.target.value)} onBlur={() => set('abstract', form.abstract.trim())} />
@@ -70,24 +75,25 @@ export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
         </Field>
         {kw.length > 0 && <ul aria-label="Keyword preview" className="mt-2 flex flex-wrap gap-1.5">{kw.slice(0, 12).map((k, i) => <li key={`${k}-${i}`}><Tag>{k}</Tag></li>)}</ul>}
       </div>
+      </>}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Article type" name="articleType" required error={errors.articleType}>
-          <select className={inputCls(errors.articleType)} value={form.articleType} onChange={(e) => set('articleType', e.target.value as ArticleType | '')}>
+          <select className={inputCls(errors.articleType)} value={form.articleType} onChange={(e) => set('articleType', e.target.value)}>
             <option value="">Select a type</option>
-            {ARTICLE_TYPES.filter((t) => t !== 'Editorial').map((t) => <option key={t}>{t}</option>)}
+            {SUBMISSION_ARTICLE_TYPES.map((t) => <option key={t}>{t}</option>)}
           </select>
         </Field>
         <Field label="Discipline" name="subject" required error={errors.subject}>
           <select className={inputCls(errors.subject)} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, branch: '' }))}>
             <option value="">Select a discipline</option>
-            {journal.subjects.map((s) => <option key={s}>{s}</option>)}
+            {SUBMISSION_SUBJECTS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </Field>
         {branches.length > 0 && (
           <div className="sm:col-span-2">
-            <Field label="Branch" name="branch" required error={errors.branch} hint={`A branch of ${form.subject}.`}>
+            <Field label="Specialization" name="branch" required error={errors.branch} hint={`A specialization within ${form.subject}.`}>
               <select className={inputCls(errors.branch)} value={form.branch} onChange={(e) => set('branch', e.target.value)}>
-                <option value="">Select a branch</option>
+                <option value="">Select a specialization</option>
                 {branches.map((b) => <option key={b}>{b}</option>)}
               </select>
             </Field>
@@ -100,17 +106,21 @@ export function ManuscriptSection({ form, errors, setForm }: SectionProps) {
 
 export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   const a = form.author
-  const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({ ...f, author: { ...f.author, ...patch } }))
+  // Co-authors start with the corresponding author's affiliation and follow it while it is unchanged; each can be edited freely.
+  const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({
+    ...f, author: { ...f.author, ...patch },
+    coAuthors: patch.institution === undefined ? f.coAuthors : f.coAuthors.map((c) => (c.institution === f.author.institution ? { ...c, institution: patch.institution! } : c)),
+  }))
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     setForm((f) => ({ ...f, coAuthors: f.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
-  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] }))
+  const addCo = () => setForm((f) => ({ ...f, coAuthors: [...f.coAuthors, { id: Date.now(), name: '', email: '', institution: f.author.institution, orcid: '', photo: null }] }))
   const removeCo = (id: number) => setForm((f) => ({ ...f, coAuthors: f.coAuthors.filter((c) => c.id !== id) }))
   const maxPhone = phoneMaxLength(a.dialCode)
   // Country and dialling code are pre-selected from the visitor's IP address (once, and only while they are still the defaults).
   const geoNote = useDetectedLocation(a, setAuthor)
   // The mentor card opens on request (like co-authors); it starts open when a draft already has mentor details.
-  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorInstitution))
-  const removeMentor = () => { setMentorOpen(false); setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorInstitution: '' })) }
+  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorInstitution || form.mentorOrcid || form.mentorPhoto))
+  const removeMentor = () => { setMentorOpen(false); setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorInstitution: '', mentorOrcid: '', mentorPhoto: null })) }
 
   return (
     <div className="space-y-8">
@@ -139,15 +149,19 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
               onChange={(e) => setAuthor({ whatsapp: digitsOnly(e.target.value).slice(0, maxPhone) })} />
           </Field>
         </div>
+        <Field label="Affiliation (institution)" name="author.institution" required error={errors['author.institution']}>
+          <input className={inputCls(errors['author.institution'])} value={a.institution} maxLength={LIMITS.institution} autoComplete="organization"
+            onChange={(e) => setAuthor({ institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ institution: a.institution.trim() })} />
+        </Field>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Affiliation (institution)" name="author.institution" required error={errors['author.institution']}>
-            <input className={inputCls(errors['author.institution'])} value={a.institution} maxLength={LIMITS.institution} autoComplete="organization"
-              onChange={(e) => setAuthor({ institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ institution: a.institution.trim() })} />
-          </Field>
           <Field label="Country" name="author.country" required error={errors['author.country']}>
             <select className={inputCls(errors['author.country'])} value={a.country} autoComplete="country-name" onChange={(e) => setAuthor({ country: e.target.value })}>
               {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
             </select>
+          </Field>
+          <Field label="Town / City" name="author.city" hint="Detected from your network; edit it if it is not right.">
+            <input className={inputCls()} value={a.city ?? ''} maxLength={LIMITS.name} autoComplete="address-level2"
+              onChange={(e) => setAuthor({ city: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ city: (a.city ?? '').trim() })} />
           </Field>
         </div>
         <ProfilePhotoField value={a.photo} onChange={(photo) => setAuthor({ photo })} error={errors['author.photo']} />
@@ -172,16 +186,17 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
                 <span className="text-sm font-semibold text-graphite-800">Co-author {i + 1}</span>
                 <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="inline-flex items-center gap-1 rounded-chip px-2 py-1 text-xs font-semibold text-red-700 hover:bg-white"><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                   <input className={inputCls(errors[`co.${c.id}.name`])} value={c.name} maxLength={LIMITS.name} onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />
                 </Field>
-                <Field label="Email" name={`co.${c.id}.email`} required error={errors[`co.${c.id}.email`]}>
-                  <input type="email" className={inputCls(errors[`co.${c.id}.email`])} value={c.email} maxLength={LIMITS.email} onChange={(e) => setCo(c.id, { email: cleanEmail(e.target.value) })} onBlur={() => setCo(c.id, { email: c.email.trim().toLowerCase() })} />
-                </Field>
-                <Field label="Affiliation" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]}>
+                <Field label="Affiliation" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]} hint="Taken from the corresponding author; edit it if this co-author is elsewhere.">
                   <input className={inputCls(errors[`co.${c.id}.institution`])} value={c.institution} maxLength={LIMITS.institution} onChange={(e) => setCo(c.id, { institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setCo(c.id, { institution: c.institution.trim() })} />
                 </Field>
+                <Field label="ORCID iD (optional)" name={`co.${c.id}.orcid`} error={errors[`co.${c.id}.orcid`]} hint="Format: 0000-0002-1825-0097">
+                  <input className={inputCls(errors[`co.${c.id}.orcid`])} value={c.orcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setCo(c.id, { orcid: formatOrcid(e.target.value) })} />
+                </Field>
+                <ProfilePhotoField compact name={`co.${c.id}.photo`} value={c.photo ?? null} onChange={(photo) => setCo(c.id, { photo })} error={errors[`co.${c.id}.photo`]} />
               </div>
             </li>
           ))}
@@ -209,6 +224,10 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
               <Field label="Email" name="mentorEmail" error={errors.mentorEmail}>
                 <input type="email" className={inputCls(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => setForm((f) => ({ ...f, mentorEmail: cleanEmail(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentorEmail: f.mentorEmail.trim().toLowerCase() }))} />
               </Field>
+              <Field label="ORCID iD (optional)" name="mentorOrcid" error={errors.mentorOrcid} hint="Format: 0000-0002-1825-0097">
+                <input className={inputCls(errors.mentorOrcid)} value={form.mentorOrcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setForm((f) => ({ ...f, mentorOrcid: formatOrcid(e.target.value) }))} />
+              </Field>
+              <ProfilePhotoField compact name="mentor.photo" value={form.mentorPhoto ?? null} onChange={(photo) => setForm((f) => ({ ...f, mentorPhoto: photo }))} error={errors['mentor.photo']} />
               <div className="sm:col-span-2">
                 <Field label="Affiliation" name="mentorInstitution" error={errors.mentorInstitution}>
                   <input className={inputCls(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} onChange={(e) => setForm((f) => ({ ...f, mentorInstitution: e.target.value.replace(/\s{2,}/g, ' ') }))} onBlur={() => setForm((f) => ({ ...f, mentorInstitution: f.mentorInstitution.trim() }))} />
@@ -237,10 +256,6 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
           <input className={inputCls(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
         </Field>
       </div>
-      <Field label="Cover letter / suggested reviewers" name="coverLetter" error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
-        <textarea rows={5} className={inputCls(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}
-          placeholder={`Briefly explain why this work suits ${journal.shortName}, and name any reviewers you suggest.`} />
-      </Field>
 
       <fieldset className="space-y-4 rounded-panel border border-graphite-200 bg-white p-4 sm:p-5">
         <legend className="px-2 font-display text-sm font-bold uppercase tracking-[0.1em] text-brand-900">Mandatory author declarations &amp; ethics</legend>

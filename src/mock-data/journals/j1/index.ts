@@ -52,7 +52,7 @@ const home: J1HomeData = {
   leadership: editors.filter((e) => ['Editor-in-Chief', 'Managing Editor', 'Associate Editor'].includes(e.role)).slice(0, 4),
   latest: body.slice(0, 6),
   mostRead: [...allArticles].sort((a, b) => b.views - a.views).slice(0, 6),
-  editorsChoice: ['IJMAT2026000122', 'IJMAT2026000125', 'IJMAT2026000115'].map((id) => byId(id)!),
+  editorsChoice: ['ijmat.v4i9.002', 'ijmat.v4i9.005', 'ijmat.v4i8.002'].map((id) => byId(id)!),
   callForPapers: {
     issueName: journal.nextIssue.label,
     deadline: journal.nextIssue.deadline,
@@ -60,7 +60,7 @@ const home: J1HomeData = {
     avgReviewDays: 14,
   },
   testimonials: [
-    { quote: 'The review was fast and the comments were genuinely constructive. I had my Paper ID within seconds and tracked every stage without creating an account.', name: 'Dr. Sunita Verma', role: 'Associate Professor, Materials Engineering', institution: 'Indian Institute of Technology, Delhi', photo: portraitFor('Sunita Verma') },
+    { quote: 'The review was fast and the comments were genuinely constructive. I had my Manuscript ID within seconds and tracked every stage without creating an account.', name: 'Dr. Sunita Verma', role: 'Associate Professor, Materials Engineering', institution: 'Indian Institute of Technology, Delhi', photo: portraitFor('Sunita Verma') },
     { quote: 'Transparent charges, a DOI on publication and a certificate for every co-author. Exactly what an early-career researcher needs.', name: 'Dr. Marcus Hoffmann', role: 'Postdoctoral Researcher, Energy Systems', institution: 'Technical University of Munich, Germany', photo: portraitFor('Marcus Hoffmann') },
     { quote: 'WhatsApp support resolved my payment query in minutes. A professional and responsive editorial office.', name: 'Dr. Chinwe Eze', role: 'Senior Lecturer, Public Health', institution: 'University of Nigeria, Nsukka', photo: portraitFor('Chinwe Eze') },
   ],
@@ -86,6 +86,6 @@ export const j1Api = createMockApi({
 
 export const j1Demo: PrototypeDemo = {
   trackedPapers,
-  articleIds: ['IJMAT2026000121', 'IJMAT2026000122', 'IJMAT2026000126'],
+  articleIds: ['ijmat.v4i9.001', 'ijmat.v4i9.002', 'ijmat.v4i9.006'],
   pastIssue: [3, 5],
 }

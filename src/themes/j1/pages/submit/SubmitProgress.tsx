@@ -3,7 +3,7 @@ import { CheckCircle2, Loader2 } from '../../components/uiIcons'
 const STAGES = [
   { upto: 35, label: 'Uploading your manuscript' },
   { upto: 60, label: 'Checking file and format' },
-  { upto: 85, label: 'Generating your Paper ID' },
+  { upto: 85, label: 'Generating your Manuscript ID' },
   { upto: 101, label: 'Sending confirmation by email, SMS and WhatsApp' },
 ]
 

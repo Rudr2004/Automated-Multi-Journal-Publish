@@ -73,7 +73,7 @@ export function IssueArticleCard({ article, highlight, featured = false }: { art
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-[13px] text-ink-muted">
         <span className="font-mono text-xs tabular-nums">
           <span className="font-semibold">DOI</span> <a href={`https://doi.org/${doi}`} className="text-scholar hover:underline">{doi}</a>
-          <span aria-hidden className="mx-1.5">•</span><span className="font-semibold">MS ID</span> <span className="text-ink">{article.paperId}</span>
+          <span aria-hidden className="mx-1.5">•</span><span className="font-semibold">Manuscript ID</span> <span className="text-ink">{article.paperId}</span>
         </span>
         <span className="ml-auto flex flex-wrap items-center gap-4 font-semibold tabular-nums text-ink">
           <span className="inline-flex items-center gap-1"><Eye className="h-4 w-4 text-ink-muted" aria-hidden />{formatNumber(article.views)}<span className="sr-only"> views</span></span>

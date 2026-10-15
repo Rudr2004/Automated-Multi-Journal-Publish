@@ -1,3 +1,4 @@
+import { journal } from '../../config/journals'
 // Branches (sub-fields) offered once an author has picked a discipline on the submission form. Keyed by the exact discipline names
 // that Journal 1 and Journal 2 use in their config; a discipline that is not listed here simply has no branch question.
 
@@ -21,4 +22,4 @@ export const BRANCHES: Record<string, string[]> = {
 }
 
 /** The branch options for a discipline (empty when the discipline has none). */
-export const branchesFor = (subject: string): string[] => BRANCHES[subject] ?? []
+export const branchesFor = (subject: string): string[] => (journal.specializations ?? BRANCHES)[subject] ?? []

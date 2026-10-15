@@ -15,6 +15,9 @@ export interface ArticleSummary {
   downloads: number
   citations: number
   abstract: string
+  /** Issue lists only: the article's affiliations and, per author, the numbers of theirs (same order as `authors`). */
+  affiliations?: string[]
+  authorAffiliations?: number[][]
 }
 
 export interface IssueSummary {

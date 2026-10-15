@@ -1,6 +1,7 @@
 // Single source of truth for Journal 2 (JIMRT): identity, charges, trust items, index logos, disciplines and badge switches.
 // Routes live in ../routes. Comments marked "client to confirm" are placeholders the client must verify before launch.
 import { paths } from '../routes'
+import { J2_SPECIALIZATIONS } from './specializations'
 import type { Discipline, IndexLogo, JournalConfig } from './types'
 
 const DAY = 86400000
@@ -26,6 +27,11 @@ export const journal: JournalConfig = {
   name: 'Journal of Innovation in Multidisciplinary Research and Technology',
   shortName: 'JIMRT',
   tagline: 'Open research that crosses disciplines',
+  sjifImpactFactor: '6.042',
+  maxFileMb: 20,
+  coAuthorEmailOptional: true, // co-authors give name, affiliation, optional picture and optional ORCID iD (no email asked)
+  collectAbstract: false, // the manuscript file carries the abstract and keywords
+  specializations: J2_SPECIALIZATIONS, // from the client's specialization sheet
   descriptor: 'Peer-reviewed · Open access · Multidisciplinary',
   mission:
     'JIMRT is a monthly open access journal that publishes rigorous research and technology papers from every discipline, with fast, fair peer review and permanent DOIs.',
@@ -39,7 +45,7 @@ export const journal: JournalConfig = {
   licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
   apc: { inr: 6000, usd: 110, gstPercent: 18 }, // [INR] / [USD] — client to confirm; GST for Indian authors only
   email: 'editor@jimrt.org',
-  whatsapp: '+91 90000 00001', // client to confirm
+  whatsapp: '+91 99668 54489', // client to confirm
   address: 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
   location: { lat: 13.0306, lng: 77.6593 },
   subjects: j2Disciplines.map((d) => d.name),
@@ -88,7 +94,7 @@ export const journal: JournalConfig = {
 
   // Only Crossref and Google Scholar are switched on; the rest stay off until the client confirms each listing.
   logos: [
-    logo('crossref', 'Crossref', '', 'https://search.crossref.org/', true, 'DOI registration agency; every JIMRT article has a Crossref DOI.', 'Your article gets a permanent, citable DOI that resolves to its page.', 'Active'),
+    logo('crossref', 'Crossref', 'crossref.png', 'https://search.crossref.org/', true, 'DOI registration agency; every JIMRT article has a Crossref DOI.', 'Your article gets a permanent, citable DOI that resolves to its page.', 'Active'),
     logo('scholar', 'Google Scholar', 'google-scholar.png', 'https://scholar.google.com/', true, 'Article pages carry Scholar-compatible metadata so papers can be found and cited.', 'Your article can be found by researchers searching Google Scholar.', 'Monitored'),
     logo('openalex', 'OpenAlex', 'openalex.png', 'https://openalex.org/', false, 'Open catalogue of scholarly works, authors and citations.', 'Your paper appears in an open research graph.', 'Not yet listed'),
     logo('semantic', 'Semantic Scholar', 'semantic-scholar.png', 'https://www.semanticscholar.org/', false, 'AI-assisted research discovery tool.', 'Readers can discover your paper through recommendations.', 'Not yet listed'),

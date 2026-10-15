@@ -20,14 +20,11 @@ const Row = ({ k, children }: { k: string; children?: ReactNode }) => (
 
 export function ReviewSummary({ form, missing }: { form: SubmissionForm; missing: number }) {
   const a = form.author
-  const abstract = form.abstract.trim()
   return (
     <div>
       <dl className="divide-y divide-graphite-100 rounded-panel border border-graphite-200 bg-white px-4">
         <Row k="Title">{form.title}</Row>
         <Row k="Type and discipline">{form.articleType && form.subject ? `${form.articleType} · ${form.subject}${form.branch ? ` · ${form.branch}` : ''}` : ''}</Row>
-        <Row k="Keywords">{form.keywords}</Row>
-        <Row k="Abstract">{abstract && (abstract.length > 200 ? `${abstract.slice(0, 200)}…` : abstract)}</Row>
         <Row k="Corresponding author">{a.name && `${a.name}${a.email ? ` (${a.email})` : ''}`}</Row>
         <Row k="WhatsApp">{a.whatsapp && `${a.dialCode} ${a.whatsapp}`}</Row>
         <Row k="Profile picture">{a.photo?.name}</Row>

@@ -6,7 +6,7 @@ import { paths } from '../../../../config/routes'
 import { downloadText } from '../../../../core/lib/clipboard'
 
 const NEXT = [
-  ['Submission', 'Done. Your Paper ID was sent by email, SMS and WhatsApp.'],
+  ['Submission', 'Done. Your Manuscript ID was sent by email, SMS and WhatsApp.'],
   ['Review', 'The editor screens your paper. An external reviewer is consulted only if needed.'],
   ['Decision', 'Approve, request changes or reject, with the reason. Decisions are sent daily at 08:45 IST.'],
   ['Acceptance', 'You receive the acceptance letter, copyright form (sign with an email OTP) and payment link.'],
@@ -17,20 +17,20 @@ const NEXT = [
 ]
 
 const receipt = (paperId: string, email: string, title: string) =>
-  [`${journal.name} — Submission receipt`, '', `Paper ID : ${paperId}`, `Title    : ${title || '—'}`, `Email    : ${email}`,
+  [`${journal.name} — Submission receipt`, '', `Manuscript ID : ${paperId}`, `Title    : ${title || '—'}`, `Email    : ${email}`,
     `DOI      : ${doiFor(paperId)}`, `Date     : ${new Date().toISOString().slice(0, 10)}`, '',
-    'Track your paper any time at the Track My Paper page with your Paper ID and email. No account is needed.'].join('\n')
+    'Track your paper any time at the Track My Paper page with your Manuscript ID and email. No account is needed.'].join('\n')
 
 export function SubmitSuccess({ paperId, email, title = '' }: { paperId: string; email: string; title?: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
       <CheckCircle2 className="mx-auto h-14 w-14 text-oa" aria-hidden />
       <h2 className="mt-4 font-serif text-3xl font-semibold text-navy">Manuscript submitted</h2>
-      <p className="mt-2 text-ink-muted">Keep your Paper ID safe. You need it, with your email, to track your paper.</p>
+      <p className="mt-2 text-ink-muted">Keep your Manuscript ID safe. You need it, with your email, to track your paper.</p>
       <div className="mt-6 rounded-card border border-navy border-t-4 bg-paper p-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-ink-muted">Your Paper ID</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-ink-muted">Your Manuscript ID</p>
         <p className="mt-2 break-all font-serif text-4xl font-semibold tracking-wide text-navy sm:text-5xl" data-testid="paper-id">{paperId}</p>
-        <div className="mt-4"><CopyButton text={paperId} label="Copy Paper ID" /></div>
+        <div className="mt-4"><CopyButton text={paperId} label="Copy Manuscript ID" /></div>
       </div>
       <ul className="mt-5 flex flex-wrap justify-center gap-4 text-sm text-ink">
         <li className="inline-flex items-center gap-2"><Mail className="h-4 w-4 text-scholar" aria-hidden />Email sent to {email}</li>

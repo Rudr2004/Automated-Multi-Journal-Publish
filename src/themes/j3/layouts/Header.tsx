@@ -30,13 +30,17 @@ function Masthead() {
       <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 items-center gap-5">
         <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-tile bg-white p-1.5"><Logo className="h-full w-full" /></span>
         <span className="min-w-0">
-          <span className="block whitespace-nowrap font-jakarta text-[1.375rem] font-bold leading-[1.15] tracking-[-0.01em] text-white xl:text-[1.6rem] 2xl:text-[1.75rem]">{journal.name}</span>
+          <span className="block font-jakarta text-[1.375rem] font-bold leading-[1.15] tracking-[-0.01em] text-white xl:text-[1.5rem]">{journal.name}</span>
           <span className="mt-2 block font-jakarta text-xs font-semibold uppercase tracking-[0.08em] text-iris-100">{facts().join('  •  ')}</span>
         </span>
       </AppLink>
       <div className="flex shrink-0 flex-col items-end gap-3">
         <div className="flex items-center gap-3">
-          <p className="rounded-tile border border-white/35 px-3 py-2 font-inter text-xs font-semibold tabular-nums text-white">E-ISSN: {journal.issnOnline}</p>
+          <div className="flex flex-col gap-1.5 font-inter text-xs font-semibold tabular-nums text-white">
+            <p className="rounded-tile border border-white/35 px-3 py-1.5">E-ISSN: {journal.issnOnline}</p>
+            {journal.sjifImpactFactor && <p className="rounded-tile border border-white/35 px-3 py-1.5">SJIF Impact Factor: {journal.sjifImpactFactor}</p>}
+          </div>
+          <AppLink to={paths.track} className="inline-flex items-center gap-2 rounded-tile border border-white/60 px-4 py-2.5 font-jakarta text-sm font-bold text-white transition-colors hover:bg-white/10"><Track className="h-4 w-4" aria-hidden="true" /> Track Status</AppLink>
           <AppLink to={paths.submit} className="inline-flex items-center gap-2 rounded-tile bg-ember-500 px-5 py-2.5 font-jakarta text-sm font-bold text-night-900 transition-colors hover:bg-ember-400"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</AppLink>
         </div>
         <AppLink to={paths.forAuthors('become-a-reviewer')} className="font-inter text-xs font-medium text-white underline underline-offset-4 hover:text-iris-100">Join as a reviewer</AppLink>
@@ -51,15 +55,20 @@ function Dispatch() {
   if (!items.length) return null
   return (
     <div className="border-b border-j3paper-rule bg-j3paper-cool">
-      <p className="mx-auto flex max-w-[1360px] flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 font-inter text-[13px] text-night-700 sm:px-6 lg:px-10">
-        <span className="inline-flex items-center gap-2 font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-iris-700"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" />Latest dispatch:</span>
-        {items.map((a, i) => (
-          <span key={a.id} className="inline-flex items-center gap-3">
-            {i > 0 && <span aria-hidden="true" className="text-mauve-500">&bull;</span>}
-            <AppLink to={a.to} className="hover:text-iris-700 hover:underline">{a.text}</AppLink>
-          </span>
-        ))}
-      </p>
+      <div className="mx-auto flex max-w-[1360px] items-center gap-4 px-4 py-2.5 font-inter text-[13px] text-night-700 sm:px-6 lg:px-10">
+        <span className="inline-flex shrink-0 items-center gap-2 font-jakarta text-xs font-bold uppercase tracking-[0.08em] text-iris-700"><span aria-hidden="true" className="h-2 w-2 bg-ember-500" />Latest dispatch:</span>
+        {/* The announcements scroll from right to left; hover or keyboard focus pauses them, and reduced-motion visitors see them still. */}
+        <div className="j3-pausable min-w-0 flex-1 overflow-hidden motion-reduce:overflow-x-auto">
+          <p className="j3-marquee inline-flex w-max items-center gap-3 whitespace-nowrap" style={{ ['--j3-marquee-duration' as string]: `${Math.max(24, items.length * 18)}s` }}>
+            {items.map((a, i) => (
+              <span key={a.id} className="inline-flex items-center gap-3">
+                {i > 0 && <span aria-hidden="true" className="text-mauve-500">&bull;</span>}
+                <AppLink to={a.to} className="hover:text-iris-700 hover:underline">{a.text}</AppLink>
+              </span>
+            ))}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

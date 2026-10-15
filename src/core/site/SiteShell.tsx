@@ -20,6 +20,8 @@ export interface SiteParts {
   Providers: ComponentType<{ children: ReactNode }>
   Layout: ComponentType<{ children: ReactNode; onSearch: (q: string) => void; onSuggest: SuggestFn; onSubscribe: (email: string) => Promise<void> }>
   ComingSoon: ComponentType<{ title: string }>
+  /** Extra "coming soon" pages this journal's menu links to: [path relative to the journal address, title]. */
+  placeholders?: [path: string, title: string][]
 }
 
 // Paths are relative to the journal's address (see BASE in config/routes).
@@ -41,7 +43,7 @@ function ScrollToTop() {
   return null
 }
 
-export function SiteShell({ theme, Providers, Layout, ComingSoon }: SiteParts) {
+export function SiteShell({ theme, Providers, Layout, ComingSoon, placeholders: extraPlaceholders = [] }: SiteParts) {
   const location = useLocation()
   const navigate = useNavigate()
   const adapter = useMemo<RouterAdapter>(() => ({
@@ -73,7 +75,7 @@ export function SiteShell({ theme, Providers, Layout, ComingSoon }: SiteParts) {
                 <Route path="policies/:slug" element={<StaticPageContainer group="policies" />} />
                 <Route path="for-authors/:slug" element={<StaticPageContainer group="for-authors" />} />
                 <Route path="about/:slug" element={<StaticPageContainer group="about" />} />
-                {placeholders.map(([path, title]) => <Route key={path} path={path} element={<ComingSoon title={title} />} />)}
+                {[...placeholders, ...extraPlaceholders].map(([path, title]) => <Route key={path} path={path} element={<ComingSoon title={title} />} />)}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

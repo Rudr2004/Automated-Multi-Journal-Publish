@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { AppLink } from '../../../core/router'
-import { Campaign, LocateFixed, LockOpen } from '../components/uiIcons'
+import { Campaign, LockOpen, User } from '../components/uiIcons'
 
 const MINUTE = 60000
 const HOUR = 3600000
@@ -21,7 +21,7 @@ export function closesIn(deadline: string, now = Date.now()) {
 }
 
 /**
- * Left-to-right ticker driven in code (requestAnimationFrame), so it moves on every device and does not depend on CSS animation
+ * Right-to-left ticker driven in code (requestAnimationFrame), so it moves on every device and does not depend on CSS animation
  * settings. Three identical copies of the content make the loop seamless.
  */
 function Marquee({ children, paused }: { children: ReactNode; paused: boolean }) {
@@ -39,8 +39,9 @@ function Marquee({ children, paused }: { children: ReactNode; paused: boolean })
         const copy = el.scrollWidth / 3
         if (copy > 0) {
           if (offset === null) offset = -copy
-          if (!pausedRef.current && !document.hidden) offset += (SPEED_PX_PER_SEC * Math.min(100, t - last)) / 1000
-          if (offset >= 0) offset -= copy
+          // Moving left: the offset gets more negative; after one copy has scrolled past, jump back by exactly one copy (seamless).
+          if (!pausedRef.current && !document.hidden) offset -= (SPEED_PX_PER_SEC * Math.min(100, t - last)) / 1000
+          if (offset <= -2 * copy) offset += copy
           el.style.transform = `translate3d(${offset}px, 0, 0)`
         }
       }
@@ -55,9 +56,9 @@ function Marquee({ children, paused }: { children: ReactNode; paused: boolean })
 }
 
 /**
- * Top strip (as in the reference): an ANNOUNCEMENT label and the announcements, then ISSN, Crossref DOI, the Open Access
- * licence and Track Paper. Announcements scroll left to right; for visitors who prefer reduced motion they fade from one to the
- * next instead of moving. Hovering or focusing the ticker pauses it.
+ * Top strip (as in the reference): an ANNOUNCEMENT label and the announcements, then the highlighted ISSN and SJIF Impact Factor,
+ * the Crossref DOI, the Open Access licence and Reviewer Login. Announcements scroll right to left; for visitors who prefer reduced
+ * motion they fade from one to the next instead of moving. Hovering or focusing the ticker pauses it.
  */
 export function ResearchRibbon() {
   const reduce = useReducedMotion()
@@ -109,14 +110,20 @@ export function ResearchRibbon() {
           </div>
         </div>
 
-        <div className="hidden shrink-0 items-center gap-4 md:flex">
-          <ul className="flex items-center gap-3 divide-x divide-white/25 [&>li+li]:pl-3" aria-label="Journal identifiers">
-            <li>ISSN: <strong className="font-semibold tabular-nums text-white">{journal.issnOnline}</strong></li>
+        <div className="hidden shrink-0 items-center gap-3 md:flex">
+          {/* The two identifiers readers look for first: highlighted so they stand out against the navy strip. */}
+          <ul className="flex items-center gap-2" aria-label="Journal identifiers">
+            <li className="rounded-sm bg-[#FBD28D] px-2.5 py-1 text-[11px] font-semibold text-navy-900 shadow-sm">ISSN: <strong className="font-bold tabular-nums">{journal.issnOnline}</strong></li>
+            {journal.sjifImpactFactor && (
+              <li className="rounded-sm bg-[#FBD28D] px-2.5 py-1 text-[11px] font-semibold text-navy-900 shadow-sm">SJIF Impact Factor: <strong className="font-bold tabular-nums">{journal.sjifImpactFactor}</strong></li>
+            )}
+          </ul>
+          <ul className="flex items-center gap-3 divide-x divide-white/25 [&>li+li]:pl-3" aria-label="Journal details">
             <li className="hidden lg:block">DOI: <strong className="font-semibold tabular-nums text-white">{journal.doiPrefix}</strong></li>
             <li className="hidden items-center gap-1 font-semibold text-[#FBD28D] xl:flex"><LockOpen className="h-3.5 w-3.5" aria-hidden />Open Access</li>
             <li className="hidden xl:block">{journal.licence.name}</li>
           </ul>
-          <AppLink to={paths.track} className="inline-flex items-center gap-1.5 border-l border-white/25 pl-4 font-semibold text-white hover:underline"><LocateFixed className="h-4 w-4" aria-hidden />Track Paper</AppLink>
+          <AppLink to={paths.reviewerLogin} className="inline-flex items-center gap-1.5 border-l border-white/25 pl-3 font-semibold text-white hover:underline"><User className="h-4 w-4" aria-hidden />Reviewer Login</AppLink>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { ButtonLink, buttonClass } from '../components/Button'
 import { DisciplineIcon, disciplines } from '../components/discipline'
 import { cx } from '../components/primitives'
 import { ChevronDown, Submit, Track } from '../icons'
-import { apcLink, editorialLink, homeLink, menus, primaryLinks } from './nav'
+import { j2Nav } from './nav'
 
 function Group({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -27,8 +27,12 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
   return (
     <div className="max-h-[calc(100vh-100px)] overflow-y-auto border-b border-graphite-200 bg-white px-4 pb-6 pt-2 shadow-pop motion-safe:animate-slide-down xl:hidden">
       <nav aria-label="Mobile">
-        {[homeLink, ...primaryLinks, editorialLink, apcLink].map((l) => (
-          <AppLink key={l.to} to={l.to} onClick={onClose} className="block border-b border-graphite-100 py-3 text-base font-semibold text-graphite-800">{l.label}</AppLink>
+        {j2Nav.map((it) => it.children ? (
+          <Group key={it.label} id={`m-${it.label.replace(/\W+/g, '-').toLowerCase()}`} label={it.label}>
+            {it.children.map((l) => <AppLink key={l.label} to={l.to} onClick={onClose} className={row}>{l.label}</AppLink>)}
+          </Group>
+        ) : (
+          <AppLink key={it.label} to={it.to} onClick={onClose} className="block border-b border-graphite-100 py-3 text-base font-semibold text-graphite-800">{it.label}</AppLink>
         ))}
         <Group id="m-disciplines" label="Disciplines">
           <ul className="grid gap-1 sm:grid-cols-2">
@@ -37,16 +41,6 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
             ))}
           </ul>
         </Group>
-        {menus.map((m) => (
-          <Group key={m.id} id={`m-${m.id}`} label={m.label}>
-            {m.groups.map((g) => (
-              <div key={g.title} className="mb-2">
-                <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-accent-700">{g.title}</p>
-                {g.links.map((l) => <AppLink key={l.to + l.label} to={l.to} onClick={onClose} className={row}>{l.label}</AppLink>)}
-              </div>
-            ))}
-          </Group>
-        ))}
       </nav>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         <AppLink to={paths.track} onClick={onClose} className={buttonClass('outline')}><Track className="h-4 w-4" aria-hidden="true" /> Track My Paper</AppLink>

@@ -1,9 +1,10 @@
 // Submission form model: types, defaults and per-step validation (pure functions, no UI).
-import type { ArticleType } from '../types'
+import { journal } from '../../config/journals'
 import { branchesFor } from './branches'
+import { idLabel } from './manuscriptId'
 import * as v from './validators'
 
-export const MAX_FILE_MB = 10
+export const MAX_FILE_MB = journal.maxFileMb ?? 10
 export const ACCEPTED_EXT = ['.doc', '.docx']
 export const ABSTRACT_MIN_WORDS = 50
 export const ABSTRACT_MAX_WORDS = 300
@@ -40,18 +41,20 @@ export const COUNTRIES = [
 /** The corresponding author's optional profile picture: a small square JPEG thumbnail (data URL) so a saved draft can show it again. */
 export interface AuthorPhoto { name: string; size: number; dataUrl: string }
 
-export interface CoAuthor { id: number; name: string; email: string; institution: string }
+export interface CoAuthor { id: number; name: string; email: string; institution: string; orcid?: string; photo?: AuthorPhoto | null }
 
 export interface SubmissionForm {
   title: string
   abstract: string
   keywords: string
-  articleType: ArticleType | ''
+  articleType: string
   subject: string
   /** Branch of the chosen discipline (only asked for disciplines that list branches, see branches.ts). */
   branch: string
   file: { name: string; size: number } | null
   author: { name: string; email: string; dialCode: string; whatsapp: string; institution: string; country: string; orcid: string; photo: AuthorPhoto | null
+    /** Town or city (detected from the visitor's network, editable). Shown by J2 only; never validated in core. */
+    city?: string
     /** Optional academic designation (e.g. Assistant Professor, Ph.D. Scholar). Shown by J1 only; never validated in core. */
     designation?: string }
   coAuthors: CoAuthor[]
@@ -59,6 +62,9 @@ export interface SubmissionForm {
   /** Optional mentor / research-guide contact details (the form in J1 and J2 asks for them next to the co-authors). */
   mentorEmail: string
   mentorInstitution: string
+  /** Optional ORCID iD and picture of the mentor (asked by J2 only). */
+  mentorOrcid?: string
+  mentorPhoto?: AuthorPhoto | null
   referralCode: string
   coverLetter: string
   declarations: { originality: boolean; noSimultaneous: boolean; consentData: boolean; consentMessages: boolean }
@@ -67,8 +73,8 @@ export interface SubmissionForm {
 
 export const initialForm: SubmissionForm = {
   title: '', abstract: '', keywords: '', articleType: '', subject: '', branch: '', file: null,
-  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '', photo: null, designation: '' },
-  coAuthors: [], mentor: '', mentorEmail: '', mentorInstitution: '', referralCode: '', coverLetter: '',
+  author: { name: '', email: '', dialCode: '+91', whatsapp: '', institution: '', country: 'India', orcid: '', photo: null, designation: '', city: '' },
+  coAuthors: [], mentor: '', mentorEmail: '', mentorInstitution: '', mentorOrcid: '', mentorPhoto: null, referralCode: '', coverLetter: '',
   declarations: { originality: false, noSimultaneous: false, consentData: false, consentMessages: false }, captcha: false,
 }
 
@@ -92,14 +98,16 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
   0: (f) => {
     const e: FormErrors = {}
     put(e, 'title', v.textLength(f.title, 10, LIMITS.title, 'manuscript title'))
-    const w = v.wordCount(f.abstract)
-    if (w === 0) e.abstract = 'Enter the abstract.'
-    else if (w < ABSTRACT_MIN_WORDS) e.abstract = `Abstract is too short (${w} words). Write at least ${ABSTRACT_MIN_WORDS} words.`
-    else if (w > ABSTRACT_MAX_WORDS) e.abstract = `Abstract is too long (${w} words). The maximum is ${ABSTRACT_MAX_WORDS}.`
-    put(e, 'keywords', v.keywords(f.keywords))
+    if (journal.collectAbstract !== false) {
+      const w = v.wordCount(f.abstract)
+      if (w === 0) e.abstract = 'Enter the abstract.'
+      else if (w < ABSTRACT_MIN_WORDS) e.abstract = `Abstract is too short (${w} words). Write at least ${ABSTRACT_MIN_WORDS} words.`
+      else if (w > ABSTRACT_MAX_WORDS) e.abstract = `Abstract is too long (${w} words). The maximum is ${ABSTRACT_MAX_WORDS}.`
+      put(e, 'keywords', v.keywords(f.keywords))
+    }
     if (!f.articleType) e.articleType = 'Select an article type.'
     if (!f.subject) e.subject = 'Select a subject area.'
-    else if (branchesFor(f.subject).length && !branchesFor(f.subject).includes(f.branch)) e.branch = 'Select the branch of your subject area.'
+    else if (branchesFor(f.subject).length && !branchesFor(f.subject).includes(f.branch)) e.branch = journal.specializations ? 'Select a specialization.' : 'Select the branch of your subject area.'
     if (!f.file) e.file = 'Upload your manuscript as a Word file.'
     return e
   },
@@ -116,11 +124,14 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     const seen = new Set([a.email.trim().toLowerCase()])
     f.coAuthors.forEach((c) => {
       put(e, `co.${c.id}.name`, v.personName(c.name, 'co-author’s name'))
-      const mail = v.email(c.email)
-      const key = c.email.trim().toLowerCase()
-      if (mail) e[`co.${c.id}.email`] = mail
-      else if (seen.has(key)) e[`co.${c.id}.email`] = 'This email is already used by another author.'
-      seen.add(key)
+      if (!(journal.coAuthorEmailOptional && !c.email.trim())) {
+        const mail = v.email(c.email)
+        const key = c.email.trim().toLowerCase()
+        if (mail) e[`co.${c.id}.email`] = mail
+        else if (seen.has(key)) e[`co.${c.id}.email`] = 'This email is already used by another author.'
+        seen.add(key)
+      }
+      put(e, `co.${c.id}.orcid`, v.orcid(c.orcid ?? ''))
       put(e, `co.${c.id}.institution`, v.textLength(c.institution, 3, LIMITS.institution, 'institution'))
     })
 
@@ -129,6 +140,7 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     if (mentorName) put(e, 'mentor', v.personName(f.mentor, 'mentor’s name'))
     else if (mentorMail || mentorInst) e.mentor = 'Enter the mentor’s name, or clear the other mentor details.'
     if (mentorMail) put(e, 'mentorEmail', v.email(f.mentorEmail))
+    put(e, 'mentorOrcid', v.orcid(f.mentorOrcid ?? ''))
     if (mentorInst) put(e, 'mentorInstitution', v.textLength(f.mentorInstitution, 3, LIMITS.institution, 'mentor’s institution'))
     return e
   },
@@ -140,7 +152,7 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     if (!f.declarations.originality) e.originality = 'You must confirm the work is original.'
     if (!f.declarations.noSimultaneous) e.noSimultaneous = 'You must confirm it is not under review elsewhere.'
     if (!f.declarations.consentData) e.consentData = 'Consent to process your data is needed to handle your submission.'
-    if (!f.declarations.consentMessages) e.consentMessages = 'Consent is needed to send your Paper ID and status updates.'
+    if (!f.declarations.consentMessages) e.consentMessages = `Consent is needed to send your ${idLabel} and status updates.`
     if (!f.captcha) e.captcha = 'Please confirm you are not a robot.'
     return e
   },

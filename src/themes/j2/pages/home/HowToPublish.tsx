@@ -1,10 +1,5 @@
 // "Author Journey Roadmap": five steps from submission to a published, indexed article, plus the APC note (charges come from the journal config).
 import type { ComponentType } from 'react'
-import { journal } from '../../../../config/journals'
-import { paths } from '../../../../config/routes'
-import { formatNumber } from '../../../../core/lib/format'
-import { AppLink } from '../../../../core/router'
-import { ButtonLink } from '../../components/Button'
 import { Container } from '../../components/primitives'
 import { Book, Payments, Review, Submit, TaskDone, type IconProps } from '../../icons'
 
@@ -17,7 +12,6 @@ const steps: { icon: ComponentType<IconProps>; title: string; text: string }[] =
 ]
 
 export function HowToPublish() {
-  const { apc } = journal
   return (
     <section aria-labelledby="how-title">
       <Container>
@@ -33,15 +27,6 @@ export function HowToPublish() {
               </li>
             ))}
           </ol>
-
-          <div id="apc-payment" className="mt-6 grid scroll-mt-24 gap-5 rounded-panel border border-graphite-200 bg-graphite-50 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <h3 className="font-display text-lg font-bold text-graphite-900">Transparent publication charges</h3>
-              <p className="mt-1.5 max-w-3xl text-sm text-graphite-700">There is no fee to submit or to be reviewed. If your paper is accepted, the article processing charge is <strong className="font-semibold text-graphite-900">₹{formatNumber(apc.inr)} + {apc.gstPercent}% GST</strong> for authors in India, or <strong className="font-semibold text-graphite-900">US${formatNumber(apc.usd)}</strong> for authors elsewhere (no GST).</p>
-              <AppLink to={paths.forAuthors('apc-payment')} className="mt-2 inline-block text-sm font-semibold text-accent-700 hover:underline">See charges, payment options and receipts →</AppLink>
-            </div>
-            <ButtonLink to={paths.submit} variant="primary" className="px-6 py-3"><Submit className="h-5 w-5" aria-hidden="true" /> Submit Manuscript</ButtonLink>
-          </div>
         </div>
       </Container>
     </section>

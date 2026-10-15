@@ -57,7 +57,7 @@ export function ApcCalculator() {
           {INCLUDED.map((x) => <li key={x} className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-oa" aria-hidden />{x}</li>)}
         </ul>
         <p className="mt-3 text-xs text-ink-muted">Pay by card, UPI or net banking, or upload a UPI or bank proof for verification.</p>
-        <ButtonLink to={paths.pay} variant="primary" className="mt-4 w-full">Pay using your Paper ID</ButtonLink>
+        <ButtonLink to={paths.pay} variant="primary" className="mt-4 w-full">Pay using your Manuscript ID</ButtonLink>
       </div>
     </div>
   )

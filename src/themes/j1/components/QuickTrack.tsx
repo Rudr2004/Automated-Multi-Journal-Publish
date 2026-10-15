@@ -6,7 +6,7 @@ import { AppLink } from '../../../core/router'
 import { TrackForm } from './TrackForm'
 import { Search } from './uiIcons'
 
-/** "Track My Paper" button that opens a quick-track popover (Paper ID + email) instead of leaving the page. */
+/** "Track My Paper" button that opens a quick-track popover (Manuscript ID + email) instead of leaving the page. */
 export function QuickTrack({ className = '' }: { className?: string }) {
   const reduce = useReducedMotion()
   const [open, setOpen] = useState(false)
@@ -33,7 +33,7 @@ export function QuickTrack({ className = '' }: { className?: string }) {
           <motion.div role="dialog" aria-label="Quick track" initial={reduce ? false : { opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
             className="absolute right-0 top-full z-50 mt-2 w-80 rounded border border-line bg-white p-4 shadow-xl">
             <p className="font-serif text-lg font-semibold text-navy">Track your paper</p>
-            <p className="mt-0.5 text-xs text-ink-muted">No login needed. Use the Paper ID from your confirmation.</p>
+            <p className="mt-0.5 text-xs text-ink-muted">No login needed. Use the Manuscript ID from your confirmation.</p>
             <div className="mt-3"><TrackForm idPrefix="qt" firstRef={first} onDone={() => setOpen(false)} /></div>
             <AppLink to={paths.track} onClick={() => setOpen(false)} className="mt-3 inline-block text-xs font-semibold text-scholar hover:underline">Open the full tracking page →</AppLink>
           </motion.div>

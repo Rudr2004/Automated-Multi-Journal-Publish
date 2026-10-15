@@ -13,7 +13,7 @@ export interface CertificateData {
   issue?: number
 }
 
-/** Certificate number: IJMAT-CERT-{Paper ID} for the first author, then -A2, -A3 … for co-authors. */
+/** Certificate number: IJMAT-CERT-{Manuscript ID} for the first author, then -A2, -A3 … for co-authors. */
 export const certificateNumber = (paperId: string, authorIndex: number) =>
   `${journal.paperIdPrefix}-CERT-${paperId}${authorIndex > 0 ? `-A${authorIndex + 1}` : ''}`
 

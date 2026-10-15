@@ -4,11 +4,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { COUNTRIES, DIAL_CODES, initialForm, type SubmissionForm } from './submission'
 
-const ENDPOINT = 'https://ipwho.is/?fields=success,country,country_code,calling_code'
-const CACHE_KEY = 'geo-lookup-v1'
+const ENDPOINT = 'https://ipwho.is/?fields=success,country,country_code,calling_code,city'
+const CACHE_KEY = 'geo-lookup-v2'
 const TIMEOUT_MS = 4000
 
-export interface DetectedLocation { country: string; dialCode: string }
+export interface DetectedLocation { country: string; dialCode: string; city?: string }
 
 /** Country names the lookup service may spell differently from the form's list. */
 const ALIASES: Record<string, string> = { 'United States of America': 'United States', USA: 'United States', UK: 'United Kingdom', UAE: 'United Arab Emirates', 'Czechia': 'Czech Republic', 'Türkiye': 'Turkey' }
@@ -23,13 +23,13 @@ export async function detectLocation(): Promise<DetectedLocation | null> {
   try {
     const res = await fetch(ENDPOINT, { signal: ctl.signal })
     if (!res.ok) return null
-    const j = (await res.json()) as { success?: boolean; country?: string; calling_code?: string | number }
+    const j = (await res.json()) as { success?: boolean; country?: string; calling_code?: string | number; city?: string }
     if (!j.success || !j.country) return null
     const name = ALIASES[j.country] ?? j.country
     const country = COUNTRIES.includes(name) ? name : 'Other'
     const dial = j.calling_code ? `+${String(j.calling_code).replace(/^\+/, '')}` : ''
     const dialCode = DIAL_CODES.some((d) => d.code === dial) ? dial : ''
-    const found: DetectedLocation = { country, dialCode }
+    const found: DetectedLocation = { country, dialCode, city: j.city?.trim() || undefined }
     try { window.sessionStorage.setItem(CACHE_KEY, JSON.stringify(found)) } catch { /* ignore */ }
     return found
   } catch { return null } finally { window.clearTimeout(timer) }
@@ -50,13 +50,15 @@ export function useDetectedLocation(author: SubmissionForm['author'], setAuthor:
     detectLocation().then((loc) => {
       if (!live || !loc) return
       const a = latest.current
+      // The town fills in on its own (once, while empty) and can always be edited.
+      if (loc.city && !a.city) apply.current({ city: loc.city })
       const untouched = a.country === initialForm.author.country && a.dialCode === initialForm.author.dialCode && !a.whatsapp
       if (!untouched) return
       const patch: Partial<SubmissionForm['author']> = {}
       if (loc.country !== a.country && loc.country !== 'Other') patch.country = loc.country
       if (loc.dialCode && loc.dialCode !== a.dialCode) patch.dialCode = loc.dialCode
       if (Object.keys(patch).length) apply.current(patch)
-      if (loc.country !== 'Other') setNote(`Detected from your network: ${loc.country}${loc.dialCode ? ` (${loc.dialCode})` : ''}. You can change it.`)
+      if (loc.country !== 'Other') setNote(`Detected from your network: ${loc.city ? `${loc.city}, ` : ''}${loc.country}${loc.dialCode ? ` (${loc.dialCode})` : ''}. You can change it.`)
     })
     return () => { live = false }
   }, [])

@@ -59,7 +59,7 @@ export function PayModal({ open, onClose, paperId, onPay, onProof }: {
 
   return (
     <Modal open={open} onClose={onClose} title="Pay article processing charge" size="xl">
-      <p className="text-sm text-ink-muted">Paper ID <strong className="text-ink">{paperId}</strong> · Simulated payment — no money is charged.</p>
+      <p className="text-sm text-ink-muted">Manuscript ID <strong className="text-ink">{paperId}</strong> · Simulated payment — no money is charged.</p>
 
       <div role="tablist" aria-label="Payment route" className="mt-4 grid grid-cols-2 gap-1 rounded bg-mist-200 p-1">
         {([['online', 'Pay online', Payments], ['proof', 'Upload UPI / bank proof', Bank]] as const).map(([m, label, Icon]) => (

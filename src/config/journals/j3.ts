@@ -26,6 +26,7 @@ export const journal: JournalConfig = {
   name: 'International Journal of Creative Studies and Development',
   shortName: 'IJCSD',
   tagline: 'Where creative research meets the world',
+  sjifImpactFactor: '6.742',
   descriptor: 'Peer-reviewed · Open access · Creative studies and development',
   mission:
     'IJCSD is a monthly open access journal for research on design, the arts, media, culture and development, with fair peer review, permanent DOIs and verifiable author certificates.',

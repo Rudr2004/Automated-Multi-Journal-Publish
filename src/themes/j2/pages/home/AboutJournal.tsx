@@ -12,6 +12,15 @@ const valueFor = (label: string, value: string) => {
   return value
 }
 
+// Further subject areas shown beside the journal's disciplines.
+const MORE_AREAS = ['Management Studies', 'Technology', 'Science', 'Economics', 'Education']
+
+// Home-page presentation of the table: no "Starting Year" row, the publisher reads "JIMRT Journal", and the address names the journal.
+const OVERVIEW_ROWS = journal.info.filter(([label]) => label !== 'Starting Year').map(([label, value]) => [
+  label,
+  label === 'Publisher' ? 'JIMRT Journal' : label === 'Address' ? value.replace(journal.publisher, journal.name) : value,
+] as const)
+
 export function AboutJournal() {
   return (
     <section aria-labelledby="aims-title" className="rounded-sheet border border-graphite-200 bg-white p-5 shadow-card sm:p-6">
@@ -20,6 +29,9 @@ export function AboutJournal() {
       <ul className="mt-4 flex flex-wrap gap-2">
         {disciplines.map((d) => (
           <li key={d.id}><AppLink to={paths.search(d.name)} className="inline-block rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 hover:bg-brand-100">{d.name}</AppLink></li>
+        ))}
+        {MORE_AREAS.map((name) => (
+          <li key={name}><AppLink to={paths.search(name)} className="inline-block rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 hover:bg-brand-100">{name}</AppLink></li>
         ))}
       </ul>
 
@@ -31,7 +43,7 @@ export function AboutJournal() {
         <table className="w-full border-collapse text-left text-sm">
           <caption className="sr-only">Journal specifications and metadata</caption>
           <tbody>
-            {journal.info.map(([label, value]) => (
+            {OVERVIEW_ROWS.map(([label, value]) => (
               <tr key={label} className="border-b border-graphite-200 last:border-b-0 even:bg-graphite-50/60">
                 <th scope="row" className="w-32 bg-brand-800 px-3 py-2.5 align-top text-xs font-bold text-white sm:w-48 sm:px-4 sm:text-sm">{label}</th>
                 <td className="px-3 py-2.5 align-top text-graphite-800 sm:px-4">{valueFor(label, value)}</td>

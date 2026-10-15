@@ -82,7 +82,6 @@ export function DeclarationsSection({ article, heading }: { article: ArticleFull
   }
   const conduct = find('methods', /institutional guidelines/i)
   const data = find('conclusion', /available from the corresponding author/i)
-  const corresponding = article.authorDetails.find((a) => a.corresponding)
   return (
     <section id="declarations" className="mt-10 scroll-mt-24 border-t border-line pt-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -90,7 +89,7 @@ export function DeclarationsSection({ article, heading }: { article: ArticleFull
       </div>
       <div className="mt-4 grid gap-3.5 md:grid-cols-2">
         <Card title="Ethics & research conduct">{conduct ?? 'The authors confirm that the work follows the relevant institutional and ethical guidelines.'}</Card>
-        <Card title="Data availability">{data ?? 'Data supporting the findings are available from the corresponding author on reasonable request.'}{corresponding?.email && <> Contact: <a href={`mailto:${corresponding.email}`} className="break-all text-scholar hover:underline">{corresponding.email}</a>.</>}</Card>
+        <Card title="Data availability">{data ?? 'Data supporting the findings are available from the corresponding author on reasonable request.'}</Card>
         <Card title="Competing interests">The authors declare that they have no competing interests.</Card>
         <Card title="Funding">No specific funding was declared for this work.</Card>
         <Card title="Licence & copyright" wide>

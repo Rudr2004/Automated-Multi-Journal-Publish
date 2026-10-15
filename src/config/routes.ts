@@ -16,6 +16,7 @@ export const paths = {
   pay: `${BASE}/track?pay=1`,
   apc: `${BASE}#apc-payment`,
   editorialLogin: `${BASE}/editorial-login`,
+  reviewerLogin: `${BASE}/reviewer-login`,
   article: (id: string) => `${BASE}/article/${id}`,
   /** Public PDF address of an article (the URL given to Google Scholar as citation_pdf_url). */
   pdf: (id: string) => `/pdf/${id}.pdf`,

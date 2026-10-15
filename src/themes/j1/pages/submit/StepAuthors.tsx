@@ -15,10 +15,14 @@ const cleanEmail = (s: string) => s.replace(/\s/g, '')
 
 export function StepAuthors({ form, errors, onChange }: StepProps) {
   const a = form.author
-  const setAuthor = (patch: Partial<SubmissionForm['author']>) => onChange({ ...form, author: { ...a, ...patch } })
+  // Co-authors start with the corresponding author's institution and follow it while it is unchanged; each can be edited freely.
+  const setAuthor = (patch: Partial<SubmissionForm['author']>) => onChange({
+    ...form, author: { ...a, ...patch },
+    coAuthors: patch.institution === undefined ? form.coAuthors : form.coAuthors.map((c) => (c.institution === a.institution ? { ...c, institution: patch.institution! } : c)),
+  })
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     onChange({ ...form, coAuthors: form.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
-  const addCo = () => onChange({ ...form, coAuthors: [...form.coAuthors, { id: Date.now(), name: '', email: '', institution: '' }] })
+  const addCo = () => onChange({ ...form, coAuthors: [...form.coAuthors, { id: Date.now(), name: '', email: '', institution: a.institution, orcid: '', photo: null }] })
   const removeCo = (id: number) => onChange({ ...form, coAuthors: form.coAuthors.filter((c) => c.id !== id) })
   const maxPhone = phoneMaxLength(a.dialCode)
   // Country and dialling code are pre-selected from the visitor's IP address (once, and only while they are still the defaults).
@@ -48,7 +52,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             </select>
           </Field>
           <Field label="WhatsApp number" name="author.whatsapp" required error={errors['author.whatsapp']}
-            hint={a.dialCode === '+91' ? '10-digit mobile number. Your Paper ID and updates are sent here.' : 'Number without the country code. Your Paper ID and updates are sent here.'}>
+            hint={a.dialCode === '+91' ? '10-digit mobile number. Your Manuscript ID and updates are sent here.' : 'Number without the country code. Your Manuscript ID and updates are sent here.'}>
             <input type="tel" inputMode="numeric" className={inputClass(errors['author.whatsapp'])} value={a.whatsapp} maxLength={maxPhone} autoComplete="tel-national"
               onChange={(e) => setAuthor({ whatsapp: digitsOnly(e.target.value).slice(0, maxPhone) })} />
           </Field>
@@ -62,10 +66,6 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             <select className={inputClass(errors['author.country'])} value={a.country} onChange={(e) => setAuthor({ country: e.target.value })}>{COUNTRIES.map((c) => <option key={c}>{c}</option>)}</select>
           </Field>
         </div>
-        <Field label="Academic designation" name="author.designation" hint="e.g. Assistant Professor, Ph.D. Scholar, M.Tech Student">
-          <input className={inputClass()} value={a.designation ?? ''} maxLength={LIMITS.name} autoComplete="organization-title"
-            onChange={(e) => setAuthor({ designation: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setAuthor({ designation: (a.designation ?? '').trim() })} />
-        </Field>
         <ProfilePhotoField value={a.photo} onChange={(photo) => setAuthor({ photo })} error={errors['author.photo']} />
         <Field label="ORCID iD (optional)" name="author.orcid" error={errors['author.orcid']} hint="Format: 0000-0002-1825-0097">
           <input className={inputClass(errors['author.orcid'])} value={a.orcid} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000"
@@ -88,15 +88,22 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
             <li key={c.id} className="rounded-card border border-line bg-paper p-4">
               <div className="mb-3 flex items-center justify-between"><span className="text-sm font-semibold text-navy">Co-author {i + 1}</span>
                 <button type="button" onClick={() => removeCo(c.id)} aria-label={`Remove co-author ${i + 1}`} className="rounded p-1.5 text-danger hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-scholar"><Trash2 className="h-4 w-4" aria-hidden /></button></div>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Name" name={`co.${c.id}.name`} required error={errors[`co.${c.id}.name`]}>
                   <input className={inputClass(errors[`co.${c.id}.name`])} value={c.name} maxLength={LIMITS.name} onChange={(e) => setCo(c.id, { name: cleanName(e.target.value) })} onBlur={() => setCo(c.id, { name: c.name.trim() })} />
                 </Field>
-                <Field label="Email" name={`co.${c.id}.email`} required error={errors[`co.${c.id}.email`]}>
+                <Field label="Email (optional)" name={`co.${c.id}.email`} error={errors[`co.${c.id}.email`]}>
                   <input type="email" className={inputClass(errors[`co.${c.id}.email`])} value={c.email} maxLength={LIMITS.email} onChange={(e) => setCo(c.id, { email: cleanEmail(e.target.value) })} onBlur={() => setCo(c.id, { email: c.email.trim().toLowerCase() })} />
                 </Field>
-                <Field label="Institution" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]}>
+                <div>
+                  <span className="mb-1.5 block text-sm font-semibold text-navy">Upload Profile Picture <span className="font-normal text-ink-muted">(optional)</span></span>
+                  <ProfilePhotoField compact name={`co.${c.id}.photo`} value={c.photo ?? null} onChange={(photo) => setCo(c.id, { photo })} error={errors[`co.${c.id}.photo`]} />
+                </div>
+                <Field label="Institution / Affiliation" name={`co.${c.id}.institution`} required error={errors[`co.${c.id}.institution`]} hint="Taken from the corresponding author; edit it if this co-author is elsewhere.">
                   <input className={inputClass(errors[`co.${c.id}.institution`])} value={c.institution} maxLength={LIMITS.institution} onChange={(e) => setCo(c.id, { institution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => setCo(c.id, { institution: c.institution.trim() })} />
+                </Field>
+                <Field label="ORCID iD (optional)" name={`co.${c.id}.orcid`} error={errors[`co.${c.id}.orcid`]} hint="Format: 0000-0002-1825-0097">
+                  <input className={inputClass(errors[`co.${c.id}.orcid`])} value={c.orcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => setCo(c.id, { orcid: formatOrcid(e.target.value) })} />
                 </Field>
               </div>
             </li>

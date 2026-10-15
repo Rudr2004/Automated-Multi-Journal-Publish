@@ -6,6 +6,7 @@ import type { SuggestFn } from '../../../core/types'
 import { ButtonLink, buttonClass } from '../components/Button'
 import { SearchContext } from '../components/searchContext'
 import { Submit, Track } from '../icons'
+import { AnnouncementsBar } from './AnnouncementsBar'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { JournalTabs } from './JournalTabs'
@@ -25,6 +26,7 @@ export function SiteLayout({ children, onSearch, onSuggest, onSubscribe }: {
       <JournalTabs />
       <SearchContext.Provider value={{ onSearch, onSuggest }}>
         <Header onSearch={onSearch} onSuggest={onSuggest} />
+        <AnnouncementsBar />
         <main id="main" className="flex-1">{children}</main>
       </SearchContext.Provider>
       <Footer onSubscribe={onSubscribe} />

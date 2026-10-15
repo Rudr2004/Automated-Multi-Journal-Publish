@@ -4,7 +4,7 @@ import { Container } from '../components/primitives'
 import { SearchBox } from '../components/SearchBox'
 import { AppLink, useRouter } from '../../../core/router'
 import { paths } from '../../../config/routes'
-import { AwardsCard } from '../components/AwardsCard'
+import { RightSidebar } from '../components/HomeSidebars'
 
 const LINKS = [
   { to: paths.currentIssue, label: 'Current Issue', note: 'The latest published articles' },
@@ -41,7 +41,7 @@ export function NotFoundPage({ what = 'page' }: { what?: string }) {
           <p className="mt-3 text-sm leading-relaxed text-ink">Nothing is wrong with your connection. The address simply doesn’t match a page on this journal.</p>
           <ButtonLink to={paths.home} variant="primary" className="mt-4">Back to Home</ButtonLink>
         </aside>
-        <AwardsCard />
+        <RightSidebar />
         </div>
       </Container>
     </>

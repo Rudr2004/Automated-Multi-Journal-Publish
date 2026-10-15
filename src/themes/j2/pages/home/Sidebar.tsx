@@ -3,19 +3,17 @@
 import type { ReactNode } from 'react'
 import { journal, logoSrc, visibleLogos } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { CallForPapers, EditorProfile } from '../../../../core/types'
 import { AwardsCard } from '../../components/AwardsCard'
-import { Description, EditNote, Groups, Insights, QrCode, VerifiedUser } from '../../components/homeIcons'
-import { ArrowRight, Book, Download, LinkIcon, OpenAccess, Review, Submit, Track } from '../../icons'
+import { useToast } from '../../components/Toast'
+import { Description, EditNote, Groups, Insights, VerifiedUser } from '../../components/homeIcons'
+import { ArrowRight, Book, Download, Submit, Track } from '../../icons'
 
-const daysLeft = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000))
 const card = 'rounded-sheet border border-graphite-200 bg-white p-5 shadow-card'
 const cardTitle = 'flex items-center gap-2 border-b border-graphite-100 pb-3 font-display text-sm font-bold text-graphite-900'
 
 function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
-  const left = daysLeft(cfp.deadline)
   const [issueName] = cfp.issueName.split(' — ')
   return (
     <section aria-labelledby="cfp-title" className="rounded-sheet bg-brand-800 p-5 text-white shadow-soft">
@@ -26,12 +24,9 @@ function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
       <h2 id="cfp-title" className="mt-3 font-display text-xl font-bold">Submit to {issueName}</h2>
       <p className="mt-1.5 text-sm text-brand-100">We welcome original research, review articles and short communications from every discipline.</p>
       <div className="mt-4 rounded-panel border border-white/15 bg-brand-900/50 p-3 text-center">
-        <p className="text-[11px] uppercase tracking-wider text-brand-100">Submission closing date</p>
-        <p className="font-display text-lg font-bold">{formatDate(cfp.deadline.slice(0, 10))}</p>
-        <p className="text-xs text-brand-100">{left === 0 ? 'Closing today' : `${left} day${left === 1 ? '' : 's'} left`}</p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-chip border border-white/15 bg-brand-900/60 p-2"><p className="text-[10px] uppercase tracking-wider text-brand-100">First review</p><p className="font-mono text-xs font-bold">~{cfp.avgReviewDays} Days</p></div>
-          <div className="rounded-chip border border-white/15 bg-brand-900/60 p-2"><p className="text-[10px] uppercase tracking-wider text-brand-100">Publication</p><p className="font-mono text-xs font-bold">{formatDate(cfp.expectedPublication)}</p></div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-chip border border-white/15 bg-brand-900/60 p-2"><p className="text-[10px] uppercase tracking-wider text-brand-100">First review</p><p className="font-mono text-xs font-bold">24 Hours</p></div>
+          <div className="rounded-chip border border-white/15 bg-brand-900/60 p-2"><p className="text-[10px] uppercase tracking-wider text-brand-100">Publication</p><p className="font-mono text-xs font-bold">24 Hours</p></div>
         </div>
       </div>
       <AppLink to={paths.submit} className="mt-4 flex items-center justify-center gap-2 rounded-panel bg-white py-3 text-sm font-bold text-brand-800 hover:bg-brand-50 focus-visible:!outline-white"><Submit className="h-5 w-5" aria-hidden="true" /> Submit Your Manuscript Now</AppLink>
@@ -44,7 +39,6 @@ function CallForPapersCard({ cfp }: { cfp: CallForPapers }) {
 }
 
 function Vitals() {
-  const logos = visibleLogos()
   const rows: [string, string][] = [['ISSN (Online)', journal.issnOnline], ['Crossref DOI Prefix', journal.doiPrefix], ['Licensing', journal.licence.name], ['Frequency', journal.frequency]]
   return (
     <section aria-labelledby="vital-title" className={card}>
@@ -52,61 +46,67 @@ function Vitals() {
       <dl className="mt-1 divide-y divide-graphite-100 text-sm">
         {rows.map(([k, v]) => <div key={k} className="flex items-baseline justify-between gap-3 py-2"><dt className="text-graphite-700">{k}</dt><dd className="font-mono text-graphite-900">{v}</dd></div>)}
       </dl>
-      {logos.length > 0 && (
-        <>
-          <p className="mt-4 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-graphite-600">Indexed &amp; discovered in <AppLink to={paths.about('indexing')} className="font-semibold normal-case tracking-normal text-accent-700 hover:underline">Indexing</AppLink></p>
-          <ul className="mt-2 space-y-2">
-            {logos.map((l) => (
-              <li key={l.id}><a href={l.verifyUrl} target="_blank" rel="noreferrer" aria-label={`${l.name}: ${l.status} (opens in a new tab)`} className="flex items-center gap-3 rounded-panel border border-graphite-200 bg-white px-3 py-2 hover:border-accent-700">
-                <span className="flex h-8 w-12 shrink-0 items-center justify-center">{l.file ? <img src={logoSrc(l.file)} alt="" loading="lazy" className="max-h-full max-w-full object-contain" /> : <span className="font-display text-[10px] font-bold text-brand-800">{l.name}</span>}</span>
-                <span className="flex-1 text-sm font-semibold text-graphite-800">{l.name}</span>
-                <span className="font-mono text-[11px] text-graphite-600">{l.status}</span>
-              </a></li>
-            ))}
-          </ul>
-        </>
-      )}
     </section>
   )
 }
 
-function Standards() {
-  const tiles: { icon: ReactNode; label: string; to: string }[] = [
-    ...(journal.badges.peerReviewed ? [{ icon: <Review className="h-6 w-6" />, label: 'Peer Reviewed', to: paths.policy('peer-review') }] : []),
-    ...(journal.badges.openAccess ? [{ icon: <OpenAccess className="h-6 w-6" />, label: `${journal.licence.name} Open`, to: paths.policy('open-access') }] : []),
-    { icon: <LinkIcon className="h-6 w-6" />, label: 'Crossref DOI', to: paths.policy('archiving') },
-    { icon: <QrCode className="h-6 w-6" />, label: 'Verifiable Certificates', to: paths.verify() },
-  ]
+/** The index logos. A long list scrolls slowly from bottom to top (hover or keyboard focus pauses it; reduced-motion visitors scroll by hand);
+ *  a short list that fits the box is simply shown once, so nothing repeats. */
+const SCROLL_ABOVE = 4
+function IndexingScroller() {
+  const logos = visibleLogos()
+  if (!logos.length) return null
+  const scrolls = logos.length > SCROLL_ABOVE
+  const rows = (copy: number) => logos.map((l) => (
+    <li key={`${copy}-${l.id}`} className="py-1.5">
+      <a href={l.verifyUrl} target="_blank" rel="noreferrer" title={`${l.status}. Verify on ${l.name}`} tabIndex={copy > 0 ? -1 : undefined}
+        className="flex h-14 items-center justify-center rounded-panel border border-graphite-200 bg-white px-3 hover:border-accent-700">
+        <img src={logoSrc(l.file)} alt={copy > 0 ? '' : `Indexed in ${l.name}`} loading="lazy" className="max-h-9 w-auto max-w-[11rem] object-contain" />
+      </a>
+    </li>
+  ))
   return (
-    <section aria-labelledby="std-title" className={card}>
-      <h2 id="std-title" className="font-display text-sm font-bold text-graphite-900">Certified Scholarly Standards</h2>
-      <ul className="mt-3 grid grid-cols-2 gap-3">
-        {tiles.map((t) => (
-          <li key={t.label}><AppLink to={t.to} className="flex h-full flex-col items-center gap-2 rounded-panel border border-graphite-200 bg-graphite-50 px-2 py-4 text-center text-xs font-bold text-graphite-800 hover:border-accent-700 hover:bg-brand-50">
-            <span aria-hidden="true" className="text-brand-800">{t.icon}</span>{t.label}
-          </AppLink></li>
-        ))}
-      </ul>
+    <section aria-labelledby="idx-title" className={card}>
+      <h2 id="idx-title" className={cardTitle}><Insights className="h-5 w-5 text-brand-800" aria-hidden="true" /> Indexed &amp; Discoverable In</h2>
+      {scrolls ? (
+        <div className="j1-pausable mt-3 h-72 overflow-hidden motion-reduce:overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,#000_14px,#000_calc(100%-14px),transparent)]">
+          <div className="j1-scroll-up" style={{ ['--j1-scroll-duration' as string]: `${Math.max(18, logos.length * 5)}s` }}>
+            <ul aria-label="Indexing platforms">{rows(0)}</ul>
+            <ul aria-hidden>{rows(1)}</ul>
+          </div>
+        </div>
+      ) : (
+        <ul aria-label="Indexing platforms" className="mt-2">{rows(0)}</ul>
+      )}
+      <AppLink to={paths.about('indexing')} className="mt-3 inline-block text-sm font-semibold text-accent-700 hover:underline">Verify our presence →</AppLink>
     </section>
   )
 }
 
 function Resources() {
-  const rows: [ReactNode, string, string, string][] = [
+  const toast = useToast()
+  // `to` is a page; without it the row is a sample file whose download is simulated until the real file is supplied.
+  const rows: [ReactNode, string, string, string | null][] = [
     [<Description key="t" className="h-5 w-5" />, 'Manuscript Template', 'Word and LaTeX formats', paths.forAuthors('templates')],
-    [<Book key="g" className="h-5 w-5" />, 'Author Guidelines', 'Format and ethics checklist', paths.policy('author-guidelines')],
-    [<VerifiedUser key="v" className="h-5 w-5" />, 'Verify a Certificate', 'Scan the QR code or enter the ID', paths.verify()],
+    [<VerifiedUser key="c" className="h-5 w-5" />, 'Sample Certificate', 'Certificate of publication (PDF)', null],
+    [<Book key="a" className="h-5 w-5" />, 'Sample Acceptance', 'Acceptance letter (PDF)', null],
   ]
+  const rowClass = 'flex w-full items-center gap-3 rounded-panel border border-graphite-200 p-2.5 text-left hover:border-accent-700 hover:bg-brand-50'
   return (
     <section aria-labelledby="res-title" className={card}>
       <h2 id="res-title" className={cardTitle}><Download className="h-5 w-5 text-brand-800" aria-hidden="true" /> Author Resources</h2>
       <ul className="mt-3 space-y-2.5">
         {rows.map(([icon, title, note, to]) => (
-          <li key={title}><AppLink to={to} className="flex items-center gap-3 rounded-panel border border-graphite-200 p-2.5 hover:border-accent-700 hover:bg-brand-50">
-            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-soft bg-brand-100 text-brand-800">{icon}</span>
-            <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-graphite-900">{title}</span><span className="block text-xs text-graphite-600">{note}</span></span>
-            <ArrowRight className="h-4 w-4 text-graphite-500" aria-hidden="true" />
-          </AppLink></li>
+          <li key={title}>{(() => {
+            const inner = (<>
+              <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-soft bg-brand-100 text-brand-800">{icon}</span>
+              <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-graphite-900">{title}</span><span className="block text-xs text-graphite-600">{note}</span></span>
+              <ArrowRight className="h-4 w-4 text-graphite-500" aria-hidden="true" />
+            </>)
+            return to
+              ? <AppLink to={to} className={rowClass}>{inner}</AppLink>
+              : <button type="button" onClick={() => toast(`${title} downloaded (simulated).`)} className={rowClass}>{inner}</button>
+          })()}</li>
         ))}
       </ul>
     </section>
@@ -154,17 +154,26 @@ function Board({ editors }: { editors: EditorProfile[] }) {
   )
 }
 
-export function Sidebar({ cfp, editors }: { cfp: CallForPapers; editors: EditorProfile[] }) {
+/** The cards of the right column (also used by the common right rail of every other page). */
+export function SidebarCards({ cfp, editors }: { cfp: CallForPapers; editors: EditorProfile[] }) {
   return (
-    <aside aria-label="Journal information" className="space-y-5">
+    <>
       <CallForPapersCard cfp={cfp} />
       <AwardsCard />
+      <Copyright />
       <Vitals />
-      <Standards />
+      <IndexingScroller />
       <Resources />
       <Board editors={editors} />
       <Referee />
-      <Copyright />
+    </>
+  )
+}
+
+export function Sidebar({ cfp, editors }: { cfp: CallForPapers; editors: EditorProfile[] }) {
+  return (
+    <aside aria-label="Journal information" className="space-y-5">
+      <SidebarCards cfp={cfp} editors={editors} />
     </aside>
   )
 }

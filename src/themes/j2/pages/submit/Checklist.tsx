@@ -2,14 +2,14 @@
 import { journal } from '../../../../config/journals'
 import { Circle, CloudDone } from '../../components/pageIcons'
 import { cx } from '../../components/primitives'
-import { ABSTRACT_MAX_WORDS, ABSTRACT_MIN_WORDS, ACCEPTED_EXT, MAX_FILE_MB } from '../../../../core/lib/submission'
+import { ACCEPTED_EXT, MAX_FILE_MB } from '../../../../core/lib/submission'
 import { Check, FactCheck } from '../../icons'
 
 export interface ChecklistItem { id: string; label: string; short: string; done: boolean }
 
 const BEFORE: [string, string][] = [
   ['File format', `One Word file (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`],
-  ['Abstract', `${ABSTRACT_MIN_WORDS} to ${ABSTRACT_MAX_WORDS} words.`],
+  ['Manuscript', 'Include the title, abstract and keywords inside the file.'],
   ['Authorship', 'Every co-author has approved the manuscript.'],
   ['Originality', 'Not published, and not under review elsewhere.'],
 ]
@@ -25,13 +25,14 @@ export function AutosaveNote({ savedAt, className }: { savedAt: string | null; c
   )
 }
 
-export function Checklist({ items, active, onGo, savedAt }: { items: ChecklistItem[]; active: string; onGo: (id: string) => void; savedAt: string | null }) {
+/** `bar`: the compact progress bar for phones and tablets (sits above the form). `rail`: the progress and guidance cards for the right column. */
+export function Checklist({ items, active, onGo, savedAt, part }: { items: ChecklistItem[]; active: string; onGo: (id: string) => void; savedAt: string | null; part: 'bar' | 'rail' }) {
   const doneCount = items.filter((i) => i.done).length
   const pct = Math.round((doneCount / items.length) * 100)
   return (
     <>
       {/* Phones and tablets: compact bar pinned under the site header. */}
-      <div className="sticky top-16 xl:top-[52px] z-30 -mx-4 border-b border-graphite-200 bg-white/95 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:px-6 lg:hidden">
+      {part === 'bar' && <div className="sticky top-16 xl:top-[52px] z-30 -mx-4 border-b border-graphite-200 bg-white/95 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:px-6 lg:hidden">
         <div className="flex items-center justify-between gap-3 text-xs">
           <p className="font-semibold text-graphite-800">{doneCount} of {items.length} sections complete</p>
           <AutosaveNote savedAt={savedAt} />
@@ -48,11 +49,11 @@ export function Checklist({ items, active, onGo, savedAt }: { items: ChecklistIt
             </button>
           ))}
         </nav>
-      </div>
+      </div>}
 
-      {/* Large screens: sticky left rail. */}
-      <aside className="hidden lg:block">
-        <div className="sticky top-24 space-y-4">
+      {/* Large screens: cards at the top of the right column. */}
+      {part === 'rail' && <div className="hidden space-y-4 lg:block">
+        <div className="space-y-4">
           <nav aria-label="Form sections" className="rounded-sheet border border-graphite-200 bg-white p-5 shadow-card">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-800"><Check className="h-4 w-4" aria-hidden="true" />Your progress</h2>
@@ -87,7 +88,7 @@ export function Checklist({ items, active, onGo, savedAt }: { items: ChecklistIt
             <p className="mt-1">The article processing charge is payable only after acceptance. Questions? Email <a className="font-semibold text-accent-800 underline" href={`mailto:${journal.email}`}>{journal.email}</a> or WhatsApp {journal.whatsapp}.</p>
           </div>
         </div>
-      </aside>
+      </div>}
     </>
   )
 }

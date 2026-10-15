@@ -59,3 +59,21 @@ html[data-journal="j3"][data-article-compact="1"] [data-j3-nav] { transform: tra
 
 /* J2 announcement ticker: the thin progress line that fills while an announcement is on screen. */
 @keyframes j2-ticker-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* J1 home: slow, pausable ticker-style scrolling (indexing logos sideways, notices upwards). Content is rendered twice, so moving by
+   half its size loops seamlessly. Reduced-motion visitors get static content instead. */
+@keyframes j1-scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes j1-scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+.j1-scroll-left { animation: j1-scroll-left var(--j1-scroll-duration, 32s) linear infinite; }
+.j1-scroll-up { animation: j1-scroll-up var(--j1-scroll-duration, 26s) linear infinite; }
+.j1-pausable:hover .j1-scroll-left, .j1-pausable:focus-within .j1-scroll-left,
+.j1-pausable:hover .j1-scroll-up, .j1-pausable:focus-within .j1-scroll-up { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .j1-scroll-left, .j1-scroll-up { animation: none; } }
+
+/* J3 "Latest dispatch": the announcements enter from the right edge and leave at the left, then start again. Padding of one full width keeps the
+   first item off-screen at the start. Hover or focus pauses; reduced-motion visitors get static, scrollable content. */
+@keyframes j3-marquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+.j3-marquee { padding-left: 100%; animation: j3-marquee var(--j3-marquee-duration, 30s) linear infinite; }
+.j3-pausable:hover .j3-marquee, .j3-pausable:focus-within .j3-marquee { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .j3-marquee { animation: none; padding-left: 0; } }
+

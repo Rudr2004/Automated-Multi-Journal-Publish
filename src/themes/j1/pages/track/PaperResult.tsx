@@ -30,7 +30,7 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-wider text-scholar">{paper.journalName}</p>
             <h2 className="mt-1 font-serif text-2xl font-semibold leading-snug text-navy">{paper.title}</h2>
-            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-muted">Paper ID <strong className="text-ink">{paper.paperId}</strong><CopyButton text={paper.paperId} label="Copy" /></p>
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-muted">Manuscript ID <strong className="text-ink">{paper.paperId}</strong><CopyButton text={paper.paperId} label="Copy" /></p>
           </div>
           <Badge tone={tone(paper.stageIndex)}>{STAGES[paper.stageIndex].label}</Badge>
         </div>

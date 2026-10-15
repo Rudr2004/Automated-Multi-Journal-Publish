@@ -22,7 +22,7 @@ export function ExitIntent() {
   }, [])
   return (
     <Modal open={open} onClose={() => setOpen(false)} title="Call for Papers is open">
-      <p className="text-sm text-ink">{journal.name} is accepting manuscripts for the next issue. No account needed — you receive a Paper ID instantly.</p>
+      <p className="text-sm text-ink">{journal.name} is accepting manuscripts for the next issue. No account needed — you receive a Manuscript ID instantly.</p>
       <div className="mt-5 flex gap-3">
         <ButtonLink to={paths.submit} variant="submit">Submit Manuscript</ButtonLink>
         <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-ink-muted hover:text-navy">Maybe later</button>

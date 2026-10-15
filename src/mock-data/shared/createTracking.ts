@@ -2,6 +2,7 @@
 import type { JournalConfig } from '../../config/journals/types'
 import type { PaperDocument, PaperStage, PaymentStatus, TrackedPaper, TrackResult } from '../../core/types'
 import { STAGES } from '../../core/types'
+import { caseId, idJournalCode, newManuscriptId } from '../../core/lib/manuscriptId'
 
 export const DEMO_EMAIL = 'demo@example.com'
 
@@ -45,7 +46,7 @@ export function createTracking(journal: JournalConfig, specs: (make: (s: Trackin
         doc('invoice', 'GST invoice', payment === 'paid', payment === 'paid' ? undefined : 'Generated after payment is confirmed'),
         doc('cert', 'Author certificates', stage >= 6, stage >= 6 ? 'With QR code' : 'Issued on publication'),
       ],
-      referral: s.referral ?? { code: `${s.id.slice(-4)}-${journal.shortName}`, credits: 0, referred: 0 },
+      referral: s.referral ?? { code: `${s.id.replace(/[^A-Za-z0-9]/g, '').slice(-4)}-${journal.shortName}`, credits: 0, referred: 0 },
     }
   }
 
@@ -56,16 +57,16 @@ export function createTracking(journal: JournalConfig, specs: (make: (s: Trackin
   const addTracked = (p: TrackedPaper) => dynamic.push(p)
 
   function findPaper(paperId: string, email: string): TrackResult {
-    const id = paperId.trim().toUpperCase()
+    const id = caseId(paperId.trim())
     const found = [...trackedPapers, ...dynamic].find((p) => p.paperId === id)
     if (found) return found.email.toLowerCase() === email.trim().toLowerCase() ? { kind: 'found', paper: found } : { kind: 'not-found' }
-    const m = id.match(/^([A-Z]{2,5})\d{10}$/)
-    if (m && m[1] !== journal.paperIdPrefix) return { kind: 'other-journal', code: m[1] }
+    const code = idJournalCode(id)
+    if (code && code !== journal.paperIdPrefix) return { kind: 'other-journal', code }
     return { kind: 'not-found' }
   }
 
   function newSubmission(title: string, email: string, authorName: string): TrackedPaper {
-    const paperId = `${journal.paperIdPrefix}2026${String(300 + dynamic.length).padStart(6, '0')}`
+    const paperId = newManuscriptId(300 + dynamic.length)
     const p = make({ id: paperId, email, title, stage: 0, authors: [authorName || 'Corresponding author'], start: new Date().toISOString().slice(0, 10) })
     addTracked(p)
     return p

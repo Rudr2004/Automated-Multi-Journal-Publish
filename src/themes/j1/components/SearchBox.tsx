@@ -13,7 +13,7 @@ interface Row { key: string; group: Group; icon: ReactNode; label: string; sub?:
 
 /**
  * Smart search (ARIA combobox). Typing shows suggestions grouped as Articles, Authors and Keywords. If the text is an
- * exact DOI or Paper ID it offers "Open article" / "Track this paper". Enter searches; ↑/↓ pick; Esc closes.
+ * exact DOI or Manuscript ID it offers "Open article" / "Track this paper". Enter searches; ↑/↓ pick; Esc closes.
  * On the results page the box mirrors the `q` in the URL.
  */
 export function SearchBox({ onSearch, onSuggest, id, className = '', large = false, variant = 'default' }: {

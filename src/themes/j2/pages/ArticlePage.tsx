@@ -1,7 +1,7 @@
 // Article reading page: title block with author cards, action bar, section tabs, reading column and a sidebar (contents, citation, impact).
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { MdOutlineListAlt, MdOutlinePrint, MdOutlineShare } from 'react-icons/md'
+import { MdOutlineListAlt, MdOutlinePrint, MdOutlineShare, MdOutlineThumbUp } from 'react-icons/md'
 import { doiFor, journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { CITATION_STYLES_WITH_IEEE, formatCitation, type CitationStyle } from '../../../core/lib/cite'
@@ -16,6 +16,7 @@ import { ArticleQrCard } from '../components/ArticleQrCard'
 import { DataTable, FigureBlock } from '../components/ArticleFigure'
 import { Button, buttonClass } from '../components/Button'
 import { CiteFlyout, citable } from '../components/CiteFlyout'
+import { RecommendDialog } from '../components/RecommendDialog'
 import { cx, Container } from '../components/primitives'
 import { Avatar, TypePill } from '../components/paperType'
 import { useToast } from '../components/Toast'
@@ -100,6 +101,14 @@ function useActions(article: ArticleFull) {
   return { onPdf, share }
 }
 
+// The same statements appear on every article.
+const DECLARATIONS: [string, string][] = [
+  ['Ethics & research conduct', 'The authors confirm that the work follows the relevant institutional and ethical guidelines.'],
+  ['Competing interests', 'The authors declare that they have no competing interests.'],
+  ['Funding', 'No specific funding was declared for this work.'],
+  ['Data availability', 'Data supporting the findings are available from the corresponding author on reasonable request.'],
+]
+
 const card = 'rounded-panel border border-graphite-200 bg-white shadow-card'
 const sideTitle = 'flex items-center gap-2 font-display text-xs font-bold uppercase tracking-[0.12em] text-brand-900'
 
@@ -139,10 +148,10 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
   const { tags, jsonLd } = getScholarMeta(article)
   const { onPdf, share } = useActions(article)
   const doi = doiFor(article.paperId)
-  const backdated = article.publishedOnline !== article.publishedAt
   const color = disciplineColor(article.subject)
   const articleRef = useRef<HTMLElement>(null)
   const [tocOpen, setTocOpen] = useState(false)
+  const [recommendOpen, setRecommendOpen] = useState(false)
   const tocRef = useRef<HTMLDivElement>(null)
 
   const toc = [{ id: 'abstract', label: 'Abstract' }, ...article.sections.map((s, i) => ({ id: s.id, label: `${i + 1}. ${s.title}` })), { id: 'references', label: `References (${article.references.length})` }, { id: 'how-to-cite', label: 'How to cite' }]
@@ -232,9 +241,8 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
           <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-graphite-200 pt-5">
             <dl className="contents">
-              {[['Received', article.received], ['Accepted', article.accepted], ...(backdated ? [['Issue date', article.publishedAt], ['Published online', article.publishedOnline]] : [['Published', article.publishedAt]])].map(([k, v]) => (
-                <div key={k} className="rounded-chip border border-graphite-200 bg-white px-3 py-1.5 text-sm"><dt className="inline font-semibold text-graphite-900">{k}: </dt><dd className="inline font-mono text-graphite-800">{formatDate(v)}</dd></div>
-              ))}
+              <div className="rounded-chip border border-graphite-200 bg-white px-3 py-1.5 text-sm"><dt className="inline font-semibold text-graphite-900">Published: </dt><dd className="inline font-mono text-graphite-800">{formatDate(article.publishedOnline)}</dd></div>
+              <div className="rounded-chip border border-graphite-200 bg-white px-3 py-1.5 text-sm"><dt className="inline font-semibold text-graphite-900">Manuscript ID: </dt><dd className="inline font-mono text-graphite-800">{article.paperId}</dd></div>
             </dl>
             <span className="inline-flex items-center rounded-chip border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm text-brand-900">Volume {article.volume}, Issue {article.issue} · Pages {article.pages}</span>
             <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-chip border border-graphite-200 bg-white px-3 py-1.5 text-sm lg:ml-auto">
@@ -243,7 +251,6 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               <CopyDoi doi={doi} />
             </div>
           </div>
-          {backdated && <p className="mt-2 text-xs text-graphite-700">This article was published online on {formatDate(article.publishedOnline)} and assigned to the issue dated {formatDate(article.publishedAt)}.</p>}
         </header>
 
         {/* Action bar (desktop; phones use the bar fixed at the bottom) */}
@@ -251,6 +258,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
           <p className="mr-auto flex items-center gap-2 text-sm text-graphite-800"><Book className="h-5 w-5 text-brand-800" aria-hidden="true" /> {journal.shortName} · Vol. {article.volume}, Issue {article.issue} · ISSN {journal.issnOnline}</p>
           <a href={paths.pdf(article.paperId)} download onClick={onPdf} className={buttonClass('primary')}><Download className="h-4 w-4" aria-hidden="true" /> Download PDF</a>
           <CiteFlyout article={article} />
+          <Button variant="outline" onClick={() => setRecommendOpen(true)}><MdOutlineThumbUp className="h-4 w-4" aria-hidden="true" /> Recommend this Article</Button>
           <Button variant="outline" onClick={share}><MdOutlineShare className="h-4 w-4" aria-hidden="true" /> Share</Button>
           <Button variant="outline" onClick={() => window.print()}><MdOutlinePrint className="h-4 w-4" aria-hidden="true" /> Print</Button>
         </div>
@@ -297,6 +305,17 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               </ol>
             </section>
 
+            <section id="declarations" aria-labelledby="decl-h" className="mt-10 scroll-mt-24">
+              <h2 id="decl-h" className="border-b-2 border-brand-800 pb-2 font-display text-lg font-bold uppercase tracking-wide text-brand-900">Declarations &amp; statements</h2>
+              <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+                {DECLARATIONS.map(([k, v]) => (
+                  <div key={k} className="rounded-panel border border-graphite-200 bg-graphite-50 p-4">
+                    <dt className="font-display text-sm font-bold text-graphite-900">{k}</dt>
+                    <dd className="mt-1.5 text-sm leading-relaxed text-graphite-700">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
             {article.related.length > 0 && (
               <section id="related" aria-labelledby="related-h" className="mt-10 scroll-mt-24">
                 <h2 id="related-h" className="border-b-2 border-brand-800 pb-2 font-display text-lg font-bold uppercase tracking-wide text-brand-900">Related research</h2>
@@ -308,18 +327,34 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
           </article>
 
           {/* Sidebar: contents, citation, impact, article facts */}
-          <aside aria-label="Article tools" className="space-y-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
+          <aside aria-label="Article tools" className="space-y-5">
             <nav aria-label="Jump to section" className={cx(card, 'hidden overflow-hidden lg:block')}>
               <h2 className={cx(sideTitle, 'p-5 pb-3')}><MdOutlineListAlt className="h-4 w-4" aria-hidden="true" /> Article contents</h2>
               <ul className="pb-3">{tocLinks()}</ul>
             </nav>
             <HowToCite article={article} />
+            <section aria-labelledby="class-h" className={cx(card, 'p-5')}>
+              <h2 id="class-h" className={sideTitle}>Subject classification</h2>
+              <dl className="mt-3 divide-y divide-graphite-200 text-sm">
+                <div className="flex justify-between gap-4 py-2"><dt className="text-graphite-700">Article type</dt><dd className="text-right font-semibold text-graphite-900">{article.type}</dd></div>
+                <div className="flex justify-between gap-4 py-2"><dt className="text-graphite-700">Subject area</dt><dd className="text-right font-semibold text-graphite-900"><AppLink to={paths.search(article.subject)} className="text-accent-800 hover:underline">{article.subject}</AppLink></dd></div>
+              </dl>
+            </section>
             <section aria-labelledby="impact-h" className={cx(card, 'p-5')}>
               <h2 id="impact-h" className={sideTitle}>Article impact</h2>
               <dl className="mt-3 grid grid-cols-2 gap-3">
                 <Metric label="Views" value={article.views} icon={Eye} /><Metric label="Downloads" value={article.downloads} icon={Download} />
                 <Metric label="Citations" value={article.citations} tint icon={Quote} />
               </dl>
+            </section>
+            <section aria-labelledby="integrity-h" className={cx(card, 'p-5')}>
+              <h2 id="integrity-h" className={sideTitle}>Peer review &amp; integrity</h2>
+              <dl className="mt-3 divide-y divide-graphite-200 text-sm">
+                {([['Review model', 'Peer-reviewed'], ['Published', formatDate(article.publishedOnline)], ['Licence', journal.licence.name], ['Archival', 'DOI registered with Crossref']] as const).map(([k, v]) => (
+                  <div key={k} className="flex items-baseline justify-between gap-3 py-2"><dt className="text-graphite-700">{k}</dt><dd className="text-right font-semibold text-graphite-900">{v}</dd></div>
+                ))}
+              </dl>
+              <AppLink to={paths.policy('peer-review')} className="mt-3 inline-block text-sm font-semibold text-accent-700 hover:underline">Read the peer review policy →</AppLink>
             </section>
             <ArticleQrCard paperId={article.paperId} />
             <section aria-labelledby="facts-h" className={cx(card, 'p-5')}>
@@ -356,7 +391,9 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
         <a href={paths.pdf(article.paperId)} download onClick={onPdf} className={cx(buttonClass('primary'), 'min-w-0 flex-1')}><Download className="h-4 w-4" aria-hidden="true" /> Download PDF</a>
         <CiteFlyout article={article} />
         <Button variant="outline" onClick={share} aria-label="Share this article"><MdOutlineShare className="h-4 w-4" aria-hidden="true" /></Button>
+        <Button variant="outline" onClick={() => setRecommendOpen(true)} aria-label="Recommend this article"><MdOutlineThumbUp className="h-4 w-4" aria-hidden="true" /></Button>
       </div>
+      <RecommendDialog article={article} open={recommendOpen} onClose={() => setRecommendOpen(false)} />
     </div>
   )
 }

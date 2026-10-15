@@ -6,11 +6,13 @@ import { Modal } from './Modal'
 import { Printer } from './uiIcons'
 
 /** Shows one certificate per author. "Print / Save as PDF" prints only the certificate (see print styles in index.css). */
-export function CertificateModal({ open, onClose, paper }: {
+export function CertificateModal({ open, onClose, paper, initialIndex = 0 }: {
   open: boolean; onClose: () => void
+  /** Which author's certificate to show first. */
+  initialIndex?: number
   paper: { paperId: string; title: string; publishedAt: string; authors: string[]; volume?: number; issue?: number }
 }) {
-  const [i, setI] = useState(0)
+  const [i, setI] = useState(initialIndex)
   const author = paper.authors[i] ?? paper.authors[0]
   const number = certificateNumber(paper.paperId, i)
   const data: CertificateData = { author, paperId: paper.paperId, title: paper.title, publishedAt: paper.publishedAt, volume: paper.volume, issue: paper.issue }

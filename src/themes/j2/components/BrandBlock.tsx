@@ -17,20 +17,21 @@ export function LogoTile({ className }: { className?: string }) {
 export function BrandBlock() {
   return (
     <AppLink to={paths.home} aria-label={`${journal.shortName}: ${journal.name}, home`} className="flex min-w-0 items-center gap-4">
-      <LogoTile className="h-20 w-20" />
+      <LogoTile className="h-24 w-[4.75rem] shrink-0" />
       <span className="min-w-0">
-        <span className="flex flex-wrap items-center gap-2">
-          <span className="rounded bg-brand-800 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-brand-100">Emerald Scholar</span>
-          {journal.badges.peerReviewed && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 bg-brand-50 px-2 py-0.5 font-display text-[11px] font-semibold text-brand-800">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-600" /> Peer-Reviewed
-            </span>
-          )}
-        </span>
-        <span className="mt-0.5 block font-display text-lg font-bold leading-snug tracking-tight text-graphite-900 xl:text-xl">
+        <span className="block font-display text-xl font-bold leading-snug tracking-tight text-graphite-900 xl:whitespace-nowrap xl:text-[clamp(1rem,1.2vw,1.5rem)]">
           {journal.name}
         </span>
-        <span className="mt-0.5 block text-xs font-medium text-graphite-600">{journal.descriptor} · ISSN {journal.issnOnline}</span>
+        <span className="mt-1 flex flex-wrap items-center gap-x-2 text-sm font-medium text-graphite-600">
+          {journal.badges.peerReviewed && (
+            <span className="inline-flex items-center gap-1.5 font-semibold text-brand-800"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-600" />Peer-Reviewed</span>
+          )}
+          <span>· {journal.descriptor.replace(/^peer-reviewed\s*·\s*/i, '')}</span>
+        </span>
+        <span className="mt-1.5 flex flex-wrap items-center gap-2 text-sm font-bold text-graphite-900">
+          <span className="rounded-sm bg-[#FBD28D] px-2 py-0.5">ISSN: {journal.issnOnline}</span>
+          {journal.sjifImpactFactor && <span className="rounded-sm bg-[#FBD28D] px-2 py-0.5">SJIF Impact Factor: {journal.sjifImpactFactor}</span>}
+        </span>
       </span>
     </AppLink>
   )

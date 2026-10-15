@@ -21,7 +21,7 @@ export const staticPages: StaticPageData[] = [
   P('peer-review', 'Peer Review Process', 'How every IJMAT submission is screened, reviewed and decided: the review types we use, who may review, the criteria applied, the timeline and how to appeal. Every decision is logged with its reason.', [
     { heading: 'Overview & Core Philosophy', paragraphs: [
       'Independent, impartial evaluation is the foundation of trustworthy scholarship. Every manuscript submitted to the International Journal of Multidisciplinary Academic Research and Trends (IJMAT) is assessed on its technical substance, methodological soundness and relevance to the journal’s subject areas, and on nothing else.',
-      'Editorial decisions are made independently of commercial considerations and without regard to an author’s nationality, gender or institution. Authors never need an account: you receive a Paper ID at submission and can follow every stage on Track My Paper.'] },
+      'Editorial decisions are made independently of commercial considerations and without regard to an author’s nationality, gender or institution. Authors never need an account: you receive a Manuscript ID at submission and can follow every stage on Track My Paper.'] },
     { heading: 'Types of Peer Review Employed', paragraphs: ['Two layers of scrutiny are applied, so that every paper gets an appropriate level of expert assessment:'], blocks: [
       { type: 'card-grid', title: '', items: [
         { icon: 'eye', tag: 'Standard', title: 'Single-anonymised external review', text: 'When a paper needs specialist assessment, an independent reviewer is invited. The reviewer’s identity is kept confidential from the authors, and the reviewer’s report is evaluated by the handling editor alongside the manuscript.' },
@@ -46,13 +46,13 @@ export const staticPages: StaticPageData[] = [
     ] },
     { heading: 'Review Timeline & Workflow', badge: '7–14 day first decision', paragraphs: ['We aim to reach a first decision within 7 to 14 days of submission. Authors can see the current stage at any time on Track My Paper.'], blocks: [
       { type: 'ordered-steps', layout: 'row', title: '', items: [
-        { title: 'Submission', meta: 'Paper ID issued instantly' },
+        { title: 'Submission', meta: 'Manuscript ID issued instantly' },
         { title: 'Editor screening', meta: 'Scope, quality, similarity' },
         { title: 'Review (if needed)', meta: 'Independent reviewer' },
         { title: 'Decision', meta: 'Reason is logged' },
       ] },
       { type: 'table', title: '', caption: 'Table 1. Workflow stages and standard durations', head: ['Workflow stage', 'Responsible party', 'Standard duration'], rows: [
-        ['Submission and Paper ID', 'Author and system', 'Instant'],
+        ['Submission and Manuscript ID', 'Author and system', 'Instant'],
         ['Editor screening and similarity check', 'Handling editor', 'About 2 working days'],
         ['Reviewer invitation response', 'Invited reviewer', 'Within 3 days'],
         ['Reviewer report', 'Independent reviewer', '7–10 days'],
@@ -66,7 +66,7 @@ export const staticPages: StaticPageData[] = [
       'A reviewer’s identity is never disclosed to the authors, and review reports stay in the editorial tracking system.'] },
     { heading: 'Conflict of Interest Disclosures', paragraphs: ['Reviewers and editors must decline a manuscript when they have a conflict with an author, such as shared funding, the same department, recent co-authorship or a close personal relationship. If a conflict emerges during review, the reviewer informs the editor at once and the manuscript is reassigned to another independent reviewer.'],
       callout: { tone: 'note', title: 'Practice note (consistent with COPE guidance)', text: 'Editors who submit their own papers are excluded from every stage of the handling of that paper, which is run by an independent editor.' } },
-    { heading: 'Appeals, Complaints & Editorial Escalation', paragraphs: ['Authors may appeal a rejection if they can show a factual error or documented bias. Appeals must be made within 30 days of the decision by email to editor@ijmat.org, quoting the Paper ID.'], blocks: [
+    { heading: 'Appeals, Complaints & Editorial Escalation', paragraphs: ['Authors may appeal a rejection if they can show a factual error or documented bias. Appeals must be made within 30 days of the decision by email to editor@ijmat.org, quoting the Manuscript ID.'], blocks: [
       { type: 'ordered-steps', layout: 'list', title: 'Standard appeals procedure', items: [
         { title: 'Point-by-point rebuttal', text: 'Send a rebuttal that addresses the editor’s and reviewers’ comments one by one.' },
         { title: 'Independent assessment', text: 'An editor who was not involved in the original decision reviews the rebuttal.' },
@@ -125,13 +125,13 @@ export const staticPages: StaticPageData[] = [
   P('editorial-policy', 'Editorial Policy', 'Editorial decisions are independent of commercial considerations and based on scholarly merit.', generic('editorial independence and decision-making'), ['peer-review', 'conflict-of-interest', 'complaints']),
   P('publication-charges', 'Publication Charges', 'The journal charges a one-time article processing charge (APC), payable only after acceptance.', [
     { heading: 'APC', list: ['Indian authors: ₹6,500 + 18% GST.', 'International authors: US$120, no GST.'], callout: { tone: 'info', title: 'What is included', text: 'DOI, certificates for every author, open access hosting and indexing support.' } },
-    { heading: 'Payment methods', paragraphs: ['Cards, UPI, net banking and international cards are accepted. Pay using your Paper ID from the Track My Paper page.'] },
+    { heading: 'Payment methods', paragraphs: ['Cards, UPI, net banking and international cards are accepted. Pay using your Manuscript ID from the Track My Paper page.'] },
     { heading: 'Waivers', paragraphs: ['Waivers or discounts can be requested at submission by authors from low-income countries or without funding.'] },
   ], ['refund', 'open-access', 'author-guidelines']),
   P('refund', 'Refund Policy', 'Payments are refundable only in the circumstances described below.', [
-    { heading: 'Eligible for refund', list: ['Duplicate payment for the same Paper ID.', 'Payment made but the paper is not published because of a journal decision or error.'] },
+    { heading: 'Eligible for refund', list: ['Duplicate payment for the same Manuscript ID.', 'Payment made but the paper is not published because of a journal decision or error.'] },
     { heading: 'Not eligible', list: ['Withdrawal after the article is published.', 'Change of mind after publication processing has begun.'] },
-    { heading: 'How to request', paragraphs: ['Email the editorial office with your Paper ID and payment reference. Approved refunds are processed within 7–10 working days.'] },
+    { heading: 'How to request', paragraphs: ['Email the editorial office with your Manuscript ID and payment reference. Approved refunds are processed within 7–10 working days.'] },
   ], ['publication-charges', 'complaints']),
   P('complaints', 'Complaints and Appeals', 'Authors may appeal an editorial decision or raise a complaint about the process.', [
     { heading: 'Appeals', paragraphs: ['Appeals must be made within 30 days of the decision and should explain, point by point, why the decision should be reconsidered. Appeals are assessed by an editor not involved in the original decision.'] },
@@ -144,14 +144,14 @@ export const staticPages: StaticPageData[] = [
 
   // ---- For authors ----
   { slug: 'submission-process', group: 'for-authors', title: 'Submission Process', updated: UPDATED, related: ['author-guidelines', 'templates', 'apc-payment'],
-    intro: 'Submitting takes about ten minutes. No account is needed — you receive a Paper ID instantly.',
-    sections: [{ heading: 'Steps', list: ['Prepare your manuscript using the journal template.', 'Complete the four-step submission form and upload your Word file.', 'Receive your Paper ID by email, SMS and WhatsApp.', 'Track progress at any time with your Paper ID and email.'] }] },
+    intro: 'Submitting takes about ten minutes. No account is needed — you receive a Manuscript ID instantly.',
+    sections: [{ heading: 'Steps', list: ['Prepare your manuscript using the journal template.', 'Complete the four-step submission form and upload your Word file.', 'Receive your Manuscript ID by email, SMS and WhatsApp.', 'Track progress at any time with your Manuscript ID and email.'] }] },
   { slug: 'templates', group: 'for-authors', title: 'Article Templates', updated: UPDATED, related: ['author-guidelines', 'submission-process'],
     intro: 'Use the official templates to format your manuscript correctly.',
     sections: [{ heading: 'Downloads', list: ['Manuscript template (.docx)', 'Cover letter template (.docx)', 'Response to reviewers template (.docx)'], callout: { tone: 'info', title: 'Prototype note', text: 'Downloads are simulated in this prototype.' } }] },
   { slug: 'apc-payment', group: 'for-authors', title: 'APC & Payment', updated: UPDATED, related: ['publication-charges', 'refund'],
     intro: 'A single, transparent article processing charge is payable after acceptance.',
-    sections: [{ heading: 'Charges', list: ['Indian authors: ₹6,500 + 18% GST.', 'International authors: US$120 (no GST).'] }, { heading: 'How to pay', paragraphs: ['Open Track My Paper, enter your Paper ID and email, and choose Pay APC.'] }] },
+    sections: [{ heading: 'Charges', list: ['Indian authors: ₹6,500 + 18% GST.', 'International authors: US$120 (no GST).'] }, { heading: 'How to pay', paragraphs: ['Open Track My Paper, enter your Manuscript ID and email, and choose Pay APC.'] }] },
   { slug: 'become-a-reviewer', group: 'for-authors', title: 'Become a Reviewer', updated: UPDATED, related: ['reviewer-guidelines', 'peer-review'],
     intro: 'Editors invite independent reviewers when a paper needs specialist assessment. We welcome applications from researchers with a PhD or equivalent experience.',
     sections: [{ heading: 'Benefits', list: ['Certificate of reviewing', 'Early access to new research', 'Possible invitation to join the review board'] }, { heading: 'Apply', paragraphs: ['Email your CV, ORCID iD and areas of expertise to the editorial office.'] }] },
@@ -188,7 +188,7 @@ const BLOCKS: Record<string, StaticBlock[]> = {
   ],
   'submission-process': [
     { type: 'steps', title: 'The eight stages of a paper', items: [
-      { title: 'Submission', text: 'Submit on the website or on WhatsApp. No account is needed, and your Paper ID arrives by email, SMS and WhatsApp.' },
+      { title: 'Submission', text: 'Submit on the website or on WhatsApp. No account is needed, and your Manuscript ID arrives by email, SMS and WhatsApp.' },
       { title: 'Review', text: 'The editor screens your paper. An external reviewer is consulted only when the editor needs one.' },
       { title: 'Decision', text: 'The editor approves, asks for changes or rejects, and the reason is logged. Messages go out daily at 08:45 IST.' },
       { title: 'Acceptance', text: 'You receive the acceptance letter, a copyright form to sign with an email OTP, and the payment link.' },
@@ -217,7 +217,7 @@ const BLOCKS: Record<string, StaticBlock[]> = {
       { q: 'Is GST charged?', a: 'Indian authors pay 18% GST on the APC and receive a GST invoice. International authors pay no GST.' },
       { q: 'Which payment methods are accepted?', a: 'UPI, debit and credit cards, net banking and international cards.' },
       { q: 'Can I get a waiver?', a: 'Authors from low-income countries or without funding can request a waiver at submission. Requests are reviewed by the editor-in-chief.' },
-      { q: 'How do I pay?', a: 'Open Track My Paper, enter your Paper ID and email, and choose Pay APC.' },
+      { q: 'How do I pay?', a: 'Open Track My Paper, enter your Manuscript ID and email, and choose Pay APC.' },
       { q: 'Can I get a refund?', a: 'Refunds are possible for duplicate payments or if the paper is not published. See the Refund Policy.' },
     ] },
   ],

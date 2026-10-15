@@ -155,7 +155,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
       </header>
 
       <Container className="!max-w-[1440px] pb-16 pt-6">
-<WithAwardsRail before={<RecentSubmissionsCard />}>
+<WithAwardsRail before={<><Checklist part="rail" items={items} active={active} onGo={goTo} savedAt={savedAt} /><RecentSubmissionsCard /></>}>
         {pendingDraft && (
           <div role="region" aria-label="Saved draft" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-panel border border-accent-200 bg-accent-50 p-4">
             <p className="flex items-start gap-2 text-sm text-graphite-800">
@@ -167,8 +167,8 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           </div>
         )}
 
-        <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]">
-          <Checklist items={items} active={active} onGo={goTo} savedAt={savedAt} />
+        <div className="space-y-6">
+          <Checklist part="bar" items={items} active={active} onGo={goTo} savedAt={savedAt} />
 
           <div className="min-w-0 rounded-sheet border border-graphite-200 bg-white p-4 shadow-card sm:p-8">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -181,13 +181,13 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
             <div className="mt-6 hidden border-b border-graphite-200 pb-6 sm:block"><Stepper items={items} active={active} onGo={goTo} /></div>
 
             <form ref={formRef} noValidate onSubmit={(e) => e.preventDefault()} onBlur={onBlur} aria-label="Manuscript submission form" className="mt-6 space-y-6">
-              <SectionCard id="sec-manuscript" n={1} title="Manuscript details" text="Title, abstract, keywords and where your paper fits." done={items[0].done}>
+              <SectionCard id="sec-manuscript" n={1} title="Manuscript details" text="Title and where your paper fits." done={items[0].done}>
                 <ManuscriptSection {...sectionProps} />
               </SectionCard>
               <SectionCard id="sec-authors" n={2} title="Authors" text="Who wrote it, and how we reach the corresponding author." done={items[1].done}>
                 <AuthorsSection {...sectionProps} />
               </SectionCard>
-              <SectionCard id="sec-files" n={3} title="Files & declarations" text="Upload your Word file, add optional notes and confirm the declarations." done={items[2].done}>
+              <SectionCard id="sec-files" n={3} title="Files & declarations" text="Upload your Word file and confirm the declarations." done={items[2].done}>
                 <FilesSection {...sectionProps} />
               </SectionCard>
               <SectionCard id="sec-review" n={4} title="Review & submit" text="Check your details one last time." done={doneAll}>

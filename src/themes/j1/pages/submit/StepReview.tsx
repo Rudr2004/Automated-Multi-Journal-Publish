@@ -22,11 +22,11 @@ export function StepReview({ form, onEdit, submitError }: Pick<StepProps, 'form'
       <p className="text-sm text-ink-muted">Please check everything before submitting. You can edit any section.</p>
       <Block title="Manuscript" step={0} onEdit={onEdit}>
         <Row k="Title" v={form.title} /><Row k="Article type" v={form.articleType} /><Row k="Subject area" v={form.branch ? `${form.subject} · ${form.branch}` : form.subject} />
-        <Row k="Keywords" v={form.keywords} /><Row k="File" v={form.file?.name} /><Row k="Abstract" v={form.abstract.length > 220 ? `${form.abstract.slice(0, 220)}…` : form.abstract} />
+        <Row k="File" v={form.file?.name} />
       </Block>
       <Block title="Authors" step={1} onEdit={onEdit}>
         <Row k="Corresponding" v={`${a.name} (${a.email})`} /><Row k="WhatsApp" v={`${a.dialCode} ${a.whatsapp}`} />
-        <Row k="Institution" v={`${a.institution}, ${a.country}`} /><Row k="Designation" v={a.designation} /><Row k="ORCID" v={a.orcid} />
+        <Row k="Institution" v={`${a.institution}, ${a.country}`} /><Row k="ORCID" v={a.orcid} />
         <Row k="Co-authors" v={form.coAuthors.length ? form.coAuthors.map((c) => c.name).join(', ') : 'None'} />
       </Block>
       <Block title="Additional" step={2} onEdit={onEdit}>

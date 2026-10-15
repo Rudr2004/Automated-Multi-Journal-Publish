@@ -50,7 +50,7 @@ export function IssueFeatured({ article }: { article: ArticleSummary }) {
         </div>
         <p className="mt-4 font-mono text-xs tabular-nums text-ink-muted">
           <span className="font-semibold">DOI</span> <a href={`https://doi.org/${doi}`} className="text-scholar hover:underline">{doi}</a>
-          <span aria-hidden className="mx-1.5">•</span><span className="font-semibold">MS ID</span> <span className="text-ink">{article.paperId}</span>
+          <span aria-hidden className="mx-1.5">•</span><span className="font-semibold">Manuscript ID</span> <span className="text-ink">{article.paperId}</span>
           <span aria-hidden className="mx-1.5">•</span><span className="inline-flex items-center gap-1 align-middle font-sans font-semibold text-ink"><FormatQuote className="h-3.5 w-3.5 text-ink-muted" aria-hidden />{formatNumber(article.citations)} citations</span>
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">

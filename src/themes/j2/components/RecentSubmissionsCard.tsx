@@ -1,21 +1,13 @@
-// "Recent submissions": a live-feed style card on the submission page showing the latest manuscripts sent to the journal (working title,
-// institution and how long ago). It reads the same home data the home page uses; the promise is cached so every page shares one request.
+// "Recent submissions": a live-feed style card on the submission page showing the latest manuscripts sent to the journal (working title and
+// institution). It reads the same home data the home page uses; the promise is cached so every page shares one request.
 import { useEffect, useState } from 'react'
-import { MdOutlineHistory, MdOutlineSchedule, MdOutlineSchool } from 'react-icons/md'
+import { MdOutlineHistory, MdOutlineSchool } from 'react-icons/md'
 import { api } from '../../../core/api'
 import type { HomeData } from '../../../core/types'
 
 type Items = HomeData['recentSubmissions']
 let cache: Promise<Items> | null = null
 const load = () => (cache ??= api.getHome().then((h) => h.recentSubmissions ?? []).catch(() => { cache = null; return [] as Items }))
-
-/** "24 minutes ago", "2 hours ago", "1 day ago". */
-const ago = (minutes: number) => {
-  if (minutes < 60) return `${Math.max(1, Math.round(minutes))} minute${Math.round(minutes) === 1 ? '' : 's'} ago`
-  if (minutes < 1440) { const h = Math.floor(minutes / 60); return `${h} hour${h === 1 ? '' : 's'} ago` }
-  const d = Math.floor(minutes / 1440)
-  return `${d} day${d === 1 ? '' : 's'} ago`
-}
 
 export function RecentSubmissionsCard() {
   const [items, setItems] = useState<Items>([])
@@ -39,7 +31,6 @@ export function RecentSubmissionsCard() {
             <p className="font-display text-sm font-semibold leading-snug text-graphite-900">“{s.title ?? s.subject}”</p>
             <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-graphite-600">
               <span className="inline-flex min-w-0 items-center gap-1.5"><MdOutlineSchool className="h-4 w-4 shrink-0 text-accent-700" aria-hidden="true" /><span className="min-w-0 font-medium text-graphite-800">{s.institution}</span></span>
-              <span className="inline-flex shrink-0 items-center gap-1"><MdOutlineSchedule className="h-3.5 w-3.5" aria-hidden="true" />{ago(s.minutes)}</span>
             </div>
             {s.title && <p className="mt-2 flex items-center gap-2 text-[11px]"><span className="rounded-chip bg-graphite-100 px-2 py-0.5 font-semibold text-graphite-700">{s.subject}</span>{i === 0 && <span className="rounded-chip bg-accent-100 px-2 py-0.5 font-bold text-accent-800">New</span>}</p>}
           </li>

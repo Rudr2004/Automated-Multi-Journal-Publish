@@ -4,7 +4,7 @@ import { journal } from '../../../../config/journals/j1'
 import { Checkbox, Field, inputClass } from '../../components/form'
 import type { ReactNode } from 'react'
 import { paths } from '../../../../config/routes'
-import { LIMITS, type SubmissionForm } from '../../../../core/lib/submission'
+import type { SubmissionForm } from '../../../../core/lib/submission'
 import { formatReferral } from '../../../../core/lib/validators'
 import type { StepProps } from './types'
 
@@ -14,7 +14,7 @@ const DECLARATIONS: { key: keyof SubmissionForm['declarations']; text: ReactNode
   { key: 'originality', text: (<><strong className="text-navy">Original work &amp; plagiarism:</strong> I confirm this manuscript is original, has not been published before, and all authors have approved it.</>) },
   { key: 'noSimultaneous', text: (<><strong className="text-navy">No simultaneous submission:</strong> I confirm it is not under consideration by any other journal at the same time.</>) },
   { key: 'consentData', text: (<><strong className="text-navy">Author consents:</strong> I consent to the journal processing the personal data in this submission (names, emails, phone numbers, affiliations) to review and publish my work, as described in the <a href={PRIVACY_HREF} target="_blank" rel="noreferrer" className="font-semibold text-scholar underline">Privacy Policy</a>. Author names and affiliations appear publicly if the article is published.</>) },
-  { key: 'consentMessages', text: (<><strong className="text-navy">Messages consent:</strong> I consent to receive my Paper ID and status updates by WhatsApp, SMS and email.</>) },
+  { key: 'consentMessages', text: (<><strong className="text-navy">Messages consent:</strong> I consent to receive my Manuscript ID and status updates by WhatsApp, SMS and email.</>) },
 ]
 
 export function StepAdditional({ form, errors, onChange }: StepProps) {
@@ -26,10 +26,6 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
           <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
         </Field>
       </div>
-      <Field label="Cover letter (optional)" name="coverLetter" error={errors.coverLetter} counter={`${form.coverLetter.length} / ${LIMITS.coverLetter}`}>
-        <textarea rows={5} className={inputClass(errors.coverLetter)} value={form.coverLetter} maxLength={LIMITS.coverLetter} onChange={(e) => set('coverLetter', e.target.value)}
-          placeholder="Briefly explain the significance of your work for the journal’s readers." />
-      </Field>
 
       <fieldset className="space-y-4 rounded-card border border-line p-5">
         <legend className="flex items-center gap-2 px-2 font-serif text-lg font-semibold text-navy"><MdOutlineVerifiedUser className="h-5 w-5 text-scholar" aria-hidden />Ethical &amp; publication integrity checklist</legend>

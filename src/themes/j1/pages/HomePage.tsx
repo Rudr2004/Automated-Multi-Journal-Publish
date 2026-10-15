@@ -2,17 +2,16 @@ import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent 
 import { MdOutlineEditNote, MdOutlineInfo, MdOutlineMailOutline, MdOutlineOpenInNew, MdOutlineWorkspacePremium } from 'react-icons/md'
 import type { ArticleSummary, J1HomeData } from '../../../mock-data/journals/j1'
 import { api } from '../../../core/api'
-import { journal, visibleLogos } from '../../../config/journals/j1'
+import { journal, logoSrc, visibleLogos } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
-import { ApcCalculator } from '../components/ApcCalculator'
 import { Avatar } from '../components/Avatar'
 import { portraitFor } from '../../../mock-data/shared/portraits'
 import { Button } from '../components/Button'
-import { CountUp } from '../components/CountUp'
 import { CfpCard, LeftSidebar, RightSidebar } from '../components/HomeSidebars'
 import { HomeArticle } from '../components/HomeArticle'
 import { IssueCover } from '../components/IssueCover'
 import { Card, Tag } from '../components/PortalParts'
+import { logoAlt } from '../components/IndexLogos'
 import { Container } from '../components/primitives'
 import { StickyRail } from '../components/StickyRail'
 import { Testimonials } from '../components/Testimonials'
@@ -74,7 +73,6 @@ function Subscribe({ onSubscribe }: { onSubscribe: Props['onSubscribe'] }) {
 function Hero({ data }: { data: J1HomeData }) {
   const { navigate } = useRouter()
   const [q, setQ] = useState('')
-  const stats = journal.heroStats.filter((s) => s.show)
   const ci = data.currentIssue
   const go = (e: FormEvent) => { e.preventDefault(); const t = q.trim(); if (t) navigate(paths.search(t)) }
   return (
@@ -115,40 +113,40 @@ function Hero({ data }: { data: J1HomeData }) {
           <AppLink to={paths.pastIssues} className="ml-auto inline-flex items-center gap-0.5 font-semibold text-scholar hover:underline">Browse the archive<MdOutlineOpenInNew className="h-3 w-3" aria-hidden /></AppLink>
         </p>
       </div>
-      <dl className="grid grid-cols-2 border-t border-line bg-white/70 sm:grid-cols-4 sm:divide-x sm:divide-line">
-        {stats.map((s) => (
-          <div key={s.id} className="border-b border-line px-4 py-2.5 sm:border-b-0 sm:px-5">
-            <dd className="font-serif text-xl font-semibold tabular-nums text-navy"><CountUp value={s.value} /></dd>
-            <dt className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-ink-muted">{s.label}</dt>
-          </div>
-        ))}
-      </dl>
     </section>
   )
 }
 
-/** "Verified indexing & abstracting repositories": one row of five compact text tiles (name and listing status) from the visible index logos. */
+/**
+ * "Verified indexing & abstracting repositories": the index logos (full colour, never stretched) scroll slowly from right to left in
+ * one row. Hover or keyboard focus pauses the row; for visitors who prefer reduced motion it stops and can be scrolled by hand.
+ * Each logo opens the index's own page so authors can verify the listing.
+ */
 function Indexing() {
-  const logos = visibleLogos().slice(0, 5)
+  const logos = visibleLogos()
   if (!logos.length) return null
+  const tiles = (copy: number) => logos.map((l) => (
+    <li key={`${copy}-${l.id}`} className="shrink-0">
+      <a href={l.verifyUrl} target="_blank" rel="noopener noreferrer" title={`Verify on ${l.name}`} tabIndex={copy > 0 ? -1 : undefined}
+        className="flex h-[4.5rem] w-40 flex-col items-center justify-center gap-1 rounded border border-line bg-paper px-3 text-center hover:border-scholar">
+        <img src={logoSrc(l.file)} alt={copy > 0 ? '' : logoAlt(l)} className="max-h-8 w-auto max-w-[8.5rem] object-contain" />
+        <span className="text-[10px] leading-tight text-ink-muted">{l.status}</span>
+        {copy === 0 && <span className="sr-only"> (opens in a new tab)</span>}
+      </a>
+    </li>
+  ))
   return (
     <section aria-labelledby="idx-h" className="rounded border border-line bg-white p-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="idx-h" className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">Verified indexing &amp; abstracting repositories</h2>
         <AppLink to={paths.about('indexing')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-scholar hover:underline">Verify our presence<span aria-hidden>↗</span></AppLink>
       </div>
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Indexed and verified by">
-        {logos.map((l, i) => (
-          <li key={l.id} className={logos.length % 2 === 1 && i === logos.length - 1 ? 'col-span-2 sm:col-span-1' : ''}>
-            <a href={l.verifyUrl} target="_blank" rel="noopener noreferrer" title={`Verify on ${l.name}`}
-              className="flex h-full flex-col items-center justify-center rounded border border-line bg-paper px-2 py-2 text-center hover:border-scholar">
-              <span className="text-xs font-bold leading-tight text-navy">{l.name}</span>
-              <span className="mt-0.5 text-[10px] leading-tight text-ink-muted">{l.status}</span>
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div className="j1-pausable overflow-hidden motion-reduce:overflow-x-auto [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)]">
+        <div className="j1-scroll-left flex w-max" style={{ ['--j1-scroll-duration' as string]: `${Math.max(18, logos.length * 6)}s` }}>
+          <ul className="flex shrink-0 gap-2 pr-2" aria-label="Indexed and verified by">{tiles(0)}</ul>
+          <ul className="flex shrink-0 gap-2 pr-2" aria-hidden>{tiles(1)}</ul>
+        </div>
+      </div>
     </section>
   )
 }
@@ -157,13 +155,18 @@ function Indexing() {
 const LABEL_BG = '#001333' // allowed for this block by the J1 design brief
 const ORANGE_LINK = 'font-medium text-[#B45309] hover:underline' // dark orange: 5.0:1 on white
 
+// Home-page presentation of the info rows: "Starting Year" is not shown, Publisher reads "IJMAT Journal" and Address shows the full journal name.
+const OVERVIEW_VALUES: Record<string, string> = {
+  Publisher: 'IJMAT Journal',
+  Address: 'International Journal of Multidisciplinary Academic Research and Trends',
+}
+
 function JournalOverview() {
-  const addressLines = (v: string) => { const p = v.split(', '); return [p[0], p.slice(1, 4).join(', '), p.slice(4).join(', ')].filter(Boolean) }
   const linked = (k: string, v: string) =>
     k === 'Email' ? <a href={`mailto:${v}`} className={ORANGE_LINK}>{v}</a>
       : k === 'Website' ? <a href={`https://${v}`} target="_blank" rel="noopener noreferrer" className={ORANGE_LINK}>{v}<span className="sr-only"> (opens in a new tab)</span></a>
         : k === 'Publisher' ? <AppLink to={paths.about('journal-information')} className={ORANGE_LINK}>{v}</AppLink>
-          : k === 'Address' ? <span className="block font-semibold">{addressLines(v).map((l) => <span key={l} className="block">{l}</span>)}</span> : v
+          : k === 'Address' ? <span className="block font-semibold">{v}</span> : v
   return (
     <section aria-labelledby="info-h" className="overflow-hidden rounded border border-navy bg-white">
       <header className="flex items-center justify-between gap-3 bg-navy px-4 py-3 sm:px-5">
@@ -171,12 +174,12 @@ function JournalOverview() {
         <span className="shrink-0 rounded-sm border border-[#FBD28D] bg-[#FFF7EB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A4B00]">Official Metadata</span>
       </header>
       <dl>
-        {journal.info.map(([k, v]) => (
+        {journal.info.filter(([k]) => k !== 'Starting Year').map(([k, v0]) => { const v = OVERVIEW_VALUES[k] ?? v0; return (
           <div key={k} className="grid grid-cols-[7rem_1fr] border-t border-line first:border-t-0">
             <dt className="px-3 py-2.5 text-[13px] font-bold text-white" style={{ backgroundColor: LABEL_BG }}>{k}</dt>
-            <dd className={`min-w-0 break-words px-3 py-2.5 text-sm text-ink sm:px-4 ${['ISSN', 'Starting Year'].includes(k) ? 'font-mono tabular-nums' : ''}`}>{linked(k, v)}</dd>
+            <dd className={`min-w-0 break-words px-3 py-2.5 text-sm text-ink sm:px-4 ${k === 'ISSN' ? 'font-mono tabular-nums' : ''}`}>{linked(k, v)}</dd>
           </div>
-        ))}
+        ) })}
       </dl>
     </section>
   )
@@ -231,24 +234,19 @@ function ArticlesList({ data }: { data: J1HomeData }) {
   )
 }
 
-// Day counts come from the existing process data: screening 2–3 days, reviewer reports 7–10 days, production 3–5 days, publication within 24 hours.
-// 'Revision' has no fixed duration in the process data, so it is not given a number.
-const LIFECYCLE = [
-  ['Screening', '2–3 days'], ['Peer Review', '7–10 days'], ['Revision', 'Editor-checked'], ['Proofing', '3–5 days'], ['DOI Release', 'Within 24 hours'],
-] as const
+const LIFECYCLE = ['Screening', 'Peer Review', 'Revision', 'Proofing', 'DOI Release'] as const
 
 /** The five static lifecycle step cards of the reference. */
 function Lifecycle() {
   return (
-    <Card size="main" title="Manuscript Lifecycle & Editorial Timeline" aside={<span className="text-[11px] font-bold uppercase tracking-wider text-scholar">{journal.heroStats.find((s) => s.id === 'review')?.value.split(' ')[0] ?? '14'}-Day Cycle</span>} headingId="life-h">
+    <Card size="main" title="Manuscript Lifecycle & Editorial Timeline" headingId="life-h">
       <ol className="grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
-        {LIFECYCLE.map(([label, time], i) => (
+        {LIFECYCLE.map((label, i) => (
           <li key={label} className={`flex flex-col justify-between rounded border border-line bg-paper p-2.5 ${i === LIFECYCLE.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}>
             <div>
               <span className={`mx-auto mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${i === LIFECYCLE.length - 1 ? 'bg-scholar' : 'bg-navy'}`}>{i + 1}</span>
               <span className={`block text-xs font-bold leading-tight ${i === LIFECYCLE.length - 1 ? 'text-scholar' : 'text-navy'}`}>{label}</span>
             </div>
-            <span className="mt-2 text-[11px] text-ink-muted">{time}</span>
           </li>
         ))}
       </ol>
@@ -267,10 +265,10 @@ export function HomePage({ data, onSubscribe }: Props) {
           <Indexing />
 
           <Card size="main" title="Aims, Scope & Research Domains" aside="Subject taxonomy" headingId="aims-h">
-            <img src="/journals/j1/images/aims-disciplines.svg" alt="Six research areas (materials, environment, computing, biotechnology, energy and public health) connected around the journal" width={800} height={170} loading="lazy" className="mb-4 h-auto w-full rounded border border-line" />
+            <img src="/journals/j1/images/aims-disciplines.svg" alt="Research disciplines connected around the journal" width={800} height={170} loading="lazy" className="mb-4 h-auto w-full rounded border border-line" />
             <p className="text-[0.9375rem] leading-relaxed text-ink">The journal provides an open access forum for high-impact contributions in theoretical formulation, design methodology, empirical study and applied practice.</p>
             <ul className="mt-3 flex flex-wrap gap-2" aria-label="Research domains">
-              {journal.subjects.map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded border border-scholar/60 bg-white px-3 py-1.5 text-xs font-semibold text-scholar hover:bg-scholar-soft">{s}</AppLink></li>)}
+              {(journal.researchDomains ?? journal.subjects).map((s) => <li key={s}><AppLink to={paths.search(s)} className="inline-block rounded border border-scholar/60 bg-white px-3 py-1.5 text-xs font-semibold text-scholar hover:bg-scholar-soft">{s}</AppLink></li>)}
             </ul>
           </Card>
 
@@ -339,12 +337,6 @@ export function HomePage({ data, onSubscribe }: Props) {
             </ul>
           </Card>
 
-          <section id="apc-payment" className="scroll-mt-24">
-            <Card size="main" title="APC & Payment" aside={<AppLink to={paths.forAuthors('apc-payment')} className="text-xs font-semibold text-scholar hover:underline">Full details →</AppLink>} headingId="apc-h">
-              <ApcCalculator />
-            </Card>
-          </section>
-
           <Card size="main" title="Author Voices" aside="What authors say" headingId="voices-h"><Testimonials items={data.testimonials} /></Card>
 
           <Subscribe onSubscribe={onSubscribe} />
@@ -354,8 +346,8 @@ export function HomePage({ data, onSubscribe }: Props) {
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0 max-w-md">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#FBD28D]">Submissions open</p>
-                <h2 id="cta-h" className="mt-1.5 font-serif text-2xl font-semibold leading-snug">Ready to Publish Your Research in {cfp.issueName.split(' — ')[0]}?</h2>
-                <p className="mt-2 text-sm leading-relaxed text-navy-100">Submit today for editor-led evaluation. The next issue closes on {formatDate(cfp.deadline.slice(0, 10))}, with a first decision in about {cfp.avgReviewDays} days.</p>
+                <h2 id="cta-h" className="mt-1.5 font-serif text-2xl font-semibold leading-snug">Ready to Publish Your Research in {journal.callForPapers ? journal.callForPapers.currentCall.replace(/ \(.*$/, '') : cfp.issueName.split(' — ')[0]}?</h2>
+                <p className="mt-2 text-sm leading-relaxed text-navy-100">Submit today for editor-led evaluation. The last date for submission is {journal.callForPapers?.lastDate ?? formatDate(cfp.deadline.slice(0, 10))}.</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <AppLink to={paths.submit} className="inline-flex h-12 items-center justify-center rounded bg-scholar px-6 text-sm font-bold text-white hover:bg-scholar-dark">Submit Manuscript</AppLink>

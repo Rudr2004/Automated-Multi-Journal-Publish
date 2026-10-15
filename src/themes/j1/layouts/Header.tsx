@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { useEffect, useRef, useState, type ComponentType } from 'react'
-import { MdOutlineEditNote, MdOutlineGroups, MdOutlineHome, MdOutlineInventory2, MdOutlineMenuBook } from 'react-icons/md'
+import { useEffect, useRef, useState } from 'react'
+import { MdOutlineEditNote } from 'react-icons/md'
 import { journal } from '../../../config/journals/j1'
 import type { NavItem } from '../../../config/navigation'
 import { j1Nav as nav } from './navItems'
@@ -25,20 +25,21 @@ export function Brand({ compact = false, light = false, markOnly = false }: { co
   if (!compact) {
     return (
       <AppLink to={paths.home} className="flex items-center gap-3 sm:gap-4" aria-label={`${journal.shortName}: ${journal.name} home`}>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded border border-line bg-white p-0.5 sm:h-14 sm:w-14 sm:p-1">
-          <img src="/journals/j1/logo.png" alt="" width={56} height={56} className="h-full w-full object-contain" />
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-line bg-white p-1 sm:h-[4.5rem] sm:w-[4.5rem] xl:h-20 xl:w-20">
+          <img src="/journals/j1/logo.png" alt="" width={96} height={96} className="h-full w-full object-contain" />
         </span>
         <span className="min-w-0">
-          <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <span className="block font-serif text-[1.0625rem] font-bold leading-snug tracking-tight text-navy sm:text-[1.25rem] xl:text-[1.375rem]">{journal.name}</span>
-            <span className="hidden rounded-sm border border-line bg-mist px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-scholar xl:inline-block">({journal.shortName})</span>
-          </span>
-          <span className="mt-1 hidden flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold tracking-wide text-ink-muted sm:flex">
+          <span className="block font-serif text-[1.1875rem] font-bold leading-snug tracking-tight text-navy sm:text-[1.375rem] xl:whitespace-nowrap xl:text-[1.5rem] 2xl:text-[1.625rem]">{journal.name}</span>
+          <span className="mt-1 hidden flex-wrap items-center gap-x-3 gap-y-0.5 text-sm font-semibold tracking-wide text-ink-muted sm:flex">
             <span className="text-scholar">Peer-Reviewed</span>
             {['Open Access Refereed Journal', 'Multidisciplinary Subjects'].map((f) => (
               <span key={f} className="inline-flex items-center gap-3"><span aria-hidden className="text-line">•</span><span className="font-medium">{f}</span></span>
             ))}
-            {iso && <><span aria-hidden className="text-line">•</span><span className="inline-flex items-center gap-1 font-medium text-ink"><BadgeCheck className="h-3.5 w-3.5 text-scholar" aria-hidden />{iso.name} Certified</span></>}
+            {iso && <><span aria-hidden className="text-line">•</span><span className="inline-flex items-center gap-1 font-medium text-ink"><BadgeCheck className="h-4 w-4 text-scholar" aria-hidden />{iso.name} Certified</span></>}
+          </span>
+          <span className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-bold text-navy-900 sm:text-sm">
+            <span className="rounded-sm bg-[#FBD28D] px-2 py-0.5">ISSN: {journal.issnOnline}</span>
+            {journal.sjifImpactFactor && <span className="rounded-sm bg-[#FBD28D] px-2 py-0.5">SJIF Impact Factor: {journal.sjifImpactFactor}</span>}
           </span>
         </span>
       </AppLink>
@@ -75,14 +76,11 @@ export function SiteHeader({ onSearch, onSuggest, onMenuOpen }: { onSearch: (q: 
   )
 }
 
-// Navigation row: white, slate text, Scholar Blue underline on the active item.
+// Navigation row: white, slate text, Scholar Blue underline on the active item. Thirteen entries share the row (the client's header sheet),
+// so the type is compact; below ~1400px the row wraps onto a second line instead of overflowing.
 const navLink = (active: boolean) =>
-  `relative inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-t px-2 text-sm font-semibold transition-colors 2xl:px-3 xl:px-2.5 ${
+  `relative inline-flex h-11 items-center gap-1 whitespace-nowrap rounded-t px-2 text-[13px] font-semibold transition-colors 2xl:px-2.5 ${
     active ? 'text-scholar after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-scholar' : 'text-ink-muted hover:bg-mist hover:text-navy'}`
-
-const NAV_ICONS: Record<string, ComponentType<{ className?: string; 'aria-hidden'?: boolean }>> = {
-  Home: MdOutlineHome, 'Current Issue': MdOutlineMenuBook, 'Past Issues': MdOutlineInventory2, 'Editorial Board': MdOutlineGroups,
-}
 
 /** Menu item with a panel. Plain dropdown for short lists; a wide mega menu when `item.mega` is set. */
 function MenuItem({ item, active }: { item: NavItem; active: boolean }) {
@@ -122,7 +120,7 @@ function MenuItem({ item, active }: { item: NavItem; active: boolean }) {
                 <div className="flex flex-col justify-between rounded bg-navy p-5 text-white">
                   <div>
                     <p className="font-serif text-lg font-semibold">Ready to publish?</p>
-                    <p className="mt-1 text-sm text-navy-100">Submit in about ten minutes. No account needed, and your Paper ID arrives instantly.</p>
+                    <p className="mt-1 text-sm text-navy-100">Submit in about ten minutes. No account needed, and your Manuscript ID arrives instantly.</p>
                   </div>
                   <AppLink to={paths.submit} className={`${btnClass('submit', 'sm')} mt-4 self-start`}><MdOutlineEditNote className="h-5 w-5" aria-hidden />Submit Manuscript</AppLink>
                 </div>
@@ -160,29 +158,25 @@ export function MainNav({ onSearch, onSuggest }: { onSearch: (q: string) => void
     <nav aria-label="Main" className={`sticky top-0 z-40 hidden border-b border-line bg-white lg:block ${scrolled ? 'shadow-lift' : ''}`}>
       <Container className="flex items-center">
         {scrolled && <div className="mr-3 py-1"><Brand compact markOnly light /></div>}
-        <ul className="flex flex-1 items-center">
-          {nav.map((item) => {
-            const Icon = NAV_ICONS[item.label]
-            return item.children ? (
+        <ul className="flex flex-1 flex-wrap items-center">
+          {nav.map((item) =>
+            item.children ? (
               <MenuItem key={item.label} item={item} active={isActive(item)} />
             ) : (
               <li key={item.label}>
-                <AppLink to={item.to} className={navLink(isActive(item))} aria-current={isActive(item) ? 'page' : undefined}>
-                  {Icon && <Icon className="h-4 w-4" aria-hidden />}{item.label}
-                </AppLink>
+                <AppLink to={item.to} className={navLink(isActive(item))} aria-current={isActive(item) ? 'page' : undefined}>{item.label}</AppLink>
               </li>
-            )
-          })}
+            ),
+          )}
         </ul>
-        {/* xl and up: inline search field. Below xl: magnifier that opens the field. */}
-        <SearchBox id="nav-search-inline" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="ml-2 hidden w-56 shrink-0 xl:block 2xl:w-72" />
-        {searchOpen && <SearchBox id="global-search" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="mr-2 w-64 shrink-0 xl:hidden" />}
-        <button type="button" aria-expanded={searchOpen} aria-label={searchOpen ? 'Close search' : 'Search articles'} onClick={() => setSearchOpen(!searchOpen)}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-ink-muted hover:bg-mist hover:text-navy xl:hidden">
+        {/* Search: a magnifier that opens the field on its own row below the menu (the menu itself needs the whole width). */}
+        <button type="button" aria-expanded={searchOpen} aria-controls="nav-search-row" aria-label={searchOpen ? 'Close search' : 'Search articles'} onClick={() => setSearchOpen(!searchOpen)}
+          className="ml-1 flex h-9 w-9 shrink-0 items-center justify-center self-start rounded text-ink-muted hover:bg-mist hover:text-navy">
           {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
         </button>
         {scrolled && <AppLink to={paths.submit} aria-label="Submit" className={`ml-2 inline-flex h-9 shrink-0 items-center gap-1.5 rounded px-2.5 text-sm font-bold 2xl:px-4 ${NAVY_CTA}`}><MdOutlineEditNote className="h-5 w-5" aria-hidden /><span className="hidden 2xl:inline">Submit</span></AppLink>}
       </Container>
+      {searchOpen && <div id="nav-search-row" className="border-t border-line"><Container className="py-2.5"><SearchBox id="global-search" variant="nav" onSearch={onSearch} onSuggest={onSuggest} className="w-full max-w-xl" /></Container></div>}
     </nav>
   )
 }

@@ -4,8 +4,9 @@ import * as validate from '../../../core/lib/validators'
 import { Button } from './Button'
 import { Field, inputClass } from './form'
 import { useRouter } from '../../../core/router'
+import { idExample, idMaxLength, normalizeId } from '../../../core/lib/manuscriptId'
 
-/** Paper ID + email form that opens Track My Paper with the result already loaded. Used in the header popover and the Home sidebar. */
+/** Manuscript ID + email form that opens Track My Paper with the result already loaded. Used in the header popover and the Home sidebar. */
 export function TrackForm({ idPrefix = 'trk', submitLabel = 'Track', onDone, firstRef }: {
   idPrefix?: string; submitLabel?: string; onDone?: () => void; firstRef?: React.RefObject<HTMLInputElement>
 }) {
@@ -21,14 +22,14 @@ export function TrackForm({ idPrefix = 'trk', submitLabel = 'Track', onDone, fir
     setErrors(next)
     if (next.paperId || next.email) return
     onDone?.()
-    navigate(`${paths.track}?id=${paperId.trim().toUpperCase()}&email=${encodeURIComponent(email.trim().toLowerCase())}`)
+    navigate(`${paths.track}?id=${normalizeId(paperId.trim())}&email=${encodeURIComponent(email.trim().toLowerCase())}`)
   }
 
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
-      <Field label="Paper ID" name={`${idPrefix}-paper`} required error={errors.paperId}>
-        <input ref={firstRef ?? own} className={inputClass(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder="IJMAT2026000123"
-          onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+      <Field label="Manuscript ID" name={`${idPrefix}-paper`} required error={errors.paperId}>
+        <input ref={firstRef ?? own} className={inputClass(errors.paperId)} value={paperId} maxLength={idMaxLength} autoComplete="off" spellCheck={false} placeholder={idExample}
+          onChange={(e) => { setPaperId(normalizeId(e.target.value)); setErrors((x) => ({ ...x, paperId: undefined })) }} />
       </Field>
       <Field label="Email" name={`${idPrefix}-email`} required error={errors.email}>
         <input type="email" className={inputClass(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="you@institution.edu"

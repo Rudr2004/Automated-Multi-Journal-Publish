@@ -17,7 +17,7 @@ import { CiteIssueButton, SubscribeIssueButton, issueHref } from '../components/
 import { journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
 import { copyText } from '../../../core/lib/clipboard'
-import { formatDate, formatMonthYear, formatNumber } from '../../../core/lib/format'
+import { formatMonthYear, formatNumber } from '../../../core/lib/format'
 import { StickyRail } from '../components/StickyRail'
 
 type Sort = 'latest' | 'views' | 'pages' | 'cited' | 'title' | 'date'
@@ -101,12 +101,12 @@ export function IssuePage({ data }: { data: IssueData }) {
               </h1>
               <dl className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-sm text-ink">
                 <div className="flex gap-1.5"><dt className="font-bold">ISSN:</dt><dd className="tabular-nums">{journal.issnOnline} (Online)</dd></div>
-                <div className="flex gap-1.5"><dt className="font-bold">Published Online:</dt><dd className="tabular-nums">{formatDate(issue.publishedAt)}</dd></div>
-                <div className="flex gap-1.5"><dt className="font-bold">Total Articles:</dt><dd className="tabular-nums">{issue.articleCount} Peer-Reviewed Articles</dd></div>
                 <div className="flex gap-1.5"><dt className="font-bold">DOI:</dt><dd className="break-all tabular-nums text-scholar">{issue.doi}</dd></div>
               </dl>
               <div className="mt-5 flex flex-wrap gap-3 border-t border-line pt-5">
                 <Button onClick={() => toast('Complete issue PDF download started (simulated).')}><Download className="h-4 w-4" aria-hidden />Download Full Issue (PDF)</Button>
+                <Button variant="outline" onClick={() => toast('Issue cover page download started (simulated).')}><Download className="h-4 w-4" aria-hidden />Download Cover Page</Button>
+                <Button variant="outline" onClick={() => toast('Issue index page download started (simulated).')}><Download className="h-4 w-4" aria-hidden />Download Index Page</Button>
                 <Button variant="outline" onClick={share}><Share2 className="h-4 w-4" aria-hidden />Share Issue</Button>
                 <CiteIssueButton issue={issue} />
                 <SubscribeIssueButton />
@@ -216,7 +216,7 @@ export function IssuePage({ data }: { data: IssueData }) {
             <form role="search" aria-label="Search within this issue" onSubmit={(e) => e.preventDefault()} className="relative">
               <label htmlFor="issue-q" className="sr-only">Search within this issue</label>
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" aria-hidden />
-              <input id="issue-q" type="search" value={query} onChange={(e) => { setQuery(e.target.value); reset() }} placeholder="Search title, author or paper ID within this issue…"
+              <input id="issue-q" type="search" value={query} onChange={(e) => { setQuery(e.target.value); reset() }} placeholder="Search title, author or manuscript ID within this issue…"
                 className="h-11 w-full rounded border border-line bg-white pl-9 pr-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-scholar focus:ring-2 focus:ring-scholar/25" />
             </form>
 
@@ -241,10 +241,7 @@ export function IssuePage({ data }: { data: IssueData }) {
             ))}
 
             {listed.length > 0 && (
-              <div className="mt-6 flex flex-col gap-3 border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-semibold text-ink" aria-live="polite">
-                  Showing {(cur - 1) * PAGE_SIZE + 1}–{(cur - 1) * PAGE_SIZE + slice.length} of {listed.length} articles in Volume {issue.volume}, Issue {issue.issue}
-                </p>
+              <div className="mt-6 flex flex-col gap-3 border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-end">
                 <IssuePager page={cur} pageCount={pageCount} onChange={(p) => { setPage(p); document.getElementById('issue-q')?.scrollIntoView({ block: 'start' }) }} />
               </div>
             )}

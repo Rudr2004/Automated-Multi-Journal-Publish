@@ -1,6 +1,7 @@
 // Single source of truth for the Journal 1 (IJMAT) public site: identity, charges, trust items, statistics and index logos.
 // Routes live in ./routes and navigation in ./navigation. Bracketed comments mark client placeholders.
 import { paths } from '../routes'
+import { J1_SPECIALIZATIONS } from './specializations'
 import type { IndexLogo, JournalConfig } from './types'
 
 const DAY = 86400000
@@ -17,21 +18,30 @@ export const journal: JournalConfig = {
     'An open access journal publishing high-quality, peer-reviewed research that advances science and technology and benefits society.',
   publisher: 'EdTech Publishers (OPC) Private Limited',
   publisherCity: 'Bengaluru, India',
+  coAuthorEmailOptional: true, // co-authors: name, optional email, optional picture, institution and optional ORCID iD
+  specializations: J1_SPECIALIZATIONS, // from the client's specialization sheet
+  collectAbstract: false, // the manuscript file carries the abstract and keywords
+  manuscriptId: { example: 'ijmat.v1i1.001' }, // ID format: journal code . volume . issue . running number
   paperIdPrefix: 'IJMAT', // [CODE] e.g. IJMAT2026000123
   issnOnline: '3139-6542', // [XXXX-XXXX]
+  sjifImpactFactor: '6.426',
   doiPrefix: '10.55041',
   domain: 'ijmat.org',
   frequency: 'Monthly',
   licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
   apc: { inr: 6500, usd: 120, gstPercent: 18 }, // [INR] / [USD]; GST for Indian authors only
   email: 'editor@ijmat.org', // [editor@ijmat.org]
-  whatsapp: '+91 90000 00000',
+  whatsapp: '+91 99668 54489',
   address: 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
   location: { lat: 13.0306, lng: 77.6593 }, // map pin for the editorial office (Horamavu, Bengaluru) — client to confirm
   subjects: [
     'Materials Science', 'Environmental Science', 'Computer Science', 'Biotechnology',
     'Energy Systems', 'Public Health',
   ], // [list]
+  researchDomains: [
+    'Engineering', 'Management', 'Applied Sciences', 'Arts', 'Social Sciences',
+    'Pharmaceutical Sciences', 'Education', 'Technology', 'Economics', 'Multidisciplinary Studies',
+  ],
   follow: [
     { id: 'rss', label: 'RSS feed', href: '#' },
     { id: 'mail', label: 'Email alerts', href: '#' },
@@ -70,6 +80,12 @@ export const journal: JournalConfig = {
   ],
 
   /** Next issue. The deadline is ~4 days out so the "last 5 days" countdown is visible in demos. */
+  callForPapers: {
+    currentCall: 'Volume 01, Issue 01 (January 2027)',
+    lastDate: '25 December 2026',
+    acceptance: 'Within 24 hours',
+    publication: 'Within 24 hours of acceptance',
+  },
   nextIssue: { label: 'Volume 4, Issue 10 — October 2026', deadline: new Date(Date.now() + 4 * DAY + 3 * 3600000).toISOString(), expectedPublication: '2026-10-15' },
 
   // ---- Trust badges. client to confirm: only show claims the journal can genuinely make. ----

@@ -12,6 +12,7 @@ import { paths } from '../../../config/routes'
 import * as validate from '../../../core/lib/validators'
 import { PayModal, type PaymentProof } from './track/PayModal'
 import { PaperResult } from './track/PaperResult'
+import { idExample, idMaxLength, normalizeId } from '../../../core/lib/manuscriptId'
 
 export interface TrackPageProps {
   onTrack: (paperId: string, email: string) => Promise<TrackResult>
@@ -89,12 +90,12 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
       <WithAwardsRail className="py-8"><div>
         <header className="mb-6 border-b border-line pb-6">
           <h1 className="font-serif text-3xl font-semibold tracking-tight text-navy sm:text-[2.5rem] sm:leading-tight">Track My Paper</h1>
-          <p className="mt-1.5 max-w-2xl text-base text-ink-muted">No login needed. Enter your Paper ID and the email address you used at submission.</p>
+          <p className="mt-1.5 max-w-2xl text-base text-ink-muted">No login needed. Enter your Manuscript ID and the email address you used at submission.</p>
         </header>
         <form onSubmit={submit} noValidate aria-label="Track a manuscript" className="grid gap-4 border border-line bg-white p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end sm:p-6">
-          <Field label="Paper ID" name="paperId" required error={errors.paperId}>
-            <input className={inputClass(errors.paperId)} value={paperId} maxLength={15} autoComplete="off" spellCheck={false} placeholder="e.g. IJMAT2026000202"
-              onChange={(e) => { setPaperId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setErrors((x) => ({ ...x, paperId: undefined })) }} />
+          <Field label="Manuscript ID" name="paperId" required error={errors.paperId}>
+            <input className={inputClass(errors.paperId)} value={paperId} maxLength={idMaxLength} autoComplete="off" spellCheck={false} placeholder={idExample}
+              onChange={(e) => { setPaperId(normalizeId(e.target.value)); setErrors((x) => ({ ...x, paperId: undefined })) }} />
           </Field>
           <Field label="Email" name="email" required error={errors.email}>
             <input type="email" className={inputClass(errors.email)} value={email} maxLength={120} autoComplete="email" placeholder="you@institution.edu"
@@ -102,7 +103,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
           </Field>
           <Button type="submit" size="lg" loading={loading} className="sm:mb-0">{loading ? 'Searching…' : 'Track'}</Button>
         </form>
-        <p className="mt-2 border border-line bg-paper px-3 py-2 text-xs text-ink-muted">Prototype demo papers: <code>IJMAT2026000201</code> / priya.nair@example.com · <code>IJMAT2026000202</code> / arjun.kapoor@example.com · <code>IJMAT2026000203</code> / meera.joshi@example.com.</p>
+        <p className="mt-2 border border-line bg-paper px-3 py-2 text-xs text-ink-muted">Prototype demo papers: <code>ijmat.v1i1.001</code> / priya.nair@example.com · <code>ijmat.v1i1.002</code> / arjun.kapoor@example.com · <code>ijmat.v1i1.003</code> / meera.joshi@example.com.</p>
 
         <div className="mt-8" aria-live="polite">
           {result?.kind === 'found' && paper && (
@@ -114,7 +115,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
           {result?.kind === 'other-journal' && (
             <div role="status" className="rounded-card border border-[#C4D9EE] bg-scholar-soft p-8 text-center">
               <SearchX className="mx-auto h-9 w-9 text-scholar" aria-hidden />
-              <h2 className="mt-3 font-serif text-xl font-semibold text-navy">This Paper ID belongs to another journal</h2>
+              <h2 className="mt-3 font-serif text-xl font-semibold text-navy">This Manuscript ID belongs to another journal</h2>
               <p className="mt-1 text-sm text-ink-muted">IDs starting with “{result.code}” are tracked on that journal’s own Track My Paper page. Please check the confirmation email you received.</p>
             </div>
           )}
@@ -122,7 +123,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
             <div role="alert" className="rounded-card border border-danger/30 bg-red-50 p-8 text-center">
               <SearchX className="mx-auto h-9 w-9 text-danger" aria-hidden />
               <h2 className="mt-3 font-serif text-xl font-semibold text-navy">We couldn’t find that paper</h2>
-              <p className="mt-1 text-sm text-ink-muted">Check the Paper ID and email address. Still stuck? Contact the editorial office.</p>
+              <p className="mt-1 text-sm text-ink-muted">Check the Manuscript ID and email address. Still stuck? Contact the editorial office.</p>
               <ButtonLink to={paths.about('contact')} variant="outline" className="mt-4">Contact us</ButtonLink>
             </div>
           )}

@@ -8,6 +8,7 @@ import { AuthorPhoto, DeclarationsSection, deriveHighlights, PrevNextBar, Recomm
 import { StickyRail } from '../components/StickyRail'
 import { IndexedStrip } from '../components/IndexLogos'
 import { btnClass, Button } from '../components/Button'
+import { CertificateModal } from '../components/CertificateModal'
 import { CiteModal } from '../components/CiteModal'
 import { Modal } from '../components/Modal'
 import { Container } from '../components/primitives'
@@ -66,6 +67,7 @@ const ribbonIcon = 'inline-flex h-10 w-9 items-center justify-center rounded tex
 export function ArticlePage({ article }: { article: ArticleFull }) {
   const toast = useToast()
   const [citeOpen, setCiteOpen] = useState(false)
+  const [certAuthor, setCertAuthor] = useState<number | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [recommend, setRecommend] = useState<'librarian' | 'scholar' | null>(null)
   const { tags, jsonLd } = getScholarMeta(article)
@@ -152,7 +154,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <li><AppLink to={paths.home} className="hover:text-navy hover:underline">Home</AppLink></li>{crumbSep}
                 <li><AppLink to={paths.pastIssues} className="hover:text-navy hover:underline">Archives</AppLink></li>{crumbSep}
                 <li><AppLink to={paths.issue(article.volume, article.issue)} className="hover:text-navy hover:underline">Vol. {article.volume} Issue {article.issue}</AppLink></li>{crumbSep}
-                <li aria-current="page" className="font-medium text-ink">Article {article.paperId.slice(-5)}</li>
+                <li aria-current="page" className="font-medium text-ink">Article {article.paperId.split('.').pop()!.slice(-5)}</li>
               </ol>
             </nav>
 
@@ -166,7 +168,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               <h1 className="mt-4 font-serif text-[1.875rem] font-semibold leading-[1.2] tracking-tight text-navy sm:text-[2.5rem] sm:leading-[3rem]">{article.title}</h1>
 
               <ul className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Authors">
-                {article.authorDetails.map((a) => (
+                {article.authorDetails.map((a, k) => (
                   <li key={a.name} className="flex gap-3 border border-line bg-mist p-3">
                     <AuthorPhoto name={a.name} photo={a.photo} ring={a.corresponding} />
                     <div className="min-w-0 text-[13px] leading-snug">
@@ -179,6 +181,10 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                       {a.corresponding && a.email && (
                         <a href={`mailto:${a.email}`} className="mt-1 inline-flex items-center gap-1 break-all text-scholar hover:underline"><Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />{a.email}</a>
                       )}
+                      <button type="button" onClick={() => setCertAuthor(k)}
+                        className="mt-2 inline-flex h-8 items-center gap-1.5 rounded border border-scholar bg-white px-2.5 text-xs font-semibold text-scholar hover:bg-scholar-soft">
+                        <Download className="h-3.5 w-3.5" aria-hidden />Download Certificate
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -186,7 +192,6 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
               <div className="mt-6 grid gap-3 border border-line bg-mist p-3 text-[13px] md:grid-cols-[1fr_auto] md:gap-0 md:divide-x md:divide-line">
                 <div className="space-y-0.5 md:pr-4">
-                  <p>{dates.slice(0, 2).map(([k, v], i) => <span key={k}>{i > 0 && sep}<span className="font-bold text-navy">{k}:</span> <span className="tabular-nums">{formatDate(v)}</span></span>)}</p>
                   <p>{dates.slice(2).map(([k, v], i) => <span key={k}>{i > 0 && sep}<span className="font-bold text-navy">{k}:</span> <span className="tabular-nums">{formatDate(v)}</span></span>)}</p>
                 </div>
                 <div className="space-y-1 border-t border-line pt-3 md:border-t-0 md:pl-4 md:pt-0">
@@ -310,8 +315,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
               <dl className="mt-3 divide-y divide-line text-[13px]">
                 {([
                   ['Review model', 'Peer-reviewed'],
-                  ['Received', formatDate(article.received)],
-                  ['Accepted', formatDate(article.accepted)],
+                  ['Published', formatDate(article.publishedAt)],
                   ['Licence', journal.licence.name],
                   ['Archival', 'DOI registered with Crossref'],
                 ] as const).map(([k, v]) => (
@@ -391,6 +395,10 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
       </div>
 
       <CiteModal article={article} open={citeOpen} onClose={() => setCiteOpen(false)} />
+      {certAuthor !== null && (
+        <CertificateModal key={certAuthor} open initialIndex={certAuthor} onClose={() => setCertAuthor(null)}
+          paper={{ paperId: article.paperId, title: article.title, publishedAt: article.publishedAt, authors: article.authorDetails.map((a) => a.name), volume: article.volume, issue: article.issue }} />
+      )}
       <ShareModal article={article} open={shareOpen} onClose={() => setShareOpen(false)} />
       <RecommendModal article={article} mode={recommend} onClose={() => setRecommend(null)} />
     </>

@@ -46,9 +46,21 @@ export interface JournalConfig {
   mission: string
   publisher: string
   publisherCity: string
+  /** Set by journals whose submissions get a dotted "Manuscript ID" (journal code, volume, issue, number) instead of a "Paper ID". */
+  /** Specializations offered under each subject area on the submission form (when set, ONLY these are offered; see core/lib/branches.ts). */
+  specializations?: Record<string, string[]>
+  /** Largest manuscript file accepted on the submission form, in MB (default 10). */
+  maxFileMb?: number
+  /** true: a co-author's email is optional on the submission form (default: required). */
+  coAuthorEmailOptional?: boolean
+  /** false: the submission form does not ask for an abstract or keywords (default: it does). */
+  collectAbstract?: boolean
+  manuscriptId?: { example: string }
   /** Prefix of every Paper ID, e.g. "IJMAT" → IJMAT2026000123. */
   paperIdPrefix: string
   issnOnline: string
+  /** SJIF Impact Factor shown (highlighted) next to the ISSN in the top strip. Optional: only journals that have one set it. */
+  sjifImpactFactor?: string
   doiPrefix: string
   domain: string
   frequency: string
@@ -58,6 +70,8 @@ export interface JournalConfig {
   whatsapp: string
   address: string
   location: { lat: number; lng: number }
+  /** Subject categories listed in the home page's "Aims, Scope & Research Domains" card (optional: falls back to `subjects`). */
+  researchDomains?: string[]
   subjects: readonly string[]
   follow: readonly { id: string; label: string; href: string }[]
   /** Scrolling announcements; `live` adds the "closes in …" text. */
@@ -67,6 +81,8 @@ export interface JournalConfig {
   /** "Browse by subject" index. */
   subjectIndex: readonly string[]
   nextIssue: { label: string; deadline: string; expectedPublication: string }
+  /** The "Call for Research Papers" details shown on the home page (optional: only journals that publish them set it). */
+  callForPapers?: { currentCall: string; lastDate: string; acceptance: string; publication: string }
   trustBadges: readonly { id: string; label: string; icon: string; show: boolean }[]
   trustLedger: readonly TrustItem[]
   logos: readonly IndexLogo[]

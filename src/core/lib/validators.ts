@@ -1,9 +1,8 @@
-import { journal } from '../../config/journals'
+import { caseId, idHint, idLabel, looksLikeId } from './manuscriptId'
 // Reusable field validators and input sanitisers. Validators return '' when valid, otherwise a message.
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const NAME_RE = /^[\p{L}][\p{L}\s.'’-]*$/u
-export const PAPER_ID_RE = /^[A-Z]{2,5}\d{10}$/
 
 export const required = (v: string, message: string) => (v.trim() ? '' : message)
 
@@ -85,7 +84,7 @@ export const referralCode = (v: string) => (!v || /^[A-Z0-9-]{4,20}$/.test(v) ? 
 export const formatReferral = (v: string) => v.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20)
 
 export const paperId = (v: string) => {
-  const t = v.trim().toUpperCase()
-  if (!t) return 'Enter your Paper ID.'
-  return PAPER_ID_RE.test(t) ? '' : `A Paper ID looks like ${journal.paperIdPrefix}2026000123 (letters followed by 10 digits).`
+  const t = caseId(v.trim())
+  if (!t) return `Enter your ${idLabel}.`
+  return looksLikeId(t) ? '' : `A ${idLabel} looks like ${idHint}.`
 }

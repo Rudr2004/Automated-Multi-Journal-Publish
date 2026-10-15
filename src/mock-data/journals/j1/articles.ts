@@ -76,19 +76,19 @@ const S = (id: string, type: ArticleType, subject: Subject, title: string, autho
 
 const RA = 'Research Article', RV = 'Review Article', SC = 'Short Communication', ED = 'Editorial'
 const seeds: Seed[] = [
-  S('IJMAT2026000121', RA, 'Materials Science', 'Graphene-Reinforced Polymer Composites for Lightweight Structural Applications', ['Ananya Iyer', 'Rahul Menon', 'Elena Petrova'], 4, 9, '2026-09-15', 3412, 1208),
-  S('IJMAT2026000122', RV, 'Environmental Science', 'Microplastics in Freshwater Systems: A Review of Sources, Fate and Mitigation', ['Priya Nair', 'Thomas Becker'], 4, 9, '2026-09-15', 5120, 2231),
-  S('IJMAT2026000123', RA, 'Computer Science', 'A Lightweight Transformer for Crop Disease Detection on Edge Devices', ['Vikram Desai', 'Mei Lin Tan', 'Arjun Kapoor'], 4, 9, '2026-09-15', 4388, 1675),
-  S('IJMAT2026000124', SC, 'Biotechnology', 'CRISPR-Based Rapid Diagnostics for Waterborne Pathogens: A Pilot Study', ['Sneha Kulkarni', 'Daniel Okafor'], 4, 9, '2026-09-15', 1894, 702),
-  S('IJMAT2026000125', RA, 'Energy Systems', 'Techno-Economic Assessment of Rooftop Solar with Battery Storage in Tier-2 Indian Cities', ['Karthik Raman', 'Fatima Al-Mansoori', 'Sofia Lindqvist'], 4, 9, '2026-09-15', 2976, 1344),
-  S('IJMAT2026000126', ED, 'Public Health', 'Open Data Practices in Public Health Research: Editorial Perspective', ['Meera Joshi'], 4, 9, '2026-09-15', 1203, 411),
-  S('IJMAT2026000127', RA, 'Public Health', 'Community Health Worker Interventions and Maternal Care Uptake in Rural Karnataka', ['Sunita Verma', 'Chinwe Eze', 'Hannah Clarke'], 4, 9, '2026-09-15', 2651, 980),
-  S('IJMAT2026000128', RV, 'Biotechnology', 'Microbial Consortia for Sustainable Biofuel Production: Progress and Prospects', ['Nikhil Bhatia', 'Lars Eriksen'], 4, 9, '2026-09-15', 3305, 1422),
-  S('IJMAT2026000129', SC, 'Computer Science', 'Benchmarking Quantised Language Models on Low-Cost Hardware', ['Arjun Kapoor', 'Amara Nwosu'], 4, 9, '2026-09-15', 4012, 1590),
-  S('IJMAT2026000130', RA, 'Energy Systems', 'Grid-Scale Sodium-Ion Battery Degradation under Variable Duty Cycles', ['Debasish Roy', 'Marcus Hoffmann', 'Ritu Sharma'], 4, 9, '2026-09-15', 2240, 865),
-  S('IJMAT2026000118', RA, 'Materials Science', 'Sol–Gel Synthesis of Titanium Dioxide Thin Films for Self-Cleaning Coatings', ['Ritu Sharma', 'James Whitfield'], 4, 8, '2026-08-14', 6120, 2890),
-  S('IJMAT2026000115', RV, 'Computer Science', 'Federated Learning for Healthcare: Privacy, Fairness and Deployment Challenges', ['Nikhil Bhatia', 'Amara Nwosu', 'Lars Eriksen'], 4, 8, '2026-08-14', 7345, 3410),
-  S('IJMAT2026000110', RA, 'Environmental Science', 'Remote Sensing of Mangrove Carbon Stocks along the Sundarbans Coast', ['Debasish Roy', 'Hannah Clarke'], 4, 7, '2026-07-13', 5560, 2102),
+  S('ijmat.v4i9.001', RA, 'Materials Science', 'Graphene-Reinforced Polymer Composites for Lightweight Structural Applications', ['Ananya Iyer', 'Rahul Menon', 'Elena Petrova'], 4, 9, '2026-09-15', 3412, 1208),
+  S('ijmat.v4i9.002', RV, 'Environmental Science', 'Microplastics in Freshwater Systems: A Review of Sources, Fate and Mitigation', ['Priya Nair', 'Thomas Becker'], 4, 9, '2026-09-15', 5120, 2231),
+  S('ijmat.v4i9.003', RA, 'Computer Science', 'A Lightweight Transformer for Crop Disease Detection on Edge Devices', ['Vikram Desai', 'Mei Lin Tan', 'Arjun Kapoor'], 4, 9, '2026-09-15', 4388, 1675),
+  S('ijmat.v4i9.004', SC, 'Biotechnology', 'CRISPR-Based Rapid Diagnostics for Waterborne Pathogens: A Pilot Study', ['Sneha Kulkarni', 'Daniel Okafor'], 4, 9, '2026-09-15', 1894, 702),
+  S('ijmat.v4i9.005', RA, 'Energy Systems', 'Techno-Economic Assessment of Rooftop Solar with Battery Storage in Tier-2 Indian Cities', ['Karthik Raman', 'Fatima Al-Mansoori', 'Sofia Lindqvist'], 4, 9, '2026-09-15', 2976, 1344),
+  S('ijmat.v4i9.006', ED, 'Public Health', 'Open Data Practices in Public Health Research: Editorial Perspective', ['Meera Joshi'], 4, 9, '2026-09-15', 1203, 411),
+  S('ijmat.v4i9.007', RA, 'Public Health', 'Community Health Worker Interventions and Maternal Care Uptake in Rural Karnataka', ['Sunita Verma', 'Chinwe Eze', 'Hannah Clarke'], 4, 9, '2026-09-15', 2651, 980),
+  S('ijmat.v4i9.008', RV, 'Biotechnology', 'Microbial Consortia for Sustainable Biofuel Production: Progress and Prospects', ['Nikhil Bhatia', 'Lars Eriksen'], 4, 9, '2026-09-15', 3305, 1422),
+  S('ijmat.v4i9.009', SC, 'Computer Science', 'Benchmarking Quantised Language Models on Low-Cost Hardware', ['Arjun Kapoor', 'Amara Nwosu'], 4, 9, '2026-09-15', 4012, 1590),
+  S('ijmat.v4i9.010', RA, 'Energy Systems', 'Grid-Scale Sodium-Ion Battery Degradation under Variable Duty Cycles', ['Debasish Roy', 'Marcus Hoffmann', 'Ritu Sharma'], 4, 9, '2026-09-15', 2240, 865),
+  S('ijmat.v4i8.001', RA, 'Materials Science', 'Sol–Gel Synthesis of Titanium Dioxide Thin Films for Self-Cleaning Coatings', ['Ritu Sharma', 'James Whitfield'], 4, 8, '2026-08-14', 6120, 2890),
+  S('ijmat.v4i8.002', RV, 'Computer Science', 'Federated Learning for Healthcare: Privacy, Fairness and Deployment Challenges', ['Nikhil Bhatia', 'Amara Nwosu', 'Lars Eriksen'], 4, 8, '2026-08-14', 7345, 3410),
+  S('ijmat.v4i7.001', RA, 'Environmental Science', 'Remote Sensing of Mangrove Carbon Stocks along the Sundarbans Coast', ['Debasish Roy', 'Hannah Clarke'], 4, 7, '2026-07-13', 5560, 2102),
 ]
 
 function buildAll() {

@@ -51,7 +51,7 @@ function Profile() {
 }
 
 function CallCard({ cfp }: { cfp: CallForPapers }) {
-  const cells: [string, string][] = [['Issue closing date', formatDate(cfp.deadline.slice(0, 10))], ['First decision', `About ${cfp.avgReviewDays} days`], ['Target publication', formatDate(cfp.expectedPublication)]]
+  const cells: [string, string][] = [['Issue closing date', formatDate(cfp.deadline.slice(0, 10))], ['First decision', 'Within 24 hours'], ['Publication', 'Within 24 hours of acceptance']]
   return (
     <section aria-labelledby="home-cfp" className={`mt-8 rounded-tile bg-night-900 p-5 text-white ${onDark}`}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

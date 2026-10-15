@@ -1,7 +1,7 @@
 // Home hero: a soft-mint rounded card with the headline, search, action buttons and a fact row, next to the "Official Journal Issue" card.
 import { doiFor, journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
-import { formatDate, formatMonthYear } from '../../../../core/lib/format'
+import { formatMonthYear } from '../../../../core/lib/format'
 import { AppLink } from '../../../../core/router'
 import type { ArticleSummary, IssueSummary } from '../../../../core/types'
 import { LogoTile } from '../../components/BrandBlock'
@@ -42,10 +42,6 @@ function IssueCard({ issue, featured }: { issue: IssueSummary; featured?: Articl
         </div>
       </div>
       <div className="space-y-2 border-t border-graphite-100 bg-white p-3">
-        <div className="flex items-center justify-between text-xs text-graphite-600">
-          <span>Published: {formatDate(issue.publishedAt)}</span>
-          <span className="font-bold text-brand-800">{issue.articleCount} Articles</span>
-        </div>
         <div className="flex items-center gap-2 pt-1">
           <AppLink to={paths.currentIssue} className="inline-flex flex-1 items-center justify-center gap-1 rounded-panel bg-brand-800 py-2 text-xs font-bold text-white hover:bg-accent-700">View Full Issue <ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
           <AppLink to={paths.pastIssues} aria-label="Past issues" className="rounded-panel border border-graphite-300 px-3 py-2 text-graphite-700 hover:bg-graphite-50"><Book className="h-[18px] w-[18px]" aria-hidden="true" /></AppLink>

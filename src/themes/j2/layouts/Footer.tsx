@@ -1,17 +1,21 @@
 // Deep-emerald footer: browse-by-discipline columns, contact, identifiers, email alerts, policy / explore / resource link lists and the
 // copyright bar. "Editorial login" is a small link at the very bottom. Only facts from the journal config are shown.
 import { useState, type FormEvent } from 'react'
-import { journal } from '../../../config/journals'
+import { journal, logoSrc, visibleLogos } from '../../../config/journals'
 import { policyLinks } from '../../../config/navigation'
 import { paths } from '../../../config/routes'
+import { branchesFor } from '../../../core/lib/branches'
 import * as validate from '../../../core/lib/validators'
 import { AppLink } from '../../../core/router'
-import { disciplines } from '../components/discipline'
 import { ArrowUpIcon } from '../components/homeIcons'
 import { Container } from '../components/primitives'
 import { useToast } from '../components/Toast'
 import { Send } from '../icons'
 import { LogoTile } from '../components/BrandBlock'
+
+// The subject areas of the submission form (the last has no specializations), with the first few specializations of each shown here.
+const FOOTER_SUBJECTS = [...Object.keys(journal.specializations ?? {}), 'Multidisciplinary Studies']
+const SHOWN = 5
 
 const colHead = 'font-display text-base font-bold text-white'
 const eyebrow = 'text-xs font-semibold uppercase tracking-wider text-brand-200'
@@ -59,8 +63,21 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
       <Container className="py-12">
         <p className={eyebrow}>Browse articles by discipline</p>
         <nav aria-label="Disciplines" className="mt-4">
-          <ul className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            {disciplines.map((d) => <li key={d.id}><AppLink to={paths.search(d.name)} className={`${link} ${ring}`}>{d.name}</AppLink></li>)}
+          <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            {FOOTER_SUBJECTS.map((name) => {
+              const all = branchesFor(name).filter((b) => !b.startsWith('Other'))
+              return (
+                <li key={name}>
+                  <AppLink to={paths.search(name)} className={`text-sm font-bold text-white hover:underline ${ring}`}>{name}</AppLink>
+                  {all.length > 0 && (
+                    <ul className="mt-2 space-y-1.5">
+                      {all.slice(0, SHOWN).map((b) => <li key={b}><AppLink to={paths.search(b)} className={`${link} ${ring}`}>{b}</AppLink></li>)}
+                      {all.length > SHOWN && <li><AppLink to={paths.search(name)} className={`text-sm font-semibold text-white/90 hover:text-white hover:underline ${ring}`}>All {all.length} specializations →</AppLink></li>}
+                    </ul>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
@@ -73,7 +90,7 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
             <h2 className={`${colHead} mt-6`}>Contact Editorial Office</h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div><dt className="inline font-semibold text-white">Editorial Email: </dt><dd className="inline"><a href={`mailto:${journal.email}`} className="hover:text-white hover:underline">{journal.email}</a></dd></div>
-              <div><dt className="inline font-semibold text-white">Publisher: </dt><dd className="inline">{journal.publisher}</dd></div>
+              <div><dt className="inline font-semibold text-white">Publisher: </dt><dd className="inline">JIMRT Journal</dd></div>
               <div><dt className="inline font-semibold text-white">Postal Address: </dt><dd className="inline">{journal.address}</dd></div>
             </dl>
           </div>
@@ -86,7 +103,17 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
               <div><dt className="inline font-semibold text-white">Frequency: </dt><dd className="inline">{journal.frequency}</dd></div>
             </dl>
           </div>
-          <Newsletter onSubscribe={onSubscribe} />
+          <div>
+            <h2 className={colHead}>Indexed &amp; discoverable on</h2>
+            <ul className="mt-3 grid grid-cols-3 gap-2">
+              {visibleLogos().map((l) => (
+                <li key={l.id}><a href={l.verifyUrl} target="_blank" rel="noreferrer" title={`${l.status}. Verify on ${l.name}`} className="flex h-11 items-center justify-center rounded-soft bg-white px-2 hover:ring-2 hover:ring-white/70">
+                  <img src={logoSrc(l.file)} alt={`Indexed in ${l.name}`} loading="lazy" className="max-h-7 w-auto max-w-full object-contain" />
+                </a></li>
+              ))}
+            </ul>
+            <div className="mt-6"><Newsletter onSubscribe={onSubscribe} /></div>
+          </div>
         </div>
 
         <div className="mt-10 grid gap-8 border-t border-white/15 pt-10 sm:grid-cols-3">
@@ -113,6 +140,7 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
           </div>
           <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <AppLink to={paths.policy('privacy')} className={`hover:text-white hover:underline ${ring}`}>Privacy</AppLink>
+            <AppLink to={paths.reviewerLogin} className={`hover:text-white hover:underline ${ring}`}>Reviewer login</AppLink>
             <AppLink to={paths.editorialLogin} className={`hover:text-white hover:underline ${ring}`}>Editorial login</AppLink>
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })} className={`inline-flex items-center gap-1 font-semibold text-white hover:underline ${ring}`}>Back to top <ArrowUpIcon className="h-4 w-4" aria-hidden="true" /></button>
           </p>

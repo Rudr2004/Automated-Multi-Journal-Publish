@@ -9,7 +9,7 @@ import { AppLink } from '../../../../core/router'
 import { paths } from '../../../../config/routes'
 import { journal, visibleLogos } from '../../../../config/journals/j1'
 
-const CHECKLIST = ['Manuscript in Word format (.doc / .docx)', 'Title, abstract and 3–8 keywords', 'All authors’ names and affiliations', 'Figures and tables inside the file', 'References with DOIs where available']
+const CHECKLIST = ['Manuscript in Word format (.doc / .docx)', 'Manuscript title, with the abstract and keywords inside the file', 'All authors’ names and affiliations', 'Figures and tables inside the file', 'References with DOIs where available']
 const inr = new Intl.NumberFormat('en-IN')
 
 // Real files generated for the prototype (see public/journals/j1/downloads).
@@ -51,7 +51,7 @@ export function HelpLeft({ children }: { children?: ReactNode }) {
           <li className="flex gap-2"><MdOutlineLockOpen className="mt-0.5 h-4 w-4 shrink-0 text-scholar" aria-hidden /><span><strong className="text-navy">Copyright retained.</strong> Authors keep their copyright ({journal.licence.name}).</span></li>
           <li className="flex gap-2"><MdOutlineLink className="mt-0.5 h-4 w-4 shrink-0 text-scholar" aria-hidden /><span><strong className="text-navy">Crossref DOI</strong> with prefix {journal.doiPrefix}.</span></li>
           {listed.length > 0 && <li className="flex gap-2"><MdOutlinePublic className="mt-0.5 h-4 w-4 shrink-0 text-scholar" aria-hidden /><span><strong className="text-navy">Discoverable:</strong> listed in {listed.join(', ')}.</span></li>}
-          <li className="flex gap-2"><MdOutlineMarkEmailRead className="mt-0.5 h-4 w-4 shrink-0 text-scholar" aria-hidden /><span><strong className="text-navy">Instant Paper ID</strong> on submission.</span></li>
+          <li className="flex gap-2"><MdOutlineMarkEmailRead className="mt-0.5 h-4 w-4 shrink-0 text-scholar" aria-hidden /><span><strong className="text-navy">Instant Manuscript ID</strong> on submission.</span></li>
         </ul>
       </Panel>
       <section aria-labelledby="rev-h" className="border border-line bg-white">
@@ -91,7 +91,7 @@ export function HelpLeft({ children }: { children?: ReactNode }) {
               <li>Open a chat with <strong>{journal.whatsapp}</strong>.</li>
               <li>Send your <strong>Word file</strong> (.doc or .docx).</li>
               <li>In the next message, send the <strong>title, author names and your email</strong>.</li>
-              <li>You get your <strong>Paper ID</strong> back on WhatsApp straight away. No login is needed.</li>
+              <li>You get your <strong>Manuscript ID</strong> back on WhatsApp straight away. No login is needed.</li>
             </ol>
           </details>
           <p className="mt-3 flex items-center gap-2 text-sm"><Mail className="h-4 w-4 shrink-0 text-scholar" aria-hidden /><a href={`mailto:${journal.email}`} className="min-w-0 break-all text-scholar hover:underline">{journal.email}</a></p>

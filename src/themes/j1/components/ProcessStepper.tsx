@@ -2,7 +2,7 @@ import { useRef, useState, type KeyboardEvent } from 'react'
 import { TrustIcon } from './icons'
 
 const STEPS = [
-  { icon: 'send', label: 'Submission', who: 'Author', timing: 'Instant', text: 'Submit on the website or on WhatsApp. No account is needed. Your Paper ID arrives by email, SMS and WhatsApp within seconds.' },
+  { icon: 'send', label: 'Submission', who: 'Author', timing: 'Instant', text: 'Submit on the website or on WhatsApp. No account is needed. Your Manuscript ID arrives by email, SMS and WhatsApp within seconds.' },
   { icon: 'users', label: 'Review', who: 'Editor', timing: '2–3 days screening', text: 'The editor screens scope, quality and plagiarism. An external reviewer is consulted only if the editor needs one (typically 7–10 more days).' },
   { icon: 'gavel', label: 'Decision', who: 'Editor', timing: 'Daily at 08:45 IST', text: 'The editor approves, asks for changes or rejects, and the reason is logged. Decisions go out together in one daily batch.' },
   { icon: 'badge-check', label: 'Acceptance', who: 'Author', timing: 'Same day', text: 'You receive the acceptance letter, the copyright form to sign with an email OTP, and your payment link.' },

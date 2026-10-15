@@ -1,5 +1,5 @@
 // Current issue and past issue: emerald issue header, disciplinary breakdown, type tabs and filter bar, then the colour-coded article list.
-import { useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -11,28 +11,33 @@ import { Button, buttonClass } from '../components/Button'
 import { countBy, toggleIn } from '../components/FilterControls'
 import { IssueArticleRow } from '../components/IssueArticleRow'
 import { Container, cx, EmptyState } from '../components/primitives'
+import { useToast } from '../components/Toast'
 import { WithAwardsRail } from '../components/WithAwardsRail'
 import { disciplineColor, DisciplineIcon, disciplines } from '../components/discipline'
+import { ChevronLeft } from '../components/homeIcons'
 import { typeTone } from '../components/paperType'
-import { ArrowRight, Calendar, ChevronRight, Close, GridView, ListView, Search } from '../icons'
+import { ArrowRight, Calendar, ChevronRight, Download, Close, GridView, ListView, Search } from '../icons'
 
-type Sort = 'default' | 'newest' | 'views' | 'title'
+type Sort = 'default' | 'views' | 'title'
 const SORTS: { value: Sort; label: string }[] = [
-  { value: 'default', label: 'Issue order' }, { value: 'newest', label: 'Newest first' },
+  { value: 'default', label: 'Date published' },
   { value: 'views', label: 'Most viewed' }, { value: 'title', label: 'Title A to Z' },
 ]
 type Layout = 'card' | 'list'
 const KEY = 'jimrt-layout'
 const loadLayout = (): Layout => { try { return localStorage.getItem(KEY) === 'card' ? 'card' : 'list' } catch { return 'list' } }
 
+const PAGE_SIZE = 5
 const field = 'rounded-soft border border-graphite-300 bg-white py-2 pl-3 pr-8 text-sm text-graphite-800 focus:border-accent-700'
 
 export function IssuePage({ data }: { data: IssueData }) {
   const { issue, articles } = data
+  const toast = useToast()
   const [q, setQ] = useState('')
   const [subjects, setSubjects] = useState<string[]>([])
   const [type, setType] = useState<string>('')
   const [sort, setSort] = useState<Sort>('default')
+  const [page, setPage] = useState(1)
   const [layout, setLayout] = useState<Layout>(loadLayout)
   const ids = { q: useId(), sort: useId() }
   const changeLayout = (l: Layout) => { setLayout(l); try { localStorage.setItem(KEY, l) } catch { /* private mode */ } }
@@ -52,29 +57,28 @@ export function IssuePage({ data }: { data: IssueData }) {
       (!subjects.length || subjects.includes(a.subject)) && (!type || a.type === type) &&
       (!term || `${a.title} ${a.authors.join(' ')} ${a.abstract}`.toLowerCase().includes(term)))
     const sorted = [...list]
-    if (sort === 'newest') sorted.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    else if (sort === 'views') sorted.sort((a, b) => b.views - a.views)
+    if (sort === 'views') sorted.sort((a, b) => b.views - a.views)
     else if (sort === 'title') sorted.sort((a, b) => a.title.localeCompare(b.title))
+    // Default: by date published, newest first (paper ID keeps articles of the same day in a steady order).
+    else sorted.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.paperId.localeCompare(b.paperId))
     return sorted
   }, [articles, q, subjects, type, sort])
 
-  // Group by paper type in the configured order (Editorials lead the issue, as before); order inside a group follows the chosen sort.
-  const groups = useMemo(() => {
-    const order = ['Editorial', ...ARTICLE_TYPES.filter((t) => t !== 'Editorial')] as string[]
-    const extra = [...new Set(shown.map((a) => a.type as string))].filter((t) => !order.includes(t))
-    return [...order, ...extra].map((t) => ({ type: t, items: shown.filter((a) => a.type === t) })).filter((g) => g.items.length)
-  }, [shown])
+  const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE))
+  const cur = Math.min(page, pageCount)
+  const slice = shown.slice((cur - 1) * PAGE_SIZE, cur * PAGE_SIZE)
+  useEffect(() => { setPage(1) }, [q, subjects, type, sort])
+  const goPage = (p: number) => { setPage(p); document.getElementById('issue-list')?.scrollIntoView({ block: 'start' }) }
 
   const active = subjects.length + (type ? 1 : 0) + (q.trim() ? 1 : 0)
   const clear = () => { setQ(''); setSubjects([]); setType('') }
-  let n = 0
 
-  const tab = (value: string, label: string, count: number, color?: string) => {
+  const tab = (value: string, label: string, count?: number, color?: string) => {
     const on = type === value
     return (
       <button key={value || 'all'} type="button" aria-pressed={on} onClick={() => setType(value)}
         className={cx('inline-flex items-center gap-1.5 rounded-soft px-3.5 py-2 text-sm font-semibold', on ? 'bg-brand-800 text-white' : 'text-graphite-800 hover:bg-brand-50')}>
-        {color && <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: on ? '#fff' : color }} />}{label} ({count})
+        {color && <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: on ? '#fff' : color }} />}{label}{count !== undefined && ` (${count})`}
       </button>
     )
   }
@@ -116,6 +120,11 @@ export function IssuePage({ data }: { data: IssueData }) {
                 <AppLink to={paths.pastIssues} className={cx(buttonClass('onDark'), '!border-white !bg-white !text-brand-900 hover:!bg-brand-50')}>Browse past issues <ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
                 <AppLink to={paths.submit} className={buttonClass('onDark')}>Submit a manuscript</AppLink>
               </div>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {([['Download Full Issue', 'Complete issue PDF'], ['Download Index Page', 'Issue index page'], ['Download Cover Page', 'Issue cover page']] as const).map(([label, what]) => (
+                  <button key={label} type="button" onClick={() => toast(`${what} download started (simulated).`)} className={buttonClass('onDark')}><Download className="h-4 w-4" aria-hidden="true" />{label}</button>
+                ))}
+              </div>
             </div>
             <figure className="mx-auto w-full max-w-[15rem] rounded-panel bg-white p-3 text-center text-graphite-800 shadow-pop lg:mx-0 lg:justify-self-end">
               <div className="flex aspect-[3/4] flex-col items-center justify-between rounded-soft bg-brand-50 p-4">
@@ -134,7 +143,6 @@ export function IssuePage({ data }: { data: IssueData }) {
         <section aria-labelledby="breakdown-h" className="mt-6 rounded-panel border border-graphite-200 bg-white p-5 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="breakdown-h" className="font-display text-lg font-bold text-brand-900">Issue Disciplinary Breakdown <span className="ml-1 text-sm font-normal text-graphite-700">(Volume {issue.volume} · Issue {issue.issue})</span></h2>
-            <span className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 font-mono text-xs font-semibold text-brand-800">Total: {articles.length} Articles</span>
           </div>
           <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {subjectList.map(({ name, discipline }) => {
@@ -160,7 +168,7 @@ export function IssuePage({ data }: { data: IssueData }) {
         {/* Type tabs + filters */}
         <section aria-label="Filter articles" className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-3 rounded-panel border border-graphite-200 bg-white p-3 shadow-card">
           <div className="flex flex-wrap items-center gap-1">
-            {tab('', `All Articles`, articles.length)}
+            {tab('', 'All Articles')}
             {typeOptions.map((t) => tab(t, t, typeCounts.get(t)!, typeTone(t).bar))}
           </div>
           <div className="relative ml-auto min-w-[14rem] flex-1 sm:max-w-xs">
@@ -183,7 +191,6 @@ export function IssuePage({ data }: { data: IssueData }) {
         </section>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <p role="status" className="text-sm text-graphite-800">Showing <strong className="font-semibold">{shown.length}</strong> of {articles.length} articles</p>
           {active > 0 && <button type="button" onClick={clear} className="text-sm font-semibold text-accent-700 hover:underline">Clear all filters</button>}
         </div>
 
@@ -192,19 +199,35 @@ export function IssuePage({ data }: { data: IssueData }) {
             <EmptyState title="No articles match these filters" text="Try a different keyword or remove a filter to see more of this issue."
               action={<Button variant="outline" onClick={clear}><Close className="h-4 w-4" aria-hidden="true" /> Clear filters</Button>} />
           </div>
-        ) : groups.map((g) => {
-          const tone = typeTone(g.type)
-          return (
-            <section key={g.type} aria-labelledby={`g-${g.type.replace(/\W+/g, '-')}`} className="mt-8">
-              <h2 id={`g-${g.type.replace(/\W+/g, '-')}`} className="flex items-center gap-2 border-b-2 pb-2 font-display text-lg font-bold uppercase tracking-wide" style={{ color: tone.fg, borderColor: tone.bar }}>
-                {g.type}s <span className="text-sm font-semibold tabular-nums text-graphite-700">({g.items.length})</span>
-              </h2>
-              <ul className={cx('mt-4 grid gap-4', layout === 'card' ? 'md:grid-cols-2' : 'grid-cols-1')}>
-                {g.items.map((a) => <li key={a.paperId} className="min-w-0"><IssueArticleRow article={a} index={++n} compact={layout === 'card'} /></li>)}
-              </ul>
-            </section>
-          )
-        })}
+        ) : (
+          <>
+            <ul id="issue-list" className={cx('mt-4 grid scroll-mt-28 gap-4', layout === 'card' ? 'md:grid-cols-2' : 'grid-cols-1')} aria-label="Articles of this issue, by date published">
+              {slice.map((a) => <li key={a.paperId} className="min-w-0"><IssueArticleRow article={a} compact={layout === 'card'} /></li>)}
+            </ul>
+            {pageCount > 1 && (
+              <nav aria-label="Article pages" className="mt-6 flex items-center justify-center gap-1 rounded-panel border border-graphite-200 bg-white p-3 shadow-card">
+                <button type="button" aria-label="Previous page" disabled={cur === 1} onClick={() => goPage(cur - 1)} className="flex h-9 w-9 items-center justify-center rounded-soft border border-graphite-300 text-graphite-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40"><ChevronLeft className="h-5 w-5" aria-hidden="true" /></button>
+                {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                  <button key={n} type="button" aria-label={`Page ${n}`} aria-current={n === cur ? 'page' : undefined} onClick={() => goPage(n)}
+                    className={cx('flex h-9 w-9 items-center justify-center rounded-soft border text-sm font-bold', n === cur ? 'border-brand-800 bg-brand-800 text-white' : 'border-graphite-300 text-graphite-800 hover:bg-brand-50')}>{n}</button>
+                ))}
+                <button type="button" aria-label="Next page" disabled={cur === pageCount} onClick={() => goPage(cur + 1)} className="flex h-9 w-9 items-center justify-center rounded-soft border border-graphite-300 text-graphite-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40"><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
+              </nav>
+            )}
+          </>
+        )}
+
+        <section aria-labelledby="issue-cfp-h" className="mt-6 flex flex-col items-start justify-between gap-6 rounded-sheet bg-gradient-to-br from-brand-900 to-brand-800 p-6 text-white shadow-soft sm:p-8 md:flex-row md:items-center">
+          <div className="max-w-xl space-y-2">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-brand-200">Upcoming issue</p>
+            <h2 id="issue-cfp-h" className="font-display text-xl font-bold leading-snug">Call for Papers: {journal.nextIssue.label.split(' — ')[0]}</h2>
+            <p className="text-sm text-brand-100">We welcome original research, review articles and short communications from every discipline. Every published article receives a Crossref DOI.</p>
+          </div>
+          <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row">
+            <AppLink to={paths.policy('author-guidelines')} className="rounded-panel border border-brand-300 px-5 py-3 text-center text-sm font-semibold text-brand-50 hover:bg-white/10 focus-visible:!outline-white">Author Guidelines</AppLink>
+            <AppLink to={paths.submit} className="rounded-panel bg-white px-6 py-3 text-center text-sm font-bold text-brand-800 shadow hover:bg-brand-50 focus-visible:!outline-white">Submit Paper Online</AppLink>
+          </div>
+        </section>
       </WithAwardsRail>
 </Container>
     </div>

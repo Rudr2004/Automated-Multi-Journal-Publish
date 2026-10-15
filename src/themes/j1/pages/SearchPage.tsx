@@ -24,7 +24,7 @@ function NoResults({ query, hasFilters, onClear }: { query: string; hasFilters: 
     <div className="border border-line bg-paper p-6 sm:p-8">
       <p className="font-serif text-xl font-semibold text-navy">{query ? `No articles match “${query}”` : 'Start typing to search the archive'}</p>
       <p className="mt-1.5 text-sm text-ink-muted">
-        {hasFilters ? 'The selected filters may be too narrow. ' : ''}Check the spelling, use fewer or broader words, or search by author surname, DOI or Paper ID.
+        {hasFilters ? 'The selected filters may be too narrow. ' : ''}Check the spelling, use fewer or broader words, or search by author surname, DOI or Manuscript ID.
       </p>
       {hasFilters && <button type="button" onClick={onClear} className="mt-3 text-sm font-semibold text-scholar hover:underline">Clear all filters</button>}
       <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink-muted">Browse by subject</p>
@@ -100,7 +100,7 @@ export function SearchPage({ query, results }: { query: string; results: Article
   return (
     <>
       <PageHead crumbs={[{ label: 'Home', to: paths.home }, { label: 'Search Results' }]} eyebrow="Search the archive" title="Search Results"
-        subtitle="Search by keyword, title, author, DOI or Paper ID.">
+        subtitle="Search by keyword, title, author, DOI or Manuscript ID.">
         <SearchBox id="results-search" large className="mt-5 max-w-2xl" onSearch={(q) => navigate(paths.search(q))} />
       </PageHead>
 

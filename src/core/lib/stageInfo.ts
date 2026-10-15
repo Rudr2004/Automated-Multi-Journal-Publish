@@ -1,6 +1,7 @@
 // Plain-language explanation of what is happening at each stage, following the platform's paper flow.
 import type { TrackedPaper } from '../types'
 import { formatDate } from './format'
+import { idLabel } from './manuscriptId'
 
 export interface StageInfo {
   title: string
@@ -17,7 +18,7 @@ const tomorrow = () => { const d = new Date(); d.setDate(d.getDate() + 1); retur
 export function stageInfo(p: TrackedPaper): StageInfo {
   switch (p.stageIndex) {
     case 0:
-      return { tone: 'wait', title: 'We have your manuscript', text: 'Your Paper ID was sent by email, SMS and WhatsApp. The editor will screen your paper next. You can edit it until the decision is made.' }
+      return { tone: 'wait', title: 'We have your manuscript', text: `Your ${idLabel} was sent by email, SMS and WhatsApp. The editor will screen your paper next. You can edit it until the decision is made.` }
     case 1:
       return { tone: 'wait', title: 'Editor screening and review', text: 'The editor screens your paper. An external reviewer is consulted only if the editor needs one. When this stage ends, a review report PDF is prepared for you.' }
     case 2:

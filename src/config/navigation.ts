@@ -1,4 +1,5 @@
 // Main navigation and policy list. Routes come from ./routes.
+import { idLabel } from '../core/lib/manuscriptId'
 import { BASE, paths } from './routes'
 
 export interface NavChild { label: string; to: string }
@@ -43,7 +44,7 @@ const authorMega: MegaGroup[] = [
   ] },
   { title: 'Submit and track', links: [
     L('Submission Process', paths.forAuthors('submission-process'), 'The eight stages from submission to indexing.'),
-    L('Track My Paper', paths.track, 'Follow your paper with its Paper ID and email.'),
+    L('Track My Paper', paths.track, `Follow your paper with its ${idLabel} and email.`),
     L('APC & Payment', paths.forAuthors('apc-payment'), 'Charges, GST and how to pay.'),
   ] },
   { title: 'Review and recognition', links: [

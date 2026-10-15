@@ -24,7 +24,7 @@ import { SubmitSuccess } from './submit/SubmitSuccess'
 
 const REASSURANCE = [
   { icon: UserX, text: 'No account needed' },
-  { icon: BellRing, text: 'Paper ID sent instantly on email, SMS and WhatsApp' }
+  { icon: BellRing, text: 'Manuscript ID sent instantly on email, SMS and WhatsApp' }
   // { icon: Fingerprint, text: 'Track anytime' },
 ]
 
@@ -167,7 +167,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
               {step === 3 && <StepReview form={form} onEdit={goTo} submitError={submitError} />}
               <p className="mt-6 flex gap-3 border border-[#C4D9EE] bg-scholar-soft p-4 text-sm text-ink">
                 <MdOutlineMarkEmailRead className="mt-0.5 h-5 w-5 shrink-0 text-scholar" aria-hidden />
-                <span>On submitting, an instant confirmation email with your unique <strong>Paper ID</strong> is generated (also sent by SMS and WhatsApp). You can edit the paper until the editor’s decision.</span>
+                <span>On submitting, an instant confirmation email with your unique <strong>Manuscript ID</strong> is generated (also sent by SMS and WhatsApp). You can edit the paper until the editor’s decision.</span>
               </p>
               <div className="sticky bottom-0 -mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
                 <Button variant="outline" onClick={() => goTo((step - 1) as StepIndex)} disabled={step === 0 || busy}>Back</Button>

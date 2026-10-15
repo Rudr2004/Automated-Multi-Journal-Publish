@@ -7,9 +7,10 @@ import { AppLink, useRouter } from '../../../core/router'
 import type { BlockActions } from '../../../core/theme'
 import type { StaticPageData } from '../../../core/types'
 import { Container, cx } from '../components/primitives'
-import { AwardsCard } from '../components/AwardsCard'
+import { HomeRail } from '../components/HomeRail'
 import * as I from '../icons'
 import { Print } from '../components/pageIcons'
+import { ApcPayment } from './static/ApcPayment'
 import { anchorId, blockTitle, StaticBlocksJ2 } from './static/StaticBlocksJ2'
 
 const principles = [
@@ -47,9 +48,12 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
   const related = page.related.map((s) => allPages.find((p) => p.slug === s)).filter(Boolean) as StaticPageData[]
   const tabsRef = useRef<HTMLUListElement>(null)
 
+  // The APC & Payment page has its own designed sections (payment options, what is covered, how paying works).
+  const isApc = page.slug === 'apc-payment' && page.group === 'for-authors'
+  const apcToc = [{ id: 'apc-options', label: 'Payment options' }, { id: 'apc-included', label: 'What the charge covers' }, { id: 'apc-how', label: 'How payment works' }]
   const toc = useMemo(() => [
     ...(page.principles ? [{ id: 'principles-h', label: 'Our ethical principles' }] : []),
-    ...page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading })),
+    ...(isApc ? apcToc : page.sections.map((s) => ({ id: anchorId(s.heading), label: s.heading }))),
     ...(page.blocks ?? []).flatMap((b) => { const t = blockTitle(b); return t ? [{ id: anchorId(t), label: t }] : [] }),
   ], [page])
   const active = useActiveId(toc.map((t) => t.id))
@@ -63,7 +67,7 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
 
   const groupTag = page.group === 'policies' ? 'Editorial policy' : page.group === 'for-authors' ? 'Author information' : 'About the journal'
   const sectionNo = (id: string) => toc.findIndex((t) => t.id === id) + 1
-  const blockStart = (page.principles ? 1 : 0) + page.sections.length
+  const blockStart = (page.principles ? 1 : 0) + (isApc ? apcToc.length : page.sections.length)
   const card = 'rounded-sheet border border-graphite-200 bg-white shadow-card'
   const h2cls = 'scroll-mt-28 font-display text-2xl font-bold tracking-tight text-brand-800'
   const metaItems: [string, string][] = [
@@ -156,7 +160,9 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
                 </section>
               )}
 
-              {page.sections.map((s) => {
+              {isApc && <ApcPayment />}
+
+              {!isApc && page.sections.map((s) => {
                 const id = anchorId(s.heading)
                 const n = sectionNo(id)
                 return (
@@ -207,17 +213,8 @@ export function StaticPage({ page, sidebar, allPages, actions }: { page: StaticP
             )}
           </div>
 
-          <aside aria-label="Page sidebar" className="min-w-0 space-y-5 lg:sticky lg:top-24">
-            <section aria-labelledby="cfp-h" className="rounded-sheet bg-brand-800 p-5 text-white shadow-soft">
-              <span className="rounded-chip bg-white/15 px-2 py-1 text-xs font-bold uppercase tracking-wider text-white">Call for papers</span>
-              <h2 id="cfp-h" className="mt-4 font-display text-xl font-bold">Submit to {journal.nextIssue.label}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-brand-100">{journal.mission}</p>
-              <p className="mt-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 rounded-soft border border-white/20 bg-white/10 px-3 py-2 text-sm"><span className="inline-flex items-center gap-1.5 text-brand-100"><I.Calendar className="h-4 w-4" aria-hidden="true" />Submission deadline</span><strong>{formatDate(journal.nextIssue.deadline.slice(0, 10))}</strong></p>
-              <AppLink to={paths.submit} className="mt-4 flex items-center justify-center gap-2 rounded-soft bg-white px-4 py-2.5 text-sm font-bold text-brand-900 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-800"><I.Submit className="h-4 w-4" aria-hidden="true" />Submit your manuscript</AppLink>
-              <AppLink to={paths.track} className="mt-2 flex items-center justify-center gap-2 rounded-soft border border-white/40 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-800"><I.Track className="h-4 w-4" aria-hidden="true" />Track manuscript</AppLink>
-            </section>
-
-            <AwardsCard />
+          <aside aria-label="Page sidebar" className="min-w-0 space-y-5">
+            <HomeRail />
 
             {toc.length > 1 && (
               <nav aria-label="On this page" className={cx(card, 'hidden p-5 lg:block')}>

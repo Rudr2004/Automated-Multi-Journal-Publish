@@ -9,8 +9,9 @@ import { Container, Panel } from '../components/primitives'
 import { AppLink } from '../../../core/router'
 import { doiFor, journal } from '../../../config/journals/j1'
 import { paths } from '../../../config/routes'
-import { AwardsCard } from '../components/AwardsCard'
+import { RightSidebar } from '../components/HomeSidebars'
 import { formatDate } from '../../../core/lib/format'
+import { idExample } from '../../../core/lib/manuscriptId'
 
 export type CertificateResult = { valid: true; article: ArticleSummary; author: string } | { valid: false }
 
@@ -32,7 +33,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!id.trim()) { setError('Enter the certificate number.'); return }
-    if (!/^[A-Za-z0-9-]{6,40}$/.test(id.trim())) { setError('Certificate numbers contain only letters, numbers and hyphens (6–40 characters).'); return }
+    if (!/^[A-Za-z0-9.-]{6,40}$/.test(id.trim())) { setError('Certificate numbers contain only letters, numbers, dots and hyphens (6–40 characters).'); return }
     setError(''); setBusy(true)
     setResult(await onVerify(id))
     setBusy(false)
@@ -47,8 +48,8 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
           <section aria-labelledby="verify-h" className="border border-line bg-white">
             <header className="border-b border-line px-4 py-2.5"><h2 id="verify-h" className="font-serif text-[1.0625rem] font-semibold text-navy">Look up a certificate</h2></header>
             <form onSubmit={submit} noValidate className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:p-5">
-              <Field label="Certificate number" error={error} hint={`Example: ${journal.paperIdPrefix}-CERT-${journal.paperIdPrefix}2026000121`}>
-                <input className={`${inputClass(error)} font-mono uppercase tracking-wide tabular-nums`} value={id} maxLength={40} autoComplete="off" spellCheck={false} onChange={(e) => { setId(e.target.value.replace(/\s/g, '')); setError('') }} />
+              <Field label="Certificate number" error={error} hint={`Example: ${journal.paperIdPrefix}-CERT-${idExample}`}>
+                <input className={`${inputClass(error)} font-mono tracking-wide tabular-nums`} value={id} maxLength={40} autoComplete="off" spellCheck={false} onChange={(e) => { setId(e.target.value.replace(/\s/g, '')); setError('') }} />
               </Field>
               <Button type="submit" size="md" loading={busy} className="sm:mt-[27px]">{busy ? 'Checking…' : 'Verify certificate'}</Button>
             </form>
@@ -63,16 +64,16 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
                     <span className="text-[11px] font-bold uppercase tracking-wider text-oa">Record found in {journal.shortName} archive</span>
                   </header>
                   <dl>
-                    <Row label="Certificate no."><span className="font-mono font-semibold tabular-nums">{id.trim().toUpperCase()}</span></Row>
+                    <Row label="Certificate no."><span className="font-mono font-semibold tabular-nums">{id.trim()}</span></Row>
                     <Row label="Awarded to"><span className="font-semibold">{result.author}</span></Row>
                     <Row label="Article"><AppLink to={paths.article(result.article.paperId)} className="font-serif text-base font-semibold text-scholar hover:underline">{result.article.title}</AppLink></Row>
-                    <Row label="Paper ID"><span className="tabular-nums">{result.article.paperId}</span></Row>
+                    <Row label="Manuscript ID"><span className="tabular-nums">{result.article.paperId}</span></Row>
                     <Row label="DOI"><a href={`https://doi.org/${doiFor(result.article.paperId)}`} className="tabular-nums text-scholar hover:underline">{doiFor(result.article.paperId)}</a></Row>
                     <Row label="Published"><span className="tabular-nums">{formatDate(result.article.publishedAt)} · Vol {result.article.volume}, Issue {result.article.issue}</span></Row>
                   </dl>
                 </section>
 
-                <CertificateCard number={id.trim().toUpperCase()} data={{ author: result.author, paperId: result.article.paperId, title: result.article.title, publishedAt: result.article.publishedAt, volume: result.article.volume, issue: result.article.issue }} />
+                <CertificateCard number={id.trim()} data={{ author: result.author, paperId: result.article.paperId, title: result.article.title, publishedAt: result.article.publishedAt, volume: result.article.volume, issue: result.article.issue }} />
                 <Button variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4" aria-hidden />Print / Save as PDF</Button>
               </div>
             )}
@@ -90,10 +91,10 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
           </div>
         </div>
 
-        <aside aria-label="About certificates" className="space-y-5 lg:sticky lg:top-24 lg:self-start">
+        <aside aria-label="About certificates" className="space-y-5 lg:self-start">
           <Panel title="Where to find the number" tone="paper">
             <p className="text-[13px] leading-relaxed text-ink">The certificate number is printed beside the signature line of every author certificate. It follows this pattern:</p>
-            <p className="mt-3 break-words border border-line bg-white px-3 py-2 font-mono text-[13px] font-semibold text-navy">{journal.paperIdPrefix}-CERT-&lt;Paper ID&gt;</p>
+            <p className="mt-3 break-words border border-line bg-white px-3 py-2 font-mono text-[13px] font-semibold text-navy">{journal.paperIdPrefix}-CERT-&lt;Manuscript ID&gt;</p>
             <p className="mt-3 text-[13px] leading-relaxed text-ink-muted">Co-authors have <span className="font-mono">-A2</span>, <span className="font-mono">-A3</span> and so on added to the end.</p>
           </Panel>
           <Panel title="Scan the QR code">
@@ -102,7 +103,7 @@ export function VerifyCertificatePage({ initialId = '', initialResult = null, on
           <Panel title="Need help?">
             <p className="text-[13px] leading-relaxed text-ink">If a certificate cannot be verified, contact the editorial office at <a href={`mailto:${journal.email}`} className="font-semibold text-scholar hover:underline">{journal.email}</a> or see the <AppLink to={paths.about('contact')} className="font-semibold text-scholar hover:underline">contact page</AppLink>.</p>
           </Panel>
-          <AwardsCard />
+          <RightSidebar />
         </aside>
       </Container>
     </>
