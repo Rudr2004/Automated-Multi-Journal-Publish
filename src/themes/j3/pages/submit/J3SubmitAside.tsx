@@ -1,4 +1,4 @@
-// Right rail of the Journal 3 submission page: checklist, recent submissions (only when the journal has any), review stages, charges and help.
+// Right rail of the Journal 3 submission page: checklist, recent submissions (a scrolling list), review stages, charges and help.
 import { useEffect, useState } from 'react'
 import { MdOutlineCheckCircle, MdOutlineDownload, MdOutlineSouth } from 'react-icons/md'
 import { journal } from '../../../../config/journals'
@@ -42,7 +42,7 @@ function RecentCard() {
   }, [])
   if (!items.length) return null
   return (
-    <Card id="recent-h" title="Recently submitted papers">
+    <Card id="recent-h" title="Recent Submissions">
       {/* Scrolls upwards; hover or focus pauses it, and reduced-motion visitors can scroll by hand. */}
       <div className="j1-pausable h-52 overflow-hidden motion-reduce:overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,#000_10px,#000_calc(100%-14px),transparent)]">
         <div className="j1-scroll-up" style={{ ['--j1-scroll-duration' as string]: `${Math.max(18, items.length * 6)}s` }}>

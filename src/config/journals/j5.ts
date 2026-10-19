@@ -30,6 +30,7 @@ export const journal: JournalConfig = {
   tagline: 'Foundations first: research that others build on',
   sjifImpactFactor: '6.31',
   collectAbstract: false, // the manuscript file carries the abstract and keywords
+  mentorAffiliationFromAuthor: true,
   coAuthorEmailOptional: true, // co-authors are not asked for an email
   specializations: J5_SPECIALIZATIONS, // from the client's specialization sheet
   descriptor: 'Peer-reviewed · Open access · Fundamental research and development',

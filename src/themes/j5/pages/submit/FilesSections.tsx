@@ -1,4 +1,5 @@
 // Sections D and E: manuscript file with optional cover letter, and the declarations with the optional referral code.
+import { referralOn } from '../../../../core/lib/referral'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { ACCEPTED_EXT, MAX_FILE_MB, validateFile, type SubmissionForm } from '../../../../core/lib/submission'
@@ -54,6 +55,7 @@ export function DeclarationsSection({ form, errors, setForm }: SectionProps) {
         You can withdraw consent at any time: reply STOP to any message, or email {journal.email}. Withdrawing does not affect work already published.
       </p>
 
+      {referralOn() && (
       <div className="flex flex-col gap-3 border-t border-[#DCC0BE]/30 pt-4">
         <Fld label="Referral Code" name="referralCode" optional error={errors.referralCode} hint="4 to 20 letters, numbers or hyphens. Valid codes are verified at desk screening."
           icon={<Ticket aria-hidden="true" className="pointer-events-none absolute left-2.5 top-3 h-5 w-5 text-ochre-700" />}
@@ -68,6 +70,7 @@ export function DeclarationsSection({ form, errors, setForm }: SectionProps) {
         </Fld>
         <p className="flex items-center gap-1.5 font-work text-xs text-[#564241]"><Key className="h-4 w-4 text-ochre-700" aria-hidden="true" />Optional: use a partner or colleague referral code, if you have one.</p>
       </div>
+      )}
     </Section>
   )
 }

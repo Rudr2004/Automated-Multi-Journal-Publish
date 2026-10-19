@@ -1,4 +1,5 @@
 // Result of a successful lookup: ring + timeline, current-stage panel, documents, payment, actions and referral.
+import { referralOn } from '../../../../core/lib/referral'
 import { journal } from '../../../../config/journals'
 import { formatDate } from '../../../../core/lib/format'
 import { STAGES, type PaperDocument, type PaymentStatus, type TrackedPaper } from '../../../../core/types'
@@ -132,6 +133,7 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
             </div>
             <p className="mt-3 text-xs text-graphite-600">Signing, editing, paying and certificates need an email OTP. A paper can be edited only before the decision.</p>
           </section>
+{referralOn() && (
           <section aria-labelledby="ref-h" className="rounded-sheet border border-accent-200 bg-accent-50 p-5">
             <h3 id="ref-h" className="flex items-center gap-2 font-display text-base font-bold text-graphite-800"><Gift className="h-5 w-5 text-accent-700" aria-hidden="true" />Referral credits</h3>
             <p className="mt-2 font-display text-3xl font-extrabold text-brand-800">{paper.referral.credits}<span className="ml-1 text-sm font-medium text-graphite-600">{paper.referral.credits === 1 ? 'credit' : 'credits'}</span></p>
@@ -140,6 +142,7 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
               <CopyChip text={paper.referral.code} label="Copy" done="Code copied" />
             </div>
           </section>
+)}
         </div>
       </div>
     </div>

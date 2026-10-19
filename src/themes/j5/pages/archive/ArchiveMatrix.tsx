@@ -26,8 +26,7 @@ export function ArchiveMatrix({ rows }: { rows: VolumeRow[] }) {
                     <span className="block font-work text-xs font-bold uppercase tracking-wider text-wine-800">Issue {i.issue}</span>
                     <span className="mt-1 block font-newsreader text-xl font-semibold text-obsidian-900">{formatMonthYear(i.month)}</span>
                   </span>
-                  <span className="flex items-center justify-between border-t border-[#DCC0BE]/60 pt-3 font-work text-xs text-obsidian-600">
-                    <span>{i.articleCount} {i.articleCount === 1 ? 'article' : 'articles'}</span>
+                  <span className="flex items-center justify-end border-t border-[#DCC0BE]/60 pt-3 font-work text-xs text-obsidian-600">
                     <span className="inline-flex items-center gap-1 font-semibold text-wine-800 group-hover:underline">Open issue <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span>
                   </span>
                 </AppLink>

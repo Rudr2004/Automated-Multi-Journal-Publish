@@ -1,4 +1,5 @@
 // Article card (grid) and article row (list). A colour strip shows the discipline; actions are Download PDF (solid) and Cite Article (outline).
+import { useState } from 'react'
 import { doiFor, journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { copyText } from '../../../core/lib/clipboard'
@@ -6,7 +7,8 @@ import { formatDate } from '../../../core/lib/format'
 import { downloadArticlePdf } from '../../../core/lib/pdf'
 import { AppLink } from '../../../core/router'
 import type { ArticleSummary } from '../../../core/types'
-import { Button } from './Button'
+import { Button, buttonClass } from './Button'
+import { CertificateDialog } from './CertificatePaper'
 import { CiteFlyout } from './CiteFlyout'
 import { cx, Tag } from './primitives'
 import { useToast } from './Toast'
@@ -39,6 +41,7 @@ function DoiButton({ paperId }: { paperId: string }) {
 export function ArticleCard({ article, layout = 'card' }: { article: ArticleSummary; layout?: CardLayout }) {
   const color = disciplineColor(article.subject)
   const list = layout === 'list'
+  const [certOpen, setCertOpen] = useState(false)
   return (
     <article className={cx('group relative flex h-full overflow-hidden rounded-panel border border-graphite-200 bg-white shadow-card transition-shadow hover:shadow-soft', list ? 'flex-col sm:flex-row' : 'flex-col')}>
       <span aria-hidden="true" className={cx('shrink-0', list ? 'h-1.5 w-full sm:h-auto sm:w-1.5' : 'h-1.5 w-full')} style={{ backgroundColor: color }} />
@@ -62,9 +65,11 @@ export function ArticleCard({ article, layout = 'card' }: { article: ArticleSumm
           <Button variant="primary" onClick={() => downloadArticlePdf(article)} aria-label={`Download PDF: ${article.title}`}>
             <Download className="h-4 w-4" aria-hidden="true" /> Download PDF
           </Button>
+          <button type="button" onClick={() => setCertOpen(true)} className={buttonClass('outline')}><Download className="h-4 w-4" aria-hidden="true" /> Download Certificate</button>
           <CiteFlyout article={article} />
         </div>
       </div>
+      {certOpen && <CertificateDialog open onClose={() => setCertOpen(false)} paper={{ paperId: article.paperId, title: article.title, publishedAt: article.publishedAt, authors: article.authors, volume: article.volume, issue: article.issue }} />}
     </article>
   )
 }

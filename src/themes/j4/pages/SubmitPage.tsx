@@ -1,4 +1,5 @@
 // Journal 4 submission (reference layout): banner with stepper, then the lettered form cards (8 of 12) beside the helper sidebar (4 of 12), then a success screen.
+import { referralOn } from '../../../core/lib/referral'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { clearDraft, isPristine, loadDraft, saveDraftNow, useAutosave, type Draft } from '../../../core/lib/draft'
 import { formatDate } from '../../../core/lib/format'
@@ -120,7 +121,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
               <AuthorsSection {...props} />
               <FilesSection {...props} />
               <DeclarationsSection {...props} />
-              <ReferralSection {...props} />
+              {referralOn() && <ReferralSection {...props} />}
               <ReviewSection form={form} missing={missing} busy={busy} submitError={submitError} onJump={jump} onSaveDraft={saveNow}
                 savedLabel={savedAt ? `Draft saved at ${clock(savedAt)}` : 'Autosave is on for this device'} />
               <p role="status" className="sr-only">{announce}</p>

@@ -1,5 +1,6 @@
 // Journal 3 submission: one page with five ruled sections and a right rail (reference: "Academic Manuscript Submission Form").
 // Validation, draft autosave and the success screen are unchanged; every section is validated together when Submit is pressed.
+import { referralOn } from '../../../core/lib/referral'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { MdOutlineBolt, MdOutlineGavel, MdOutlineDescription, MdOutlineLockOpen, MdOutlinePaid, MdOutlineSend, MdOutlineVerified } from 'react-icons/md'
 import { journal } from '../../../config/journals'
@@ -96,8 +97,6 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
     { icon: MdOutlineDescription, k: 'Accepted file formats', v: `Word (${ACCEPTED_EXT.join(', ')})`, tone: '' },
     { icon: MdOutlineLockOpen, k: 'Document upload limit', v: `Up to ${MAX_FILE_MB} MB per submission`, tone: '' },
     { icon: MdOutlinePaid, k: 'Author processing charges', v: 'Free to submit; charge applies only after acceptance', tone: 'text-j3valid-700' },
-    { icon: MdOutlineBolt, k: 'Fast track peer review', v: 'Editor screening within 1 to 2 working days', tone: '' },
-    { icon: MdOutlineGavel, k: 'COPE ethics guidelines', v: 'Publication ethics and similarity screening', tone: '' },
   ]
 
   return (
@@ -117,7 +116,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
           </ul>
           <h1 className="mt-4 font-jakarta text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold leading-[1.1] tracking-tight text-night-900">Submit Manuscript for Peer Review</h1>
           <p className="mt-3 max-w-3xl font-inter text-base leading-relaxed text-mauve-700">Welcome to the {journal.shortName} submission desk. Complete the details below, upload your Word file and confirm the declarations. You will get a Paper ID by email, SMS and WhatsApp, and you can follow your paper with it at any time.</p>
-          <ul className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+          <ul className="mt-5 grid gap-3 md:grid-cols-3">
             {tiles.map((t) => (
               <li key={t.k} className="flex items-center gap-3 rounded-tile border border-j3paper-rule bg-white p-3.5">
                 <t.icon className="h-6 w-6 shrink-0 text-iris-700" aria-hidden="true" />
@@ -145,7 +144,24 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
             <SectionPeople {...props} />
             <SectionFile {...props} />
             <SectionDeclarations {...props} />
-            <ReferralCard {...props} />
+            {referralOn() && <ReferralCard {...props} />}
+
+            <section aria-label="Review and ethics" className="grid gap-4 sm:grid-cols-2">
+              <div className="flex gap-4 rounded-tile border border-j3paper-rule bg-white p-5">
+                <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center bg-iris-700 text-white"><MdOutlineBolt className="h-6 w-6" /></span>
+                <div>
+                  <h2 className="font-jakarta text-sm font-bold uppercase tracking-[0.05em] text-night-900">Fast track review</h2>
+                  <p className="mt-1 font-inter text-sm leading-relaxed text-mauve-700">Editor screening within 1 to 2 working days, then peer review with a decision and written reasons.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 rounded-tile border border-j3paper-rule bg-white p-5">
+                <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center bg-iris-700 text-white"><MdOutlineGavel className="h-6 w-6" /></span>
+                <div>
+                  <h2 className="font-jakarta text-sm font-bold uppercase tracking-[0.05em] text-night-900">COPE ethics guidelines</h2>
+                  <p className="mt-1 font-inter text-sm leading-relaxed text-mauve-700">Publication ethics and similarity screening for every submission. <AppLink to={paths.policy('publication-ethics')} className="font-semibold text-iris-700 underline">Read the ethics policy</AppLink>.</p>
+                </div>
+              </div>
+            </section>
 
             <div className="space-y-3 rounded-tile border border-j3paper-rule bg-j3paper-deep p-5">
               <ReadinessNote missing={missing} />
@@ -158,7 +174,7 @@ export function SubmitPage({ onSubmit, initialPaperId = null }: {
                 <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                   <button type="button" onClick={saveNow} className="inline-flex flex-1 items-center justify-center rounded-tile border border-j3paper-rule bg-white px-5 py-2.5 font-inter text-sm font-semibold text-night-900 transition-colors hover:border-iris-700 hover:bg-j3paper-cool sm:flex-none">Save draft</button>
                   <button type="submit" disabled={busy} aria-busy={busy}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-tile bg-iris-700 px-6 py-2.5 font-inter text-sm font-bold text-white transition-colors hover:bg-iris-800 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none">
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-tile bg-ember-500 px-6 py-2.5 font-jakarta text-sm font-bold text-night-900 transition-colors hover:bg-ember-400 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none">
                     {busy ? <J3Spinner /> : <MdOutlineSend className="h-4 w-4" aria-hidden="true" />}{busy ? 'Submitting…' : 'Submit manuscript'}
                   </button>
                 </div>

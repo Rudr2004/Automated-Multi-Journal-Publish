@@ -1,4 +1,5 @@
 // The three input sections of the single-page submission form: manuscript details, authors, files and declarations.
+import { referralOn } from '../../../../core/lib/referral'
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
@@ -251,11 +252,13 @@ export function FilesSection({ form, errors, setForm }: SectionProps) {
         <FileDrop name="file" value={form.file} onChange={(f) => set('file', f)} validate={validateFile} accept={ACCEPTED_EXT.join(',')} error={errors.file}
           hint={`Word files only (${ACCEPTED_EXT.join(', ')}), up to ${MAX_FILE_MB} MB.`} describedBy="file-label" />
       </div>
+      {referralOn() && (
       <div className="grid gap-5">
         <Field label="Referral code" name="referralCode" error={errors.referralCode} hint="4 to 20 letters, numbers or hyphens. Earn credits when a colleague refers you.">
           <input className={inputCls(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
         </Field>
       </div>
+      )}
 
       <fieldset className="space-y-4 rounded-panel border border-graphite-200 bg-white p-4 sm:p-5">
         <legend className="px-2 font-display text-sm font-bold uppercase tracking-[0.1em] text-brand-900">Mandatory author declarations &amp; ethics</legend>

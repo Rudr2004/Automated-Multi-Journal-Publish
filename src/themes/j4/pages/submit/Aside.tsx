@@ -6,12 +6,12 @@ import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { api } from '../../../../core/api'
 import { formatDate } from '../../../../core/lib/format'
-import * as validate from '../../../../core/lib/validators'
-import { AppLink, useRouter } from '../../../../core/router'
+import { AppLink } from '../../../../core/router'
 import type { HomeData } from '../../../../core/types'
 import { cx } from '../../components/primitives'
-import { Campaign, Copyright, Description, DownloadOffline, Draw, EditDocument, FingerprintIcon, FolderZip, ManageSearch, PendingActions, RateReview, Rule, SearchIcon, SendIcon, Stream, TrackIcon } from './mi'
-import { idExample } from '../../../../core/lib/manuscriptId'
+import { ScrollLoopJ4 } from '../../components/ScrollLoopJ4'
+import { TrackCardJ4 } from '../../components/TrackCardJ4'
+import { Campaign, Copyright, Description, DownloadOffline, Draw, EditDocument, FingerprintIcon, FolderZip, PendingActions, RateReview, Rule, SearchIcon, SendIcon, Stream } from './mi'
 
 const card = 'rounded-xl border border-slate-200 bg-white p-5 shadow-sm'
 const inputCls = 'block w-full min-h-[44px] rounded border border-slate-300 bg-slate-50 px-3 py-2 text-base placeholder:text-slate-500 focus:border-sky-600 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-600/30 sm:min-h-0 sm:py-1.5 sm:text-xs'
@@ -41,7 +41,7 @@ function RecentCard({ home }: { home: HomeData | null }) {
         <h2 id="j4-recent-h" className="flex items-center gap-1.5 text-xs font-bold text-[#0b2545]"><Stream className="h-4 w-4 text-sky-600" aria-hidden="true" />{items.length ? 'Recent Submissions' : 'After You Submit'}</h2>
         <span className="flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-800"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />{items.length ? 'Active Stream' : 'Review stages'}</span>
       </div>
-      <ul className="space-y-3 text-xs">
+      <ScrollLoopJ4 count={(items.length || stages.length)}>
         {items.length
           ? items.slice(0, 4).map((s, i, arr) => (
               <li key={`${s.title ?? s.subject}-${s.minutes}`} className={cx('space-y-1', i < arr.length - 1 && 'border-b border-slate-100 pb-2.5')}>
@@ -56,7 +56,7 @@ function RecentCard({ home }: { home: HomeData | null }) {
                 <span className={cx('inline-flex items-center gap-1.5 rounded border px-1.5 text-[10px]', s.tone)}>{s.icon}{s.label}</span>
               </li>
             ))}
-      </ul>
+      </ScrollLoopJ4>
     </section>
   )
 }
@@ -91,39 +91,8 @@ function CfpCard({ home }: { home: HomeData | null }) {
 }
 
 function TrackCard() {
-  const { navigate } = useRouter()
-  const id = useId()
-  const [pid, setPid] = useState('')
-  const [mail, setMail] = useState('')
-  const [err, setErr] = useState({ pid: '', mail: '' })
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const next = { pid: validate.paperId(pid.trim().toUpperCase()), mail: validate.email(mail) }
-    setErr(next)
-    if (next.pid || next.mail) return
-    navigate(`${paths.track}?id=${encodeURIComponent(pid.trim().toUpperCase())}&email=${encodeURIComponent(mail.trim())}`)
-  }
-  return (
-    <section aria-labelledby="j4-trk-h" id="track-manuscript-sidebar" className={card}>
-      <HeadSimple icon={<TrackIcon className="h-5 w-5" />} title="Track Manuscript Status" id="j4-trk-h" />
-      <p className="mb-3 text-xs text-slate-600">Enter your Manuscript ID and the corresponding author email to see real-time review progress.</p>
-      <form onSubmit={submit} noValidate className="space-y-2.5">
-        <div>
-          <label htmlFor={`${id}-p`} className="mb-1 block text-[11px] font-medium text-slate-700">Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={cx(inputCls, 'font-mono')} />
-          {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
-        </div>
-        <div>
-          <label htmlFor={`${id}-m`} className="mb-1 block text-[11px] font-medium text-slate-700">Corresponding Author Email</label>
-          <input id={`${id}-m`} type="email" value={mail} onChange={(e) => setMail(e.target.value)} placeholder="author@university.edu" autoComplete="email" aria-invalid={!!err.mail} aria-describedby={err.mail ? `${id}-me` : undefined} className={inputCls} />
-          {err.mail && <p id={`${id}-me`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.mail}</p>}
-        </div>
-        <button type="submit" className={btnSky}><ManageSearch className="h-4 w-4" aria-hidden="true" />Check Status</button>
-      </form>
-    </section>
-  )
+  return <TrackCardJ4 />
 }
-
 function CopyrightCard() {
   return (
     <section aria-labelledby="j4-cr-h" className={card}>

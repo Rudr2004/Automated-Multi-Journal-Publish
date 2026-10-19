@@ -79,7 +79,7 @@ export function ApcPaymentJ1() {
             cta={<a href={`mailto:${journal.email}?subject=${encodeURIComponent('Institutional payment for APC')}`} className={cx(btn, 'border-line bg-white text-navy hover:border-scholar')}>Request a proforma invoice</a>} />
           <Route wide icon={<MdOutlinePublic className="h-6 w-6" />} tag="Foreign national payment" title="Author outside India" who="Paid in US dollars, with no GST."
             rows={[{ l: 'Article processing charge (APC)', v: usd(apc.usd) }, { l: 'GST', v: 'Not charged' }, { l: 'Total payable', v: usd(apc.usd), strong: true }]}
-            note="Your bank may add its own foreign-transaction fee."
+            note="Includes the Crossref DOI and a certificate for every author, the same as for authors in India. Your bank may add its own foreign-transaction fee."
             methods={['International debit or credit card, paid online in USD', 'Bank transfer in USD, then upload the payment proof', 'Receipt emailed after payment']} cta={pay} />
         </div>
       </section>

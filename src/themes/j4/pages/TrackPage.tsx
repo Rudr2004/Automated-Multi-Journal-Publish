@@ -1,4 +1,5 @@
 // Journal 4 status console: Manuscript ID + email lookup, six-stage tracker, activity log, APC panel and OTP-gated actions.
+import { referralOn } from '../../../core/lib/referral'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -190,7 +191,7 @@ export function TrackPage({ onTrack, onSendOtp, onVerifyOtp, onPay, onPaymentPro
                   <>
                     <ApcPanel paper={paper} onPay={(mode) => request({ kind: 'pay', mode })} />
                     <ActionsPanel paper={paper} onSign={() => request({ kind: 'sign' })} onEdit={() => request({ kind: 'edit' })} onCert={() => request({ kind: 'cert' })} />
-                    <ReferralPanel paper={paper} />
+                    {referralOn() && <ReferralPanel paper={paper} />}
                   </>
                 )}
               </SubmitAside>

@@ -6,17 +6,18 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import {
   MdOutlineBadge as Badge, MdOutlineCampaign as Campaign, MdOutlineCopyright as Copyright,
   MdOutlineDescription as Doc, MdOutlineDownloadForOffline as Offline, MdOutlineDraw as Draw, MdOutlineEditNote as EditDoc, MdOutlineFingerprint as Finger,
-  MdOutlineFolderZip as Zip, MdOutlineHowToReg as HowTo, MdOutlineManageSearch as ManageSearch, MdOutlinePriceCheck as PriceCheck, MdOutlineRateReview as Rate,
-  MdOutlineSearch as SearchIcon, MdOutlineStream as Stream, MdOutlineTaskAlt as Done, MdOutlineVerified as Ver, MdOutlineSavedSearch as SavedSearch,
+  MdOutlineFolderZip as Zip, MdOutlineHowToReg as HowTo, MdOutlinePriceCheck as PriceCheck, MdOutlineRateReview as Rate,
+  MdOutlineSearch as SearchIcon, MdOutlineStream as Stream, MdOutlineTaskAlt as Done, MdOutlineVerified as Ver,
 } from 'react-icons/md'
 import { journal } from '../../../../config/journals'
 import { paths } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
-import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { ArticleSummary } from '../../../../core/types'
 import { ArrowRight as Arrow, Send } from '../../icons'
 import { idExample } from '../../../../core/lib/manuscriptId'
+import { ScrollLoopJ4 } from '../../components/ScrollLoopJ4'
+import { TrackCardJ4 } from '../../components/TrackCardJ4'
 
 const CARD = 'rounded-[12px] border bg-white p-5 shadow-hair'
 const KICK = 'flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cobalt-700'
@@ -62,39 +63,8 @@ function CallForPapers() {
 }
 
 function TrackCard() {
-  const { navigate } = useRouter()
-  const id = useId()
-  const [pid, setPid] = useState('')
-  const [mail, setMail] = useState('')
-  const [err, setErr] = useState({ pid: '', mail: '' })
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const next = { pid: validate.paperId(pid.trim().toUpperCase()), mail: validate.email(mail) }
-    setErr(next)
-    if (next.pid || next.mail) return
-    navigate(`${paths.track}?id=${encodeURIComponent(pid.trim().toUpperCase())}&email=${encodeURIComponent(mail.trim())}`)
-  }
-  return (
-    <section aria-label="Track manuscript status" id="track-manuscript-sidebar" className={`${CARD} border-slate-200`}>
-      <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><span aria-hidden="true" className="text-lg text-cobalt-700"><SavedSearch /></span><h2 className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
-      <p className="mb-3 text-xs text-slate-500">Enter your Manuscript ID and the email you submitted with to see where your manuscript is in review.</p>
-      <form onSubmit={submit} noValidate className="space-y-2.5">
-        <div>
-          <label htmlFor={`${id}-p`} className="mb-1 block text-[11px] font-medium text-slate-600">Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={`${INPUT} font-mono`} />
-          {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
-        </div>
-        <div>
-          <label htmlFor={`${id}-m`} className="mb-1 block text-[11px] font-medium text-slate-600">Corresponding Author Email</label>
-          <input id={`${id}-m`} type="email" value={mail} onChange={(e) => setMail(e.target.value)} placeholder="author@university.edu" autoComplete="email" aria-invalid={!!err.mail} aria-describedby={err.mail ? `${id}-me` : undefined} className={INPUT} />
-          {err.mail && <p id={`${id}-me`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.mail}</p>}
-        </div>
-        <button type="submit" className={BTN}><ManageSearch className="h-4 w-4" aria-hidden="true" />Check Status</button>
-      </form>
-    </section>
-  )
+  return <TrackCardJ4 />
 }
-
 function CopyrightCard() {
   return (
     <section aria-label="Copyright agreement" id="copyright-card" className={`${CARD} border-slate-200`}>
@@ -148,7 +118,7 @@ function RecentSubmissions({ articles }: { articles: ArticleSummary[] }) {
         <h2 className="flex items-center gap-1.5 text-xs font-bold text-[#0b2545]"><Stream className="h-4 w-4 text-cobalt-700" aria-hidden="true" />Recent Submissions</h2>
         <span className="flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-800"><span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none" />Published</span>
       </div>
-      <ul className="space-y-3 text-xs">
+      <ScrollLoopJ4 count={list.length}>
         {list.map((a, k) => (
           <li key={a.paperId} className={`space-y-1 ${k < list.length - 1 ? 'border-b border-slate-100 pb-2.5' : ''}`}>
             <div className="flex items-center justify-between gap-2">
@@ -159,7 +129,7 @@ function RecentSubmissions({ articles }: { articles: ArticleSummary[] }) {
             <div className="flex items-center gap-1.5 text-[10px] text-emerald-800"><Done className="h-3.5 w-3.5" aria-hidden="true" /><span className="rounded border border-emerald-100 bg-emerald-50 px-1.5">Published, {a.type}</span></div>
           </li>
         ))}
-      </ul>
+      </ScrollLoopJ4>
     </section>
   )
 }
@@ -184,7 +154,7 @@ function Editorial() {
     <section aria-label="Become an editorial member" id="reviewer-cta" className={`${CARD} border-[#bfdbfe]`}>
       <Head icon={<Badge />} title="Become an Editorial Member" chip={<span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-800">Open Call</span>} />
       <div className="group relative mb-3 overflow-hidden rounded-lg border border-slate-200">
-        <img src="/journals/j4/images/cta-circuit.svg" alt="" className="h-24 w-full object-cover object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+        <div aria-hidden="true" className="grid grid-cols-4 gap-0.5 bg-white"><img src="/shared/portraits/women-12.jpg" alt="" loading="lazy" className="h-24 w-full object-cover object-top" /><img src="/shared/portraits/men-8.jpg" alt="" loading="lazy" className="h-24 w-full object-cover object-top" /><img src="/shared/portraits/women-31.jpg" alt="" loading="lazy" className="h-24 w-full object-cover object-top" /><img src="/shared/portraits/men-27.jpg" alt="" loading="lazy" className="h-24 w-full object-cover object-top" /></div>
         <div className="absolute inset-0 flex items-end bg-gradient-to-t from-[#071527]/80 via-transparent to-transparent p-2"><span className="flex items-center gap-1 text-[10px] font-medium text-white"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Join the {journal.shortName} reviewer panel</span></div>
       </div>
       <p className="mb-3 text-xs leading-relaxed text-slate-600">Researchers and practising engineers or managers with publication experience are invited to apply as reviewers for {journal.shortName}.</p>

@@ -42,11 +42,11 @@ function Masthead() {
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-3">
+        <div className="flex w-full flex-col gap-1.5 font-inter text-xs font-semibold tabular-nums text-white">
+          <p className="rounded-tile border border-white/35 px-3 py-1.5">E-ISSN: {journal.issnOnline}</p>
+          {journal.sjifImpactFactor && <p className="rounded-tile border border-white/35 px-3 py-1.5">SJIF Impact Factor: {journal.sjifImpactFactor}</p>}
+        </div>
         <div className="flex items-center gap-3">
-          <div className="flex flex-col gap-1.5 font-inter text-xs font-semibold tabular-nums text-white">
-            <p className="rounded-tile border border-white/35 px-3 py-1.5">E-ISSN: {journal.issnOnline}</p>
-            {journal.sjifImpactFactor && <p className="rounded-tile border border-white/35 px-3 py-1.5">SJIF Impact Factor: {journal.sjifImpactFactor}</p>}
-          </div>
           <AppLink to={paths.track} className="inline-flex items-center gap-2 rounded-tile border border-white/60 px-4 py-2.5 font-jakarta text-sm font-bold text-white transition-colors hover:bg-white/10"><Track className="h-4 w-4" aria-hidden="true" /> Track Status</AppLink>
           <AppLink to={paths.submit} className="inline-flex items-center gap-2 rounded-tile bg-ember-500 px-5 py-2.5 font-jakarta text-sm font-bold text-night-900 transition-colors hover:bg-ember-400"><Submit className="h-4 w-4" aria-hidden="true" /> Submit Manuscript</AppLink>
         </div>

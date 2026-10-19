@@ -14,9 +14,9 @@ import { ARTICLE_TYPES, type ArticleSummary, type ArticleType, type IssueData, t
 import { AuthorProfiles, OaTag, Pager, StreamTag, TypeTag, useFullArticles } from '../components/IssueParts'
 import { IssueCover } from '../components/IssueCover'
 import { Container, cx } from '../components/primitives'
-import { DoubleBlindBox } from '../components/DoubleBlindBox'
+import { DoubleBlindBadge } from '../components/DoubleBlindBadge'
 import { useToast } from '../components/Toast'
-import { ArrowRight, Calendar, ChevronDown, Close, Download, Eye, FactCheck, OpenInNew, Quote, Search, Submit, Track } from '../icons'
+import { Calendar, ChevronDown, Close, Download, Eye, OpenInNew, Quote, Search, Submit, Track } from '../icons'
 
 const PAGE_SIZE = 5
 type Sort = 'page' | 'views' | 'downloads' | 'title'
@@ -48,6 +48,7 @@ function Entry({ article, full }: { article: ArticleSummary; full: Parameters<ty
         <StreamTag>{article.subject}</StreamTag>
         <OaTag licence={journal.licence.name} />
         <TypeTag>{article.type}</TypeTag>
+        <DoubleBlindBadge />
         {article.pages && <span className="ml-auto font-mono text-xs tabular-nums text-mauve-600">pp. {article.pages}</span>}
       </div>
       <h3 className="mt-4 border-b border-j3paper-rule pb-4 font-jakarta text-[1.25rem] font-bold leading-snug text-night-900 sm:text-[1.375rem]">
@@ -55,8 +56,6 @@ function Entry({ article, full }: { article: ArticleSummary; full: Parameters<ty
       </h3>
 
       <div className="mt-4"><AuthorProfiles article={article} full={full} /></div>
-
-      <DoubleBlindBox className="mt-5" />
 
       <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)}
         className="mt-3 flex w-full items-center justify-between gap-3 border border-j3paper-rule bg-j3paper-cool px-4 py-3 text-left font-inter text-sm font-semibold text-iris-700 hover:border-iris-700">
@@ -350,32 +349,6 @@ export function IssuePage({ data }: { data: IssueData }) {
           </div>
         </div>
       </Container>
-
-      {/* Author's desk band */}
-      <section aria-labelledby="desk-h" className="bg-night-900 text-white">
-        <Container className="grid gap-8 py-10 sm:py-12 lg:grid-cols-2 lg:gap-12">
-          <div>
-            <p className="flex items-center gap-2.5 font-jakarta text-xs font-extrabold uppercase tracking-[0.08em]">{marker}Author's desk</p>
-            <h2 id="desk-h" className="mt-4 font-jakarta text-[1.75rem] font-extrabold leading-tight sm:text-[2rem]">Submit your scholarly work to {journal.shortName}</h2>
-            <p className="mt-3 max-w-xl font-inter text-[15px] leading-relaxed text-iris-100">Accepted articles are published open access under {journal.licence.name} and receive a permanent Crossref DOI under {journal.doiPrefix}.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <AppLink to={paths.submit} className="inline-flex h-11 items-center justify-center gap-2 rounded-tile border border-white bg-white px-5 font-jakarta text-[13px] font-bold text-night-900 hover:bg-j3paper-deep"><Submit className="h-4 w-4" aria-hidden="true" />Submit manuscript online</AppLink>
-              <AppLink to={paths.policy('author-guidelines')} className="inline-flex h-11 items-center justify-center rounded-tile border border-white/60 px-5 font-jakarta text-[13px] font-bold text-white hover:bg-white/10">Author guidelines</AppLink>
-            </div>
-          </div>
-          <div className="border border-white/20 bg-night-800 p-5 sm:p-6">
-            <div className="flex items-center justify-between border-b border-white/20 pb-3">
-              <h3 className="font-jakarta text-sm font-extrabold uppercase tracking-[0.06em]">Track submission status</h3>
-              <span className="font-mono text-xs text-iris-200">Manuscript tracker</span>
-            </div>
-            <p className="mt-4 font-inter text-sm leading-relaxed text-iris-100">Check where your paper is in the workflow, from submission and review to decision, payment and publication, using your Paper ID.</p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <AppLink to={paths.track} className="inline-flex h-10 items-center justify-center gap-2 rounded-tile border border-iris-500 bg-iris-600 px-4 font-jakarta text-[13px] font-semibold text-white hover:bg-iris-500"><Track className="h-4 w-4" aria-hidden="true" />Open the tracker<ArrowRight className="h-4 w-4" aria-hidden="true" /></AppLink>
-              <AppLink to={paths.verify()} className="inline-flex h-10 items-center justify-center gap-2 rounded-tile border border-white/30 px-4 font-jakarta text-[13px] font-semibold text-white hover:bg-white/10"><FactCheck className="h-4 w-4" aria-hidden="true" />Verify a certificate</AppLink>
-            </div>
-          </div>
-        </Container>
-      </section>
     </div>
   )
 }

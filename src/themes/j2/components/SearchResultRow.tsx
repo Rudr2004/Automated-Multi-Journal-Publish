@@ -11,6 +11,7 @@ import { Eye } from './homeIcons'
 import type { ArticleSummary } from '../../../core/types'
 import { AuthorAvatar } from './AuthorAvatar'
 import { buttonClass } from './Button'
+import { CertificateDialog } from './CertificatePaper'
 import { CiteFlyout } from './CiteFlyout'
 import { disciplineColor } from './discipline'
 import { Highlight } from './Highlight'
@@ -25,6 +26,7 @@ const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible
 export function SearchResultRow({ article, index, term }: { article: ArticleSummary; index: number; term: string }) {
   const toast = useToast()
   const [open, setOpen] = useState(false)
+  const [certOpen, setCertOpen] = useState(false)
   const absId = useId()
   const doi = doiFor(article.paperId)
   const color = disciplineColor(article.subject)
@@ -78,8 +80,10 @@ export function SearchResultRow({ article, index, term }: { article: ArticleSumm
           <Download className="h-4 w-4" aria-hidden="true" />Download PDF
         </button>
         <AppLink to={paths.article(article.paperId)} aria-label={`Full article: ${article.title}`} className={buttonClass('outline', cx('border-brand-300 bg-brand-50 !text-brand-900 hover:bg-brand-100', focusRing))}>Full Article</AppLink>
+        <button type="button" onClick={() => setCertOpen(true)} className={buttonClass('outline', cx('!border-graphite-300 !text-graphite-800 hover:!bg-graphite-50', focusRing))}><Download className="h-4 w-4" aria-hidden="true" />Download Certificate</button>
         <CiteFlyout article={article} className="sm:ml-auto" />
       </div>
+      {certOpen && <CertificateDialog open onClose={() => setCertOpen(false)} paper={{ paperId: article.paperId, title: article.title, publishedAt: article.publishedAt, authors: article.authors, volume: article.volume, issue: article.issue }} />}
     </article>
   )
 }

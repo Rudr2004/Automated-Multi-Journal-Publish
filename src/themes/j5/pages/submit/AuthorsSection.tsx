@@ -16,6 +16,8 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
   const setAuthor = (patch: Partial<SubmissionForm['author']>) => setForm((f) => ({
     ...f, author: { ...f.author, ...patch },
     coAuthors: patch.institution === undefined ? f.coAuthors : f.coAuthors.map((c) => (c.institution === f.author.institution ? { ...c, institution: patch.institution! } : c)),
+    // The mentor's affiliation also starts as the corresponding author's and follows it until edited.
+    mentorInstitution: patch.institution !== undefined && f.mentorInstitution === f.author.institution ? patch.institution : f.mentorInstitution,
   }))
   const geoNote = useDetectedLocation(a, setAuthor)
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
@@ -104,11 +106,15 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
                   <School className="h-5 w-5 text-ochre-700" aria-hidden="true" />Academic Supervisor / Mentor
                   <span className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-ochre-700">Advisory Role</span>
                 </span>
-                <button type="button" onClick={() => { setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorOrcid: '', mentorPhoto: null })); setMentorOpen(false) }} aria-label="Remove mentor" className={remove}><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
+                <button type="button" onClick={() => { setForm((f) => ({ ...f, mentor: '', mentorEmail: '', mentorInstitution: '', mentorOrcid: '', mentorPhoto: null })); setMentorOpen(false) }} aria-label="Remove mentor" className={remove}><Trash className="h-4 w-4" aria-hidden="true" />Remove</button>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <Fld label="Mentor Full Name" name="mentor" error={errors.mentor}>
                   <input className={inp(errors.mentor)} value={form.mentor} maxLength={LIMITS.mentor} placeholder="e.g. Prof. David Miller" onChange={(e) => setForm((f) => ({ ...f, mentor: cleanName(e.target.value) }))} onBlur={() => setForm((f) => ({ ...f, mentor: f.mentor.trim() }))} />
+                </Fld>
+                <Fld label="Mentor College / University" name="mentorInstitution" error={errors.mentorInstitution} hint="Taken from the corresponding author; edit it if the mentor is elsewhere.">
+                  <input className={inp(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} autoComplete="organization" placeholder="e.g. Department of Civil Engineering, IIT Bombay"
+                    onChange={(e) => setForm((f) => ({ ...f, mentorInstitution: e.target.value.replace(/\s{2,}/g, ' ') }))} onBlur={() => setForm((f) => ({ ...f, mentorInstitution: f.mentorInstitution.trim() }))} />
                 </Fld>
               </div>
               <Fld label="Mentor Email" name="mentorEmail" optional error={errors.mentorEmail}>
@@ -124,7 +130,7 @@ export function AuthorsSection({ form, errors, setForm }: SectionProps) {
 
         <div className="grid gap-3 pt-2 sm:grid-cols-2">
           <button type="button" disabled={form.coAuthors.length >= 15} onClick={addCo} className={softBtn + ' w-full py-3'}><PersonAdd className="h-5 w-5" aria-hidden="true" />+ Add Co-Author</button>
-          <button type="button" disabled={showMentor} onClick={() => setMentorOpen(true)}
+          <button type="button" disabled={showMentor} onClick={() => { setMentorOpen(true); setForm((f) => (f.mentorInstitution ? f : { ...f, mentorInstitution: f.author.institution })) }}
             className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-ochre-700/30 bg-[#FFDBCA] px-4 py-3 font-work text-[13px] font-bold text-[#331200] shadow-sm transition-colors hover:bg-[#FFB68E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine-800 disabled:cursor-not-allowed disabled:opacity-60">
             <School className="h-5 w-5 text-ochre-700" aria-hidden="true" />+ Add Mentor / Academic Supervisor
           </button>

@@ -18,6 +18,7 @@ export const journal: JournalConfig = {
     'An open access journal publishing high-quality, peer-reviewed research that advances science and technology and benefits society.',
   publisher: 'EdTech Publishers (OPC) Private Limited',
   publisherCity: 'Bengaluru, India',
+  mentorAffiliationFromAuthor: true,
   coAuthorEmailOptional: true, // co-authors: name, optional email, optional picture, institution and optional ORCID iD
   specializations: J1_SPECIALIZATIONS, // from the client's specialization sheet
   collectAbstract: false, // the manuscript file carries the abstract and keywords
@@ -29,10 +30,10 @@ export const journal: JournalConfig = {
   domain: 'ijmat.org',
   frequency: 'Monthly',
   licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
-  apc: { inr: 6500, usd: 120, gstPercent: 18 }, // [INR] / [USD]; GST for Indian authors only
+  apc: { inr: 6500, usd: 50, gstPercent: 18 }, // [INR] / [USD]; GST for Indian authors only
   email: 'editor@ijmat.org', // [editor@ijmat.org]
   whatsapp: '+91 99668 54489',
-  address: 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
+  address: 'International Journal of Multidisciplinary Academic Research and Trends, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, INDIA, PIN: 560016',
   location: { lat: 13.0306, lng: 77.6593 }, // map pin for the editorial office (Horamavu, Bengaluru) — client to confirm
   subjects: [
     'Materials Science', 'Environmental Science', 'Computer Science', 'Biotechnology',
@@ -60,7 +61,7 @@ export const journal: JournalConfig = {
     ['Publication Format', 'Online'],
     ['Email', 'editor@ijmat.org'],
     ['Website', 'ijmat.org'],
-    ['Address', 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016'],
+    ['Address', 'International Journal of Multidisciplinary Academic Research and Trends, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, INDIA, PIN: 560016'],
   ] as const,
 
   /** "Browse by subject" index shown in the footer. Each entry searches the archive. */

@@ -54,7 +54,11 @@ export interface JournalConfig {
   /** Largest manuscript file accepted on the submission form, in MB (default 10). */
   maxFileMb?: number
   /** true: a co-author's email is optional on the submission form (default: required). */
+  /** Referral system switch (Admin panel). false hides the referral code on the submit form and the referral details on Track Status. Default on. */
+  referralSystem?: boolean
   coAuthorEmailOptional?: boolean
+  /** Mentor's affiliation starts as the corresponding author's (and follows it until edited). */
+  mentorAffiliationFromAuthor?: boolean
   /** false: the submission form does not ask for an abstract or keywords (default: it does). */
   collectAbstract?: boolean
   manuscriptId?: { example: string }

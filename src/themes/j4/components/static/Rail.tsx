@@ -8,11 +8,11 @@ import { api } from '../../../../core/api'
 import { journal } from '../../../../config/journals'
 import { paths, staticPath } from '../../../../config/routes'
 import { formatDate } from '../../../../core/lib/format'
-import * as validate from '../../../../core/lib/validators'
 import { AppLink, useRouter } from '../../../../core/router'
 import type { HomeData, StaticPageData } from '../../../../core/types'
 import { cx } from '../primitives'
-import { idExample } from '../../../../core/lib/manuscriptId'
+import { ScrollLoopJ4 } from '../ScrollLoopJ4'
+import { TrackCardJ4 } from '../TrackCardJ4'
 
 const CARD = 'space-y-3.5 rounded-[12px] border border-slate-200/80 bg-white p-5 shadow-hair'
 const HEAD = 'flex items-center justify-between gap-2 border-b border-slate-100 pb-2'
@@ -56,43 +56,8 @@ function CallForPapers() {
 }
 
 function Track() {
-  const { navigate } = useRouter()
-  const id = useId()
-  const [pid, setPid] = useState('')
-  const [mail, setMail] = useState('')
-  const [err, setErr] = useState({ pid: '', mail: '' })
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const next = { pid: validate.paperId(pid.trim().toUpperCase()), mail: validate.email(mail) }
-    setErr(next)
-    if (next.pid || next.mail) return
-    navigate(`${paths.track}?id=${encodeURIComponent(pid.trim().toUpperCase())}&email=${encodeURIComponent(mail.trim())}`)
-  }
-  const label = 'mb-1 block text-[11px] font-medium text-slate-600'
-  return (
-    <Card label="Track manuscript status">
-      <div className={cx(HEAD, 'justify-start gap-2')}>
-        <Lens className="h-4 w-4 text-cobalt-700" aria-hidden="true" />
-        <h2 className="font-serif4 text-xs font-bold uppercase tracking-wide text-slate-800">Track Manuscript Status</h2>
-      </div>
-      <p className="text-[11px] leading-relaxed text-slate-600">Enter your editorial Reference ID and corresponding author email to verify real-time peer-review progress.</p>
-      <form onSubmit={submit} noValidate className="space-y-2.5">
-        <div>
-          <label htmlFor={`${id}-p`} className={label}>Manuscript ID</label>
-          <input id={`${id}-p`} value={pid} onChange={(e) => setPid(e.target.value)} placeholder={`e.g. ${idExample}`} autoComplete="off" aria-invalid={!!err.pid} aria-describedby={err.pid ? `${id}-pe` : undefined} className={INPUT} />
-          {err.pid && <p id={`${id}-pe`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.pid}</p>}
-        </div>
-        <div>
-          <label htmlFor={`${id}-m`} className={label}>Corresponding Author Email</label>
-          <input id={`${id}-m`} type="email" value={mail} onChange={(e) => setMail(e.target.value)} placeholder="author@university.edu" autoComplete="email" aria-invalid={!!err.mail} aria-describedby={err.mail ? `${id}-me` : undefined} className={INPUT} />
-          {err.mail && <p id={`${id}-me`} role="alert" className="mt-1 text-xs font-medium text-red-700">{err.mail}</p>}
-        </div>
-        <button type="submit" className={BTN}><Arrow className="h-4 w-4" aria-hidden="true" />Check Status</button>
-      </form>
-    </Card>
-  )
+  return <TrackCardJ4 />
 }
-
 function Copyright() {
   return (
     <Card label="Copyright agreement" className="space-y-3">
@@ -169,7 +134,7 @@ function Recent() {
         <h2 className="flex items-center gap-1.5 font-serif4 text-xs font-bold uppercase tracking-wide text-slate-800"><Hist className="h-4 w-4 text-emerald-700" aria-hidden="true" />Recent Submissions</h2>
         <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">{shown.length} Recent</span>
       </div>
-      <ul className="space-y-3 text-xs">
+      <ScrollLoopJ4 count={shown.length}>
         {shown.map((s, n) => (
           <li key={`${s.title ?? s.subject}-${s.minutes}`} className={cx(n < shown.length - 1 && 'border-b border-slate-100 pb-2.5')}>
             <div className="mb-0.5 flex items-center justify-between gap-2 text-[11px]">
@@ -179,7 +144,7 @@ function Recent() {
             <div className="mt-1.5"><span className={cx('inline-flex items-center rounded border px-1.5 py-0.5 text-[11px]', CHIPS[n % CHIPS.length])}>{s.subject}</span></div>
           </li>
         ))}
-      </ul>
+      </ScrollLoopJ4>
     </Card>
   )
 }
@@ -210,7 +175,7 @@ function Editorial() {
         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">Open Call</span>
       </div>
       <div className="relative overflow-hidden rounded-[8px] border border-slate-200 bg-slate-900">
-        <img src="/journals/j4/images/cta-circuit.svg" alt="" loading="lazy" className="block h-32 w-full object-cover opacity-90" />
+        <div aria-hidden="true" className="grid grid-cols-4 gap-0.5 bg-white"><img src="/shared/portraits/women-12.jpg" alt="" loading="lazy" className="h-32 w-full object-cover object-top" /><img src="/shared/portraits/men-8.jpg" alt="" loading="lazy" className="h-32 w-full object-cover object-top" /><img src="/shared/portraits/women-31.jpg" alt="" loading="lazy" className="h-32 w-full object-cover object-top" /><img src="/shared/portraits/men-27.jpg" alt="" loading="lazy" className="h-32 w-full object-cover object-top" /></div>
         <span className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md bg-black/80 px-2 py-1 text-[11px] font-medium text-white"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-teal-400" />Join our reviewer panel</span>
       </div>
       <p className="text-xs leading-relaxed text-slate-600">Researchers and practising engineers with published work are invited to join the {journal.shortName} reviewer panel.</p>

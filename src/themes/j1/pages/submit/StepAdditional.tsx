@@ -1,4 +1,5 @@
 import { MdOutlineVerifiedUser, MdOutlineLockOpen } from 'react-icons/md'
+import { referralOn } from '../../../../core/lib/referral'
 import { Check } from '../../components/uiIcons'
 import { journal } from '../../../../config/journals/j1'
 import { Checkbox, Field, inputClass } from '../../components/form'
@@ -21,11 +22,13 @@ export function StepAdditional({ form, errors, onChange }: StepProps) {
   const set = <K extends keyof SubmissionForm>(k: K, v: SubmissionForm[K]) => onChange({ ...form, [k]: v })
   return (
     <div className="space-y-5">
+      {referralOn() && (
       <div className="sm:max-w-sm">
         <Field label="Referral code (optional)" name="referralCode" error={errors.referralCode} hint="4–20 letters, numbers or hyphens. Earn credits when a colleague refers you.">
           <input className={inputClass(errors.referralCode)} value={form.referralCode} maxLength={20} onChange={(e) => set('referralCode', formatReferral(e.target.value))} />
         </Field>
       </div>
+      )}
 
       <fieldset className="space-y-4 rounded-card border border-line p-5">
         <legend className="flex items-center gap-2 px-2 font-serif text-lg font-semibold text-navy"><MdOutlineVerifiedUser className="h-5 w-5 text-scholar" aria-hidden />Ethical &amp; publication integrity checklist</legend>

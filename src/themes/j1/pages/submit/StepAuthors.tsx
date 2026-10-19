@@ -19,6 +19,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
   const setAuthor = (patch: Partial<SubmissionForm['author']>) => onChange({
     ...form, author: { ...a, ...patch },
     coAuthors: patch.institution === undefined ? form.coAuthors : form.coAuthors.map((c) => (c.institution === a.institution ? { ...c, institution: patch.institution! } : c)),
+    mentorInstitution: patch.institution !== undefined && form.mentorInstitution === a.institution ? patch.institution : form.mentorInstitution,
   })
   const setCo = (id: number, patch: Partial<SubmissionForm['coAuthors'][number]>) =>
     onChange({ ...form, coAuthors: form.coAuthors.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
@@ -28,8 +29,10 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
   // Country and dialling code are pre-selected from the visitor's IP address (once, and only while they are still the defaults).
   const geoNote = useDetectedLocation(a, setAuthor)
   // The mentor card opens on request (like co-authors); it starts open when a draft already has mentor details.
-  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorInstitution))
-  const removeMentor = () => { setMentorOpen(false); onChange({ ...form, mentor: '', mentorEmail: '', mentorInstitution: '' }) }
+  // Like co-authors, the mentor's affiliation starts as the corresponding author's and follows it until it is edited.
+  const [mentorOpen, setMentorOpen] = useState(Boolean(form.mentor || form.mentorEmail || form.mentorOrcid || form.mentorPhoto || (form.mentorInstitution && form.mentorInstitution !== a.institution)))
+  const openMentor = () => { setMentorOpen(true); if (!form.mentorInstitution) onChange({ ...form, mentorInstitution: a.institution }) }
+  const removeMentor = () => { setMentorOpen(false); onChange({ ...form, mentor: '', mentorEmail: '', mentorInstitution: '', mentorOrcid: '', mentorPhoto: null }) }
 
   return (
     <div className="space-y-8">
@@ -114,7 +117,7 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
       <section aria-labelledby="mentor-h">
         <div className="flex items-center justify-between border-b border-line pb-2">
           <h3 id="mentor-h" className="font-serif text-lg font-semibold text-navy">Research guide / mentor <span className="text-sm font-normal text-ink-muted">(optional)</span></h3>
-          {!mentorOpen && <Button variant="outline" size="sm" onClick={() => setMentorOpen(true)}><Plus className="h-4 w-4" aria-hidden />Add mentor</Button>}
+          {!mentorOpen && <Button variant="outline" size="sm" onClick={openMentor}><Plus className="h-4 w-4" aria-hidden />Add mentor</Button>}
         </div>
         {!mentorOpen && <p className="mt-2 text-sm text-ink-muted">None added. Add your supervisor or mentor if the work was done under their guidance. They are acknowledged on the record; no certificate is issued unless they are also a co-author.</p>}
         {mentorOpen && (
@@ -128,11 +131,20 @@ export function StepAuthors({ form, errors, onChange }: StepProps) {
               <Field label="Name" name="mentor" required={Boolean(form.mentorEmail.trim() || form.mentorInstitution.trim())} error={errors.mentor}>
                 <input className={inputClass(errors.mentor)} value={form.mentor} maxLength={LIMITS.name} onChange={(e) => onChange({ ...form, mentor: cleanName(e.target.value) })} onBlur={() => onChange({ ...form, mentor: form.mentor.trim() })} />
               </Field>
-              <Field label="Email" name="mentorEmail" error={errors.mentorEmail}>
+              <Field label="Email (optional)" name="mentorEmail" error={errors.mentorEmail}>
                 <input type="email" className={inputClass(errors.mentorEmail)} value={form.mentorEmail} maxLength={LIMITS.email} onChange={(e) => onChange({ ...form, mentorEmail: cleanEmail(e.target.value) })} onBlur={() => onChange({ ...form, mentorEmail: form.mentorEmail.trim().toLowerCase() })} />
               </Field>
-              <Field label="Institution" name="mentorInstitution" error={errors.mentorInstitution}>
+              <Field label="Institution / Affiliation" name="mentorInstitution" error={errors.mentorInstitution} hint="Taken from the corresponding author; edit it if the mentor is elsewhere.">
                 <input className={inputClass(errors.mentorInstitution)} value={form.mentorInstitution} maxLength={LIMITS.institution} onChange={(e) => onChange({ ...form, mentorInstitution: e.target.value.replace(/\s{2,}/g, ' ') })} onBlur={() => onChange({ ...form, mentorInstitution: form.mentorInstitution.trim() })} />
+              </Field>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <span className="mb-1.5 block text-sm font-semibold text-navy">Upload Profile Picture <span className="font-normal text-ink-muted">(optional)</span></span>
+                <ProfilePhotoField compact name="mentor.photo" value={form.mentorPhoto ?? null} onChange={(mentorPhoto) => onChange({ ...form, mentorPhoto })} error={errors['mentor.photo']} />
+              </div>
+              <Field label="ORCID iD (optional)" name="mentorOrcid" error={errors.mentorOrcid} hint="Format: 0000-0002-1825-0097">
+                <input className={inputClass(errors.mentorOrcid)} value={form.mentorOrcid ?? ''} maxLength={19} inputMode="numeric" placeholder="0000-0000-0000-0000" onChange={(e) => onChange({ ...form, mentorOrcid: formatOrcid(e.target.value) })} />
               </Field>
             </div>
           </div>

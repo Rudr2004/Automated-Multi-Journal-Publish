@@ -39,7 +39,7 @@ function UtilityBar({ disciplinesOpen, onDisciplines }: { disciplinesOpen: boole
           <AppLink to={paths.reviewerLogin} className="inline-flex items-center gap-1 hover:text-brand-800 hover:underline"><Person className="h-4 w-4 text-accent-700" aria-hidden="true" /> Reviewer Login</AppLink>
           <AppLink to={paths.verify()} className="hidden items-center gap-1 hover:text-brand-800 hover:underline sm:inline-flex"><VerifiedUser className="h-4 w-4 text-accent-700" aria-hidden="true" /> Verify Certificate</AppLink>
           <a href={`mailto:${journal.email}`} className="hidden items-center gap-1 hover:text-brand-800 hover:underline md:inline-flex"><Email className="h-4 w-4 text-accent-700" aria-hidden="true" /> {journal.email}</a>
-          <span className="hidden rounded border border-brand-300 bg-brand-100 px-2 py-0.5 text-[11px] font-bold text-brand-800 lg:inline">{journal.publisher.replace(/\s*\(.*$/, '')}</span>
+          <span className="hidden rounded border border-brand-300 bg-brand-100 px-2 py-0.5 text-[11px] font-bold text-brand-800 lg:inline">Research Resources</span>
         </p>
       </div>
     </div>
@@ -96,9 +96,9 @@ export function Header({ onSearch, onSuggest }: { onSearch: (q: string) => void;
       <div className="hidden border-b border-graphite-200 bg-white xl:block">
         <div className="mx-auto flex max-w-site items-center justify-between gap-6 px-8 py-3.5">
           <div className="min-w-0 flex-1 pr-4"><BrandBlock /></div>
-          <div className="flex shrink-0 items-center gap-2.5">
-            <SearchBox onSearch={onSearch} onSuggest={onSuggest} placeholder="Search articles, DOI…" className="w-64 2xl:w-80" />
+          <div className="flex shrink-0 flex-col items-end gap-2.5">
             <AppLink to={paths.submit} className="inline-flex items-center gap-1.5 rounded-panel bg-accent-700 px-4 py-2.5 text-xs font-semibold text-white shadow-card hover:bg-brand-800"><CloudUpload className="h-[18px] w-[18px]" aria-hidden="true" /> Submit Paper</AppLink>
+            <SearchBox onSearch={onSearch} onSuggest={onSuggest} placeholder="Search articles, DOI…" className="w-64 2xl:w-80" />
           </div>
         </div>
       </div>
@@ -154,10 +154,10 @@ export function Header({ onSearch, onSuggest }: { onSearch: (q: string) => void;
             <div className="mx-auto grid max-w-site grid-cols-[1fr_16rem] gap-8 px-8 py-6">
               <div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent-700">Browse research by discipline</p>
-                <ul className="grid grid-cols-4 gap-3">
+                <ul className="grid grid-cols-3 gap-3">
                   {disciplines.map((d) => (
                     <li key={d.id}>
-                      <AppLink to={paths.search(d.name)} className="flex h-full items-center gap-3 rounded-panel border border-transparent p-3 hover:border-brand-200 hover:bg-brand-50">
+                      <AppLink to={paths.search(d.name)} className="flex h-full items-center gap-3 rounded-panel border border-graphite-200 bg-white p-3.5 hover:border-brand-300 hover:bg-brand-50">
                         <DisciplineIcon discipline={d} />
                         <span className="text-sm font-semibold leading-snug text-graphite-800">{d.name}</span>
                       </AppLink>

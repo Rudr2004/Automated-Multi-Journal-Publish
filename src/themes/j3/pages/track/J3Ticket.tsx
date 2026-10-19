@@ -1,4 +1,5 @@
 // Result of a successful lookup in Journal 3: a ticket card (notched edges, segmented progress), the activity log, documents, payment and referral.
+import { referralOn } from '../../../../core/lib/referral'
 import { useEffect, useState } from 'react'
 import { journal } from '../../../../config/journals'
 import { formatDate } from '../../../../core/lib/format'
@@ -182,6 +183,7 @@ export function J3PaperResult({ paper, actions }: { paper: TrackedPaper; actions
             </div>
             <p className="mt-3 font-inter text-sm text-mauve-600">Signing, editing, paying and certificates need an email OTP. A paper can be edited only before the decision.</p>
           </section>
+{referralOn() && (
           <section aria-labelledby="ref-h" className="bg-iris-700 p-6 text-white">
             <h3 id="ref-h" className="font-jakarta text-xl font-semibold">Referral credits</h3>
             <p className="mt-2 font-jakarta text-[2rem] font-semibold">{paper.referral.credits}<span className="ml-2 text-base font-semibold text-iris-200">{paper.referral.credits === 1 ? 'credit' : 'credits'}</span></p>
@@ -190,6 +192,7 @@ export function J3PaperResult({ paper, actions }: { paper: TrackedPaper; actions
               <J3Copy tone="dark" text={paper.referral.code} done="Code copied" />
             </div>
           </section>
+)}
         </div>
       </div>
     </div>

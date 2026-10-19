@@ -28,7 +28,13 @@ const home: HomeData = {
     { date: '2026-09-24', text: 'Call for papers: a themed section on community archives and living heritage opens for Issue 11.' },
     { date: '2026-09-12', text: 'Two new Associate Editors join the board for media studies and cultural heritage.' },
   ],
-  recentSubmissions: [],
+  recentSubmissions: [
+    { minutes: 28, subject: 'Design & Visual Culture', institution: 'National Institute of Design, Ahmedabad', title: 'Typographic Identity in Multilingual Public Signage' },
+    { minutes: 110, subject: 'Media & Communication', institution: 'University of the Arts London', title: 'Community Radio and Local Storytelling in Rural Districts' },
+    { minutes: 240, subject: 'Cultural Heritage & Museums', institution: 'University of Cape Town', title: 'Participatory Archives for Living Heritage Practices' },
+    { minutes: 400, subject: 'Arts & Education', institution: 'Delhi University', title: 'Arts Integration in Primary Classrooms: Teacher Perspectives' },
+    { minutes: 1500, subject: 'Creative Industries', institution: 'RMIT University, Melbourne', title: 'Craft Cooperatives and Market Access in Handicraft Clusters' },
+  ],
   submissionPool: [],
   awards: [
     {

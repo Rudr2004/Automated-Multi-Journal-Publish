@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async'
 import { MdOutlineMenuBook, MdOutlineShare as ShareIcon, MdOutlineThumbUp } from 'react-icons/md'
 import { RecommendDialogJ3 } from '../components/RecommendDialogJ3'
 import { J3CertificateDialog } from '../components/J3Certificate'
-import { DoubleBlindBox } from '../components/DoubleBlindBox'
+import { DoubleBlindBadge } from '../components/DoubleBlindBadge'
 import { doiFor, journal } from '../../../config/journals'
 import { paths } from '../../../config/routes'
 import { CITATION_STYLES_WITH_IEEE, citationFilename, formatCitation, type CitationStyle } from '../../../core/lib/cite'
@@ -463,6 +463,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 <span className="rounded-tile bg-iris-700 px-2.5 py-1 font-jakarta text-[10px] font-bold uppercase tracking-[0.08em] text-white">{article.type}</span>
                 <span className="inline-flex items-center gap-1 rounded-tile bg-j3paper-deep px-2.5 py-1 font-jakarta text-[10px] font-bold uppercase tracking-[0.08em] text-night-900"><OpenAccess className="h-3.5 w-3.5 text-ember-700" aria-hidden="true" />Open access ({journal.licence.name})</span>
                 <span className="rounded-tile border border-j3paper-rule bg-white px-2.5 py-1 font-inter text-[11px] font-semibold tabular-nums text-mauve-700">{article.paperId}</span>
+                <DoubleBlindBadge />
               </div>
               <div className="flex flex-col items-start justify-between gap-3 border border-iris-700 bg-white p-3 md:flex-row md:items-center">
                 <div className="min-w-0">
@@ -474,7 +475,7 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
                 </div>
               </div>
               <dl className="flex flex-wrap items-center gap-x-6 gap-y-1.5 font-inter text-xs text-mauve-600">
-                {[['Pagination', article.pages || `Vol. ${article.volume}, Issue ${article.issue}`]].map(([k, v]) => (
+                {[['Published online', formatDate(article.publishedOnline)], ['Pagination', article.pages || `Vol. ${article.volume}, Issue ${article.issue}`]].map(([k, v]) => (
                   <div key={k} className="flex items-baseline gap-1.5"><dt className="font-bold text-night-900">{k}:</dt><dd className="tabular-nums">{v}</dd></div>
                 ))}
                 <div className="flex items-baseline gap-1.5"><dt className="font-bold text-night-900">Licence:</dt><dd><a href={journal.licence.url} target="_blank" rel="noreferrer" className="text-iris-700 underline underline-offset-2 hover:text-iris-800">{journal.licence.name}<span className="sr-only"> (opens in a new tab)</span></a></dd></div>
@@ -561,7 +562,6 @@ export function ArticlePage({ article }: { article: ArticleFull }) {
 
             {/* MANUSCRIPT COLUMN */}
             <div className="min-w-0 max-w-[740px] min-[1320px]:justify-self-center">
-              <DoubleBlindBox className="mb-5" />
               <section id="abstract" tabIndex={-1} aria-labelledby="abstract-h" className="scroll-mt-24 focus:outline-none">
                 <div className={cx('space-y-4 border bg-white p-5 sm:p-6', RULE)}>
                   <div className={cx('flex items-center justify-between border-b pb-3', RULE)}>

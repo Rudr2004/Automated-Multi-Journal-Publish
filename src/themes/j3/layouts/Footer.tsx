@@ -1,5 +1,5 @@
 // Footer after the Academic Editorial & Press reference: a discipline strip, a brand block with four link columns (Editorial policies, For authors, Discoverability,
-// Legal & colophon), the issue-alerts card and the legal line. "Editorial login" stays a small link at the very bottom.
+// Legal & colophon), the issue-alerts card and the legal line. "Reviewer login" stays a small link at the very bottom.
 import { useState, type FormEvent } from 'react'
 import { journal, logoSrc, visibleLogos } from '../../../config/journals'
 import { paths } from '../../../config/routes'
@@ -136,7 +136,7 @@ export function Footer({ onSubscribe }: { onSubscribe: (email: string) => Promis
         <div className={`${wrap} flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 font-inter text-xs text-night-200`}>
           <p>&copy; {new Date().getFullYear()} {journal.publisher}. Published under open access {journal.licence.name}.</p>
           <p className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <AppLink to={paths.editorialLogin} className="hover:text-white hover:underline">Editorial login</AppLink>
+            <AppLink to={paths.reviewerLogin} className="hover:text-white hover:underline">Reviewer login</AppLink>
             <a href="#main" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0 }) }} className="inline-flex items-center gap-1 hover:text-white hover:underline">Back to top <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" /></a>
           </p>
         </div>

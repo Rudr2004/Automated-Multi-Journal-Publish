@@ -10,9 +10,10 @@ import { AppLink, useRouter } from '../../../../core/router'
 import type { ArticleSummary, CallForPapers, IssueSummary } from '../../../../core/types'
 import { ButtonLink } from '../../components/Button'
 import { cx } from '../../components/primitives'
-import { Assignment, Badge, Campaign, Copyright, Description, DownloadOffline, Draw, Fingerprint, FolderZip, Group, Loyalty, ManageSearch, Pending, PersonAdd, RateReview, Search, Send, Stream, Verified } from '../../components/refIconsJ4'
+import { Assignment, Badge, Campaign, Copyright, Description, DownloadOffline, Draw, Fingerprint, FolderZip, Group, Loyalty, Pending, PersonAdd, RateReview, Search, Send, Stream, Verified } from '../../components/refIconsJ4'
 import { useSearchApi } from '../../components/searchContext'
-import { TrackQuickFormJ4 } from '../../components/TrackQuickFormJ4'
+import { ScrollLoopJ4 } from '../../components/ScrollLoopJ4'
+import { TrackCardJ4 } from '../../components/TrackCardJ4'
 import type { IconProps } from '../../icons'
 import { splitIssueName } from './Hero'
 import { Box } from './parts'
@@ -120,11 +121,7 @@ export function RightRail({ notices, cfp, issue, articles }: { notices: { date: 
       <CallForPapersCard cfp={cfp} />
       <AnnouncementsFeed notices={notices} />
 
-      <Box id="track-manuscript-sidebar" aria-labelledby="j4-track" className={card}>
-        <div className="mb-2 flex items-center gap-2 border-b border-slate-100 pb-2"><ManageSearch className="h-[18px] w-[18px] text-azure-600" aria-hidden="true" /><h2 id="j4-track" className="font-serif4 text-sm font-bold text-[#0b2545]">Track Manuscript Status</h2></div>
-        <p className="mb-3 text-xs text-slate-500">Enter your Manuscript ID and the corresponding author email to see real-time peer-review progress. No login needed.</p>
-        <TrackQuickFormJ4 variant="ref" />
-      </Box>
+      <TrackCardJ4 />
 
       <Box id="copyright-card" aria-labelledby="j4-copyright" className={card}>
         <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
@@ -155,7 +152,7 @@ export function RightRail({ notices, cfp, issue, articles }: { notices: { date: 
             <h2 id="j4-stream" className="flex items-center gap-1.5 text-xs font-bold text-[#0b2545]"><Stream className="h-4 w-4 text-azure-600" aria-hidden="true" />Recent Publications</h2>
             <span className="flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-700"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />Vol {issue.volume} • Iss {issue.issue}</span>
           </div>
-          <ul className="space-y-3 text-xs">
+          <ScrollLoopJ4 count={Math.min(4, articles.length)}>
             {articles.slice(0, 4).map((a, i) => (
               <li key={a.paperId} className={cx('space-y-1', i < 3 && 'border-b border-slate-100 pb-2.5')}>
                 <AppLink to={paths.article(a.paperId)} className="block font-mono text-[11px] font-semibold text-cobalt-700 hover:underline">Paper #{a.paperId}</AppLink>
@@ -163,7 +160,7 @@ export function RightRail({ notices, cfp, issue, articles }: { notices: { date: 
                 <p className={cx('flex items-center gap-1.5 text-[10px]', STREAM[i % 4].tone)}>{i % 2 ? <Group className="h-3.5 w-3.5" aria-hidden="true" /> : <Pending className="h-3.5 w-3.5" aria-hidden="true" />}<span className={cx('rounded border px-1.5', STREAM[i % 4].chip)}>{a.subject}</span></p>
               </li>
             ))}
-          </ul>
+          </ScrollLoopJ4>
         </Box>
       )}
 
@@ -195,7 +192,7 @@ export function RightRail({ notices, cfp, issue, articles }: { notices: { date: 
           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Open Call</span>
         </div>
         <div className="relative overflow-hidden rounded-[8px] border border-slate-200 bg-gradient-to-br from-[#0b2545] to-[#071527]">
-          <img src="/journals/j4/images/cta-circuit.svg" alt="" loading="lazy" className="h-36 w-full object-cover object-center" />
+          <div aria-hidden="true" className="grid grid-cols-4 gap-0.5 bg-white"><img src="/shared/portraits/women-12.jpg" alt="" loading="lazy" className="h-36 w-full object-cover object-top" /><img src="/shared/portraits/men-8.jpg" alt="" loading="lazy" className="h-36 w-full object-cover object-top" /><img src="/shared/portraits/women-31.jpg" alt="" loading="lazy" className="h-36 w-full object-cover object-top" /><img src="/shared/portraits/men-27.jpg" alt="" loading="lazy" className="h-36 w-full object-cover object-top" /></div>
           <span className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded bg-slate-900/80 px-2 py-0.5 text-[10px] font-medium text-white"><span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />Join the {journal.shortName} Reviewer Panel</span>
         </div>
         <p className="leading-relaxed text-slate-600">Researchers and practising engineers with published work are invited to join the {journal.shortName} reviewer panel and help shape fair, structured peer review.</p>

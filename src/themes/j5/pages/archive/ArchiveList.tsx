@@ -47,7 +47,7 @@ export function ArchiveList({ articles }: { articles: ArticleSummary[] }) {
         <div role="search" aria-label="Search the archive" className="space-y-6 rounded bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-2 pb-1">
             <h3 className="font-newsreader text-base text-[#141B2B]">Search the archive</h3>
-            <span role="status" aria-live="polite" className="rounded bg-[#E1E8FD] px-2 py-0.5 font-work text-base tabular-nums text-[#564241]">{dirty ? `${rows.length} of ${articles.length}` : `${articles.length} articles`}</span>
+            <span role="status" aria-live="polite" className="sr-only">{rows.length} results</span>
           </div>
           <div className="space-y-1.5">
             <label htmlFor={`${id}-q`} className={LABEL}>Title or Author</label>

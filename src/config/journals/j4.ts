@@ -47,7 +47,7 @@ export const journal: JournalConfig = {
   apc: { inr: 1000, usd: 110, gstPercent: 18 }, // [INR] / [USD] — client to confirm; GST for Indian authors only
   email: 'editor@ijecm.com', // client to confirm
   whatsapp: '+91 90000 00003', // client to confirm
-  address: 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
+  address: 'International Journal of Engineering Concepts and Management, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016',
   location: { lat: 13.0306, lng: 77.6593 },
   subjects: j4Areas.map((d) => d.name),
   follow: [
@@ -61,14 +61,14 @@ export const journal: JournalConfig = {
     ['Frequency', 'Monthly'],
     ['Starting Year', '2026'], // client to confirm
     ['ISSN (Online)', '1234-5678'], // client to confirm
-    ['Publisher', 'EdTech Publishers (OPC) Private Limited'],
+    ['Publisher', 'International Journal of Engineering Concepts and Management'],
     ['Subject', 'Engineering and engineering management'],
     ['Language', 'English'],
     ['Publication Format', 'Online'],
     ['Licence', 'Open Access, CC BY 4.0'],
     ['Email', 'editor@ijecm.com'],
     ['Website', 'ijecm.com'],
-    ['Address', 'EdTech Publishers (OPC) Private Limited, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016'],
+    ['Address', 'International Journal of Engineering Concepts and Management, 6/48, Near Chrysalis High School, Balaji Layout, Horamavu Agara, Horamavu, Bengaluru, Karnataka, India, PIN 560016'],
   ],
 
   subjectIndex: j4Areas.map((d) => d.name),

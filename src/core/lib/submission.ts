@@ -139,7 +139,9 @@ const stepValidators: Record<StepIndex, (f: SubmissionForm) => FormErrors> = {
     })
 
     // Mentor details are optional, but once any of them is filled in the name is needed and the rest must be valid.
-    const mentorName = f.mentor.trim(), mentorMail = f.mentorEmail.trim(), mentorInst = f.mentorInstitution.trim()
+    const mentorName = f.mentor.trim(), mentorMail = f.mentorEmail.trim()
+    // An affiliation that was only pre-filled from the corresponding author does not count as mentor details (journals with mentorAffiliationFromAuthor).
+    const mentorInst = journal.mentorAffiliationFromAuthor && f.mentorInstitution.trim() === a.institution.trim() && !mentorName && !mentorMail && !f.mentorOrcid && !f.mentorPhoto ? '' : f.mentorInstitution.trim()
     if (mentorName) put(e, 'mentor', v.personName(f.mentor, 'mentor’s name'))
     else if (mentorMail || mentorInst) e.mentor = 'Enter the mentor’s name, or clear the other mentor details.'
     if (mentorMail) put(e, 'mentorEmail', v.email(f.mentorEmail))

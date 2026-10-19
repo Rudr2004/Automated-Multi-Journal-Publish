@@ -1,4 +1,5 @@
 import { CreditCard, Download, FileSignature, Gift, Pencil, StickyNote2, VerifiedUser } from '../../components/uiIcons'
+import { referralOn } from '../../../../core/lib/referral'
 import { STAGES, type PaperDocument, type TrackedPaper } from '../../../../mock-data/journals/j1'
 import { Button } from '../../components/Button'
 import { CopyButton } from '../../components/ArticleParts'
@@ -73,12 +74,14 @@ export function PaperResult({ paper, actions }: { paper: TrackedPaper; actions: 
               A paper can be edited only before the decision. Signing and editing need an email OTP.
             </p>
           </section>
+{referralOn() && (
           <section aria-labelledby="ref-h" className="rounded-card border border-line bg-paper p-5">
             <h3 id="ref-h" className="flex items-center gap-2 font-serif text-lg font-semibold text-navy"><Gift className="h-5 w-5 text-scholar" aria-hidden />Referral credits</h3>
             <p className="mt-2 font-serif text-3xl font-semibold text-navy">₹{paper.referral.credits.toLocaleString('en-IN')}</p>
             <p className="text-sm text-ink-muted">{paper.referral.referred} colleague{paper.referral.referred === 1 ? '' : 's'} referred</p>
             <p className="mt-3 flex items-center gap-2 text-sm">Your code: <strong>{paper.referral.code}</strong><CopyButton text={paper.referral.code} label="Copy" /></p>
           </section>
+)}
         </div>
       </div>
     </div>
