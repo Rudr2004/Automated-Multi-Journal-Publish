@@ -6,8 +6,6 @@ dist/
 dist-*/
 
 # Environment files: keep .env.example, never commit real values
-.env
-.env.local
 .env.*.local
 
 # Logs
@@ -26,7 +24,6 @@ coverage/
 
 # Local tooling and editor settings
 .claude/
-.vscode/*
 !.vscode/extensions.json
 .idea/
 
@@ -43,3 +40,4 @@ docs/
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+config.bat

@@ -155,10 +155,9 @@ function Indexing() {
 const LABEL_BG = '#001333' // allowed for this block by the J1 design brief
 const ORANGE_LINK = 'font-medium text-[#B45309] hover:underline' // dark orange: 5.0:1 on white
 
-// Home-page presentation of the info rows: "Starting Year" is not shown, Publisher reads "IJMAT Journal" and Address shows the full journal name.
+// Home-page presentation of the info rows: "Starting Year" is not shown and Publisher reads "IJMAT Journal". Address shows the journal name in bold, then the postal address.
 const OVERVIEW_VALUES: Record<string, string> = {
   Publisher: 'IJMAT Journal',
-  Address: 'International Journal of Multidisciplinary Academic Research and Trends',
 }
 
 function JournalOverview() {
@@ -166,7 +165,7 @@ function JournalOverview() {
     k === 'Email' ? <a href={`mailto:${v}`} className={ORANGE_LINK}>{v}</a>
       : k === 'Website' ? <a href={`https://${v}`} target="_blank" rel="noopener noreferrer" className={ORANGE_LINK}>{v}<span className="sr-only"> (opens in a new tab)</span></a>
         : k === 'Publisher' ? <AppLink to={paths.about('journal-information')} className={ORANGE_LINK}>{v}</AppLink>
-          : k === 'Address' ? <span className="block font-semibold">{v}</span> : v
+          : k === 'Address' ? (() => { const i = v.indexOf(', '); return i < 0 ? <span className="font-semibold">{v}</span> : <><span className="block font-semibold">{v.slice(0, i + 1)}</span><span className="block">{v.slice(i + 2)}</span></> })() : v
   return (
     <section aria-labelledby="info-h" className="overflow-hidden rounded border border-navy bg-white">
       <header className="flex items-center justify-between gap-3 bg-navy px-4 py-3 sm:px-5">
