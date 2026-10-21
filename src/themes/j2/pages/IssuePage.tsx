@@ -144,20 +144,22 @@ export function IssuePage({ data }: { data: IssueData }) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="breakdown-h" className="font-display text-lg font-bold text-brand-900">Issue Disciplinary Breakdown <span className="ml-1 text-sm font-normal text-graphite-700">(Volume {issue.volume} · Issue {issue.issue})</span></h2>
           </div>
-          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {subjectList.map(({ name, discipline }) => {
               const on = subjects.includes(name)
               const c = subjectCounts.get(name) ?? 0
               return (
                 <li key={name}>
                   <button type="button" aria-pressed={on} onClick={() => setSubjects((l) => toggleIn(l, name))}
-                    className={cx('flex h-full w-full flex-col items-center rounded-soft border px-2 py-3 text-center transition-colors', on ? 'border-brand-800 bg-brand-50 ring-1 ring-brand-800' : 'border-graphite-200 bg-graphite-50 hover:border-accent-700')}>
-                    <span className="flex items-center gap-1.5 text-sm font-medium text-graphite-800">
-                      {discipline ? <DisciplineIcon discipline={discipline} size="sm" /> : <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: disciplineColor(name) }} />}
-                      <span>{name}</span>
+                    className={cx('flex h-full w-full items-center gap-3 rounded-panel border px-4 py-3 text-left transition-colors', on ? 'border-brand-800 bg-brand-50 ring-1 ring-brand-800' : 'border-graphite-200 bg-white hover:border-accent-700 hover:bg-graphite-50')}>
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center">
+                      {discipline ? <DisciplineIcon discipline={discipline} /> : <span aria-hidden="true" className="h-3 w-3 rounded-full" style={{ backgroundColor: disciplineColor(name) }} />}
                     </span>
-                    <span className="mt-1.5 font-display text-2xl font-bold tabular-nums text-brand-900">{c}</span>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-graphite-700">Paper{c === 1 ? '' : 's'}</span>
+                    <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-graphite-900">{name}</span>
+                    <span className="shrink-0 text-right leading-none">
+                      <span className="block font-display text-2xl font-bold tabular-nums text-brand-900">{c}</span>
+                      <span className="mt-1 block text-[10px] font-semibold uppercase tracking-wider text-graphite-600">Paper{c === 1 ? '' : 's'}</span>
+                    </span>
                   </button>
                 </li>
               )
